@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Priority_Queue;
 using UnityEngine;
 
@@ -10,6 +11,10 @@ namespace Rish
     public class Rish : MonoBehaviour
     {
         private const int MaxSize = 256;
+        
+        #if UNITY_EDITOR
+        public event Action<DOM> OnRender; 
+        #endif
 
         private Pool Pool { get; set; }
 
@@ -146,6 +151,10 @@ namespace Rish
                     break;
                 }
             }
+            
+            #if UNITY_EDITOR
+            OnRender?.Invoke(dom);
+            #endif
         }
     }
 }

@@ -10,6 +10,7 @@
     "url": "https://lisandroct.com"
   },
   "dependencies": {
-    "com.unity.collections": "0.9.0-preview.6"
+    "com.unity.collections": "0.9.0-preview.6",
+    "com.unity.editorcoroutines": "1.0.0"
   }
 }

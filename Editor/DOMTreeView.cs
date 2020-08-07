@@ -1,10 +1,10 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityObject = UnityEngine.Object;
 
 
@@ -18,6 +18,19 @@ namespace Rish.Editor
 		{
 			Rish = rish;
 			Reload ();
+		}
+
+		public void OnRender(DOM dom)
+		{
+			var item = FindItem(dom.ID, rootItem);
+
+			Debug.Log(item.id);
+			EditorCoroutineUtility.StartCoroutine(Wait(), this);
+		}
+
+		private IEnumerator Wait()
+		{
+			yield return new WaitForSeconds(0.15f);
 		}
 
 		protected override TreeViewItem BuildRoot()
@@ -85,33 +98,24 @@ namespace Rish.Editor
 
 		protected override void RowGUI (RowGUIArgs args)
 		{
-			Event evt = Event.current;
 			extraSpaceBeforeIconAndLabel = 18f;
 
-			// GameObject isStatic toggle 
 			var dom = GetDOM(args.item.id);
 			if (dom == null)
 				return;
 
-			Rect toggleRect = args.rowRect;
+			var toggleRect = args.rowRect;
 			toggleRect.x += GetContentIndent(args.item);
 			toggleRect.width = 16f;
 
-			// Ensure row is selected before using the toggle (usability)
-			if (evt.type == EventType.MouseDown && toggleRect.Contains(evt.mousePosition))
-				SelectionClick(args.item, false);
-			
 			EditorGUI.Toggle(toggleRect, dom.Type.IsSubclassOf(typeof(DOMElement)));
 
-			// Text
 			base.RowGUI(args);
 		}
 
-		// Selection
-
 		protected override void SelectionChanged (IList<int> selectedIds)
 		{
-			Selection.instanceIDs = selectedIds.ToArray();
+			base.SelectionChanged(selectedIds);
 		}
 	}
 }

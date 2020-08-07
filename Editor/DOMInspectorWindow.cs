@@ -8,7 +8,9 @@ namespace Rish.Editor
 	public class DOMInspectorWindow : EditorWindow
 	{
 		private TreeViewState TreeViewState { get; set; }
-		private TreeView TreeView { get; set; }
+		private DOMTreeView TreeView { get; set; }
+		
+		private Rish Rish { get; set; }
 
 		[MenuItem("Rish/DOM Inspector")]
 		private static void ShowWindow()
@@ -26,7 +28,7 @@ namespace Rish.Editor
 
 			if (Application.isPlaying)
 			{
-				Setup();
+				OnPlayModeChange(PlayModeStateChange.EnteredPlayMode);
 			}
 		}
 
@@ -41,31 +43,24 @@ namespace Rish.Editor
 			{
 				case PlayModeStateChange.EnteredPlayMode:
 				{
-					Setup();
+					Rish = FindObjectOfType<Rish>();
+					if (Rish != null)
+					{
+						TreeView = new DOMTreeView(Rish, TreeViewState);
+						Rish.OnRender += TreeView.OnRender;
+					}
 					break;
 				}
 				case PlayModeStateChange.ExitingPlayMode:
 				{
+					if (Rish != null && TreeView != null)
+					{
+						Rish.OnRender -= TreeView.OnRender;
+					}
 					TreeView = null;
 					break;
 				}
 			}
-		}
-
-		private void Setup()
-		{
-			var rish = FindObjectOfType<Rish>();
-			if (rish != null)
-			{
-				TreeView = new DOMTreeView(rish, TreeViewState);
-			}
-		}
-
-		private void OnHierarchyChange()
-		{
-			TreeView?.Reload();
-
-			Repaint ();
 		}
 
 		private void OnGUI ()
