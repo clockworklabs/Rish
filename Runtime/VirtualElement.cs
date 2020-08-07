@@ -112,16 +112,4 @@ namespace Rish
             }
         }
     }
-
-    [RequireComponent(typeof(Canvas))]
-    public abstract class App : MonoBehaviour, VirtualElement
-    {
-        public OnDirty OnDirty { private get; set; }
-        
-        public void Show() { }
-        public void Hide() { }
-
-        public DOM SetupAndRender(Rish rish) => Render(rish);
-        protected abstract DOM Render(Rish rish);
-    }
 }

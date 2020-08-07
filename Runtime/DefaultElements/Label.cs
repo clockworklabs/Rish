@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Rish.Example
+namespace Rish.Elements
 {
     public class Label : DOMElement<LabelProps>
     {

@@ -19,19 +19,23 @@ namespace Rish
             new FastPriorityQueue<DOM>(MaxSize);
 
         [SerializeField]
-        private App root;
+        private App app;
+        private App App => app;
+
+        [SerializeField]
+        private Transform rootTransform;
+        internal Transform RootTransform => rootTransform;
         
         public DOM Root { get; private set; }
 
         private Stack<DOM> Stack { get; } = new Stack<DOM>();
-        private DOM Current => Stack.Peek();
+        private DOM Current => Stack.Count > 0 ? Stack.Peek() : null;
 
         private void Start()
         {
             Pool = GetComponent<Pool>();
-            
-            Root = new DOM(this, 0, root);
-            Process(Root);
+
+            Root = App.Render(this);
         }
 
         private void LateUpdate()
@@ -53,7 +57,7 @@ namespace Rish
             }
 
             DirtySet.Add(tree.ID);
-            DirtyQueue.Enqueue(tree, Mathf.Pow(0.99f, tree.Level));
+            DirtyQueue.Enqueue(tree, Mathf.Pow(0.99f, tree.Depth));
         }
 
         private void BeginElement(DOM tree)

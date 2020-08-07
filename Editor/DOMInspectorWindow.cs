@@ -24,6 +24,10 @@ namespace Rish.Editor
 			
 			EditorApplication.playModeStateChanged += OnPlayModeChange;
 
+			if (Application.isPlaying)
+			{
+				Setup();
+			}
 		}
 
 		private void OnDisable()
@@ -37,9 +41,7 @@ namespace Rish.Editor
 			{
 				case PlayModeStateChange.EnteredPlayMode:
 				{
-					var rish = FindObjectOfType<Rish>();
-					TreeView = new DOMTreeView(rish, TreeViewState);
-					
+					Setup();
 					break;
 				}
 				case PlayModeStateChange.ExitingPlayMode:
@@ -47,6 +49,15 @@ namespace Rish.Editor
 					TreeView = null;
 					break;
 				}
+			}
+		}
+
+		private void Setup()
+		{
+			var rish = FindObjectOfType<Rish>();
+			if (rish != null)
+			{
+				TreeView = new DOMTreeView(rish, TreeViewState);
 			}
 		}
 

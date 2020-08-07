@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Rish
         public int ID { get; }
         public int Key { get; }
         
-        public RishElement Element { get; }
+        internal RishElement Element { get; }
         private DOM Parent { get; set; }
         private Transform Transform { get; }
 
@@ -23,19 +24,19 @@ namespace Rish
             {
                 if (Parent == null)
                 {
-                    return null;
+                    return Rish.RootTransform;
                 }
 
                 return Parent.Transform != null ? Parent.Transform : Parent.ParentTransform;
             }
         }
-        public int Level { get; private set; }
+        internal int Depth { get; private set; }
         
         public Type Type { get; }
         
         private Rish Rish { get; }
         
-        private int ChildCount { get; set; }
+        public int ChildCount { get; private set; }
         private List<DOM> Children { get; set; }
 
         public DOM(Rish rish, int key, RishElement element)
@@ -54,9 +55,6 @@ namespace Rish
                 case DOMElement domElement:
                     transform = domElement.transform;
                     break;
-                case App app:
-                    transform = app.transform;
-                    break;
                 default:
                     transform = null;
                     break;
@@ -72,7 +70,7 @@ namespace Rish
 
         private void Notify() => Rish.Dirty(this);
 
-        public void SetParent(DOM parent)
+        internal void SetParent(DOM parent)
         {
             if (parent == null)
             {
@@ -80,7 +78,7 @@ namespace Rish
             }
             
             Parent = parent;
-            Level = parent.Level + 1;
+            Depth = parent.Depth + 1;
 
             if (Transform != null)
             {
@@ -91,12 +89,12 @@ namespace Rish
             parent.AddChild(this);
         }
 
-        public void Clear()
+        internal void Clear()
         {
             ChildCount = 0;
         }
 
-        public void Clean(Action<RishElement> callback)
+        internal void Clean(Action<RishElement> callback)
         {
             if (Children == null)
             {
@@ -126,7 +124,7 @@ namespace Rish
             ChildCount++;
         }
 
-        public DOM FindFreeChild<T>(int key) where T : RishElement
+        internal DOM FindFreeChild<T>(int key) where T : RishElement
         {
             if (Children == null || Children.Count == 0)
             {
@@ -180,5 +178,36 @@ namespace Rish
             Element.Hide();
             callback?.Invoke(Element);
         }
+        
+        #if UNITY_EDITOR
+        public DOM GetChild(int index)
+        {
+            if (index < 0 || index >= ChildCount)
+            {
+                throw new ArgumentOutOfRangeException($"index must be in (0..{ChildCount - 1}) and it was {index}.");
+            }
+
+            return Children[index];
+        }
+        
+        public DOM Find(int id)
+        {
+            if (ID == id)
+            {
+                return this;
+            }
+
+            for (var i = 0; i < ChildCount; i++)
+            {
+                var child = GetChild(i).Find(id);
+                if (child != null)
+                {
+                    return child;
+                }
+            }
+
+            return null;
+        }
+        #endif
     }
 }
