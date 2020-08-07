@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,18 @@ namespace Rish.Editor
 {
 	public class DOMTreeView : TreeView
 	{
+		public event Action<DOM> OnSelection;
 		private Rish Rish { get; }
+
+		private Texture2D VirtualIcon { get; }
+		private Texture2D RealIcon { get; }
 		
-		public DOMTreeView (Rish rish, TreeViewState state) : base (state)
+		public DOMTreeView (Rish rish, Texture2D vIcon, Texture2D rIcon, TreeViewState state) : base (state)
 		{
 			Rish = rish;
+			VirtualIcon = vIcon;
+			RealIcon = rIcon;
+			
 			Reload ();
 		}
 
@@ -24,7 +32,6 @@ namespace Rish.Editor
 		{
 			var item = FindItem(dom.ID, rootItem);
 
-			Debug.Log(item.id);
 			EditorCoroutineUtility.StartCoroutine(Wait(), this);
 		}
 
@@ -92,30 +99,35 @@ namespace Rish.Editor
 			}
 		}
 
-		private static TreeViewItem CreateItemForDOM(DOM dom) => new TreeViewItem(dom.ID, -1, $"{dom.Type.Name}: {{{dom.Key}}}");
-		
-		private DOM GetDOM(int id) => Rish?.Root?.Find(id);
-
-		protected override void RowGUI (RowGUIArgs args)
+		private TreeViewItem CreateItemForDOM(DOM dom)
 		{
-			extraSpaceBeforeIconAndLabel = 18f;
+			var item = new TreeViewItem(dom.ID, -1, $"{dom.Type.Name}: {{{dom.Key}}}");
 
-			var dom = GetDOM(args.item.id);
-			if (dom == null)
-				return;
-
-			var toggleRect = args.rowRect;
-			toggleRect.x += GetContentIndent(args.item);
-			toggleRect.width = 16f;
-
-			EditorGUI.Toggle(toggleRect, dom.Type.IsSubclassOf(typeof(DOMElement)));
-
-			base.RowGUI(args);
+			if (dom.Type.IsSubclassOf(typeof(DOMElement)))
+			{
+				item.icon = RealIcon;
+			}
+			else
+			{
+				item.icon = VirtualIcon;
+			}
+			
+			return item;
 		}
 
 		protected override void SelectionChanged (IList<int> selectedIds)
 		{
 			base.SelectionChanged(selectedIds);
+
+			if (selectedIds.Count != 1)
+			{
+				return;
+			}
+
+			var id = selectedIds[0];
+			var selected = Rish.Root.Find(id);
+			
+			OnSelection?.Invoke(selected);
 		}
 	}
 }

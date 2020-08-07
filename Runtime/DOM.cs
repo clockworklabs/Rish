@@ -14,7 +14,7 @@ namespace Rish
         public int ID { get; }
         public int Key { get; }
         
-        internal RishElement Element { get; }
+        public RishElement Element { get; }
         private DOM Parent { get; set; }
         private Transform Transform { get; }
 
