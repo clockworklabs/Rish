@@ -1,0 +1,17 @@
+{
+    "name": "ClockworkLabs.Rish.Editor",
+    "references": [
+        "GUID:c1e07239ac5773c49a68b1dc58a059d3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
