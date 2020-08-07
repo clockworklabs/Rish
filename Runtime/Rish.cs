@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Priority_Queue;
 using UnityEngine;
 
@@ -8,12 +6,12 @@ namespace Rish
 {
     public delegate DOM[] CreateChildren();
     
+    [RequireComponent(typeof(Pool))]
     public class Rish : MonoBehaviour
     {
         private const int MaxSize = 256;
 
-        [SerializeField] private Pool pool;
-        private Pool Pool => pool;
+        private Pool Pool { get; set; }
 
         private HashSet<int> DirtySet { get; } = new HashSet<int>();
 
@@ -21,8 +19,8 @@ namespace Rish
             new FastPriorityQueue<DOM>(MaxSize);
 
         [SerializeField]
-        private App app;
-        private App App => app;
+        private App root;
+        
         public DOM Root { get; private set; }
 
         private Stack<DOM> Stack { get; } = new Stack<DOM>();
@@ -30,7 +28,9 @@ namespace Rish
 
         private void Start()
         {
-            Root = new DOM(this, 0, App);
+            Pool = GetComponent<Pool>();
+            
+            Root = new DOM(this, 0, root);
             Process(Root);
         }
 
@@ -65,14 +65,14 @@ namespace Rish
         private void EndElement()
         {
             var tree = Stack.Pop();
-            tree.Clean(pool.ReturnToPool);
+            tree.Clean(Pool.ReturnToPool);
         }
         
         public DOM Create<T>() where T : RishElement => Create<T>(0);
 
         public DOM Create<T>(int key) where T : RishElement
         {
-            return Current?.FindFreeChild<T>(key) ?? new DOM(this, key, pool.GetFromPool<T>());
+            return Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>());
         }
 
         public DOM Create<T, P>(P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, props);
@@ -91,7 +91,7 @@ namespace Rish
 
         public DOM Create<T>(int key, CreateChildren children) where T : DOMElement
         {
-            var child = Current?.FindFreeChild<T>(key) ?? new DOM(this, key, pool.GetFromPool<T>());
+            var child = Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>());
 
             var element = (T) child.Element;
             if (!element.IsLeaf && children != null)
