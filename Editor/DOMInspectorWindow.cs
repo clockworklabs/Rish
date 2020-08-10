@@ -130,13 +130,41 @@ namespace Rish.Editor
 		private void DoToolbar()
 		{
 			GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+			if (Selected != null && Selected.ChildCount > 0)
+			{
+				if (GUILayout.Button("Expand", EditorStyles.toolbarButton))
+				{
+					TreeView.ExpandDown(Selected);
+				}
+
+				if (GUILayout.Button("Collapse", EditorStyles.toolbarButton))
+				{
+					TreeView.CollapseDown(Selected);
+				}
+			}
+			
 			GUILayout.FlexibleSpace();
+
+			if (Rish?.Root != null)
+			{
+				if (GUILayout.Button("Expand All", EditorStyles.toolbarButton))
+				{
+					TreeView.ExpandDown(Rish.Root);
+				}
+
+				if (GUILayout.Button("Collapse All", EditorStyles.toolbarButton))
+				{
+					TreeView.CollapseDown(Rish.Root);
+				}
+			}
+			
 			GUILayout.EndHorizontal();
 		}
 		
 		private void DoTreeView(float size)
 		{
-			var rect = new Rect(0, 0, position.width, (position.height * size) - resizerHeight);
+			var rect = new Rect(0, EditorStyles.toolbar.fixedHeight, position.width, (position.height * size) - resizerHeight - EditorStyles.toolbar.fixedHeight);
 			
 			GUILayout.BeginArea(rect);
 			TreeView?.OnGUI(GUILayoutUtility.GetRect (0, 100000, 0, 100000));

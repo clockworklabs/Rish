@@ -34,7 +34,7 @@ namespace Rish.Editor
 		{
 			var id = dom.ID;
 
-			ExpandTree(dom);
+			ExpandUp(dom);
 			
 			if (recentlyRendered.ContainsKey(id))
 			{
@@ -43,23 +43,41 @@ namespace Rish.Editor
 			recentlyRendered[id] = EditorCoroutineUtility.StartCoroutine(Highlight(id), this);
 		}
 		
-		private void ExpandTree(DOM dom)
+		private void ExpandUp(DOM dom)
 		{
 			if (dom == null)
 			{
 				return;
 			}
 			
-			ExpandTree(dom.Parent);
-
-			var id = dom.ID;
+			ExpandUp(dom.Parent);
 			
-			SetExpanded(id, true);
+			SetExpanded(dom.ID, true);
+		}
+
+		public void ExpandDown(DOM dom)
+		{
+			SetExpanded(dom.ID, true);
+
+			for (int i = 0, n = dom.ChildCount; i < n; i++)
+			{
+				ExpandDown(dom.GetChild(i));
+			}
+		}
+
+		public void CollapseDown(DOM dom)
+		{
+			for (int i = 0, n = dom.ChildCount; i < n; i++)
+			{
+				CollapseDown(dom.GetChild(i));
+			}
+			
+			SetExpanded(dom.ID, false);
 		}
 
 		private IEnumerator Highlight(int id)
 		{
-			yield return new EditorWaitForSeconds(0.15f);
+			yield return new EditorWaitForSeconds(0.3f);
 
 			recentlyRendered.Remove(id);
 
