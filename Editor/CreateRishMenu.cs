@@ -23,11 +23,11 @@ namespace Rish.Editor
             GameObjectUtility.SetParentAndAlign(rishGO, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(rishGO, null);
 
-            var rootGO = new GameObject("Root", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            rootGO.transform.SetParent(rishGO.transform, false);
-            Undo.RegisterCreatedObjectUndo(rootGO, null);
+            var appGO = new GameObject("App", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            appGO.transform.SetParent(rishGO.transform, false);
+            Undo.RegisterCreatedObjectUndo(appGO, null);
 
-            var canvas = rootGO.GetComponent<Canvas>();
+            var canvas = appGO.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
             var eventSystem = Object.FindObjectOfType<EventSystem>();

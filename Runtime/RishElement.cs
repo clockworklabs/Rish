@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rish
+﻿namespace Rish
 {
     public interface Props
     {
@@ -21,9 +19,10 @@ namespace Rish
 
     public interface RishElement<P> : RishElement where P : struct, Props
     {
-        P Props { get; set; }
+        P Props { set; }
     }
+    
     public interface RishElement<P, S> : RishElement  where P : struct, Props where S : struct, State {
-        S State { get; set; }
+        S State { get; }
     }
 }

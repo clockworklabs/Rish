@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -24,7 +23,7 @@ namespace Rish
             {
                 if (Parent == null)
                 {
-                    return Rish.RootTransform;
+                    return Transform;
                 }
 
                 return Parent.Transform != null ? Parent.Transform : Parent.ParentTransform;
@@ -49,17 +48,7 @@ namespace Rish
             Element = element;
             Type = element.GetType();
 
-            Transform transform;
-            switch (Element)
-            {
-                case DOMElement domElement:
-                    transform = domElement.transform;
-                    break;
-                default:
-                    transform = null;
-                    break;
-            }
-            Transform = transform;
+            Transform = Element is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
             Element.OnDirty = Notify;
             

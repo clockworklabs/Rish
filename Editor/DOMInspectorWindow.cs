@@ -3,6 +3,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 namespace Rish.Editor
@@ -25,8 +26,8 @@ namespace Rish.Editor
 		private GUIStyle resizerStyle;
 		
 		private DOM Selected { get; set; }
-		private Props SelectedProps { get; set; }
-		private State SelectedState { get; set; }
+		private string SelectedPropsJson { get; set; }
+		private string SelectedStateJson { get; set; }
 		
 		private Vector2 InspectorScroll { get; set; }
 
@@ -34,7 +35,7 @@ namespace Rish.Editor
 		private static void ShowWindow()
 		{
 			var window = GetWindow<DOMInspectorWindow>();
-			window.titleContent = new GUIContent("DOM Inspector");
+			window.titleContent = new GUIContent("DOM Inspector", Resources.Load<Texture2D>("react-icon"));
 			window.Show();
 		}
 
@@ -72,7 +73,7 @@ namespace Rish.Editor
 					if (Rish != null)
 					{
 						TreeView = new DOMTreeView(Rish, VirtualIcon, RealIcon,TreeViewState);
-						Rish.OnRender += TreeView.OnRender;
+						Rish.OnRender += OnRender;
 						TreeView.OnSelection += OnSelection;
 					}
 					break;
@@ -82,7 +83,7 @@ namespace Rish.Editor
 					if (Rish != null && TreeView != null)
 					{
 						TreeView.OnSelection -= OnSelection;
-						Rish.OnRender -= TreeView.OnRender;
+						Rish.OnRender -= OnRender;
 					}
 					Selected = null;
 					TreeView = null;
@@ -91,26 +92,17 @@ namespace Rish.Editor
 			}
 		}
 
+		private void OnRender(DOM dom)
+		{
+			TreeView.OnRender(dom);
+			UpdateInspector();
+		}
+
 		private void OnSelection(DOM selected)
 		{
 			Selected = selected;
-
-			if (Selected == null)
-			{
-				SelectedProps = null;
-				SelectedState = null;
-			}
-			else
-			{
-				var element = Selected.Element;
-				var type = element?.GetType();
-				
-				var propsProperty = type?.GetProperty("Props");
-				var stateProperty = type?.GetProperty("State");
-
-				SelectedProps = (Props) propsProperty?.GetValue(element);
-				SelectedState = (State) stateProperty?.GetValue(element);
-			}
+			
+			UpdateInspector();
 		}
 
 		private void OnGUI ()
@@ -118,7 +110,7 @@ namespace Rish.Editor
 			DoToolbar();
 			DoTreeView(Selected == null ? 1 : sizeRatio);
 
-			if (Selected == null) return;
+			if (Selected == null || (string.IsNullOrEmpty(SelectedPropsJson) && string.IsNullOrEmpty(SelectedStateJson))) return;
 			
 			DrawInspector(sizeRatio);
 			var resizer = DrawResizer();
@@ -147,20 +139,18 @@ namespace Rish.Editor
 
 			GUILayout.BeginArea(rect);
 			InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
-			if (SelectedProps != null)
+			if (!string.IsNullOrEmpty(SelectedPropsJson))
 			{
-				var json = JsonUtility.ToJson(SelectedProps, true);
 				GUILayout.Label("Props:", EditorStyles.boldLabel);
-				GUILayout.Label(json);
+				GUILayout.Label(SelectedPropsJson);
 				
 				EditorGUILayout.Space();
 			}
 
-			if (SelectedState != null)
+			if (!string.IsNullOrEmpty(SelectedStateJson))
 			{
-				var json = JsonUtility.ToJson(SelectedProps, true);
 				GUILayout.Label("State:", EditorStyles.boldLabel);
-				GUILayout.Label(json);
+				GUILayout.Label(SelectedStateJson);
 				
 				EditorGUILayout.Space();
 
@@ -206,6 +196,29 @@ namespace Rish.Editor
 			
 			sizeRatio = Mathf.Clamp(e.mousePosition.y / position.height, 0.2f, 0.8f);
 			Repaint();
+		}
+
+		private void UpdateInspector()
+		{
+			SelectedPropsJson = null;
+			SelectedStateJson = null;
+
+			var element = Selected?.Element;
+			var type = element?.GetType();
+				
+			var propsProperty = type?.GetProperty("Props");
+			var stateProperty = type?.GetProperty("State");
+
+			var props = (Props) propsProperty?.GetValue(element);
+			if (props != null)
+			{
+				SelectedPropsJson = JsonUtility.ToJson(props, true);
+			}
+			var state = (State) stateProperty?.GetValue(element);
+			if (state != null)
+			{
+				SelectedStateJson = JsonUtility.ToJson(state, true);
+			}
 		}
 	}
 }

@@ -26,10 +26,6 @@ namespace Rish
         [SerializeField]
         private App app;
         private App App => app;
-
-        [SerializeField]
-        private Transform rootTransform;
-        internal Transform RootTransform => rootTransform;
         
         public DOM Root { get; private set; }
 
@@ -39,8 +35,9 @@ namespace Rish
         private void Start()
         {
             Pool = GetComponent<Pool>();
-
-            Root = App.Render(this);
+            
+            Root = new DOM(this, 0, App);
+            Process(Root);
         }
 
         private void LateUpdate()
@@ -148,6 +145,15 @@ namespace Rish
                 case DOMElement element:
                 {
                     element.Render();
+                    break;
+                }
+                case App element:
+                {
+                    BeginElement(dom);
+                    var child = element.Render(this);
+                    child.SetParent(dom);
+                    EndElement();
+                    
                     break;
                 }
             }

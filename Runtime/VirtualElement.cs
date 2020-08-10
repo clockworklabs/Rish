@@ -3,78 +3,31 @@ using UnityEngine;
 
 namespace Rish
 {
-    public interface VirtualElement : RishElement
-    {
-        DOM SetupAndRender(Rish rish);
-    }
-
-    public interface VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props { }
-
-    public interface VirtualElement<P, S> : VirtualElement<P>, RishElement<P, S> where P : struct, Props where S : struct, State { }
-
-    public abstract class Component : VirtualElement
+    public abstract class VirtualElement : RishElement
     {
         public OnDirty OnDirty { private get; set; }
         
-        private bool MustSetup { get; set; }
-
-        protected void Notify(bool props)
+        protected void Notify()
         {
-            MustSetup |= props;
-            
             OnDirty?.Invoke();
         }
 
-        public void Show() { }
+        public virtual void Show()  { }
 
-        public void Hide()
+        public virtual void Hide() { }
+
+        internal virtual DOM SetupAndRender(Rish rish)
         {
-            Disable();
-        }
-        
-        private bool Enabled { get; set; }
-
-        private void Enable()
-        {
-            if (Enabled)
-            {
-                return;
-            }
-            
-            OnEnable();
-        }
-
-        private void Disable()
-        {
-            if (!Enabled)
-            {
-                return;
-            }
-            
-            OnDisable();
-        }
-        
-        protected virtual void OnEnable() { }
-        protected virtual void OnDisable() { }
-
-        public DOM SetupAndRender(Rish rish)
-        {
-            if (MustSetup)
-            {
-                Disable();
-                Enable();
-
-                MustSetup = false;
-            }
-
             return Render(rish);
         }
         
         protected abstract DOM Render(Rish rish);
     }
 
-    public abstract class Component<P> : Component, VirtualElement<P> where P : struct, Props
+    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props
     {
+        private bool Dirty { get; set; }
+        
         private P props;
         public P Props
         {
@@ -86,20 +39,67 @@ namespace Rish
                     return;
                 }
                 
-                props = value;
+                OnDisable();
                 
-                Notify(true);
+                props = value;
+
+                Dirty = true;
+                Notify();
             }
+        }
+        
+        private bool Enabled { get; set; }
+
+        public override void Hide()
+        {
+            Disable();
+        }
+
+        private void Enable()
+        {
+            if (Enabled)
+            {
+                return;
+            }
+
+            Enabled = true;
+            OnEnable();
+        }
+
+        private void Disable()
+        {
+            if (!Enabled)
+            {
+                return;
+            }
+            
+            Enabled = false;
+            OnDisable();
+        }
+        
+        protected virtual void OnEnable() { }
+        protected virtual void OnDisable() { }
+        
+        internal override DOM SetupAndRender(Rish rish)
+        {
+            if (Dirty)
+            {
+                Enable();
+
+                Dirty = false;
+            }
+
+            return Render(rish);
         }
     }
 
-    public abstract class Component<P, S> : Component<P>, VirtualElement<P, S> where P : struct, Props where S : struct, State
+    public abstract class VirtualElement<P, S> : VirtualElement<P>, RishElement<P, S> where P : struct, Props where S : struct, State
     {
         private S state;
         public S State
         {
             get => state;
-            set
+            protected set
             {
                 if (value is IEquatable<S> equatable && equatable.Equals(state))
                 {
@@ -108,7 +108,7 @@ namespace Rish
                 
                 state = value;
                 
-                Notify(false);
+                Notify();
             }
         }
     }
