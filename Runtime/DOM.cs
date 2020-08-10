@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using ICSharpCode.NRefactory.Visitors;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -14,7 +16,10 @@ namespace Rish
         public int Key { get; }
         
         public RishElement Element { get; }
-        private DOM Parent { get; set; }
+
+        private bool IsReal => Element is MonoBehaviour;
+        
+        public DOM Parent { get; private set; }
         private Transform Transform { get; }
 
         private Transform ParentTransform
@@ -26,7 +31,7 @@ namespace Rish
                     return Transform;
                 }
 
-                return Parent.Transform != null ? Parent.Transform : Parent.ParentTransform;
+                return Parent.IsReal ? Parent.Transform : Parent.ParentTransform;
             }
         }
         internal int Depth { get; private set; }
@@ -37,6 +42,34 @@ namespace Rish
         
         public int ChildCount { get; private set; }
         private List<DOM> Children { get; set; }
+
+        private int VirtualIndex { get; set; }
+        
+        private int RealIndex
+        {
+            get
+            {
+                if (!Parent.IsReal)
+                {
+                    return Parent.RealIndex;
+                }
+                
+                var prev = PrevSibling?.RealIndex ?? -1;
+                return IsRealTree() ? prev + 1 : prev;
+            }
+        }
+
+        private DOM PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
+
+        private bool IsRealTree()
+        {
+            if (IsReal)
+            {
+                return true;
+            }
+
+            return Children != null && Children.Any(child => child.IsRealTree());
+        }
 
         public DOM(Rish rish, int key, RishElement element)
         {
@@ -69,13 +102,14 @@ namespace Rish
             Parent = parent;
             Depth = parent.Depth + 1;
 
-            if (Transform != null)
+            parent.AddChild(this);
+            
+            if (IsReal)
             {
                 Transform.SetParent(ParentTransform, false);
+                Transform.SetSiblingIndex(RealIndex);
                 Transform.gameObject.SetActive(true);
             }
-            
-            parent.AddChild(this);
         }
 
         internal void Clear()
@@ -108,8 +142,10 @@ namespace Rish
             }
             
             Children.Add(child);
-            
+            child.VirtualIndex = ChildCount;
+
             SwapChildren(ChildCount, Children.Count - 1);
+            
             ChildCount++;
         }
 
@@ -149,9 +185,6 @@ namespace Rish
             var temp = Children[a];
             Children[a] = Children[b];
             Children[b] = temp;
-            
-            Children[a].Transform.SetSiblingIndex(a);
-            Children[b].Transform.SetSiblingIndex(b);
         }
 
         private void Destroy(Action<RishElement> callback)

@@ -26,6 +26,8 @@ namespace Rish.Editor
 		private GUIStyle resizerStyle;
 		
 		private DOM Selected { get; set; }
+		private PropertyInfo Props { get; set; }
+		private PropertyInfo State { get; set; }
 		private string SelectedPropsJson { get; set; }
 		private string SelectedStateJson { get; set; }
 		
@@ -96,11 +98,19 @@ namespace Rish.Editor
 		{
 			TreeView.OnRender(dom);
 			UpdateInspector();
+			
+			Repaint();
 		}
 
 		private void OnSelection(DOM selected)
 		{
 			Selected = selected;
+
+			var element = Selected?.Element;
+			var type = element?.GetType();
+				
+			Props = type?.GetProperty("Props");
+			State = type?.GetProperty("State");
 			
 			UpdateInspector();
 		}
@@ -204,17 +214,13 @@ namespace Rish.Editor
 			SelectedStateJson = null;
 
 			var element = Selected?.Element;
-			var type = element?.GetType();
-				
-			var propsProperty = type?.GetProperty("Props");
-			var stateProperty = type?.GetProperty("State");
 
-			var props = (Props) propsProperty?.GetValue(element);
+			var props = (Props) Props?.GetValue(element);
 			if (props != null)
 			{
 				SelectedPropsJson = JsonUtility.ToJson(props, true);
 			}
-			var state = (State) stateProperty?.GetValue(element);
+			var state = (State) State?.GetValue(element);
 			if (state != null)
 			{
 				SelectedStateJson = JsonUtility.ToJson(state, true);

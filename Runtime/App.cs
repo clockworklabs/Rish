@@ -3,6 +3,7 @@
 namespace Rish
 {
     [RequireComponent(typeof(Canvas))]
+    [DisallowMultipleComponent]
     public abstract class App : MonoBehaviour, RishElement
     {
         public OnDirty OnDirty { get; set; }

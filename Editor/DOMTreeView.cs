@@ -18,26 +18,52 @@ namespace Rish.Editor
 
 		private Texture2D VirtualIcon { get; }
 		private Texture2D RealIcon { get; }
-		
+
+		private Dictionary<int, EditorCoroutine> recentlyRendered { get; } = new Dictionary<int, EditorCoroutine>();
+
 		public DOMTreeView (Rish rish, Texture2D vIcon, Texture2D rIcon, TreeViewState state) : base (state)
 		{
 			Rish = rish;
 			VirtualIcon = vIcon;
 			RealIcon = rIcon;
 			
-			Reload ();
+			Reload();
 		}
 
 		public void OnRender(DOM dom)
 		{
-			var item = FindItem(dom.ID, rootItem);
+			var id = dom.ID;
 
-			EditorCoroutineUtility.StartCoroutine(Wait(), this);
+			ExpandTree(dom);
+			
+			if (recentlyRendered.ContainsKey(id))
+			{
+				EditorCoroutineUtility.StopCoroutine(recentlyRendered[id]);
+			}
+			recentlyRendered[id] = EditorCoroutineUtility.StartCoroutine(Highlight(id), this);
+		}
+		
+		private void ExpandTree(DOM dom)
+		{
+			if (dom == null)
+			{
+				return;
+			}
+			
+			ExpandTree(dom.Parent);
+
+			var id = dom.ID;
+			
+			SetExpanded(id, true);
 		}
 
-		private IEnumerator Wait()
+		private IEnumerator Highlight(int id)
 		{
-			yield return new WaitForSeconds(0.15f);
+			yield return new EditorWaitForSeconds(0.15f);
+
+			recentlyRendered.Remove(id);
+
+			Repaint();
 		}
 
 		protected override TreeViewItem BuildRoot()
@@ -69,7 +95,7 @@ namespace Rish.Editor
 					}
 				}
 			}
-
+			
 			SetupDepthsFromParentsAndChildren (root);
 			
 			return rows;
@@ -128,6 +154,20 @@ namespace Rish.Editor
 			var selected = Rish.Root.Find(id);
 			
 			OnSelection?.Invoke(selected);
+		}
+		
+		protected override void RowGUI (RowGUIArgs args)
+		{
+			var iconRect = args.rowRect;
+			iconRect.x += GetContentIndent(args.item);
+			iconRect.width = 16f;
+
+			var labelRect = args.rowRect;
+			labelRect.x = iconRect.xMax;
+			labelRect.width -= labelRect.x;
+			
+			GUI.DrawTexture(iconRect, args.item.icon, ScaleMode.ScaleToFit);
+			GUI.Label(labelRect, args.item.displayName, recentlyRendered.ContainsKey(args.item.id) ? DefaultStyles.boldLabel : DefaultStyles.label);
 		}
 	}
 }
