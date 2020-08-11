@@ -108,7 +108,6 @@ namespace Rish
             {
                 Transform.SetParent(ParentTransform, false);
                 Transform.SetSiblingIndex(RealIndex);
-                Transform.gameObject.SetActive(true);
             }
         }
 

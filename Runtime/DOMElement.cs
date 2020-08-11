@@ -8,9 +8,14 @@ namespace Rish
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
-        
-        public void Show() { }
-        public void Hide() { }
+
+        public void Show()
+        {
+            gameObject.SetActive(true);
+        }
+        public void Hide() { 
+            gameObject.SetActive(false);
+        }
         
         public abstract void Render();
         
