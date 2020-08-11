@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
+using Object = System.Object;
 
 namespace Rish.Editor
 {
@@ -18,12 +19,12 @@ namespace Rish.Editor
 		
 		private Rish Rish { get; set; }
 		
-		private float sizeRatio = 0.8f; 
-		private bool isResizing; 
+		private float SizeRatio { get; set; } = 0.8f; 
+		private bool IsResizing { get; set; } 
  
-		private float resizerHeight = 5f; 
+		private float ResizerHeight { get; } = 1f; 
  
-		private GUIStyle resizerStyle;
+		private GUIStyle ResizerStyle { get; set; }
 		
 		private DOM Selected { get; set; }
 		private PropertyInfo Props { get; set; }
@@ -32,6 +33,9 @@ namespace Rish.Editor
 		private string SelectedStateJson { get; set; }
 		
 		private Vector2 InspectorScroll { get; set; }
+		
+		private Texture2D ExpandIcon { get; set; }
+		private Texture2D CollapseIcon { get; set; }
 
 		[MenuItem("Rish/DOM Inspector")]
 		private static void ShowWindow()
@@ -45,9 +49,11 @@ namespace Rish.Editor
 		{
 			VirtualIcon = Resources.Load<Texture2D>("react-icon");
 			RealIcon = EditorGUIUtility.IconContent("GameObject Icon").image as Texture2D;
-			
-			resizerStyle = new GUIStyle();
-			resizerStyle.normal.background = EditorGUIUtility.Load("icons/d_AvatarBlendBackground.png") as Texture2D;
+			ExpandIcon = EditorGUIUtility.IconContent("Toolbar Plus").image as Texture2D;
+			CollapseIcon = EditorGUIUtility.IconContent("Toolbar Minus").image as Texture2D;
+
+			ResizerStyle = new GUIStyle();
+			ResizerStyle.normal.background = EditorGUIUtility.IconContent("d_AvatarBlendBackground").image as Texture2D;
 			
 			TreeViewState = new TreeViewState();
 			
@@ -87,6 +93,8 @@ namespace Rish.Editor
 						TreeView.OnSelection -= OnSelection;
 						Rish.OnRender -= OnRender;
 					}
+
+					Rish = null;
 					Selected = null;
 					TreeView = null;
 					break;
@@ -118,11 +126,11 @@ namespace Rish.Editor
 		private void OnGUI ()
 		{
 			DoToolbar();
-			DoTreeView(Selected == null ? 1 : sizeRatio);
+			DoTreeView(Selected == null ? 1 : SizeRatio);
 
 			if (Selected == null || (string.IsNullOrEmpty(SelectedPropsJson) && string.IsNullOrEmpty(SelectedStateJson))) return;
 			
-			DrawInspector(sizeRatio);
+			DrawInspector(SizeRatio);
 			var resizer = DrawResizer();
 			ProcessEvents(resizer, Event.current);
 		}
@@ -131,16 +139,27 @@ namespace Rish.Editor
 		{
 			GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-			if (Selected != null && Selected.ChildCount > 0)
+			if (Selected != null)
 			{
-				if (GUILayout.Button("Expand", EditorStyles.toolbarButton))
+				if (Selected.Element is MonoBehaviour monoBehaviour)
 				{
-					TreeView.ExpandDown(Selected);
+					if (GUILayout.Button("Select", EditorStyles.toolbarButton))
+					{
+						Selection.instanceIDs = new [] { monoBehaviour.gameObject.GetInstanceID() };
+					}
 				}
-
-				if (GUILayout.Button("Collapse", EditorStyles.toolbarButton))
+				
+				if (Selected.ChildCount > 0)
 				{
-					TreeView.CollapseDown(Selected);
+					if (GUILayout.Button(ExpandIcon, EditorStyles.toolbarButton))
+					{
+						TreeView.ExpandDown(Selected);
+					}
+
+					if (GUILayout.Button(CollapseIcon, EditorStyles.toolbarButton))
+					{
+						TreeView.CollapseDown(Selected);
+					}
 				}
 			}
 			
@@ -148,12 +167,12 @@ namespace Rish.Editor
 
 			if (Rish?.Root != null)
 			{
-				if (GUILayout.Button("Expand All", EditorStyles.toolbarButton))
+				if (GUILayout.Button(ExpandIcon, EditorStyles.toolbarButton))
 				{
 					TreeView.ExpandDown(Rish.Root);
 				}
 
-				if (GUILayout.Button("Collapse All", EditorStyles.toolbarButton))
+				if (GUILayout.Button(CollapseIcon, EditorStyles.toolbarButton))
 				{
 					TreeView.CollapseDown(Rish.Root);
 				}
@@ -164,7 +183,7 @@ namespace Rish.Editor
 		
 		private void DoTreeView(float size)
 		{
-			var rect = new Rect(0, EditorStyles.toolbar.fixedHeight, position.width, (position.height * size) - resizerHeight - EditorStyles.toolbar.fixedHeight);
+			var rect = new Rect(0, EditorStyles.toolbar.fixedHeight, position.width, (position.height * size) - ResizerHeight - EditorStyles.toolbar.fixedHeight);
 			
 			GUILayout.BeginArea(rect);
 			TreeView?.OnGUI(GUILayoutUtility.GetRect (0, 100000, 0, 100000));
@@ -173,7 +192,7 @@ namespace Rish.Editor
 		
 		private void DrawInspector(float size)
 		{
-			var rect = new Rect(0, (position.height * size) + resizerHeight, position.width, (position.height * (1 - size)) - resizerHeight);
+			var rect = new Rect(0, (position.height * size) + ResizerHeight, position.width, (position.height * (1 - size)) - ResizerHeight);
 
 			GUILayout.BeginArea(rect);
 			InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
@@ -199,9 +218,9 @@ namespace Rish.Editor
 
 		private Rect DrawResizer()
 		{
-			var rect = new Rect(0, (position.height * sizeRatio) - resizerHeight, position.width, resizerHeight * 2);
+			var rect = new Rect(0, (position.height * SizeRatio) - ResizerHeight, position.width, ResizerHeight * 2);
 
-			GUILayout.BeginArea(new Rect(rect.position + (Vector2.up * resizerHeight), new Vector2(position.width, 2)), resizerStyle);
+			GUILayout.BeginArea(new Rect(rect.position + (Vector2.up * ResizerHeight), new Vector2(position.width, 2)), ResizerStyle);
 			GUILayout.EndArea();
 
 			EditorGUIUtility.AddCursorRect(rect, MouseCursor.ResizeVertical);
@@ -216,12 +235,12 @@ namespace Rish.Editor
 				case EventType.MouseDown:
 					if (e.button == 0 && rect.Contains(e.mousePosition))
 					{
-						isResizing = true;
+						IsResizing = true;
 					}
 					break;
 
 				case EventType.MouseUp:
-					isResizing = false;
+					IsResizing = false;
 					break;
 			}
 			
@@ -230,9 +249,9 @@ namespace Rish.Editor
 
 		private void Resize(Event e)
 		{
-			if (!isResizing) return;
+			if (!IsResizing) return;
 			
-			sizeRatio = Mathf.Clamp(e.mousePosition.y / position.height, 0.2f, 0.8f);
+			SizeRatio = Mathf.Clamp(e.mousePosition.y / position.height, 0.2f, 0.8f);
 			Repaint();
 		}
 
