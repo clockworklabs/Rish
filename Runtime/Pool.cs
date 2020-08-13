@@ -21,7 +21,18 @@ namespace RishUI
         {
             var initialCapacity = InitialCount * InitialCount;
 
+            if (Provider == null)
+            {
+                return;
+            }
+
             var stylesCount = Provider.StylesCount;
+
+            if (stylesCount < 0)
+            {
+                return;
+            }
+            
             var defaultStyle = Provider.GetDefaultStyle();
             for (int i = 0, n = defaultStyle.PrototypesCount; i < n; i++)
             {

@@ -33,9 +33,13 @@ namespace RishUI
         private void Start()
         {
             Pool = GetComponent<Pool>();
+
+            if (App == null)
+            {
+                return;
+            }
             
             Root = new DOM(this, 0, App, 0);
-            Process(Root);
         }
 
         private void LateUpdate()
