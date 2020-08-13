@@ -28,7 +28,7 @@ namespace RishUI
 
             var stylesCount = Provider.StylesCount;
 
-            if (stylesCount < 0)
+            if (stylesCount <= 0)
             {
                 return;
             }
