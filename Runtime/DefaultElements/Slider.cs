@@ -31,8 +31,10 @@ namespace Rish.Elements
         }
     }
 
-    public struct SliderProps : Props
+    public struct SliderProps : Props, IEquatable<SliderProps>
     {
         public float value;
+
+        public bool Equals(SliderProps other) => Mathf.Approximately(value, other.value);
     }
 }

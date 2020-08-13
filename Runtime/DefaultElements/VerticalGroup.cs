@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Rish.Elements
@@ -39,7 +40,7 @@ namespace Rish.Elements
         }
     }
 
-    public struct GroupProps : Props
+    public struct GroupProps : Props, IEquatable<GroupProps>
     {
         public int leftPadding;
         public int rightPadding;
@@ -53,5 +54,59 @@ namespace Rish.Elements
         public bool useScaleY;
         public bool expandWidth;
         public bool expandHeight;
+
+        public bool Equals(GroupProps other)
+        {
+            if (leftPadding != other.leftPadding)
+            {
+                return false;
+            }
+            if (rightPadding != other.rightPadding)
+            {
+                return false;
+            }
+            if (topPadding != other.topPadding)
+            {
+                return false;
+            }
+            if (bottomPadding != other.bottomPadding)
+            {
+                return false;
+            }
+            if (!Mathf.Approximately(spacing, other.spacing))
+            {
+                return false;
+            }
+            if (childAlignment != other.childAlignment)
+            {
+                return false;
+            }
+            if (controlWidth != other.controlWidth)
+            {
+                return false;
+            }
+            if (controlHeight != other.controlHeight)
+            {
+                return false;
+            }
+            if (useScaleX != other.useScaleX)
+            {
+                return false;
+            }
+            if (useScaleY != other.useScaleY)
+            {
+                return false;
+            }
+            if (expandWidth != other.expandWidth)
+            {
+                return false;
+            }
+            if (expandHeight != other.expandHeight)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

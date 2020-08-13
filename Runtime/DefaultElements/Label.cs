@@ -1,4 +1,5 @@
-﻿using Rish;
+﻿using System;
+using Rish;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,8 +19,10 @@ namespace Rish.Elements
         }
     }
 
-    public struct LabelProps : Props
+    public struct LabelProps : Props, IEquatable<LabelProps>
     {
         public string text;
+
+        public bool Equals(LabelProps other) => text == other.text;
     }
 }

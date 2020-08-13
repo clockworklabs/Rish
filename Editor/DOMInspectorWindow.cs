@@ -128,7 +128,7 @@ namespace Rish.Editor
 			DoToolbar();
 			DoTreeView(Selected == null ? 1 : SizeRatio);
 
-			if (Selected == null || (string.IsNullOrEmpty(SelectedPropsJson) && string.IsNullOrEmpty(SelectedStateJson))) return;
+			if (Selected == null) return;
 			
 			DrawInspector(SizeRatio);
 			var resizer = DrawResizer();
@@ -196,6 +196,11 @@ namespace Rish.Editor
 
 			GUILayout.BeginArea(rect);
 			InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
+			
+			EditorGUILayout.LabelField($"ID: {Selected.ID}");
+			EditorGUILayout.LabelField($"Style: {Selected.Style}");
+			EditorGUILayout.Space();
+			EditorGUILayout.Space();
 			if (!string.IsNullOrEmpty(SelectedPropsJson))
 			{
 				GUILayout.Label("Props:", EditorStyles.boldLabel);
