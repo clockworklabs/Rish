@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
 
-namespace Rish.Editor
+namespace RishUI.Editor
 {
 	public class DOMTreeView : TreeView
 	{

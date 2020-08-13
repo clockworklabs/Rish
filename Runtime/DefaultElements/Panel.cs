@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.WSA;
 
-namespace Rish.Elements
+namespace RishUI.Elements
 {
     [RequireComponent(typeof(Image))]
     public class Panel : DOMElement<PanelProps>

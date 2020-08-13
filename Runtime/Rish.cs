@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Priority_Queue;
 using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     public delegate DOM[] CreateChildren();
     
@@ -141,7 +141,7 @@ namespace Rish
                 {
                     BeginElement(dom);
                     var child = element.SetupAndRender(this);
-                    child.SetParent(dom);
+                    child?.SetParent(dom);
                     EndElement();
                     
                     break;
@@ -155,7 +155,7 @@ namespace Rish
                 {
                     BeginElement(dom);
                     var child = element.Render(this);
-                    child.SetParent(dom);
+                    child?.SetParent(dom);
                     EndElement();
                     
                     break;

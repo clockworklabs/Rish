@@ -7,7 +7,7 @@ using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 using Object = System.Object;
 
-namespace Rish.Editor
+namespace RishUI.Editor
 {
 	public class DOMInspectorWindow : EditorWindow
 	{

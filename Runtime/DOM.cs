@@ -6,7 +6,7 @@ using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     public class DOM : FastPriorityQueueNode
     {

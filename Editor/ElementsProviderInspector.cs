@@ -3,7 +3,7 @@ using UnityEditor;
 using Inspector = UnityEditor.Editor;
 using Object = UnityEngine.Object;
 
-namespace Rish.Editor
+namespace RishUI.Editor
 {
     [CustomEditor(typeof(ElementsProvider))]
     public class ElementsProviderInspector : Inspector

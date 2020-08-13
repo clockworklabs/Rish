@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnitySlider = UnityEngine.UI.Slider;
 
-namespace Rish.Elements
+namespace RishUI.Elements
 {
     [RequireComponent(typeof(UnitySlider))]
     public class Slider : DOMElement<SliderProps>

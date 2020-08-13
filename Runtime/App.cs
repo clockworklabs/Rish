@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]

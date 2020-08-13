@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Rish.Editor
+namespace RishUI.Editor
 {
     public static class CreateRishMenu
     {

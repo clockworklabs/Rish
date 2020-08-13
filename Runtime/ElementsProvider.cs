@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     [CreateAssetMenu(fileName = "Provider", menuName = "Rish/Provider")]
     public class ElementsProvider : ScriptableObject

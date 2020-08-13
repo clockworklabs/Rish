@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     public abstract class VirtualElement : RishElement
     {

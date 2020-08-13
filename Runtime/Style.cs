@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Rish
+namespace RishUI
 {
     [CreateAssetMenu(fileName = "Style", menuName = "Rish/Style")]
     public class Style : ScriptableObject, ISerializationCallbackReceiver

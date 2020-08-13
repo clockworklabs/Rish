@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Rish.Elements
+namespace RishUI.Elements
 {
     [RequireComponent(typeof(HorizontalLayoutGroup))]
     public class HorizontalGroup : DOMElement<GroupProps>

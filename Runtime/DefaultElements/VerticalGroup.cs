@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Rish.Elements
+namespace RishUI.Elements
 {
     [RequireComponent(typeof(VerticalLayoutGroup))]
     public class VerticalGroup : DOMElement<GroupProps>

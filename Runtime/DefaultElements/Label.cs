@@ -1,9 +1,9 @@
 ﻿using System;
-using Rish;
+using RishUI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Rish.Elements
+namespace RishUI.Elements
 {
     public class Label : DOMElement<LabelProps>
     {
