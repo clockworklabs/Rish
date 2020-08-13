@@ -16,6 +16,8 @@ namespace Rish
         public int Key { get; }
         
         public RishElement Element { get; }
+        
+        private uint Style { get; }
 
         private bool IsReal => Element is MonoBehaviour;
         
@@ -71,7 +73,7 @@ namespace Rish
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
-        public DOM(Rish rish, int key, RishElement element)
+        public DOM(Rish rish, int key, RishElement element, uint style)
         {
             ID = nextID++;
 
@@ -80,6 +82,7 @@ namespace Rish
             Key = key;   
             Element = element;
             Type = element.GetType();
+            Style = style;
 
             Transform = Element is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
@@ -116,7 +119,7 @@ namespace Rish
             ChildCount = 0;
         }
 
-        internal void Clean(Action<RishElement> callback)
+        internal void Clean(Pool pool)
         {
             if (Children == null)
             {
@@ -128,7 +131,10 @@ namespace Rish
             
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
-                Children[i].Destroy(callback);
+                Children[i].Destroy(element =>
+                {
+                    pool.ReturnToPool(element, Style);
+                });
             }
             Children.RemoveRange(ChildCount, count);
         }

@@ -18,8 +18,6 @@ namespace Rish
 
         private Pool Pool { get; set; }
 
-        private HashSet<int> DirtySet { get; } = new HashSet<int>();
-
         private FastPriorityQueue<DOM> DirtyQueue { get; } =
             new FastPriorityQueue<DOM>(MaxSize);
 
@@ -36,7 +34,7 @@ namespace Rish
         {
             Pool = GetComponent<Pool>();
             
-            Root = new DOM(this, 0, App);
+            Root = new DOM(this, 0, App, 0);
             Process(Root);
         }
 
@@ -45,7 +43,6 @@ namespace Rish
             while (DirtyQueue.Count > 0)
             {
                 var tree = DirtyQueue.Dequeue();
-                DirtySet.Remove(tree.ID);
                 
                 Process(tree);
             }
@@ -53,12 +50,11 @@ namespace Rish
 
         public void Dirty(DOM tree)
         {
-            if (DirtySet.Contains(tree.ID))
+            if (DirtyQueue.Contains(tree))
             {
                 return;
             }
 
-            DirtySet.Add(tree.ID);
             DirtyQueue.Enqueue(tree, Mathf.Pow(0.99f, tree.Depth));
         }
 
@@ -71,21 +67,25 @@ namespace Rish
         private void EndElement()
         {
             var tree = Stack.Pop();
-            tree.Clean(Pool.ReturnToPool);
+            tree.Clean(Pool);
         }
         
-        public DOM Create<T>() where T : RishElement => Create<T>(0);
+        public DOM Create<T>() where T : RishElement => Create<T>(0, 0);
+        public DOM Create<T>(int key) where T : RishElement => Create<T>(key, 0);
+        public DOM Create<T>(uint style) where T : RishElement => Create<T>(0, style);
 
-        public DOM Create<T>(int key) where T : RishElement
+        public DOM Create<T>(int key, uint style) where T : RishElement
         {
-            return Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>());
+            return Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>(), style);
         }
 
-        public DOM Create<T, P>(P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, props);
+        public DOM Create<T, P>(P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, 0, props);
+        public DOM Create<T, P>(int key, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(key, 0, props);
+        public DOM Create<T, P>(uint style, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, style, props);
 
-        public DOM Create<T, P>(int key, P props) where P : struct, Props where T : RishElement<P>
+        public DOM Create<T, P>(int key, uint style, P props) where P : struct, Props where T : RishElement<P>
         {
-            var child = Create<T>(key);
+            var child = Create<T>(key, style);
             
             var element = (T) child.Element;
             element.Props = props;
@@ -94,10 +94,12 @@ namespace Rish
         }
         
         public DOM Create<T>(CreateChildren children) where T : DOMElement => Create<T>(0, children);
-
-        public DOM Create<T>(int key, CreateChildren children) where T : DOMElement
+        public DOM Create<T>(int key, CreateChildren children) where T : DOMElement => Create<T>(key, 0, children);
+        public DOM Create<T>(uint style, CreateChildren children) where T : DOMElement => Create<T>(0, style, children);
+        
+        public DOM Create<T>(int key, uint style, CreateChildren children) where T : DOMElement
         {
-            var child = Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>());
+            var child = Current?.FindFreeChild<T>(key) ?? new DOM(this, key, Pool.GetFromPool<T>(), style);
 
             var element = (T) child.Element;
             if (!element.IsLeaf && children != null)
@@ -117,11 +119,13 @@ namespace Rish
             return child;
         }
 
-        public DOM Create<T, P>(P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, props, children);
+        public DOM Create<T, P>(P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, 0, props, children);
+        public DOM Create<T, P>(int key, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, 0, props, children);
+        public DOM Create<T, P>(uint style, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, children);
 
-        public DOM Create<T, P>(int key, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
+        public DOM Create<T, P>(int key, uint style, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
         {
-            var child = Create<T>(key, children);
+            var child = Create<T>(key, style, children);
 
             var element = (T) child.Element;
             element.Props = props;

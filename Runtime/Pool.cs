@@ -7,68 +7,143 @@ namespace Rish
 {
     public class Pool : MonoBehaviour
     {
-        [SerializeField] private DOMElement[] prototypes;
-        private DOMElement[] Prototypes => prototypes;
+        [SerializeField]
+        private ElementsProvider provider;
+        private ElementsProvider Provider => provider;
 
-        [SerializeField] private int initialCount;
+        [SerializeField]
+        private int initialCount;
         private int InitialCount => initialCount;
 
-        private Dictionary<Type, DOMElement> PrototypesByType { get; } = new Dictionary<Type, DOMElement>();
-        private Dictionary<Type, Stack<RishElement>> Pools { get; } = new Dictionary<Type, Stack<RishElement>>();
+        private Dictionary<Type, Dictionary<uint, Stack<DOMElement>>> RealPools { get; } = new Dictionary<Type, Dictionary<uint, Stack<DOMElement>>>();
 
         private void Awake()
         {
             var initialCapacity = InitialCount * InitialCount;
-            foreach (var prototype in Prototypes)
+
+            var stylesCount = Provider.StylesCount;
+            var defaultStyle = Provider.GetDefaultStyle();
+            for (int i = 0, n = defaultStyle.PrototypesCount; i < n; i++)
             {
-                var type = prototype.GetType();
-                if (Pools.ContainsKey(type))
+                var defaultPrototype = defaultStyle.GetPrototype(i);
+                if (defaultPrototype == null)
                 {
                     continue;
                 }
 
-                prototype.gameObject.SetActive(false);
-                PrototypesByType[type] = prototype;
+                var type = defaultPrototype.GetType();
 
-                var pool = new Stack<RishElement>(initialCapacity);
-                PopulatePool(pool, prototype, InitialCount);
+                var poolsDictionary = new Dictionary<uint, Stack<DOMElement>>();
 
-                Pools[type] = pool;
+                var defaultPool = new Stack<DOMElement>(initialCapacity);
+                PopulatePool(defaultPool, defaultPrototype, InitialCount);
+                poolsDictionary[0] = defaultPool;
+
+                for (uint j = 1; j < stylesCount; j++)
+                {
+                    var stylePrototype = Provider.GetPrototype(type, j);
+                    if (stylePrototype == null)
+                    {
+                        continue;
+                    }
+
+                    var stylePool = new Stack<DOMElement>(initialCapacity);
+                    PopulatePool(stylePool, stylePrototype, InitialCount);
+                    poolsDictionary[j] = stylePool;
+                }
+
+                RealPools[type] = poolsDictionary;
             }
         }
 
-        public T GetFromPool<T>() where T : RishElement
+        public T GetFromPool<T>(uint style = 0) where T : RishElement
         {
             var type = typeof(T);
-            if (Pools.TryGetValue(type, out var pool))
+
+            if (GetDOMElement(type, style, out var element))
             {
-                if (pool.Count == 0)
-                {
-                    PopulatePool(pool, PrototypesByType[type], InitialCount);
-                }
-                
-                return (T) pool.Pop();
+                return (T) element;
             }
-            else
+
+            if (GetVirtualElement(type, out element))
             {
-                return Activator.CreateInstance<T>();
+                return (T) element;
             }
+
+            throw new UnityException("Pool doesn't exist.");
         }
 
-        public void ReturnToPool(RishElement element)
+        public bool ReturnToPool(RishElement element, uint style = 0)
         {
             var type = element.GetType();
-            if (!Pools.TryGetValue(type, out var pool)) return;
+            if (ReturnDOMElement(type, element, style))
+            {
+                return true;
+            }
 
-            var domElement = (DOMElement) element;
+            if (ReturnVirtualElement(type, element))
+            {
+                return true;
+            }
 
+            return false;
+        }
+
+        private bool GetDOMElement(Type type, uint style, out RishElement element)
+        {
+            if (!RealPools.TryGetValue(type, out var dictionary))
+            {
+                element = null;
+                return false;
+            }
+            
+            dictionary.TryGetValue(style, out var pool);
+            if (pool == null)
+            {
+                return GetDOMElement(type, 0, out element);
+            }
+
+            if (pool.Count == 0)
+            {
+                PopulatePool(pool, Provider.GetPrototype(type, style), InitialCount);
+            }
+            
+            element = pool.Pop();
+            return true;
+        }
+
+        private bool GetVirtualElement(Type type, out RishElement element)
+        {
+            if (!type.IsSubclassOf(typeof(VirtualElement)))
+            {
+                element = null;
+                return false;
+            }
+
+            element = (RishElement) Activator.CreateInstance(type);
+            return true;
+        }
+
+        private bool ReturnDOMElement(Type type, RishElement element, uint style)
+        {
+            if (!RealPools.TryGetValue(type, out var dictionary)) return false;
+            if (!dictionary.TryGetValue(style, out var pool)) return false;
+
+            var domElement = element as DOMElement;
             domElement.gameObject.SetActive(false);
             domElement.transform.SetParent(transform, false);
 
-            pool.Push(element);
+            pool.Push(domElement);
+
+            return true;
         }
 
-        private void PopulatePool(Stack<RishElement> pool, DOMElement prototype, int count)
+        private bool ReturnVirtualElement(Type type, RishElement element)
+        {
+            return true;
+        }
+
+        private void PopulatePool(Stack<DOMElement> pool, DOMElement prototype, int count)
         {
             for (var j = 0; j < count; j++)
             {

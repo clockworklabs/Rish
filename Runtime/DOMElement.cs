@@ -8,12 +8,25 @@ namespace Rish
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
-
+        
+        private UIAnimation animationController;
+        private UIAnimation AnimationController {
+            get
+            {
+                if (animationController == null)
+                {
+                    animationController = GetComponent<UIAnimation>();
+                }
+                
+                return animationController;
+            }
+        }
+        
         public void Show()
         {
             gameObject.SetActive(true);
         }
-        public void Hide() { 
+        public void Hide() {
             gameObject.SetActive(false);
         }
         
