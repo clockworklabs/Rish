@@ -17,7 +17,7 @@ namespace Rish
         
         public RishElement Element { get; }
         
-        private uint Style { get; }
+        public uint Style { get; }
 
         private bool IsReal => Element is MonoBehaviour;
         

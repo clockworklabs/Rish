@@ -56,7 +56,7 @@ namespace Rish
             }
         }
 
-        public T GetFromPool<T>(uint style = 0) where T : RishElement
+        public T GetFromPool<T>(uint style) where T : RishElement
         {
             var type = typeof(T);
 
@@ -73,7 +73,7 @@ namespace Rish
             throw new UnityException("Pool doesn't exist.");
         }
 
-        public bool ReturnToPool(RishElement element, uint style = 0)
+        public bool ReturnToPool(RishElement element, uint style)
         {
             var type = element.GetType();
             if (ReturnDOMElement(type, element, style))
