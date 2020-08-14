@@ -7,6 +7,8 @@
     public interface State
     {
     }
+    
+    public struct NoProps : Props { }
 
     public delegate void OnDirty();
     
@@ -22,7 +24,7 @@
         P Props { set; }
     }
     
-    public interface RishElement<P, S> : RishElement  where P : struct, Props where S : struct, State {
+    public interface RishElement<P, S> : RishElement<P> where P : struct, Props where S : struct, State {
         S State { get; }
     }
 }
