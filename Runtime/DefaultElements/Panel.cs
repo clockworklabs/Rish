@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.WSA;
 
 namespace RishUI.Elements
 {
@@ -30,11 +29,13 @@ namespace RishUI.Elements
         }
     }
 
-    public struct PanelProps : Props
+    public struct PanelProps : Props<PanelProps>
     {
         public float left;
         public float right;
         public float top;
         public float bottom;
+
+        public PanelProps Default => new PanelProps();
     }
 }

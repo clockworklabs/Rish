@@ -22,7 +22,7 @@ namespace RishUI
             }
         }
         
-        public void Show()
+        public virtual void Show()
         {
             gameObject.SetActive(true);
         }
@@ -35,7 +35,7 @@ namespace RishUI
         protected void Notify() => OnDirty?.Invoke();
     }
 
-    public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props
+    public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props<P>
     {
         private P props;
         public P Props
@@ -52,6 +52,13 @@ namespace RishUI
                 
                 Notify();
             }
+        }
+
+        public override void Show()
+        {
+            base.Show();
+            
+            Props = Props.Default;
         }
     }
 }

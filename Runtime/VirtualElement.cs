@@ -24,7 +24,7 @@ namespace RishUI
         protected abstract DOM Render(Rish rish);
     }
 
-    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props
+    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props<P>
     {
         private bool Dirty { get; set; }
         
@@ -49,6 +49,11 @@ namespace RishUI
         }
         
         private bool Enabled { get; set; }
+
+        public override void Show()
+        {
+            Props = Props.Default;
+        }
 
         public override void Hide()
         {
@@ -93,7 +98,7 @@ namespace RishUI
         }
     }
 
-    public abstract class VirtualElement<P, S> : VirtualElement<P>, RishElement<P, S> where P : struct, Props where S : struct, State
+    public abstract class VirtualElement<P, S> : VirtualElement<P>, RishElement<P, S> where P : struct, Props<P> where S : struct, State
     {
         private S state;
         public S State

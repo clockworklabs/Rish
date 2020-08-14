@@ -40,7 +40,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct GroupProps : Props, IEquatable<GroupProps>
+    public struct GroupProps : Props<GroupProps>, IEquatable<GroupProps>
     {
         public int leftPadding;
         public int rightPadding;
@@ -54,6 +54,14 @@ namespace RishUI.Elements
         public bool useScaleY;
         public bool expandWidth;
         public bool expandHeight;
+
+        public GroupProps Default => new GroupProps
+        {
+            controlWidth = true,
+            controlHeight = true,
+            expandWidth = true,
+            expandHeight = true
+        };
 
         public bool Equals(GroupProps other)
         {

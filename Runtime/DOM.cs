@@ -73,7 +73,7 @@ namespace RishUI
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
-        public DOM(Rish rish, int key, RishElement element, uint style)
+        internal DOM(Rish rish, int key, RishElement element, uint style)
         {
             ID = nextID++;
 

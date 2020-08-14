@@ -1,5 +1,4 @@
 ﻿using System;
-using RishUI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,9 +18,11 @@ namespace RishUI.Elements
         }
     }
 
-    public struct LabelProps : Props, IEquatable<LabelProps>
+    public struct LabelProps : Props<LabelProps>, IEquatable<LabelProps>
     {
         public string text;
+        
+        public LabelProps Default => new LabelProps();
 
         public bool Equals(LabelProps other) => text == other.text;
     }
