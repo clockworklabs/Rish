@@ -23,15 +23,13 @@ namespace RishUI
     
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class App<S> : App, RishElement<NoProps, S> where S : struct, State
+    public abstract class App<S> : App, RishElement where S : struct, State
     {
-        public NoProps Props { private get; set; }
-        
         private S state;
-        public S State
+        protected S State
         {
             get => state;
-            protected set
+            set
             {
                 if (value is IEquatable<S> equatable && equatable.Equals(state))
                 {

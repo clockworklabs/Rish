@@ -31,7 +31,7 @@ namespace RishUI
         private P props;
         public P Props
         {
-            get => props;
+            protected get => props;
             set
             {
                 if (value is IEquatable<P> equatable && equatable.Equals(props))
@@ -98,13 +98,13 @@ namespace RishUI
         }
     }
 
-    public abstract class VirtualElement<P, S> : VirtualElement<P>, RishElement<P, S> where P : struct, Props<P> where S : struct, State
+    public abstract class VirtualElement<P, S> : VirtualElement<P> where P : struct, Props<P> where S : struct, State
     {
         private S state;
-        public S State
+        protected S State
         {
             get => state;
-            protected set
+            set
             {
                 if (value is IEquatable<S> equatable && equatable.Equals(state))
                 {

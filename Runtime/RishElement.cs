@@ -27,8 +27,4 @@
     {
         P Props { set; }
     }
-    
-    public interface RishElement<P, S> : RishElement<P> where P : struct, Props<P> where S : struct, State {
-        S State { get; }
-    }
 }

@@ -21,11 +21,30 @@ namespace RishUI
                 return animationController;
             }
         }
-        
+        private DivProps divProps;
+        public DivProps DivProps
+        {
+            private get => divProps;
+            set
+            {
+                if (divProps.Equals(value))
+                {
+                    return;
+                }
+                
+                divProps = value;
+
+                UpdateTransform();
+            }
+        }
+
         public virtual void Show()
         {
+            DivProps = DivProps.Default;
+            
             gameObject.SetActive(true);
         }
+        
         public void Hide() {
             gameObject.SetActive(false);
         }
@@ -33,6 +52,40 @@ namespace RishUI
         public abstract void Render();
         
         protected void Notify() => OnDirty?.Invoke();
+
+        private void UpdateTransform()
+        {
+            var rectTransform = (RectTransform) transform;
+                
+            rectTransform.anchorMin = DivProps.anchorMin;
+            rectTransform.anchorMax = DivProps.anchorMax;
+            
+            var width = DivProps.left + DivProps.right;
+            var height = DivProps.top + DivProps.bottom;
+            
+            var sizeDelta = new Vector2(-width, -height);
+
+            var anchoredPosition = new Vector2();
+            if (Mathf.Approximately(DivProps.anchorMin.x, DivProps.anchorMax.x))
+            {
+                anchoredPosition.x = width * 0.5f - DivProps.right;
+            }
+            else
+            {
+                anchoredPosition.x = -width * 0.5f + DivProps.left;
+            }
+            if (Mathf.Approximately(DivProps.anchorMin.y, DivProps.anchorMax.y))
+            {
+                anchoredPosition.y = height * 0.5f -  DivProps.top;
+            }
+            else
+            {
+                anchoredPosition.y = -height * 0.5f + DivProps.bottom;
+            }
+            
+            rectTransform.anchoredPosition = anchoredPosition;
+            rectTransform.sizeDelta = sizeDelta;
+        }
     }
 
     public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props<P>
@@ -40,7 +93,7 @@ namespace RishUI
         private P props;
         public P Props
         {
-            get => props;
+            protected get => props;
             set
             {
                 if (value is IEquatable<P> equatable && equatable.Equals(props))
