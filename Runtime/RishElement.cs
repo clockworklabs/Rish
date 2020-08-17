@@ -1,17 +1,11 @@
 ﻿namespace RishUI
 {
-    public interface Props<P> where P : Props<P>
+    public interface Props
     {
-        P Default { get; }
     }
 
     public interface State
     {
-    }
-
-    public struct NoProps : Props<NoProps>
-    {
-        public NoProps Default => new NoProps();
     }
 
     public delegate void OnDirty();
@@ -23,8 +17,9 @@
         void Hide();
     }
 
-    public interface RishElement<P> : RishElement where P : struct, Props<P>
+    public interface RishElement<P> : RishElement where P : struct, Props
     {
+        P DefaultProps { get; }
         P Props { set; }
     }
 }

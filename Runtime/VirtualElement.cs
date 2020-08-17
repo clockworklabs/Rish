@@ -24,10 +24,25 @@ namespace RishUI
         protected abstract DOM Render(Rish rish);
     }
 
-    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props<P>
+    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props
     {
-        private bool Dirty { get; set; }
+        private bool Initialized { get; set; }
         
+        private P defaultProps;
+        public P DefaultProps {
+            get
+            {
+                if (Initialized) return defaultProps;
+                
+                defaultProps = GetDefaultProps();
+                Initialized = true;
+
+                return defaultProps;
+            }
+        }
+        
+        private bool Dirty { get; set; }
+
         private P props;
         public P Props
         {
@@ -50,10 +65,7 @@ namespace RishUI
         
         private bool Enabled { get; set; }
 
-        public override void Show()
-        {
-            Props = Props.Default;
-        }
+        public override void Show() { }
 
         public override void Hide()
         {
@@ -96,9 +108,11 @@ namespace RishUI
 
             return Render(rish);
         }
+
+        protected virtual P GetDefaultProps() => default;
     }
 
-    public abstract class VirtualElement<P, S> : VirtualElement<P> where P : struct, Props<P> where S : struct, State
+    public abstract class VirtualElement<P, S> : VirtualElement<P> where P : struct, Props where S : struct, State
     {
         private S state;
         protected S State

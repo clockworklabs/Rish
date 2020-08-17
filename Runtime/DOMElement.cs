@@ -21,6 +21,7 @@ namespace RishUI
                 return animationController;
             }
         }
+        
         private DivProps divProps;
         public DivProps DivProps
         {
@@ -88,8 +89,23 @@ namespace RishUI
         }
     }
 
-    public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props<P>
+    public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props
     {
+        private bool Initialized { get; set; }
+        
+        private P defaultProps;
+        public P DefaultProps {
+            get
+            {
+                if (Initialized) return defaultProps;
+                
+                defaultProps = GetDefaultProps();
+                Initialized = true;
+
+                return defaultProps;
+            }
+        }
+        
         private P props;
         public P Props
         {
@@ -111,7 +127,9 @@ namespace RishUI
         {
             base.Show();
             
-            Props = Props.Default;
+            Props = DefaultProps;
         }
+
+        protected virtual P GetDefaultProps() => default;
     }
 }
