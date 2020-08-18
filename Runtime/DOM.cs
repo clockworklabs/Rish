@@ -129,6 +129,10 @@ namespace RishUI
             var count = Children.Count - ChildCount;
             if (count <= 0) return;
             
+            Debug.Log(Children.Count);
+            Debug.Log(ChildCount);
+            Debug.Log(count);
+            
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
                 Children[i].Destroy(element =>
@@ -182,7 +186,7 @@ namespace RishUI
                 return;
             }
             
-            if (Children == null || a < 0 || b < 0 || Children.Count >= a || Children.Count >= b)
+            if (Children == null || a < 0 || b < 0 || a >= Children.Count || b >= Children.Count)
             {
                 return;
             }
