@@ -154,7 +154,7 @@ namespace RishUI
             ChildCount++;
         }
 
-        internal DOM FindFreeChild<T>(int key) where T : RishElement
+        internal DOM FindFreeChild<T>(int key, uint style) where T : RishElement
         {
             if (Children == null || Children.Count == 0)
             {
@@ -162,7 +162,7 @@ namespace RishUI
             }
             
             var type = typeof(T);
-            var index = Children.FindIndex(ChildCount, (other) => other.Key == key && other.Type == type);
+            var index = Children.FindIndex(ChildCount, (other) => other.Key == key && other.Type == type && other.Style == style);
 
             if (index < 0)
             {
