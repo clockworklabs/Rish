@@ -37,6 +37,7 @@ namespace RishUI
             }
         }
         internal int Depth { get; private set; }
+        public bool IsValid => Depth >= 0;
         
         public Type Type { get; }
         
@@ -129,10 +130,6 @@ namespace RishUI
             var count = Children.Count - ChildCount;
             if (count <= 0) return;
             
-            Debug.Log(Children.Count);
-            Debug.Log(ChildCount);
-            Debug.Log(count);
-            
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
                 Children[i].Destroy(element =>
@@ -204,8 +201,11 @@ namespace RishUI
                 {
                     Children[i].Destroy(callback);
                 }
+                
+                Children.Clear();
             }
-            
+
+            Depth = -1;
             Element.Hide();
             callback?.Invoke(Element);
         }

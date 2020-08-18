@@ -105,8 +105,19 @@ namespace RishUI.Editor
 		private void OnRender(DOM dom)
 		{
 			TreeView.OnRender(dom);
-			UpdateInspector();
-			
+
+			if (Selected != null)
+			{
+				if (!Selected.IsValid)
+				{
+					OnSelection(null);
+				}
+				else
+				{
+					UpdateInspector();
+				}
+			}
+
 			Repaint();
 		}
 

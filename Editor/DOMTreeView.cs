@@ -20,7 +20,7 @@ namespace RishUI.Editor
 		private Texture2D RealIcon { get; }
 
 		private Dictionary<int, EditorCoroutine> recentlyRendered { get; } = new Dictionary<int, EditorCoroutine>();
-
+		
 		public DOMTreeView (Rish rish, Texture2D vIcon, Texture2D rIcon, TreeViewState state) : base (state)
 		{
 			Rish = rish;
@@ -32,6 +32,8 @@ namespace RishUI.Editor
 
 		public void OnRender(DOM dom)
 		{
+			Reload();
+
 			var id = dom.ID;
 
 			ExpandUp(dom);
@@ -159,7 +161,7 @@ namespace RishUI.Editor
 			return item;
 		}
 
-		protected override void SelectionChanged (IList<int> selectedIds)
+		protected override void SelectionChanged(IList<int> selectedIds)
 		{
 			base.SelectionChanged(selectedIds);
 
