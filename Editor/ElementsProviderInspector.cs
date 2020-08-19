@@ -81,7 +81,7 @@ namespace RishUI.Editor
                 EditorGUILayout.LabelField("Prototypes", EditorStyles.boldLabel);
                 for (int i = 0, n = defaultStyle.arraySize; i < n; i++)
                 {
-                    var obj = defaultStyle.GetArrayElementAtIndex(i).objectReferenceValue;
+                    var obj = defaultStyle.GetArrayElementAtIndex(i).FindPropertyRelative("element").objectReferenceValue;
                     var objType = obj.GetType();
                     EditorGUILayout.ObjectField(obj, typeof(DOMElement), false);
                     
@@ -93,7 +93,7 @@ namespace RishUI.Editor
                         Object overloaded = null;
                         for (int k = style.arraySize - 1; k >= 0; k--)
                         {
-                            var obj2 = style.GetArrayElementAtIndex(k).objectReferenceValue;
+                            var obj2 = style.GetArrayElementAtIndex(k).FindPropertyRelative("element").objectReferenceValue;
                             if (obj2 != null && obj2.GetType() == objType)
                             {
                                 overloaded = obj2;

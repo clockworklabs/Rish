@@ -8,32 +8,36 @@ namespace RishUI
     public class Style : ScriptableObject, ISerializationCallbackReceiver
     {
         [SerializeField]
-        private DOMElement[] prototypes;
-        private DOMElement[] Prototypes => prototypes;
+        private List<Prototype> prototypes = new List<Prototype>();
+        private List<Prototype> Prototypes => prototypes;
 
-        private Dictionary<Type, DOMElement> Dictionary { get; } = new Dictionary<Type, DOMElement>();
+        private Dictionary<Type, int> Dictionary { get; } = new Dictionary<Type, int>();
 
-        public int PrototypesCount => Prototypes.Length;
+        public int PrototypesCount => Prototypes.Count;
 
-        public DOMElement GetPrototype(int index) => Prototypes[index];
+        public Prototype GetPrototype(int index) => Prototypes[index];
 
-        public T GetPrototype<T>() where T : DOMElement => GetPrototype(typeof(T)) as T;
-        
-        public DOMElement GetPrototype(Type type)
+        public Prototype GetPrototype(Type type)
         {
-            Dictionary.TryGetValue(type, out var prototype);
-
-            return prototype;
+            Dictionary.TryGetValue(type, out var index);
+            
+            return index <= 0 ? null : Prototypes[index - 1];
         }
 
         public void OnBeforeSerialize() { }
 
         public void OnAfterDeserialize()
         {
-            foreach (var prototype in Prototypes)
+            for (int i = 0, n = PrototypesCount; i < n; i++)
             {
-                var type = prototype.GetType();
-                Dictionary[type] = prototype;
+                var prototype = Prototypes[i];
+                var element = prototype.Element;
+                if (element == null)
+                {
+                    continue;
+                }
+                var type = element.GetType();
+                Dictionary[type] = i + 1;
             }
         }
     }

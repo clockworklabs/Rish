@@ -11,16 +11,10 @@ namespace RishUI
         private ElementsProvider provider;
         private ElementsProvider Provider => provider;
 
-        [SerializeField]
-        private int initialCount;
-        private int InitialCount => initialCount;
-
         private Dictionary<Type, Dictionary<uint, Stack<DOMElement>>> RealPools { get; } = new Dictionary<Type, Dictionary<uint, Stack<DOMElement>>>();
 
         private void Awake()
         {
-            var initialCapacity = InitialCount * InitialCount;
-
             if (Provider == null)
             {
                 return;
@@ -42,12 +36,15 @@ namespace RishUI
                     continue;
                 }
 
-                var type = defaultPrototype.GetType();
+                var defaultElement = defaultPrototype.Element;
+                var defaultInitialCount = defaultPrototype.InitialCount;
+
+                var type = defaultElement.GetType();
 
                 var poolsDictionary = new Dictionary<uint, Stack<DOMElement>>();
 
-                var defaultPool = new Stack<DOMElement>(initialCapacity);
-                PopulatePool(defaultPool, defaultPrototype, InitialCount);
+                var defaultPool = new Stack<DOMElement>(defaultInitialCount * defaultInitialCount);
+                PopulatePool(defaultPool, defaultElement, defaultInitialCount);
                 poolsDictionary[0] = defaultPool;
 
                 for (uint j = 1; j < stylesCount; j++)
@@ -57,9 +54,12 @@ namespace RishUI
                     {
                         continue;
                     }
+                    
+                    var styleElement = stylePrototype.Element;
+                    var styleInitialCount = stylePrototype.InitialCount;
 
-                    var stylePool = new Stack<DOMElement>(initialCapacity);
-                    PopulatePool(stylePool, stylePrototype, InitialCount);
+                    var stylePool = new Stack<DOMElement>(styleInitialCount * styleInitialCount);
+                    PopulatePool(stylePool, styleElement, styleInitialCount);
                     poolsDictionary[j] = stylePool;
                 }
 
@@ -116,7 +116,9 @@ namespace RishUI
 
             if (pool.Count == 0)
             {
-                PopulatePool(pool, Provider.GetPrototype(type, style), InitialCount);
+                var prototype = Provider.GetPrototype(type, style);
+                
+                PopulatePool(pool, prototype.Element, prototype.InitialCount);
             }
             
             element = pool.Pop();
