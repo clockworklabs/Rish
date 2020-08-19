@@ -11,7 +11,7 @@ namespace RishUI
         public DOMElement Element => element;
         
         [SerializeField]
-        private int initialCount;
+        private int initialCount = 1;
         public int InitialCount => Mathf.Max(1, initialCount);
     }
 }

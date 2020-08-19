@@ -2,7 +2,8 @@
     "name": "ClockworkLabs.Rish.Editor",
     "references": [
         "GUID:f78b56649bf2463a942c93c39bfdd81f",
-        "GUID:478a2357cc57436488a56e564b08d223"
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:466d4cb32fd66ef4f99747d4eb7191d9"
     ],
     "includePlatforms": [
         "Editor"

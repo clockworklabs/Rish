@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 using Inspector = UnityEditor.Editor;
 using Object = UnityEngine.Object;
 
@@ -70,6 +71,9 @@ namespace RishUI.Editor
                 return;
             }
             
+            serializedObject.ApplyModifiedProperties();
+
+            GUI.enabled = false;
             if (StylesProperty.arraySize > 0)
             {
                 EditorGUILayout.Space();
@@ -81,32 +85,39 @@ namespace RishUI.Editor
                 EditorGUILayout.LabelField("Prototypes", EditorStyles.boldLabel);
                 for (int i = 0, n = defaultStyle.arraySize; i < n; i++)
                 {
-                    var obj = defaultStyle.GetArrayElementAtIndex(i).FindPropertyRelative("element").objectReferenceValue;
-                    var objType = obj.GetType();
-                    EditorGUILayout.ObjectField(obj, typeof(DOMElement), false);
+                    var defaultProperty = defaultStyle.GetArrayElementAtIndex(i);
+
+                    EditorGUILayout.PropertyField(defaultProperty, GUIContent.none);
+                    
+                    var defaultElement = defaultProperty.FindPropertyRelative("element").objectReferenceValue;
+                    if (defaultElement == null)
+                    {
+                        continue;
+                    }
+                    var type = defaultElement.GetType();
                     
                     EditorGUI.indentLevel += 1;
                     for (int j = 1, m = StylesObjects.Count; j < m; j++)
                     {
                         var style = StylesObjects[j];
 
-                        Object overloaded = null;
                         for (int k = style.arraySize - 1; k >= 0; k--)
                         {
-                            var obj2 = style.GetArrayElementAtIndex(k).FindPropertyRelative("element").objectReferenceValue;
-                            if (obj2 != null && obj2.GetType() == objType)
+                            var styleProperty = style.GetArrayElementAtIndex(k);
+                            var styleElement = styleProperty.FindPropertyRelative("element").objectReferenceValue;
+                            if (styleElement != null && styleElement.GetType() == type)
                             {
-                                overloaded = obj2;
+                                EditorGUILayout.PropertyField(styleProperty, GUIContent.none);
+                                break;
                             }
                         }
-                        EditorGUILayout.ObjectField(StylesProperty.GetArrayElementAtIndex(j).objectReferenceValue.name, overloaded, typeof(DOMElement), false);
+                        
                     }
                     EditorGUI.indentLevel -= 1;
                     EditorGUILayout.Space();
                 }
+                GUI.enabled = true;
             }
-            
-            serializedObject.ApplyModifiedProperties();
         }
 
         /*
