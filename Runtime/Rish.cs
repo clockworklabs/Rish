@@ -183,7 +183,7 @@ namespace RishUI
                 {
                     foreach (var nestedChild in childrenArray)
                     {
-                        nestedChild.SetParent(child);
+                        nestedChild?.SetParent(child);
                     }
                 }
                 EndElement();
@@ -244,7 +244,7 @@ namespace RishUI
                 {
                     foreach (var nestedChild in childrenArray)
                     {
-                        nestedChild.SetParent(child);
+                        nestedChild?.SetParent(child);
                     }
                 }
                 EndElement();

@@ -101,7 +101,7 @@ namespace RishUI.Editor
                     {
                         var style = StylesObjects[j];
 
-                        for (int k = style.arraySize - 1; k >= 0; k--)
+                        for (var k = style.arraySize - 1; k >= 0; k--)
                         {
                             var styleProperty = style.GetArrayElementAtIndex(k);
                             var styleElement = styleProperty.FindPropertyRelative("element").objectReferenceValue;
