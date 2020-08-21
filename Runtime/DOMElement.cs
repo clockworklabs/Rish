@@ -45,6 +45,8 @@ namespace RishUI
         {
             var rectTransform = (RectTransform) transform;
                 
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            
             rectTransform.anchorMin = DivProps.anchorMin;
             rectTransform.anchorMax = DivProps.anchorMax;
             
