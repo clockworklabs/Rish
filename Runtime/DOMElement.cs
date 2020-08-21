@@ -8,20 +8,7 @@ namespace RishUI
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
-        
-        private UIAnimation animationController;
-        private UIAnimation AnimationController {
-            get
-            {
-                if (animationController == null)
-                {
-                    animationController = GetComponent<UIAnimation>();
-                }
                 
-                return animationController;
-            }
-        }
-        
         private DivProps divProps;
         public DivProps DivProps
         {
@@ -112,14 +99,13 @@ namespace RishUI
             protected get => props;
             set
             {
-                if (value is IEquatable<P> equatable && equatable.Equals(props))
-                {
-                    return;
-                }
-                
+                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
                 props = value;
-                
-                Notify();
+
+                if (changed)
+                {
+                    Notify();
+                }
             }
         }
 

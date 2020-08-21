@@ -49,17 +49,15 @@ namespace RishUI
             protected get => props;
             set
             {
-                if (value is IEquatable<P> equatable && equatable.Equals(props))
-                {
-                    return;
-                }
-                
-                OnDisable();
-                
+                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
                 props = value;
 
-                Dirty = true;
-                Notify();
+                if (changed)
+                {
+                    OnDisable();
+                    Dirty = true;
+                    Notify();
+                }
             }
         }
         
@@ -120,14 +118,16 @@ namespace RishUI
             get => state;
             set
             {
-                if (value is IEquatable<S> equatable && equatable.Equals(state))
+                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
+                state = value;
+
+                if (changed)
                 {
-                    return;
+                    Notify();
                 }
                 
                 state = value;
                 
-                Notify();
             }
         }
     }
