@@ -133,10 +133,7 @@ namespace RishUI
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
                 var child = Children[i];
-                child.Destroy(element =>
-                {
-                    pool.ReturnToPool(element, child.Style);
-                });
+                child.Destroy(pool);
             }
             Children.RemoveRange(ChildCount, count);
         }
@@ -194,13 +191,13 @@ namespace RishUI
             Children[b] = temp;
         }
 
-        private void Destroy(Action<RishElement> callback)
+        private void Destroy(Pool pool)
         {
             if (Children != null)
             {
                 for (var i = Children.Count - 1; i >= 0; i--)
                 {
-                    Children[i].Destroy(callback);
+                    Children[i].Destroy(pool);
                 }
                 
                 Children.Clear();
@@ -208,7 +205,8 @@ namespace RishUI
 
             Depth = -1;
             Element.Hide();
-            callback?.Invoke(Element);
+
+            pool.ReturnToPool(Element, Style);
         }
         
         #if UNITY_EDITOR
