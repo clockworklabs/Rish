@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Visitors;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
 {
-    public class DOM : FastPriorityQueueNode
+    public class Node : FastPriorityQueueNode
     {
         private static int nextID;
         
@@ -21,7 +20,7 @@ namespace RishUI
 
         private bool IsReal => Element is MonoBehaviour;
         
-        public DOM Parent { get; private set; }
+        public Node Parent { get; private set; }
         private Transform Transform { get; }
 
         private Transform ParentTransform
@@ -44,7 +43,7 @@ namespace RishUI
         private Rish Rish { get; }
         
         public int ChildCount { get; private set; }
-        private List<DOM> Children { get; set; }
+        private List<Node> Children { get; set; }
 
         private int VirtualIndex { get; set; }
         
@@ -62,7 +61,7 @@ namespace RishUI
             }
         }
 
-        private DOM PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
+        private Node PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
 
         private bool IsRealTree()
         {
@@ -74,7 +73,7 @@ namespace RishUI
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
-        internal DOM(Rish rish, int key, RishElement element, uint style)
+        internal Node(Rish rish, int key, RishElement element, uint style)
         {
             ID = nextID++;
 
@@ -96,7 +95,7 @@ namespace RishUI
 
         private void Notify() => Rish.Dirty(this);
 
-        internal void SetParent(DOM parent)
+        internal void SetParent(Node parent)
         {
             if (parent == null)
             {
@@ -138,11 +137,11 @@ namespace RishUI
             Children.RemoveRange(ChildCount, count);
         }
         
-        private void AddChild(DOM child)
+        private void AddChild(Node child)
         {
             if (Children == null)
             {
-                Children = new List<DOM>();
+                Children = new List<Node>();
             }
             
             Children.Add(child);
@@ -153,7 +152,7 @@ namespace RishUI
             ChildCount++;
         }
 
-        internal DOM FindFreeChild<T>(int key, uint style) where T : RishElement
+        internal Node FindFreeChild<T>(int key, uint style) where T : RishElement
         {
             if (Children == null || Children.Count == 0)
             {
@@ -210,7 +209,7 @@ namespace RishUI
         }
         
         #if UNITY_EDITOR
-        public DOM GetChild(int index)
+        public Node GetChild(int index)
         {
             if (index < 0 || index >= ChildCount)
             {
@@ -220,7 +219,7 @@ namespace RishUI
             return Children[index];
         }
         
-        public DOM Find(int id)
+        public Node Find(int id)
         {
             if (ID == id)
             {

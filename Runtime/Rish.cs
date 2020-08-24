@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public delegate DOM[] CreateChildren();
+    public delegate Node[] CreateChildren();
+    public delegate Node CreateChild();
     
     [RequireComponent(typeof(Pool))]
     public class Rish : MonoBehaviour
@@ -13,22 +14,21 @@ namespace RishUI
         private const int MaxSize = 256;
         
         #if UNITY_EDITOR
-        public event Action<DOM> OnRender; 
+        public event Action<Node> OnRender; 
         #endif
 
         private Pool Pool { get; set; }
 
-        private FastPriorityQueue<DOM> DirtyQueue { get; } =
-            new FastPriorityQueue<DOM>(MaxSize);
+        private FastPriorityQueue<Node> DirtyQueue { get; } = new FastPriorityQueue<Node>(MaxSize);
 
         [SerializeField]
         private App app;
         private App App => app;
         
-        public DOM Root { get; private set; }
+        public Node DOM { get; private set; }
 
-        private Stack<DOM> Stack { get; } = new Stack<DOM>();
-        private DOM Current => Stack.Count > 0 ? Stack.Peek() : null;
+        private Stack<Node> Stack { get; } = new Stack<Node>();
+        private Node Current => Stack.Count > 0 ? Stack.Peek() : null;
 
         private void Start()
         {
@@ -39,7 +39,7 @@ namespace RishUI
                 return;
             }
             
-            Root = new DOM(this, 0, App, 0);
+            DOM = new Node(this, 0, App, 0);
         }
 
         private void LateUpdate()
@@ -52,7 +52,7 @@ namespace RishUI
             }
         }
 
-        public void Dirty(DOM tree)
+        public void Dirty(Node tree)
         {
             if (DirtyQueue.Contains(tree))
             {
@@ -62,7 +62,7 @@ namespace RishUI
             DirtyQueue.Enqueue(tree, Mathf.Pow(0.99f, tree.Depth));
         }
 
-        private void BeginElement(DOM tree)
+        private void BeginElement(Node tree)
         {
             tree.Clear();
             Stack.Push(tree);
@@ -76,20 +76,20 @@ namespace RishUI
         
         // === KEY, STYLE ===
         
-        public DOM Create<T>() where T : RishElement => Create<T>(0, Current?.Style ?? 0);
-        public DOM Create<T>(int key) where T : RishElement => Create<T>(key, Current?.Style ?? 0);
-        public DOM Create<T>(uint style) where T : RishElement => Create<T>(0, style);
-        public DOM Create<T>(int key, uint style) where T : RishElement
+        public Node Create<T>() where T : RishElement => Create<T>(0, Current?.Style ?? 0);
+        public Node Create<T>(int key) where T : RishElement => Create<T>(key, Current?.Style ?? 0);
+        public Node Create<T>(uint style) where T : RishElement => Create<T>(0, style);
+        public Node Create<T>(int key, uint style) where T : RishElement
         {
-            return Current?.FindFreeChild<T>(key, style) ?? new DOM(this, key, Pool.GetFromPool<T>(style), style);
+            return Current?.FindFreeChild<T>(key, style) ?? new Node(this, key, Pool.GetFromPool<T>(style), style);
         }
 
         // === KEY, STYLE, PROPS ===
         
-        public DOM Create<T, P>(P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, Current?.Style ?? 0, props);
-        public DOM Create<T, P>(int key, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(key, Current?.Style ?? 0, props);
-        public DOM Create<T, P>(uint style, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, style, props);
-        public DOM Create<T, P>(int key, uint style, P props) where P : struct, Props where T : RishElement<P>
+        public Node Create<T, P>(P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, Current?.Style ?? 0, props);
+        public Node Create<T, P>(int key, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(key, Current?.Style ?? 0, props);
+        public Node Create<T, P>(uint style, P props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, style, props);
+        public Node Create<T, P>(int key, uint style, P props) where P : struct, Props where T : RishElement<P>
         {
             var child = Create<T>(key, style);
             
@@ -101,10 +101,10 @@ namespace RishUI
         
         // === KEY, STYLE, PROPS ACTION ===
 
-        public DOM Create<T, P>(Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, Current?.Style ?? 0, props);
-        public DOM Create<T, P>(int key, Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(key, Current?.Style ?? 0, props);
-        public DOM Create<T, P>(uint style, Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, style, props);
-        public DOM Create<T, P>(int key, uint style, Func<P, P> props) where P : struct, Props where T : RishElement<P>
+        public Node Create<T, P>(Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, Current?.Style ?? 0, props);
+        public Node Create<T, P>(int key, Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(key, Current?.Style ?? 0, props);
+        public Node Create<T, P>(uint style, Func<P, P> props) where P : struct, Props where T : RishElement<P> => Create<T, P>(0, style, props);
+        public Node Create<T, P>(int key, uint style, Func<P, P> props) where P : struct, Props where T : RishElement<P>
         {
             var child = Create<T>(key, style);
             
@@ -119,10 +119,10 @@ namespace RishUI
         
         // === KEY< STYLE, DIV ===
         
-        public DOM Create<T>(DivProps divProps) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, divProps);
-        public DOM Create<T>(int key, DivProps divProps) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, divProps);
-        public DOM Create<T>(uint style, DivProps divProps) where T : DOMElement => Create<T>(0, style, divProps);
-        public DOM Create<T>(int key, uint style, DivProps divProps) where T : DOMElement
+        public Node Create<T>(DivProps divProps) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, divProps);
+        public Node Create<T>(int key, DivProps divProps) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, divProps);
+        public Node Create<T>(uint style, DivProps divProps) where T : DOMElement => Create<T>(0, style, divProps);
+        public Node Create<T>(int key, uint style, DivProps divProps) where T : DOMElement
         {
             var child = Create<T>(key, style);
 
@@ -134,10 +134,10 @@ namespace RishUI
         
         // === KEY< STYLE, DIV, PROPS ===
 
-        public DOM Create<T, P>(DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props);
-        public DOM Create<T, P>(int key, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props);
-        public DOM Create<T, P>(uint style, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props);
-        public DOM Create<T, P>(int key, uint style, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props);
+        public Node Create<T, P>(int key, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props);
+        public Node Create<T, P>(uint style, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, P props) where P : struct, Props where T : DOMElement<P>
         {
             var child = Create<T>(key, style, divProps);
             
@@ -149,10 +149,10 @@ namespace RishUI
 
         // === KEY< STYLE, DIV, PROPS ACTION ===
         
-        public DOM Create<T, P>(DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props);
-        public DOM Create<T, P>(int key, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props);
-        public DOM Create<T, P>(uint style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props);
-        public DOM Create<T, P>(int key, uint style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props);
+        public Node Create<T, P>(int key, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props);
+        public Node Create<T, P>(uint style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : DOMElement<P>
         {
             var child = Create<T>(key, style, divProps);
             
@@ -165,20 +165,41 @@ namespace RishUI
             return child;
         }
         
-        // === KEY, STYLE, CHILDREN ===
+        // === KEY, STYLE, CHILD ===
         
-        public DOM Create<T>(CreateChildren children) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, children);
-        public DOM Create<T>(int key, CreateChildren children) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, children);
-        public DOM Create<T>(uint style, CreateChildren children) where T : DOMElement => Create<T>(0, style, children);
-        public DOM Create<T>(int key, uint style, CreateChildren children) where T : DOMElement
+        public Node Create<T>(CreateChild createChild) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, createChild);
+        public Node Create<T>(int key, CreateChild createChild) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, createChild);
+        public Node Create<T>(uint style, CreateChild createChild) where T : DOMElement => Create<T>(0, style, createChild);
+        public Node Create<T>(int key, uint style, CreateChild createChild) where T : DOMElement
         {
-            var child = Current?.FindFreeChild<T>(key, style) ?? new DOM(this, key, Pool.GetFromPool<T>(style), style);
+            var child = Current?.FindFreeChild<T>(key, style) ?? new Node(this, key, Pool.GetFromPool<T>(style), style);
 
             var element = (T) child.Element;
-            if (!element.IsLeaf && children != null)
+            if (!element.IsLeaf && createChild != null)
             {
                 BeginElement(child);
-                var childrenArray = children.Invoke();
+                var nestedChild = createChild.Invoke();
+                nestedChild?.SetParent(child);
+                EndElement();
+            }
+
+            return child;
+        }
+        
+        // === KEY, STYLE, CHILDREN ===
+        
+        public Node Create<T>(CreateChildren createChildren) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, createChildren);
+        public Node Create<T>(int key, CreateChildren createChildren) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, createChildren);
+        public Node Create<T>(uint style, CreateChildren createChildren) where T : DOMElement => Create<T>(0, style, createChildren);
+        public Node Create<T>(int key, uint style, CreateChildren createChildren) where T : DOMElement
+        {
+            var child = Current?.FindFreeChild<T>(key, style) ?? new Node(this, key, Pool.GetFromPool<T>(style), style);
+
+            var element = (T) child.Element;
+            if (!element.IsLeaf && createChildren != null)
+            {
+                BeginElement(child);
+                var childrenArray = createChildren.Invoke();
                 if (childrenArray != null)
                 {
                     foreach (var nestedChild in childrenArray)
@@ -192,14 +213,14 @@ namespace RishUI
             return child;
         }
         
-        // === KEY, STYLE, PROPS, CHILDREN ===
+        // === KEY, STYLE, PROPS, CHILD ===
 
-        public DOM Create<T, P>(P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, children);
-        public DOM Create<T, P>(int key, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, children);
-        public DOM Create<T, P>(uint style, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, children);
-        public DOM Create<T, P>(int key, uint style, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, createChild);
+        public Node Create<T, P>(int key, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, createChild);
+        public Node Create<T, P>(uint style, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, createChild);
+        public Node Create<T, P>(int key, uint style, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P>
         {
-            var child = Create<T>(key, style, children);
+            var child = Create<T>(key, style, createChild);
 
             var element = (T) child.Element;
             element.Props = props;
@@ -207,19 +228,74 @@ namespace RishUI
             return child;
         }
         
-        // === KEY, STYLE, PROPS ACTION, CHILDREN ===
+        // === KEY, STYLE, PROPS, CHILDREN ===
 
-        public DOM Create<T, P>(Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, children);
-        public DOM Create<T, P>(int key, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, children);
-        public DOM Create<T, P>(uint style, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, children);
-        public DOM Create<T, P>(int key, uint style, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, createChildren);
+        public Node Create<T, P>(int key, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, createChildren);
+        public Node Create<T, P>(uint style, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, createChildren);
+        public Node Create<T, P>(int key, uint style, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P>
         {
-            var child = Create<T>(key, style, children);
+            var child = Create<T>(key, style, createChildren);
+
+            var element = (T) child.Element;
+            element.Props = props;
+
+            return child;
+        }
+        
+        // === KEY, STYLE, PROPS ACTION, CHILD ===
+
+        public Node Create<T, P>(Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, createChild);
+        public Node Create<T, P>(int key, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, createChild);
+        public Node Create<T, P>(uint style, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, createChild);
+        public Node Create<T, P>(int key, uint style, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P>
+        {
+            var child = Create<T>(key, style, createChild);
 
             if (props != null)
             {
                 var element = (T) child.Element;
                 element.Props = props.Invoke(element.DefaultProps);
+            }
+
+            return child;
+        }
+        
+        // === KEY, STYLE, PROPS ACTION, CHILDREN ===
+
+        public Node Create<T, P>(Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, props, createChildren);
+        public Node Create<T, P>(int key, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, props, createChildren);
+        public Node Create<T, P>(uint style, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, props, createChildren);
+        public Node Create<T, P>(int key, uint style, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P>
+        {
+            var child = Create<T>(key, style, createChildren);
+
+            if (props != null)
+            {
+                var element = (T) child.Element;
+                element.Props = props.Invoke(element.DefaultProps);
+            }
+
+            return child;
+        }
+        
+        // === KEY, STYLE, DIV, CHILD ===
+        
+        public Node Create<T>(DivProps divProps, CreateChild createChild) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, divProps, createChild);
+        public Node Create<T>(int key, DivProps divProps, CreateChild createChild) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, divProps, createChild);
+        public Node Create<T>(uint style, DivProps divProps, CreateChild createChild) where T : DOMElement => Create<T>(0, style, divProps, createChild);
+        public Node Create<T>(int key, uint style, DivProps divProps, CreateChild createChild) where T : DOMElement
+        {
+            var child = Current?.FindFreeChild<T>(key, style) ?? new Node(this, key, Pool.GetFromPool<T>(style), style);
+
+            var element = (T) child.Element;
+            element.DivProps = divProps;
+            if (!element.IsLeaf && createChild != null)
+            {
+                BeginElement(child);
+                var nestedChild = createChild.Invoke();
+                nestedChild?.SetParent(child);
+                EndElement();
             }
 
             return child;
@@ -227,19 +303,19 @@ namespace RishUI
         
         // === KEY, STYLE, DIV, CHILDREN ===
         
-        public DOM Create<T>(DivProps divProps, CreateChildren children) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, divProps, children);
-        public DOM Create<T>(int key, DivProps divProps, CreateChildren children) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, divProps, children);
-        public DOM Create<T>(uint style, DivProps divProps, CreateChildren children) where T : DOMElement => Create<T>(0, style, divProps, children);
-        public DOM Create<T>(int key, uint style, DivProps divProps, CreateChildren children) where T : DOMElement
+        public Node Create<T>(DivProps divProps, CreateChildren createChildren) where T : DOMElement => Create<T>(0, Current?.Style ?? 0, divProps, createChildren);
+        public Node Create<T>(int key, DivProps divProps, CreateChildren createChildren) where T : DOMElement => Create<T>(key, Current?.Style ?? 0, divProps, createChildren);
+        public Node Create<T>(uint style, DivProps divProps, CreateChildren createChildren) where T : DOMElement => Create<T>(0, style, divProps, createChildren);
+        public Node Create<T>(int key, uint style, DivProps divProps, CreateChildren createChildren) where T : DOMElement
         {
-            var child = Current?.FindFreeChild<T>(key, style) ?? new DOM(this, key, Pool.GetFromPool<T>(style), style);
+            var child = Current?.FindFreeChild<T>(key, style) ?? new Node(this, key, Pool.GetFromPool<T>(style), style);
 
             var element = (T) child.Element;
             element.DivProps = divProps;
-            if (!element.IsLeaf && children != null)
+            if (!element.IsLeaf && createChildren != null)
             {
                 BeginElement(child);
-                var childrenArray = children.Invoke();
+                var childrenArray = createChildren.Invoke();
                 if (childrenArray != null)
                 {
                     foreach (var nestedChild in childrenArray)
@@ -253,14 +329,14 @@ namespace RishUI
             return child;
         }
         
-        // === KEY, STYLE, DIV, PROPS, CHILDREN ===
+        // === KEY, STYLE, DIV, PROPS, CHILD ===
 
-        public DOM Create<T, P>(DivProps divProps, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, children);
-        public DOM Create<T, P>(int key, DivProps divProps, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, children);
-        public DOM Create<T, P>(uint style, DivProps divProps, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, children);
-        public DOM Create<T, P>(int key, uint style, DivProps divProps, P props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(DivProps divProps, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, createChild);
+        public Node Create<T, P>(int key, DivProps divProps, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, createChild);
+        public Node Create<T, P>(uint style, DivProps divProps, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, createChild);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, P props, CreateChild createChild) where P : struct, Props where T : DOMElement<P>
         {
-            var child = Create<T>(key, style, divProps, children);
+            var child = Create<T>(key, style, divProps, createChild);
 
             var element = (T) child.Element;
             element.Props = props;
@@ -268,14 +344,47 @@ namespace RishUI
             return child;
         }
         
+        // === KEY, STYLE, DIV, PROPS, CHILDREN ===
+
+        public Node Create<T, P>(DivProps divProps, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, createChildren);
+        public Node Create<T, P>(int key, DivProps divProps, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, createChildren);
+        public Node Create<T, P>(uint style, DivProps divProps, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, createChildren);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, P props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P>
+        {
+            var child = Create<T>(key, style, divProps, createChildren);
+
+            var element = (T) child.Element;
+            element.Props = props;
+
+            return child;
+        }
+        
+        // === KEY, STYLE, DIV, PROPS ACTION, CHILD ===
+
+        public Node Create<T, P>(DivProps divProps, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, createChild);
+        public Node Create<T, P>(int key, DivProps divProps, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, createChild);
+        public Node Create<T, P>(uint style, DivProps divProps, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, createChild);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, Func<P, P> props, CreateChild createChild) where P : struct, Props where T : DOMElement<P>
+        {
+            var child = Create<T>(key, style, divProps, createChild);
+
+            if (props != null)
+            {
+                var element = (T) child.Element;
+                element.Props = props.Invoke(element.DefaultProps);
+            }
+
+            return child;
+        }
+        
         // === KEY, STYLE, DIV, PROPS ACTION, CHILDREN ===
 
-        public DOM Create<T, P>(DivProps divProps, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, children);
-        public DOM Create<T, P>(int key, DivProps divProps, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, children);
-        public DOM Create<T, P>(uint style, DivProps divProps, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, children);
-        public DOM Create<T, P>(int key, uint style, DivProps divProps, Func<P, P> props, CreateChildren children) where P : struct, Props where T : DOMElement<P>
+        public Node Create<T, P>(DivProps divProps, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, Current?.Style ?? 0, divProps, props, createChildren);
+        public Node Create<T, P>(int key, DivProps divProps, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(key, Current?.Style ?? 0, divProps, props, createChildren);
+        public Node Create<T, P>(uint style, DivProps divProps, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P> => Create<T, P>(0, style, divProps, props, createChildren);
+        public Node Create<T, P>(int key, uint style, DivProps divProps, Func<P, P> props, CreateChildren createChildren) where P : struct, Props where T : DOMElement<P>
         {
-            var child = Create<T>(key, style, divProps, children);
+            var child = Create<T>(key, style, divProps, createChildren);
 
             if (props != null)
             {
@@ -286,15 +395,15 @@ namespace RishUI
             return child;
         }
 
-        private void Process(DOM dom)
+        private void Process(Node node)
         {
-            switch (dom.Element)
+            switch (node.Element)
             {
                 case VirtualElement element:
                 {
-                    BeginElement(dom);
+                    BeginElement(node);
                     var child = element.SetupAndRender(this);
-                    child?.SetParent(dom);
+                    child?.SetParent(node);
                     EndElement();
                     
                     break;
@@ -306,9 +415,9 @@ namespace RishUI
                 }
                 case App element:
                 {
-                    BeginElement(dom);
+                    BeginElement(node);
                     var child = element.Render(this);
-                    child?.SetParent(dom);
+                    child?.SetParent(node);
                     EndElement();
                     
                     break;
@@ -316,7 +425,7 @@ namespace RishUI
             }
             
             #if UNITY_EDITOR
-            OnRender?.Invoke(dom);
+            OnRender?.Invoke(node);
             #endif
         }
     }

@@ -26,7 +26,7 @@ namespace RishUI.Editor
  
 		private GUIStyle ResizerStyle { get; set; }
 		
-		private DOM Selected { get; set; }
+		private Node Selected { get; set; }
 		private PropertyInfo Props { get; set; }
 		private PropertyInfo State { get; set; }
 		private string SelectedPropsJson { get; set; }
@@ -102,9 +102,9 @@ namespace RishUI.Editor
 			}
 		}
 
-		private void OnRender(DOM dom)
+		private void OnRender(Node node)
 		{
-			TreeView.OnRender(dom);
+			TreeView.OnRender(node);
 
 			if (Selected != null)
 			{
@@ -121,7 +121,7 @@ namespace RishUI.Editor
 			Repaint();
 		}
 
-		private void OnSelection(DOM selected)
+		private void OnSelection(Node selected)
 		{
 			Selected = selected;
 
@@ -176,16 +176,16 @@ namespace RishUI.Editor
 			
 			GUILayout.FlexibleSpace();
 
-			if (Rish?.Root != null)
+			if (Rish?.DOM != null)
 			{
 				if (GUILayout.Button(ExpandIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.ExpandDown(Rish.Root);
+					TreeView.ExpandDown(Rish.DOM);
 				}
 
 				if (GUILayout.Button(CollapseIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.CollapseDown(Rish.Root);
+					TreeView.CollapseDown(Rish.DOM);
 				}
 			}
 			
