@@ -132,9 +132,10 @@ namespace RishUI
             
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
-                Children[i].Destroy(element =>
+                var child = Children[i];
+                child.Destroy(element =>
                 {
-                    pool.ReturnToPool(element, Style);
+                    pool.ReturnToPool(element, child.Style);
                 });
             }
             Children.RemoveRange(ChildCount, count);
