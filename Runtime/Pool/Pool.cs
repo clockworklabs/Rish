@@ -11,6 +11,8 @@ namespace RishUI
         private ElementsProvider provider;
         private ElementsProvider Provider => provider;
 
+        private Dictionary<Type, Activator<VirtualElement>> VirtualActivators { get; } = new Dictionary<Type, Activator<VirtualElement>>();
+        private Dictionary<Type, Stack<VirtualElement>> VirtualPools { get; } = new Dictionary<Type, Stack<VirtualElement>>();
         private Dictionary<Type, Dictionary<uint, Stack<DOMElement>>> RealPools { get; } = new Dictionary<Type, Dictionary<uint, Stack<DOMElement>>>();
 
         private void Awake()
@@ -133,16 +135,41 @@ namespace RishUI
                 return false;
             }
 
-            element = (RishElement) Activator.CreateInstance(type);
+            VirtualPools.TryGetValue(type, out var pool);
+            if (pool == null)
+            {
+                pool = new Stack<VirtualElement>(25);
+                VirtualPools[type] = pool;
+            }
+
+            if (pool.Count == 0)
+            {
+                VirtualActivators.TryGetValue(type, out var activator);
+                if (activator == null)
+                {
+                    activator = Activators.Get<VirtualElement>(type);
+                    VirtualActivators[type] = activator;
+                }
+
+                PopulatePool(pool, activator, 5);
+            }
+
+            element = pool.Pop();
             return true;
         }
 
         private bool ReturnDOMElement(Type type, RishElement element, uint style)
         {
+            if (element == null)
+            {
+                return false;
+            }
+            
             if (!RealPools.TryGetValue(type, out var dictionary)) return false;
             if (!dictionary.TryGetValue(style, out var pool)) return false;
 
-            var domElement = element as DOMElement;
+            if (!(element is DOMElement domElement)) return false;
+            
             domElement.gameObject.SetActive(false);
             domElement.transform.SetParent(transform, false);
 
@@ -152,7 +179,18 @@ namespace RishUI
         }
 
         private bool ReturnVirtualElement(Type type, RishElement element)
-        {
+        {     
+            if (element == null)
+            {
+                return false;
+            }
+            
+            if (!VirtualPools.TryGetValue(type, out var pool)) return false;
+
+            if (!(element is VirtualElement virtualElement)) return false;
+            
+            pool.Push(virtualElement);
+
             return true;
         }
 
@@ -161,6 +199,15 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Instantiate(prototype, transform, false);
+                pool.Push(instance);
+            }
+        }
+
+        private void PopulatePool(Stack<VirtualElement> pool, Activator<VirtualElement> activator, int count)
+        {
+            for (var j = 0; j < count; j++)
+            {
+                var instance = activator();
                 pool.Push(instance);
             }
         }
