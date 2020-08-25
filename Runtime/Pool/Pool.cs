@@ -88,6 +88,11 @@ namespace RishUI
 
         internal bool ReturnToPool(RishElement element, uint style)
         {
+            if (element == null)
+            {
+                return false;
+            }
+            
             var type = element.GetType();
             if (ReturnDOMElement(type, element, style))
             {
@@ -160,11 +165,6 @@ namespace RishUI
 
         private bool ReturnDOMElement(Type type, RishElement element, uint style)
         {
-            if (element == null)
-            {
-                return false;
-            }
-            
             if (!RealPools.TryGetValue(type, out var dictionary)) return false;
             if (!dictionary.TryGetValue(style, out var pool)) return false;
 
@@ -179,12 +179,7 @@ namespace RishUI
         }
 
         private bool ReturnVirtualElement(Type type, RishElement element)
-        {     
-            if (element == null)
-            {
-                return false;
-            }
-            
+        {
             if (!VirtualPools.TryGetValue(type, out var pool)) return false;
 
             if (!(element is VirtualElement virtualElement)) return false;
