@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,12 @@ namespace RishUI
         [SerializeField]
         private ElementsProvider provider;
         private ElementsProvider Provider => provider;
+
+        [Space]
+        
+        [SerializeField]
+        private int virtualInitialSize = 5;
+        private int VirtualInitialSize => Mathf.Max(1, virtualInitialSize);
 
         private Dictionary<Type, Activator<VirtualElement>> VirtualActivators { get; } = new Dictionary<Type, Activator<VirtualElement>>();
         private Dictionary<Type, Stack<VirtualElement>> VirtualPools { get; } = new Dictionary<Type, Stack<VirtualElement>>();
@@ -143,7 +148,7 @@ namespace RishUI
             VirtualPools.TryGetValue(type, out var pool);
             if (pool == null)
             {
-                pool = new Stack<VirtualElement>(25);
+                pool = new Stack<VirtualElement>(VirtualInitialSize * VirtualInitialSize);
                 VirtualPools[type] = pool;
             }
 
@@ -156,7 +161,7 @@ namespace RishUI
                     VirtualActivators[type] = activator;
                 }
 
-                PopulatePool(pool, activator, 5);
+                PopulatePool(pool, activator, VirtualInitialSize);
             }
 
             element = pool.Pop();
@@ -198,7 +203,7 @@ namespace RishUI
             }
         }
 
-        private void PopulatePool(Stack<VirtualElement> pool, Activator<VirtualElement> activator, int count)
+        private static void PopulatePool(Stack<VirtualElement> pool, Activator<VirtualElement> activator, int count)
         {
             for (var j = 0; j < count; j++)
             {
