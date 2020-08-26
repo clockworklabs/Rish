@@ -74,18 +74,16 @@ namespace RishUI
             }
         }
 
-        internal T GetFromPool<T>(uint style) where T : RishElement
+        internal RishElement GetFromPool(Type type, uint style) 
         {
-            var type = typeof(T);
-
             if (GetDOMElement(type, style, out var element))
             {
-                return (T) element;
+                return element;
             }
 
             if (GetVirtualElement(type, out element))
             {
-                return (T) element;
+                return element;
             }
 
             throw new UnityException("Pool doesn't exist.");

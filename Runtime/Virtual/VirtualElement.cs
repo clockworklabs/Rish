@@ -15,12 +15,12 @@ namespace RishUI
 
         public virtual void Hide() { }
 
-        internal virtual Node SetupAndRender(Rish rish)
+        internal virtual INode SetupAndRender(Rish rish)
         {
             return Render(rish);
         }
         
-        protected abstract Node Render(Rish rish);
+        protected abstract INode Render(Rish rish);
     }
 
     public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props
@@ -94,7 +94,7 @@ namespace RishUI
         protected virtual void OnEnable() { }
         protected virtual void OnDisable() { }
         
-        internal override Node SetupAndRender(Rish rish)
+        internal override INode SetupAndRender(Rish rish)
         {
             if (Dirty)
             {
@@ -126,7 +126,6 @@ namespace RishUI
                 }
                 
                 state = value;
-                
             }
         }
     }

@@ -13,7 +13,7 @@ namespace RishUI.Editor
 {
 	public class DOMTreeView : TreeView
 	{
-		public event Action<Node> OnSelection;
+		public event Action<DOM> OnSelection;
 		private Rish Rish { get; }
 
 		private Texture2D VirtualIcon { get; }
@@ -30,13 +30,13 @@ namespace RishUI.Editor
 			Reload();
 		}
 
-		public void OnRender(Node node)
+		public void OnRender(DOM dom)
 		{
 			Reload();
 
-			var id = node.ID;
+			var id = dom.ID;
 
-			ExpandUp(node);
+			ExpandUp(dom);
 			
 			if (recentlyRendered.ContainsKey(id))
 			{
@@ -45,36 +45,36 @@ namespace RishUI.Editor
 			recentlyRendered[id] = EditorCoroutineUtility.StartCoroutine(Highlight(id), this);
 		}
 		
-		private void ExpandUp(Node node)
+		private void ExpandUp(DOM dom)
 		{
-			if (node == null)
+			if (dom == null)
 			{
 				return;
 			}
 			
-			ExpandUp(node.Parent);
+			ExpandUp(dom.Parent);
 			
-			SetExpanded(node.ID, true);
+			SetExpanded(dom.ID, true);
 		}
 
-		public void ExpandDown(Node node)
+		public void ExpandDown(DOM dom)
 		{
-			SetExpanded(node.ID, true);
+			SetExpanded(dom.ID, true);
 
-			for (int i = 0, n = node.ChildCount; i < n; i++)
+			for (int i = 0, n = dom.ChildCount; i < n; i++)
 			{
-				ExpandDown(node.GetChild(i));
+				ExpandDown(dom.GetChild(i));
 			}
 		}
 
-		public void CollapseDown(Node node)
+		public void CollapseDown(DOM dom)
 		{
-			for (int i = 0, n = node.ChildCount; i < n; i++)
+			for (int i = 0, n = dom.ChildCount; i < n; i++)
 			{
-				CollapseDown(node.GetChild(i));
+				CollapseDown(dom.GetChild(i));
 			}
 			
-			SetExpanded(node.ID, false);
+			SetExpanded(dom.ID, false);
 		}
 
 		private IEnumerator Highlight(int id)
@@ -121,14 +121,14 @@ namespace RishUI.Editor
 			return rows;
 		}
 
-		private void AddChildrenRecursive(Node node, TreeViewItem item, ICollection<TreeViewItem> rows)
+		private void AddChildrenRecursive(DOM dom, TreeViewItem item, ICollection<TreeViewItem> rows)
 		{
-			var childCount = node.ChildCount;
+			var childCount = dom.ChildCount;
 
 			item.children = new List<TreeViewItem> (childCount);
 			for (var i = 0; i < childCount; ++i)
 			{
-				var child = node.GetChild (i);
+				var child = dom.GetChild (i);
 				var childItem = CreateItemForDOM(child);
 				item.AddChild (childItem);
 				rows.Add (childItem);
@@ -145,11 +145,11 @@ namespace RishUI.Editor
 			}
 		}
 
-		private TreeViewItem CreateItemForDOM(Node node)
+		private TreeViewItem CreateItemForDOM(DOM dom)
 		{
-			var item = new TreeViewItem(node.ID, -1, $"{node.Type.Name}: {{{node.Key}}}");
+			var item = new TreeViewItem(dom.ID, -1, $"{dom.Type.Name}: {{{dom.Key}}}");
 
-			if (node.Type.IsSubclassOf(typeof(DOMElement)))
+			if (dom.Type.IsSubclassOf(typeof(DOMElement)))
 			{
 				item.icon = RealIcon;
 			}

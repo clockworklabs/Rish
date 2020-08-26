@@ -8,6 +8,7 @@ namespace RishUI
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
+        public INode[] Children { get; set; }
                 
         private DivProps divProps;
         public DivProps DivProps
