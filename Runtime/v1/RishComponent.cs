@@ -15,12 +15,8 @@ namespace RishUI
 
         public virtual void Hide() { }
 
-        internal virtual IRishElement SetupAndRender(Rish rish)
-        {
-            return Render(rish);
-        }
-        
-        protected abstract IRishElement Render(Rish rish);
+        public virtual void Setup() { }
+        public abstract IRishElement Render();
     }
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, Props
@@ -94,7 +90,7 @@ namespace RishUI
         protected virtual void OnEnable() { }
         protected virtual void OnDisable() { }
         
-        internal override IRishElement SetupAndRender(Rish rish)
+        public override void Setup()
         {
             if (Dirty)
             {
@@ -102,8 +98,6 @@ namespace RishUI
 
                 Dirty = false;
             }
-
-            return Render(rish);
         }
 
         protected virtual P GetDefaultProps() => default;

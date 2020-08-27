@@ -18,7 +18,7 @@ namespace RishUI
             OnDirty?.Invoke();
         }
         
-        public abstract IRishElement Render(Rish rish);
+        public abstract IRishElement Render();
     }
     
     [RequireComponent(typeof(Canvas))]

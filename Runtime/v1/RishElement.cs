@@ -7,7 +7,7 @@ namespace RishUI
     {
         Type Type { get; }
         int Key { get; }
-        uint Style { get; }
+        uint? Style { get; }
         
         IRishElement[] Children { get; }
 
@@ -17,11 +17,24 @@ namespace RishUI
     internal struct RishElement<T> : IRishElement where T : IRishComponent
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -31,12 +44,24 @@ namespace RishUI
     internal struct RishElementProps<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal P props;
                 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -52,12 +77,24 @@ namespace RishUI
     internal struct RishElementPropsFunc<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal Func<P, P> props;
                 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -76,12 +113,24 @@ namespace RishUI
     internal struct RishElementDiv<T> : IRishElement where T : UnityComponent
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
                 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -97,13 +146,25 @@ namespace RishUI
     internal struct RishElementDivProps<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
         internal P props;
                 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -120,13 +181,25 @@ namespace RishUI
     internal struct RishElementDivPropsFunc<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
         internal Func<P, P> props;
                 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => null;
 
@@ -146,13 +219,25 @@ namespace RishUI
     internal struct RishElementChildren<T> : IRishElement where T : UnityComponent
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         
         internal IRishElement[] children;
         
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 
@@ -165,6 +250,7 @@ namespace RishUI
     internal struct RishElementPropsChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal P props;
                 
@@ -172,7 +258,18 @@ namespace RishUI
 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 
@@ -188,6 +285,7 @@ namespace RishUI
     internal struct RishElementPropsFuncChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal Func<P, P> props;
                 
@@ -195,7 +293,18 @@ namespace RishUI
 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 
@@ -214,6 +323,7 @@ namespace RishUI
     internal struct RishElementDivChildren<T> : IRishElement where T : UnityComponent
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
                 
@@ -221,7 +331,18 @@ namespace RishUI
 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 
@@ -237,6 +358,7 @@ namespace RishUI
     internal struct RishElementDivPropsChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
         internal P props;
@@ -245,7 +367,18 @@ namespace RishUI
 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 
@@ -262,6 +395,7 @@ namespace RishUI
     internal struct RishElementDivPropsFuncChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
+        internal bool inheritedStyle;
         internal uint style;
         internal DivProps divProps;
         internal Func<P, P> props;
@@ -270,7 +404,18 @@ namespace RishUI
 
         public Type Type => typeof(T);
         public int Key => key;
-        public uint Style => style;
+        public uint? Style
+        {
+            get
+            {
+                if (inheritedStyle)
+                {
+                    return null;
+                }
+
+                return style;
+            }
+        }
 
         public IRishElement[] Children => children;
 

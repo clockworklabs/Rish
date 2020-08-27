@@ -86,14 +86,15 @@ namespace RishUI
 
             Transform = Component is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
-            Component.OnDirty = Notify;
+            Component.OnDirty = NotifyDirty;
             
             Component.Show();
 
-            Notify();
+            NotifyDirty();
         }
 
-        private void Notify() => Rish.Dirty(this);
+        private void NotifyDirty() => Rish.OnNodeDirty(this);
+        private void NotifyDestroy() => Rish.OnNodeDestroyed(this);
 
         internal void SetParent(StateNode parent)
         {
@@ -205,6 +206,8 @@ namespace RishUI
             Component.Hide();
 
             pool.ReturnToPool(Component, Style);
+
+            NotifyDestroy();
         }
         
         #if UNITY_EDITOR

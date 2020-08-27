@@ -176,16 +176,16 @@ namespace RishUI.Editor
 			
 			GUILayout.FlexibleSpace();
 
-			if (Rish?.StateNode != null)
+			if (Rish?.Root != null)
 			{
 				if (GUILayout.Button(ExpandIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.ExpandDown(Rish.StateNode);
+					TreeView.ExpandDown(Rish.Root);
 				}
 
 				if (GUILayout.Button(CollapseIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.CollapseDown(Rish.StateNode);
+					TreeView.CollapseDown(Rish.Root);
 				}
 			}
 			
