@@ -37,7 +37,7 @@ namespace RishUI
             }
             
             Root = new StateNode(this);
-            Root.SetUp(0, 0, App);
+            Root.Setup(0, 0, App);
         }
 
         private void LateUpdate()
@@ -377,7 +377,7 @@ namespace RishUI
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
-                childNode.SetUp(key, style, Pool.GetFromPool(type, style));
+                childNode.Setup(key, style, Pool.GetFromPool(type, style));
             }
 
             childNode.SetParent(node);

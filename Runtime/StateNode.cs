@@ -77,7 +77,7 @@ namespace RishUI
             Rish = rish;
         }
         
-        internal void SetUp(int key, uint style, IRishComponent component)
+        internal void Setup(int key, uint style, IRishComponent component)
         {
             Key = key;
             Component = component;
