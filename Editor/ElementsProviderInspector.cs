@@ -9,6 +9,7 @@ namespace RishUI.Editor
     [CustomEditor(typeof(ElementsProvider))]
     public class ElementsProviderInspector : Inspector
     {
+        private SerializedProperty ScriptProperty { get; set; }
         private SerializedProperty StylesProperty { get; set; }
         
         private List<SerializedProperty> StylesObjects { get; } = new List<SerializedProperty>();
@@ -17,6 +18,7 @@ namespace RishUI.Editor
         
         private void OnEnable()
         {
+            ScriptProperty = serializedObject.FindProperty("m_Script");
             StylesProperty = serializedObject.FindProperty("styles");
             
             StylesObjects.Clear();
@@ -30,6 +32,10 @@ namespace RishUI.Editor
 
         public override void OnInspectorGUI()
         {
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(ScriptProperty);
+            GUI.enabled = true;
+            
             serializedObject.Update();
             
             EditorGUI.BeginChangeCheck();
@@ -89,7 +95,7 @@ namespace RishUI.Editor
 
                     EditorGUILayout.PropertyField(defaultProperty, GUIContent.none);
                     
-                    var defaultElement = defaultProperty.FindPropertyRelative("element").objectReferenceValue;
+                    var defaultElement = defaultProperty.FindPropertyRelative("component").objectReferenceValue;
                     if (defaultElement == null)
                     {
                         continue;
@@ -104,7 +110,7 @@ namespace RishUI.Editor
                         for (var k = style.arraySize - 1; k >= 0; k--)
                         {
                             var styleProperty = style.GetArrayElementAtIndex(k);
-                            var styleElement = styleProperty.FindPropertyRelative("element").objectReferenceValue;
+                            var styleElement = styleProperty.FindPropertyRelative("component").objectReferenceValue;
                             if (styleElement != null && styleElement.GetType() == type)
                             {
                                 EditorGUILayout.PropertyField(styleProperty, GUIContent.none);
