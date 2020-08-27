@@ -430,7 +430,10 @@ namespace RishUI
 
                         child.Setup(childNode);
 
-                        Reconcile(childNode, child.Children);
+                        if (childNode.IsReal)
+                        {
+                            Reconcile(childNode, child.Children);
+                        }
                     }
                 }
             }

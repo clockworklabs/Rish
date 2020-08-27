@@ -18,7 +18,7 @@ namespace RishUI
         
         public uint Style { get; }
 
-        private bool IsReal => Component is MonoBehaviour;
+        public bool IsReal => Component is MonoBehaviour;
         
         public StateNode Parent { get; private set; }
         private Transform Transform { get; }

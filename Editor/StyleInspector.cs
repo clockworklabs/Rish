@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Malee.List;
+﻿using Malee.List;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
 namespace RishUI.Editor
 {
@@ -59,7 +56,7 @@ namespace RishUI.Editor
             initialCountProperty.intValue = 1;
         }
 
-        private Object OnValidateDragAndDrop(Object[] references, ReorderableList list)
+        private UnityObject OnValidateDragAndDrop(UnityObject[] references, ReorderableList list)
         {
             if(references == null || references.Length != 1)
             {
@@ -75,7 +72,7 @@ namespace RishUI.Editor
             return null;
         }
 
-        private void OnAppendDragAndDrop(Object reference, ReorderableList list)
+        private void OnAppendDragAndDrop(UnityObject reference, ReorderableList list)
         {
             if(reference is UnityComponent element)
             {
