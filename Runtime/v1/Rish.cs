@@ -25,9 +25,6 @@ namespace RishUI
         
         public StateNode StateNode { get; private set; }
 
-        private Stack<StateNode> Stack { get; } = new Stack<StateNode>();
-        private StateNode Current => Stack.Count > 0 ? Stack.Peek() : null;
-
         private void Start()
         {
             Pool = GetComponent<Pool>();
@@ -46,7 +43,7 @@ namespace RishUI
             {
                 var tree = DirtyQueue.Dequeue();
                 
-                Process(tree);
+                Render(tree);
             }
         }
 
@@ -58,18 +55,6 @@ namespace RishUI
             }
 
             DirtyQueue.Enqueue(tree, Mathf.Pow(0.99f, tree.Depth));
-        }
-
-        private void BeginElement(StateNode tree)
-        {
-            tree.Clear();
-            Stack.Push(tree);
-        }
-
-        private void EndElement()
-        {
-            var tree = Stack.Pop();
-            tree.Clean(Pool);
         }
         
         // === KEY, STYLE ===
@@ -380,7 +365,7 @@ namespace RishUI
             return child;*/
         }
 
-        private void Process(StateNode node)
+        private void Render(StateNode node)
         {
             switch (node.Component)
             {
@@ -412,7 +397,29 @@ namespace RishUI
             #endif
         }
 
-        private void Reconcile(StateNode node, params IRishElement[] children)
+        private void Reconcile(StateNode node, IRishElement child)
+        {
+            node.Clear();
+
+            if (child != null)
+            {
+                var childNode = node.FindFreeChild(child.Type, child.Key, child.Style) ??
+                                new StateNode(this, child.Key,
+                                    Pool.GetFromPool(child.Type, child.Style), child.Style);
+                childNode.SetParent(node);
+
+                child.Setup(childNode);
+
+                if (childNode.IsReal)
+                {
+                    Reconcile(childNode, child.Children);
+                }
+            }
+
+            node.Clean(Pool);
+        }
+
+        private void Reconcile(StateNode node, IRishElement[] children)
         {
             node.Clear();
 
