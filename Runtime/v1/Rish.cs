@@ -19,7 +19,8 @@ namespace RishUI
 
         private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
         private List<StateNode> Destroyed { get; } = new List<StateNode>(MaxSize);
-
+        private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
+        
         [SerializeField]
         private App app;
         private App App => app;
@@ -35,7 +36,8 @@ namespace RishUI
                 return;
             }
             
-            Root = new StateNode(this, 0, App, 0);
+            Root = new StateNode(this);
+            Root.SetUp(0, 0, App);
         }
 
         private void LateUpdate()
@@ -54,7 +56,7 @@ namespace RishUI
             {
                 for (int i = 0, n = Destroyed.Count; i < n; i++)
                 {
-                    
+                    NodesPool.Push(Destroyed[i]);
                 }
                 
                 Destroyed.Clear();
@@ -278,6 +280,11 @@ namespace RishUI
 
         private void Render(StateNode node)
         {
+            if (!node.IsValid)
+            {
+                return;
+            }
+            
             switch (node.Component)
             {
                 case RishComponent element:
@@ -311,6 +318,11 @@ namespace RishUI
 
         private void Reconcile(StateNode node, IRishElement child)
         {
+            if (!node.IsValid)
+            {
+                return;
+            }
+            
             node.Clear();
 
             if (child != null)
@@ -328,6 +340,11 @@ namespace RishUI
 
         private void Reconcile(StateNode node, IRishElement[] children)
         {
+            if (!node.IsValid)
+            {
+                return;
+            }
+            
             node.Clear();
 
             if (children != null)
@@ -356,7 +373,13 @@ namespace RishUI
             var key = child.Key;
             var style = child.Style ?? node.Style;
             
-            var childNode = node.FindFreeChild(type, key, style) ?? new StateNode(this, key, Pool.GetFromPool(type, style), style);
+            var childNode = node.FindFreeChild(type, key, style);
+            if (childNode == null)
+            {
+                childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
+                childNode.SetUp(key, style, Pool.GetFromPool(type, style));
+            }
+
             childNode.SetParent(node);
             child.Setup(childNode);
 

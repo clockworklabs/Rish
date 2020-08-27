@@ -11,17 +11,19 @@ namespace RishUI
     {
         private static int nextID;
         
+        private Rish Rish { get; }
+        
         public int ID { get; }
-        public int Key { get; }
-        
-        public IRishComponent Component { get; }
-        
-        public uint Style { get; }
+        public int Key { get; private set; }
+        public uint Style { get; private set; }
+        public IRishComponent Component { get; private set; }
 
-        public bool IsReal => Component is MonoBehaviour;
+        public Type Type { get; private set; }
+        
+        internal bool IsReal => Component is MonoBehaviour;
         
         public StateNode Parent { get; private set; }
-        private Transform Transform { get; }
+        private Transform Transform { get; set; }
 
         private Transform ParentTransform
         {
@@ -37,10 +39,6 @@ namespace RishUI
         }
         internal int Depth { get; private set; }
         public bool IsValid => Depth >= 0;
-        
-        public Type Type { get; }
-        
-        private Rish Rish { get; }
         
         public int ChildCount { get; private set; }
         private List<StateNode> Children { get; set; }
@@ -73,17 +71,19 @@ namespace RishUI
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
-        internal StateNode(Rish rish, int key, IRishComponent component, uint style)
+        internal StateNode(Rish rish)
         {
             ID = nextID++;
-
             Rish = rish;
-         
+        }
+        
+        internal void SetUp(int key, uint style, IRishComponent component)
+        {
             Key = key;
             Component = component;
-            Type = component.GetType();
             Style = style;
 
+            Type = component.GetType();
             Transform = Component is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
             Component.OnDirty = NotifyDirty;
@@ -203,6 +203,7 @@ namespace RishUI
             }
 
             Depth = -1;
+            Parent = null;
             Component.Hide();
 
             pool.ReturnToPool(Component, Style);

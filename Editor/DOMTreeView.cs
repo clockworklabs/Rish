@@ -30,13 +30,13 @@ namespace RishUI.Editor
 			Reload();
 		}
 
-		public void OnRender(StateNode stateNode)
+		public void OnRender(StateNode node)
 		{
 			Reload();
 
-			var id = stateNode.ID;
+			var id = node.ID;
 
-			ExpandUp(stateNode);
+			ExpandUp(node);
 			
 			if (recentlyRendered.ContainsKey(id))
 			{
@@ -45,16 +45,16 @@ namespace RishUI.Editor
 			recentlyRendered[id] = EditorCoroutineUtility.StartCoroutine(Highlight(id), this);
 		}
 		
-		private void ExpandUp(StateNode stateNode)
+		private void ExpandUp(StateNode node)
 		{
-			if (stateNode == null)
+			if (node == null)
 			{
 				return;
 			}
 			
-			ExpandUp(stateNode.Parent);
+			ExpandUp(node.Parent);
 			
-			SetExpanded(stateNode.ID, true);
+			SetExpanded(node.ID, true);
 		}
 
 		public void ExpandDown(StateNode stateNode)
