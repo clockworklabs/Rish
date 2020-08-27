@@ -16,9 +16,9 @@ namespace RishUI
         private int virtualInitialSize = 5;
         private int VirtualInitialSize => Mathf.Max(1, virtualInitialSize);
 
-        private Dictionary<Type, Activator<VirtualElement>> VirtualActivators { get; } = new Dictionary<Type, Activator<VirtualElement>>();
-        private Dictionary<Type, Stack<VirtualElement>> VirtualPools { get; } = new Dictionary<Type, Stack<VirtualElement>>();
-        private Dictionary<Type, Dictionary<uint, Stack<DOMElement>>> RealPools { get; } = new Dictionary<Type, Dictionary<uint, Stack<DOMElement>>>();
+        private Dictionary<Type, Activator<RishComponent>> VirtualActivators { get; } = new Dictionary<Type, Activator<RishComponent>>();
+        private Dictionary<Type, Stack<RishComponent>> VirtualPools { get; } = new Dictionary<Type, Stack<RishComponent>>();
+        private Dictionary<Type, Dictionary<uint, Stack<UnityComponent>>> RealPools { get; } = new Dictionary<Type, Dictionary<uint, Stack<UnityComponent>>>();
 
         private void Awake()
         {
@@ -43,14 +43,14 @@ namespace RishUI
                     continue;
                 }
 
-                var defaultElement = defaultPrototype.Element;
+                var defaultElement = defaultPrototype.Component;
                 var defaultInitialCount = defaultPrototype.InitialCount;
 
                 var type = defaultElement.GetType();
 
-                var poolsDictionary = new Dictionary<uint, Stack<DOMElement>>();
+                var poolsDictionary = new Dictionary<uint, Stack<UnityComponent>>();
 
-                var defaultPool = new Stack<DOMElement>(defaultInitialCount * defaultInitialCount);
+                var defaultPool = new Stack<UnityComponent>(defaultInitialCount * defaultInitialCount);
                 PopulatePool(defaultPool, defaultElement, defaultInitialCount);
                 poolsDictionary[0] = defaultPool;
 
@@ -62,10 +62,10 @@ namespace RishUI
                         continue;
                     }
                     
-                    var styleElement = stylePrototype.Element;
+                    var styleElement = stylePrototype.Component;
                     var styleInitialCount = stylePrototype.InitialCount;
 
-                    var stylePool = new Stack<DOMElement>(styleInitialCount * styleInitialCount);
+                    var stylePool = new Stack<UnityComponent>(styleInitialCount * styleInitialCount);
                     PopulatePool(stylePool, styleElement, styleInitialCount);
                     poolsDictionary[j] = stylePool;
                 }
@@ -74,7 +74,7 @@ namespace RishUI
             }
         }
 
-        internal RishElement GetFromPool(Type type, uint style) 
+        internal IRishComponent GetFromPool(Type type, uint style) 
         {
             if (GetDOMElement(type, style, out var element))
             {
@@ -89,20 +89,20 @@ namespace RishUI
             throw new UnityException("Pool doesn't exist.");
         }
 
-        internal bool ReturnToPool(RishElement element, uint style)
+        internal bool ReturnToPool(IRishComponent component, uint style)
         {
-            if (element == null)
+            if (component == null)
             {
                 return false;
             }
             
-            var type = element.GetType();
-            if (ReturnDOMElement(type, element, style))
+            var type = component.GetType();
+            if (ReturnDOMElement(type, component, style))
             {
                 return true;
             }
 
-            if (ReturnVirtualElement(type, element))
+            if (ReturnVirtualElement(type, component))
             {
                 return true;
             }
@@ -110,43 +110,43 @@ namespace RishUI
             return false;
         }
 
-        private bool GetDOMElement(Type type, uint style, out RishElement element)
+        private bool GetDOMElement(Type type, uint style, out IRishComponent component)
         {
             if (!RealPools.TryGetValue(type, out var dictionary))
             {
-                element = null;
+                component = null;
                 return false;
             }
             
             dictionary.TryGetValue(style, out var pool);
             if (pool == null)
             {
-                return GetDOMElement(type, 0, out element);
+                return GetDOMElement(type, 0, out component);
             }
 
             if (pool.Count == 0)
             {
                 var prototype = Provider.GetPrototype(type, style);
                 
-                PopulatePool(pool, prototype.Element, prototype.InitialCount);
+                PopulatePool(pool, prototype.Component, prototype.InitialCount);
             }
             
-            element = pool.Pop();
+            component = pool.Pop();
             return true;
         }
 
-        private bool GetVirtualElement(Type type, out RishElement element)
+        private bool GetVirtualElement(Type type, out IRishComponent component)
         {
-            if (!type.IsSubclassOf(typeof(VirtualElement)))
+            if (!type.IsSubclassOf(typeof(RishComponent)))
             {
-                element = null;
+                component = null;
                 return false;
             }
 
             VirtualPools.TryGetValue(type, out var pool);
             if (pool == null)
             {
-                pool = new Stack<VirtualElement>(VirtualInitialSize * VirtualInitialSize);
+                pool = new Stack<RishComponent>(VirtualInitialSize * VirtualInitialSize);
                 VirtualPools[type] = pool;
             }
 
@@ -155,23 +155,23 @@ namespace RishUI
                 VirtualActivators.TryGetValue(type, out var activator);
                 if (activator == null)
                 {
-                    activator = Activators.Get<VirtualElement>(type);
+                    activator = Activators.Get<RishComponent>(type);
                     VirtualActivators[type] = activator;
                 }
 
                 PopulatePool(pool, activator, VirtualInitialSize);
             }
 
-            element = pool.Pop();
+            component = pool.Pop();
             return true;
         }
 
-        private bool ReturnDOMElement(Type type, RishElement element, uint style)
+        private bool ReturnDOMElement(Type type, IRishComponent component, uint style)
         {
             if (!RealPools.TryGetValue(type, out var dictionary)) return false;
             if (!dictionary.TryGetValue(style, out var pool)) return false;
 
-            if (!(element is DOMElement domElement)) return false;
+            if (!(component is UnityComponent domElement)) return false;
             
             domElement.gameObject.SetActive(false);
             domElement.transform.SetParent(transform, false);
@@ -181,18 +181,18 @@ namespace RishUI
             return true;
         }
 
-        private bool ReturnVirtualElement(Type type, RishElement element)
+        private bool ReturnVirtualElement(Type type, IRishComponent component)
         {
             if (!VirtualPools.TryGetValue(type, out var pool)) return false;
 
-            if (!(element is VirtualElement virtualElement)) return false;
+            if (!(component is RishComponent virtualElement)) return false;
             
             pool.Push(virtualElement);
 
             return true;
         }
 
-        private void PopulatePool(Stack<DOMElement> pool, DOMElement prototype, int count)
+        private void PopulatePool(Stack<UnityComponent> pool, UnityComponent prototype, int count)
         {
             for (var j = 0; j < count; j++)
             {
@@ -201,7 +201,7 @@ namespace RishUI
             }
         }
 
-        private static void PopulatePool(Stack<VirtualElement> pool, Activator<VirtualElement> activator, int count)
+        private static void PopulatePool(Stack<RishComponent> pool, Activator<RishComponent> activator, int count)
         {
             for (var j = 0; j < count; j++)
             {

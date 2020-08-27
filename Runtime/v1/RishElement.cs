@@ -3,16 +3,18 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public interface INode
+    public interface IRishElement
     {
         Type Type { get; }
         int Key { get; }
         uint Style { get; }
+        
+        IRishElement[] Children { get; }
 
-        void Setup(DOM dom);
+        void Setup(StateNode stateNode);
     }
     
-    internal struct Node<T> : INode where T : RishElement
+    internal struct RishElement<T> : IRishElement where T : IRishComponent
     {
         internal int key;
         internal uint style;
@@ -21,10 +23,12 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom) { }
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode) { }
     }
     
-    internal struct NodeProps<T, P> : INode where P : struct, Props where T : RishElement<P>
+    internal struct RishElementProps<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
     {
         internal int key;
         internal uint style;
@@ -34,16 +38,18 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is RishElement<P> element)
+            if (stateNode.Component is IRishComponent<P> element)
             {
                 element.Props = props;
             }
         }
     }
     
-    internal struct NodePropsFunc<T, P> : INode where P : struct, Props where T : RishElement<P>
+    internal struct RishElementPropsFunc<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
     {
         internal int key;
         internal uint style;
@@ -53,9 +59,11 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is RishElement<P> element)
+            if (stateNode.Component is IRishComponent<P> element)
             {
                 if (props != null)
                 {
@@ -65,7 +73,7 @@ namespace RishUI
         }
     }
     
-    internal struct NodeDiv<T> : INode where T : DOMElement
+    internal struct RishElementDiv<T> : IRishElement where T : UnityComponent
     {
         internal int key;
         internal uint style;
@@ -75,16 +83,18 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement element)
+            if (stateNode.Component is UnityComponent element)
             {
                 element.DivProps = divProps;
             }
         }
     }
     
-    internal struct NodeDivProps<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementDivProps<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
@@ -95,9 +105,11 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 element.DivProps = divProps;
                 element.Props = props;
@@ -105,7 +117,7 @@ namespace RishUI
         }
     }
     
-    internal struct NodeDivPropsFunc<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementDivPropsFunc<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
@@ -116,9 +128,11 @@ namespace RishUI
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => null;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 element.DivProps = divProps;
                 if (props != null)
@@ -129,147 +143,146 @@ namespace RishUI
         }
     }
     
-    internal struct NodeChildren<T> : INode where T : DOMElement
+    internal struct RishElementChildren<T> : IRishElement where T : UnityComponent
     {
         internal int key;
         internal uint style;
         
-        internal INode[] children;
+        internal IRishElement[] children;
         
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement element)
-            {
-                element.Children = children;
-            }
+
         }
     }
     
-    internal struct NodePropsChildren<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementPropsChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
         internal P props;
                 
-        internal INode[] children;
+        internal IRishElement[] children;
 
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 element.Props = props;
-                
-                element.Children = children;
             }
         }
     }
     
-    internal struct NodePropsFuncChildren<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementPropsFuncChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
         internal Func<P, P> props;
                 
-        internal INode[] children;
+        internal IRishElement[] children;
 
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 if (props != null)
                 {
                     element.Props = props(element.DefaultProps);
                 }
-                
-                element.Children = children;
             }
         }
     }
     
-    internal struct NodeDivChildren<T> : INode where T : DOMElement
+    internal struct RishElementDivChildren<T> : IRishElement where T : UnityComponent
     {
         internal int key;
         internal uint style;
         internal DivProps divProps;
                 
-        internal INode[] children;
+        internal IRishElement[] children;
 
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement element)
+            if (stateNode.Component is UnityComponent element)
             {
                 element.DivProps = divProps;
-                
-                element.Children = children;
             }
         }
     }
     
-    internal struct NodeDivPropsChildren<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementDivPropsChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
         internal DivProps divProps;
         internal P props;
                 
-        internal INode[] children;
+        internal IRishElement[] children;
 
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 element.DivProps = divProps;
                 element.Props = props;
-                
-                element.Children = children;
             }
         }
     }
     
-    internal struct NodeDivPropsFuncChildren<T, P> : INode where P : struct, Props where T : DOMElement<P>
+    internal struct RishElementDivPropsFuncChildren<T, P> : IRishElement where P : struct, Props where T : UnityComponent<P>
     {
         internal int key;
         internal uint style;
         internal DivProps divProps;
         internal Func<P, P> props;
                 
-        internal INode[] children;
+        internal IRishElement[] children;
 
         public Type Type => typeof(T);
         public int Key => key;
         public uint Style => style;
 
-        public void Setup(DOM dom)
+        public IRishElement[] Children => children;
+
+        public void Setup(StateNode stateNode)
         {
-            if (dom.Element is DOMElement<P> element)
+            if (stateNode.Component is UnityComponent<P> element)
             {
                 element.DivProps = divProps;
                 if (props != null)
                 {
                     element.Props = props(element.DefaultProps);
                 }
-                
-                element.Children = children;
             }
         }
     }

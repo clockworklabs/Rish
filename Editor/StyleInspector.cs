@@ -52,7 +52,7 @@ namespace RishUI.Editor
         private void OnAdd(ReorderableList list)
         {
             var item = list.AddItem();
-            var elementProperty = item.FindPropertyRelative("element");
+            var elementProperty = item.FindPropertyRelative("component");
             var initialCountProperty = item.FindPropertyRelative("initialCount");
 
             elementProperty.objectReferenceValue = null;
@@ -69,7 +69,7 @@ namespace RishUI.Editor
             var reference = references[0];
             if (reference is GameObject gameObject)
             {
-                return gameObject.GetComponent<DOMElement>();
+                return gameObject.GetComponent<UnityComponent>();
             }
 
             return null;
@@ -77,7 +77,7 @@ namespace RishUI.Editor
 
         private void OnAppendDragAndDrop(Object reference, ReorderableList list)
         {
-            if(reference is DOMElement element)
+            if(reference is UnityComponent element)
             {
                 var item = list.AddItem();
 

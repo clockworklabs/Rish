@@ -10,14 +10,14 @@
 
     public delegate void OnDirty();
     
-    public interface RishElement {
+    public interface IRishComponent {
         OnDirty OnDirty { set; }
 
         void Show();
         void Hide();
     }
 
-    public interface RishElement<P> : RishElement where P : struct, Props
+    public interface IRishComponent<P> : IRishComponent where P : struct, Props
     {
         P DefaultProps { get; }
         P Props { set; }

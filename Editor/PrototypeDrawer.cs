@@ -19,14 +19,14 @@ namespace RishUI.Editor
 
             int indentLevel = EditorGUI.indentLevel;
 
-            Rect elementPosition = new Rect(position.x, position.y, position.width - Margin - InitialCountWidth, position.height);
-            SerializedProperty elementProperty = property.FindPropertyRelative("element");
+            var elementPosition = new Rect(position.x, position.y, position.width - Margin - InitialCountWidth, position.height);
+            var elementProperty = property.FindPropertyRelative("component");
             EditorGUI.PropertyField(elementPosition, elementProperty, GUIContent.none);
 
             EditorGUI.indentLevel = 0;
             
-            Rect initialCountPosition = new Rect(elementPosition.xMax + Margin, position.y, InitialCountWidth, position.height);
-            SerializedProperty initialCountProperty = property.FindPropertyRelative("initialCount");
+            var initialCountPosition = new Rect(elementPosition.xMax + Margin, position.y, InitialCountWidth, position.height);
+            var initialCountProperty = property.FindPropertyRelative("initialCount");
             EditorGUI.PropertyField(initialCountPosition, initialCountProperty, GUIContent.none);
 
             EditorGUI.indentLevel = indentLevel;

@@ -7,20 +7,20 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public class DOM : FastPriorityQueueNode
+    public class StateNode : FastPriorityQueueNode
     {
         private static int nextID;
         
         public int ID { get; }
         public int Key { get; }
         
-        public RishElement Element { get; }
+        public IRishComponent Component { get; }
         
         public uint Style { get; }
 
-        private bool IsReal => Element is MonoBehaviour;
+        private bool IsReal => Component is MonoBehaviour;
         
-        public DOM Parent { get; private set; }
+        public StateNode Parent { get; private set; }
         private Transform Transform { get; }
 
         private Transform ParentTransform
@@ -43,7 +43,7 @@ namespace RishUI
         private Rish Rish { get; }
         
         public int ChildCount { get; private set; }
-        private List<DOM> Children { get; set; }
+        private List<StateNode> Children { get; set; }
 
         private int VirtualIndex { get; set; }
         
@@ -61,7 +61,7 @@ namespace RishUI
             }
         }
 
-        private DOM PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
+        private StateNode PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
 
         private bool IsRealTree()
         {
@@ -73,29 +73,29 @@ namespace RishUI
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
-        internal DOM(Rish rish, int key, RishElement element, uint style)
+        internal StateNode(Rish rish, int key, IRishComponent component, uint style)
         {
             ID = nextID++;
 
             Rish = rish;
          
-            Key = key;   
-            Element = element;
-            Type = element.GetType();
+            Key = key;
+            Component = component;
+            Type = component.GetType();
             Style = style;
 
-            Transform = Element is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
+            Transform = Component is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
-            Element.OnDirty = Notify;
+            Component.OnDirty = Notify;
             
-            Element.Show();
+            Component.Show();
 
             Notify();
         }
 
         private void Notify() => Rish.Dirty(this);
 
-        internal void SetParent(DOM parent)
+        internal void SetParent(StateNode parent)
         {
             if (parent == null)
             {
@@ -137,11 +137,11 @@ namespace RishUI
             Children.RemoveRange(ChildCount, count);
         }
         
-        private void AddChild(DOM child)
+        private void AddChild(StateNode child)
         {
             if (Children == null)
             {
-                Children = new List<DOM>();
+                Children = new List<StateNode>();
             }
             
             Children.Add(child);
@@ -152,7 +152,7 @@ namespace RishUI
             ChildCount++;
         }
 
-        internal DOM FindFreeChild(Type type, int key, uint style)
+        internal StateNode FindFreeChild(Type type, int key, uint style)
         {
             if (Children == null || Children.Count == 0)
             {
@@ -202,13 +202,13 @@ namespace RishUI
             }
 
             Depth = -1;
-            Element.Hide();
+            Component.Hide();
 
-            pool.ReturnToPool(Element, Style);
+            pool.ReturnToPool(Component, Style);
         }
         
         #if UNITY_EDITOR
-        public DOM GetChild(int index)
+        public StateNode GetChild(int index)
         {
             if (index < 0 || index >= ChildCount)
             {
@@ -218,7 +218,7 @@ namespace RishUI
             return Children[index];
         }
         
-        public DOM Find(int id)
+        public StateNode Find(int id)
         {
             if (ID == id)
             {

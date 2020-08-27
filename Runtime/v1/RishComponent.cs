@@ -2,7 +2,7 @@
 
 namespace RishUI
 {
-    public abstract class VirtualElement : RishElement
+    public abstract class RishComponent : IRishComponent
     {
         public OnDirty OnDirty { private get; set; }
         
@@ -15,15 +15,15 @@ namespace RishUI
 
         public virtual void Hide() { }
 
-        internal virtual INode SetupAndRender(Rish rish)
+        internal virtual IRishElement SetupAndRender(Rish rish)
         {
             return Render(rish);
         }
         
-        protected abstract INode Render(Rish rish);
+        protected abstract IRishElement Render(Rish rish);
     }
 
-    public abstract class VirtualElement<P> : VirtualElement, RishElement<P> where P : struct, Props
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, Props
     {
         private bool Initialized { get; set; }
         
@@ -94,7 +94,7 @@ namespace RishUI
         protected virtual void OnEnable() { }
         protected virtual void OnDisable() { }
         
-        internal override INode SetupAndRender(Rish rish)
+        internal override IRishElement SetupAndRender(Rish rish)
         {
             if (Dirty)
             {
@@ -109,7 +109,7 @@ namespace RishUI
         protected virtual P GetDefaultProps() => default;
     }
 
-    public abstract class VirtualElement<P, S> : VirtualElement<P> where P : struct, Props where S : struct, State
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, Props where S : struct, State
     {
         private S state;
         protected S State

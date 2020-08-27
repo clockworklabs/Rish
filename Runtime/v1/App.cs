@@ -5,7 +5,7 @@ namespace RishUI
 {
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class App : MonoBehaviour, RishElement
+    public abstract class App : MonoBehaviour, IRishComponent
     {
         public OnDirty OnDirty { private get; set; }
         
@@ -18,12 +18,12 @@ namespace RishUI
             OnDirty?.Invoke();
         }
         
-        public abstract INode Render(Rish rish);
+        public abstract IRishElement Render(Rish rish);
     }
     
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class App<S> : App, RishElement where S : struct, State
+    public abstract class App<S> : App, IRishComponent where S : struct, State
     {
         private S state;
         protected S State

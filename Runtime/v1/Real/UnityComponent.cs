@@ -3,12 +3,11 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public abstract class DOMElement : MonoBehaviour, RishElement
+    public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
-        public INode[] Children { get; set; }
                 
         private DivProps divProps;
         public DivProps DivProps
@@ -79,7 +78,7 @@ namespace RishUI
         }
     }
 
-    public abstract class DOMElement<P> : DOMElement, RishElement<P> where P : struct, Props
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, Props
     {
         private bool Initialized { get; set; }
         

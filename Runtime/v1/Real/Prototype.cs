@@ -7,8 +7,8 @@ namespace RishUI
     public class Prototype
     {
         [SerializeField]
-        private DOMElement element;
-        public DOMElement Element => element;
+        private UnityComponent component;
+        public UnityComponent Component => component;
         
         [SerializeField]
         private int initialCount = 1;

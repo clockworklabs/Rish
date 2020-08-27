@@ -26,7 +26,7 @@ namespace RishUI.Editor
  
 		private GUIStyle ResizerStyle { get; set; }
 		
-		private DOM Selected { get; set; }
+		private StateNode Selected { get; set; }
 		private PropertyInfo Props { get; set; }
 		private PropertyInfo State { get; set; }
 		private string SelectedPropsJson { get; set; }
@@ -102,9 +102,9 @@ namespace RishUI.Editor
 			}
 		}
 
-		private void OnRender(DOM dom)
+		private void OnRender(StateNode stateNode)
 		{
-			TreeView.OnRender(dom);
+			TreeView.OnRender(stateNode);
 
 			if (Selected != null)
 			{
@@ -121,11 +121,11 @@ namespace RishUI.Editor
 			Repaint();
 		}
 
-		private void OnSelection(DOM selected)
+		private void OnSelection(StateNode selected)
 		{
 			Selected = selected;
 
-			var element = Selected?.Element;
+			var element = Selected?.Component;
 			var type = element?.GetType();
 				
 			Props = type?.GetProperty("Props");
@@ -152,7 +152,7 @@ namespace RishUI.Editor
 
 			if (Selected != null)
 			{
-				if (Selected.Element is MonoBehaviour monoBehaviour)
+				if (Selected.Component is MonoBehaviour monoBehaviour)
 				{
 					if (GUILayout.Button("Select", EditorStyles.toolbarButton))
 					{
@@ -176,16 +176,16 @@ namespace RishUI.Editor
 			
 			GUILayout.FlexibleSpace();
 
-			if (Rish?.DOM != null)
+			if (Rish?.StateNode != null)
 			{
 				if (GUILayout.Button(ExpandIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.ExpandDown(Rish.DOM);
+					TreeView.ExpandDown(Rish.StateNode);
 				}
 
 				if (GUILayout.Button(CollapseIcon, EditorStyles.toolbarButton))
 				{
-					TreeView.CollapseDown(Rish.DOM);
+					TreeView.CollapseDown(Rish.StateNode);
 				}
 			}
 			
@@ -276,7 +276,7 @@ namespace RishUI.Editor
 			SelectedPropsJson = null;
 			SelectedStateJson = null;
 
-			var element = Selected?.Element;
+			var element = Selected?.Component;
 
 			var props = Props?.GetValue(element);
 			if (props != null)

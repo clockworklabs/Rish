@@ -31,7 +31,7 @@ namespace RishUI
             for (int i = 0, n = PrototypesCount; i < n; i++)
             {
                 var prototype = Prototypes[i];
-                var element = prototype.Element;
+                var element = prototype.Component;
                 if (element == null)
                 {
                     continue;
