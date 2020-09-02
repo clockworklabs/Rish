@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using Priority_Queue;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace RishUI
         
         #if UNITY_EDITOR
         public event Action<StateNode> OnRender; 
-        #endif
+        # endif 
 
         private Pool Pool { get; set; }
 
@@ -100,11 +101,12 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props);
         public static IRishElement Create<T, P>(int key, uint? style, P props) where P : struct, Props where T : IRishComponent<P>
         {
-            return new RishElementProps<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customProps = true,
                 props = props
             };
         }
@@ -116,12 +118,13 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props);
         public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props) where P : struct, Props where T : IRishComponent<P>
         {
-            return new RishElementPropsFunc<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
-                props = props
+                customProps = props != null,
+                propsFunc = props
             };
         }
         
@@ -132,11 +135,12 @@ namespace RishUI
         public static IRishElement Create<T>(uint style, DivProps divProps) where T : UnityComponent => Create<T>(0, style, divProps);
         public static IRishElement Create<T>(int key, uint? style, DivProps divProps) where T : UnityComponent
         {
-            return new RishElementDiv<T>
+            return new RishElement<T>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps
             };
         }
@@ -148,12 +152,14 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, DivProps divProps, P props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props);
         public static IRishElement Create<T, P>(int key, uint? style, DivProps divProps, P props) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementDivProps<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps,
+                customProps = true,
                 props = props
             };
         }
@@ -165,13 +171,15 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props);
         public static IRishElement Create<T, P>(int key, uint? style, DivProps divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementDivPropsFunc<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps,
-                props = props
+                customProps = props != null,
+                propsFunc = props
             };
         }
         
@@ -182,7 +190,7 @@ namespace RishUI
         public static IRishElement Create<T>(uint style, params IRishElement[] children) where T : UnityComponent => Create<T>(0, style, children);
         public static IRishElement Create<T>(int key, uint? style, params IRishElement[] children) where T : UnityComponent
         {
-            return new RishElementChildren<T>
+            return new RishElement<T>
             {
                 key = key,
                 inheritedStyle = style == null,
@@ -198,11 +206,12 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
         public static IRishElement Create<T, P>(int key, uint? style, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementPropsChildren<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customProps = true,
                 props = props,
                 children = children
             };
@@ -215,12 +224,13 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
         public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementPropsFuncChildren<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
-                props = props,
+                customProps = props != null,
+                propsFunc = props,
                 children = children
             };
         }
@@ -232,11 +242,12 @@ namespace RishUI
         public static IRishElement Create<T>(uint style, DivProps divProps, params IRishElement[] children) where T : UnityComponent => Create<T>(0, style, divProps, children);
         public static IRishElement Create<T>(int key, uint? style, DivProps divProps, params IRishElement[] children) where T : UnityComponent
         {
-            return new RishElementDivChildren<T>
+            return new RishElement<T>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps,
                 children = children
             };
@@ -249,12 +260,14 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, DivProps divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props, children);
         public static IRishElement Create<T, P>(int key, uint? style, DivProps divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementDivPropsChildren<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps,
+                customProps = true,
                 props = props,
                 children = children
             };
@@ -267,13 +280,15 @@ namespace RishUI
         public static IRishElement Create<T, P>(uint style, DivProps divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props, children);
         public static IRishElement Create<T, P>(int key, uint? style, DivProps divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
-            return new RishElementDivPropsFuncChildren<T, P>
+            return new RishElement<T, P>
             {
                 key = key,
                 inheritedStyle = style == null,
                 style = style ?? 0,
+                customDivProps = true,
                 divProps = divProps,
-                props = props,
+                customProps = props != null,
+                propsFunc = props,
                 children = children
             };
         }
