@@ -11,7 +11,7 @@ namespace RishUI
         
         IRishElement[] Children { get; }
 
-        void Setup(StateNode stateNode);
+        void Setup(IRishComponent component);
     }
     
     internal struct RishElement<T> : IRishElement where T : IRishComponent
@@ -43,9 +43,9 @@ namespace RishUI
 
         public IRishElement[] Children => children;
 
-        public void Setup(StateNode stateNode)
+        public void Setup(IRishComponent component)
         {
-            if (customDivProps && stateNode.Component is UnityComponent unityComponent)
+            if (customDivProps && component is UnityComponent unityComponent)
             {
                 unityComponent.DivProps = divProps;
             }
@@ -85,16 +85,16 @@ namespace RishUI
 
         public IRishElement[] Children => children;
 
-        public void Setup(StateNode stateNode)
+        public void Setup(IRishComponent component)
         {
-            if (customDivProps && stateNode.Component is UnityComponent unityComponent)
+            if (customDivProps && component is UnityComponent unityComponent)
             {
                 unityComponent.DivProps = divProps;
             }
 
-            if (customProps && stateNode.Component is T component)
+            if (customProps && component is T propsComponent)
             {
-                component.Props = propsFunc?.Invoke(component.DefaultProps) ?? props;
+                propsComponent.Props = propsFunc?.Invoke(propsComponent.DefaultProps) ?? props;
             }
         }
     }

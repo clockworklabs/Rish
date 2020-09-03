@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
 using Priority_Queue;
 using UnityEngine;
 
@@ -13,8 +11,8 @@ namespace RishUI
         private const int MaxSize = 256;
         
         #if UNITY_EDITOR
-        public event Action<StateNode> OnRender; 
-        # endif 
+        public event Action<StateNode> OnRender;
+        # endif
 
         private Pool Pool { get; set; }
 
@@ -396,7 +394,8 @@ namespace RishUI
             }
 
             childNode.SetParent(node);
-            child.Setup(childNode);
+            var childComponent = childNode.Component;
+            child.Setup(childComponent);
 
             return childNode;
         }
