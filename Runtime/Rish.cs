@@ -385,17 +385,24 @@ namespace RishUI
             var type = child.Type;
             var key = child.Key;
             var style = child.Style ?? node.Style;
-            
+
+            var newNode = false;
             var childNode = node.FindFreeChild(type, key, style);
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
                 childNode.Setup(key, style, Pool.GetFromPool(type, style));
+                newNode = true;
             }
 
             childNode.SetParent(node);
             var childComponent = childNode.Component;
             child.Setup(childComponent);
+
+            if (newNode)
+            {
+                childComponent.Show();
+            }
 
             return childNode;
         }

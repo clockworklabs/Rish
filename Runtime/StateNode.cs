@@ -87,8 +87,6 @@ namespace RishUI
             Transform = Component is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
 
             Component.OnDirty = NotifyDirty;
-            
-            Component.Show();
 
             NotifyDirty();
         }

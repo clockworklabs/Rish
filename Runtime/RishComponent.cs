@@ -49,7 +49,7 @@ namespace RishUI
 
                 if (changed)
                 {
-                    OnDisable();
+                    Disable();
                     Dirty = true;
                     Notify();
                 }
