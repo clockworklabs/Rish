@@ -16,8 +16,12 @@ namespace RishUI
 
         private Pool Pool { get; set; }
 
+        private int CurrentDepth { get; set; } = -1;
+        private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
         private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
         private List<StateNode> Destroyed { get; } = new List<StateNode>(MaxSize);
+        
+        
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
         
         [SerializeField]
@@ -37,19 +41,31 @@ namespace RishUI
             
             Root = new StateNode(this);
             Root.Setup(0, 0, App);
+            OnNodeDirty(Root);
         }
 
         private void LateUpdate()
         {
+            for (int i = 0, n = DirtyList.Count; i < n; i++)
+            {
+                var node = DirtyList[i];
+                AddNodeToQueue(node);
+            }
+            
+            DirtyList.Clear();
+            
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();
-
+                CurrentDepth = node.Depth;
+                
                 if (node.IsValid)
                 {
                     Render(node);
                 }
             }
+
+            CurrentDepth = -1;
 
             if (Destroyed.Count > 0)
             {
@@ -64,6 +80,18 @@ namespace RishUI
 
         public void OnNodeDirty(StateNode node)
         {
+            if (node.Depth <= CurrentDepth)
+            {
+                AddNodeToList(node);
+            }
+            else
+            {
+                AddNodeToQueue(node);
+            }
+        }
+
+        private void AddNodeToQueue(StateNode node)
+        {
             if (DirtyQueue.Contains(node))
             {
                 return;
@@ -71,6 +99,8 @@ namespace RishUI
 
             DirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
         }
+
+        private void AddNodeToList(StateNode node) => DirtyList.Add(node);
 
         public void OnNodeDestroyed(StateNode node)
         {
@@ -401,6 +431,7 @@ namespace RishUI
 
             if (newNode)
             {
+                OnNodeDirty(childNode);
                 childComponent.Show();
             }
 

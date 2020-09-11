@@ -33,7 +33,7 @@ namespace RishUI
             gameObject.SetActive(true);
         }
         
-        public void Hide() {
+        public virtual void Hide() {
             gameObject.SetActive(false);
         }
         
@@ -103,7 +103,7 @@ namespace RishUI
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
                 props = value;
-
+                
                 if (changed)
                 {
                     Notify();
@@ -111,9 +111,9 @@ namespace RishUI
             }
         }
 
-        public override void Show()
+        public override void Hide()
         {
-            base.Show();
+            base.Hide();
             
             Props = DefaultProps;
         }

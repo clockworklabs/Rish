@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace RishUI
 {
@@ -46,7 +47,7 @@ namespace RishUI
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
                 props = value;
-
+                
                 if (changed)
                 {
                     Disable();
