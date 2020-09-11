@@ -9,6 +9,8 @@ namespace RishUI
     {
         public OnDirty OnDirty { private get; set; }
         
+        public void Initialize() { }
+        
         public void Show() { }
 
         public void Hide() { }

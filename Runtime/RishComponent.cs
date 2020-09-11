@@ -12,6 +12,8 @@ namespace RishUI
             OnDirty?.Invoke();
         }
 
+        public virtual void Initialize() { }
+
         public virtual void Show()  { }
 
         public virtual void Hide() { }
@@ -58,6 +60,13 @@ namespace RishUI
         }
         
         private bool Enabled { get; set; }
+        
+        public override void Initialize()
+        {
+            base.Initialize();
+            
+            Props = DefaultProps;
+        }
 
         public override void Show() { }
 

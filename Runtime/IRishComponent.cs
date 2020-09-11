@@ -13,6 +13,8 @@
     public interface IRishComponent {
         OnDirty OnDirty { set; }
 
+        void Initialize();
+
         void Show();
         void Hide();
     }

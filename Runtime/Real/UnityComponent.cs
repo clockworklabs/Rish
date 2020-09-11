@@ -8,28 +8,48 @@ namespace RishUI
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
-                
-        private DivProps divProps;
-        public DivProps DivProps
+
+        private RishTransform parent;
+        public RishTransform Parent
         {
-            private get => divProps;
+            private get => parent;
             set
             {
-                if (divProps.Equals(value))
+                if (parent.Equals(value))
+                {
+                    return;
+                }
+
+                parent = value;
+                
+                UpdateTransform();
+            }
+        }
+                
+        private RishTransform local;
+        public RishTransform Local
+        {
+            private get => local;
+            set
+            {
+                if (local.Equals(value))
                 {
                     return;
                 }
                 
-                divProps = value;
+                local = value;
 
                 UpdateTransform();
             }
         }
 
+        public virtual void Initialize()
+        {
+            Local = RishTransform.Default;
+        }
+
         public virtual void Show()
         {
-            DivProps = DivProps.Default;
-            
             gameObject.SetActive(true);
         }
         
@@ -43,34 +63,36 @@ namespace RishUI
 
         private void UpdateTransform()
         {
+            var world = Parent * Local;
+            
             var rectTransform = (RectTransform) transform;
                 
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             
-            rectTransform.anchorMin = DivProps.anchorMin;
-            rectTransform.anchorMax = DivProps.anchorMax;
+            rectTransform.anchorMin = world.min;
+            rectTransform.anchorMax = world.max;
             
-            var width = DivProps.left + DivProps.right;
-            var height = DivProps.top + DivProps.bottom;
+            var width = world.left + world.right;
+            var height = world.top + world.bottom;
             
             var sizeDelta = new Vector2(-width, -height);
 
             var anchoredPosition = new Vector2();
-            if (Mathf.Approximately(DivProps.anchorMin.x, DivProps.anchorMax.x))
+            if (Mathf.Approximately(world.min.x, world.max.x))
             {
-                anchoredPosition.x = width * 0.5f - DivProps.right;
+                anchoredPosition.x = width * 0.5f - world.right;
             }
             else
             {
-                anchoredPosition.x = -width * 0.5f + DivProps.left;
+                anchoredPosition.x = -width * 0.5f + world.left;
             }
-            if (Mathf.Approximately(DivProps.anchorMin.y, DivProps.anchorMax.y))
+            if (Mathf.Approximately(world.min.y, world.max.y))
             {
-                anchoredPosition.y = height * 0.5f -  DivProps.top;
+                anchoredPosition.y = height * 0.5f -  world.top;
             }
             else
             {
-                anchoredPosition.y = -height * 0.5f + DivProps.bottom;
+                anchoredPosition.y = -height * 0.5f + world.bottom;
             }
             
             rectTransform.anchoredPosition = anchoredPosition;
@@ -110,10 +132,10 @@ namespace RishUI
                 }
             }
         }
-
-        public override void Hide()
+        
+        public override void Initialize()
         {
-            base.Hide();
+            base.Initialize();
             
             Props = DefaultProps;
         }

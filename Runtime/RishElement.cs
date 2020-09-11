@@ -22,7 +22,7 @@ namespace RishUI
         internal uint style;
 
         internal bool customDivProps;
-        internal DivProps divProps;
+        internal RishTransform divProps;
         
         internal IRishElement[] children;
         
@@ -48,7 +48,7 @@ namespace RishUI
         {
             if (customDivProps && component is UnityComponent unityComponent)
             {
-                unityComponent.DivProps = divProps;
+                unityComponent.Local = divProps;
             }
         }
     }
@@ -60,7 +60,7 @@ namespace RishUI
         internal uint style;
 
         internal bool customDivProps;
-        internal DivProps divProps;
+        internal RishTransform divProps;
 
         internal bool customProps;
         internal P props;
@@ -90,7 +90,7 @@ namespace RishUI
         {
             if (customDivProps && component is UnityComponent unityComponent)
             {
-                unityComponent.DivProps = divProps;
+                unityComponent.Local = divProps;
             }
 
             if (customProps && component is T propsComponent)
