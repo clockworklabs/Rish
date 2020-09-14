@@ -8,6 +8,11 @@ namespace RishUI
     public abstract class App : MonoBehaviour, IRishComponent
     {
         public OnDirty OnDirty { private get; set; }
+        public OnWorld OnWorld { private get; set; }
+        
+        public RishTransform Parent { private get; set; }
+        public RishTransform Local { private get; set; }
+        public RishTransform World => RishTransform.Default;
         
         public void Initialize() { }
         

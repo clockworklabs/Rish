@@ -6,9 +6,11 @@ namespace RishUI
     public interface IRishElement
     {
         Type Type { get; }
-        int Key { get; }
+        int Key { get; set; }
         
-        uint? Style { get; }
+        uint? Style { get; set; }
+        
+        RishTransform Transform { get; set; }
         
         IRishElement[] Children { get; }
 
@@ -17,18 +19,11 @@ namespace RishUI
     
     internal struct RishElement<T> : IRishElement where T : IRishComponent
     {
-        internal int key;
-        internal bool inheritedStyle;
-        internal uint style;
-
-        internal bool customDivProps;
-        internal RishTransform divProps;
-        
-        internal IRishElement[] children;
-        
         public Type Type => typeof(T);
-        public int Key => key;
+        public int Key { get; set; }
 
+        private bool inheritedStyle;
+        private uint style;
         public uint? Style
         {
             get
@@ -40,37 +35,52 @@ namespace RishUI
 
                 return style;
             }
+
+            set
+            {
+                if (value == null)
+                {
+                    inheritedStyle = true;
+                }
+                else
+                {
+                    inheritedStyle = false;
+                    style = value.Value;
+                }
+            }
+        }
+        
+        private bool customTransform;
+        private RishTransform transform;
+        public RishTransform Transform
+        {
+            get => customTransform ? transform : RishTransform.Default;
+            set
+            {
+                customTransform = true;
+                transform = value;
+            }
         }
 
-        public IRishElement[] Children => children;
+        public IRishElement[] Children { get; set; }
 
         public void Setup(IRishComponent component)
         {
-            if (customDivProps && component is UnityComponent unityComponent)
-            {
-                unityComponent.Local = divProps;
-            }
+            component.Local = Transform;
         }
     }
     
     internal struct RishElement<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
     {
-        internal int key;
-        internal bool inheritedStyle;
-        internal uint style;
-
-        internal bool customDivProps;
-        internal RishTransform divProps;
-
         internal bool customProps;
         internal P props;
         internal Func<P, P> propsFunc;
         
-        internal IRishElement[] children;
-        
         public Type Type => typeof(T);
-        public int Key => key;
+        public int Key {get; set; }
 
+        private bool inheritedStyle;
+        private uint style;
         public uint? Style
         {
             get
@@ -82,16 +92,38 @@ namespace RishUI
 
                 return style;
             }
+
+            set
+            {
+                if (value == null)
+                {
+                    inheritedStyle = true;
+                }
+                else
+                {
+                    inheritedStyle = false;
+                    style = value.Value;
+                }
+            }
+        }
+        
+        private bool customTransform;
+        private RishTransform transform;
+        public RishTransform Transform
+        {
+            get => customTransform ? transform : RishTransform.Default;
+            set
+            {
+                customTransform = true;
+                transform = value;
+            }
         }
 
-        public IRishElement[] Children => children;
+        public IRishElement[] Children { get; set; }
 
         public void Setup(IRishComponent component)
         {
-            if (customDivProps && component is UnityComponent unityComponent)
-            {
-                unityComponent.Local = divProps;
-            }
+            component.Local = Transform;
 
             if (customProps && component is T propsComponent)
             {

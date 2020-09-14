@@ -89,10 +89,19 @@ namespace RishUI
             Component.Initialize();
 
             Component.OnDirty = NotifyDirty;
+            Component.OnWorld = NotifyTransform;
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
         private void NotifyDestroy() => Rish.OnNodeDestroyed(this);
+
+        private void NotifyTransform(RishTransform world)
+        {
+            for (var i = 0; i < ChildCount; i++)
+            {
+                Children[i].Component.Parent = world;
+            }
+        }
 
         internal void SetParent(StateNode parent)
         {
@@ -105,6 +114,8 @@ namespace RishUI
             Depth = parent.Depth + 1;
 
             parent.AddChild(this);
+
+            Component.Parent = parent.Component.World;
             
             if (IsReal)
             {
@@ -202,6 +213,10 @@ namespace RishUI
 
             Depth = -1;
             Parent = null;
+
+            Component.OnDirty = null;
+            Component.OnWorld = null;
+            
             Component.Hide();
 
             pool.ReturnToPool(Component, Style);

@@ -6,13 +6,58 @@ namespace RishUI
     public abstract class RishComponent : IRishComponent
     {
         public OnDirty OnDirty { private get; set; }
+        public OnWorld OnWorld { private get; set; }
         
+        private RishTransform parent;
+        public RishTransform Parent
+        {
+            private get => parent;
+            set
+            {
+                if (value.Equals(parent))
+                {
+                    return;
+                }
+
+                parent = value;
+
+                UpdateWorldTransform();
+            }
+        }
+        private RishTransform local;
+        public RishTransform Local
+        {
+            private get => local;
+            set
+            {
+                if (value.Equals(local))
+                {
+                    return;
+                }
+
+                local = value;
+
+                UpdateWorldTransform();
+            }
+        }
+        public RishTransform World{ get; private set; }
+
+        private void UpdateWorldTransform()
+        {
+            World = Parent * Local;
+            OnWorld?.Invoke(World);
+        }
+
         protected void Notify()
         {
             OnDirty?.Invoke();
         }
 
-        public virtual void Initialize() { }
+        public virtual void Initialize()
+        {
+            Parent = RishTransform.Default;
+            Local = RishTransform.Default;
+        }
 
         public virtual void Show()  { }
 

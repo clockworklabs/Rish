@@ -9,9 +9,15 @@
     }
 
     public delegate void OnDirty();
+    public delegate void OnWorld(RishTransform world);
     
     public interface IRishComponent {
         OnDirty OnDirty { set; }
+        OnWorld OnWorld { set; }
+        
+        RishTransform Parent { set; }
+        RishTransform Local { set; }
+        RishTransform World { get; }
 
         void Initialize();
 

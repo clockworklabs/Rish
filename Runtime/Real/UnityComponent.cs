@@ -8,6 +8,7 @@ namespace RishUI
         public abstract bool IsLeaf { get; }
         
         public OnDirty OnDirty { private get; set; }
+        public OnWorld OnWorld { private get; set; }
 
         private RishTransform parent;
         public RishTransform Parent
@@ -42,9 +43,12 @@ namespace RishUI
                 UpdateTransform();
             }
         }
+        
+        public RishTransform World => RishTransform.Default;
 
         public virtual void Initialize()
         {
+            Parent = RishTransform.Default;
             Local = RishTransform.Default;
         }
 

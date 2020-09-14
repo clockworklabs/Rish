@@ -16,7 +16,12 @@ namespace RishUI
         {
             max = Vector2.one
         };
-        
+
+        public override string ToString()
+        {
+            return $"{min} - {max} - {top} - {left} - {bottom} - {right}";
+        }
+
         public bool Equals(RishTransform other)
         {
             if(!Mathf.Approximately(min.x, other.min.x))
@@ -59,8 +64,8 @@ namespace RishUI
         {
             return new RishTransform
             {
-                min = b.min * (a.max - a.min) + a.min,
-                max = (Vector2.one - b.max) * (Vector2.one + a.max - a.min) + (Vector2.one - a.max),
+                min = a.min + b.min * (a.max - a.min),
+                max = a.min - b.max * (a.min - a.max),
                 top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
                 left = a.left + b.left - b.min.x * (a.left + a.right),
                 bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),

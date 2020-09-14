@@ -108,16 +108,29 @@ namespace RishUI
         
         // === KEY, STYLE ===
         
-        public static IRishElement Create<T>() where T : IRishComponent => Create<T>(0, null);
-        public static IRishElement Create<T>(int key) where T : IRishComponent => Create<T>(key, null);
-        public static IRishElement Create<T>(uint style) where T : IRishComponent => Create<T>(0, style);
-        public static IRishElement Create<T>(int key, uint? style) where T : IRishComponent
+        public static IRishElement Create<T>() where T : IRishComponent
         {
             return new RishElement<T>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0
+                Key = 0,
+                Style = null
+            };
+        }
+        public static IRishElement Create<T>(int key) where T : IRishComponent
+        {
+            return new RishElement<T>
+            {
+                Key = key,
+                Style = null
+            };
+        }
+        public static IRishElement Create<T>(uint style) where T : IRishComponent => Create<T>(0, style);
+        public static IRishElement Create<T>(int key, uint style) where T : IRishComponent
+        {
+            return new RishElement<T>
+            {
+                Key = key,
+                Style = style
             };
         }
 
@@ -130,9 +143,8 @@ namespace RishUI
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
+                Key = key,
+                Style = style,
                 customProps = true,
                 props = props
             };
@@ -147,9 +159,8 @@ namespace RishUI
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
+                Key = key,
+                Style = style,
                 customProps = props != null,
                 propsFunc = props
             };
@@ -157,35 +168,31 @@ namespace RishUI
         
         // === KEY, STYLE, DIV ===
         
-        public static IRishElement Create<T>(RishTransform divProps) where T : UnityComponent => Create<T>(0, null, divProps);
-        public static IRishElement Create<T>(int key, RishTransform divProps) where T : UnityComponent => Create<T>(key, null, divProps);
-        public static IRishElement Create<T>(uint style, RishTransform divProps) where T : UnityComponent => Create<T>(0, style, divProps);
-        public static IRishElement Create<T>(int key, uint? style, RishTransform divProps) where T : UnityComponent
+        public static IRishElement Create<T>(RishTransform transform) where T : IRishComponent => Create<T>(0, null, transform);
+        public static IRishElement Create<T>(int key, RishTransform transform) where T : IRishComponent => Create<T>(key, null, transform);
+        public static IRishElement Create<T>(uint style, RishTransform transform) where T : IRishComponent => Create<T>(0, style, transform);
+        public static IRishElement Create<T>(int key, uint? style, RishTransform transform) where T : IRishComponent
         {
             return new RishElement<T>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps
+                Key = key,
+                Style = style,
+                Transform = transform
             };
         }
         
         // === KEY< STYLE, DIV, PROPS ===
 
-        public static IRishElement Create<T, P>(RishTransform divProps, P props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, divProps, props);
-        public static IRishElement Create<T, P>(int key, RishTransform divProps, P props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, divProps, props);
-        public static IRishElement Create<T, P>(uint style, RishTransform divProps, P props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform divProps, P props) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps,
+                Key = key,
+                Style = style,
+                Transform = transform,
                 customProps = true,
                 props = props
             };
@@ -193,18 +200,16 @@ namespace RishUI
 
         // === KEY< STYLE, DIV, PROPS ACTION ===
         
-        public static IRishElement Create<T, P>(RishTransform divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, divProps, props);
-        public static IRishElement Create<T, P>(int key, RishTransform divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, divProps, props);
-        public static IRishElement Create<T, P>(uint style, RishTransform divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform divProps, Func<P, P> props) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps,
+                Key = key,
+                Style = style,
+                Transform = transform,
                 customProps = props != null,
                 propsFunc = props
             };
@@ -212,111 +217,102 @@ namespace RishUI
         
         // === KEY, STYLE, CHILDREN ===
         
-        public static IRishElement Create<T>(params IRishElement[] children) where T : UnityComponent => Create<T>(0, null, children);
-        public static IRishElement Create<T>(int key, params IRishElement[] children) where T : UnityComponent => Create<T>(key, null, children);
-        public static IRishElement Create<T>(uint style, params IRishElement[] children) where T : UnityComponent => Create<T>(0, style, children);
-        public static IRishElement Create<T>(int key, uint? style, params IRishElement[] children) where T : UnityComponent
+        public static IRishElement Create<T>(IRishElement[] children) where T : IRishComponent => Create<T>(0, null, children);
+        public static IRishElement Create<T>(int key, IRishElement[] children) where T : IRishComponent => Create<T>(key, null, children);
+        public static IRishElement Create<T>(uint style, IRishElement[] children) where T : IRishComponent => Create<T>(0, style, children);
+        public static IRishElement Create<T>(int key, uint? style, IRishElement[] children) where T : IRishComponent
         {
             return new RishElement<T>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                children = children
+                Key = key,
+                Style = style,
+                Children = children
             };
         }
         
         // === KEY, STYLE, PROPS, CHILDREN ===
 
-        public static IRishElement Create<T, P>(P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
-        public static IRishElement Create<T, P>(int key, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
-        public static IRishElement Create<T, P>(uint style, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, props, children);
+        public static IRishElement Create<T, P>(int key, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, props, children);
+        public static IRishElement Create<T, P>(uint style, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
+                Key = key,
+                Style = style,
                 customProps = true,
                 props = props,
-                children = children
+                Children = children
             };
         }
         
         // === KEY, STYLE, PROPS ACTION, CHILDREN ===
 
-        public static IRishElement Create<T, P>(Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
-        public static IRishElement Create<T, P>(int key, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
-        public static IRishElement Create<T, P>(uint style, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, props, children);
+        public static IRishElement Create<T, P>(int key, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, props, children);
+        public static IRishElement Create<T, P>(uint style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
+                Key = key,
+                Style = style,
                 customProps = props != null,
                 propsFunc = props,
-                children = children
+                Children = children
             };
         }
         
         // === KEY, STYLE, DIV, CHILDREN ===
         
-        public static IRishElement Create<T>(RishTransform divProps, params IRishElement[] children) where T : UnityComponent => Create<T>(0, null, divProps, children);
-        public static IRishElement Create<T>(int key, RishTransform divProps, params IRishElement[] children) where T : UnityComponent => Create<T>(key, null, divProps, children);
-        public static IRishElement Create<T>(uint style, RishTransform divProps, params IRishElement[] children) where T : UnityComponent => Create<T>(0, style, divProps, children);
-        public static IRishElement Create<T>(int key, uint? style, RishTransform divProps, params IRishElement[] children) where T : UnityComponent
+        public static IRishElement Create<T>(RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(0, null, transform, children);
+        public static IRishElement Create<T>(int key, RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(key, null, transform, children);
+        public static IRishElement Create<T>(uint style, RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(0, style, transform, children);
+        public static IRishElement Create<T>(int key, uint? style, RishTransform transform, IRishElement[] children) where T : IRishComponent
         {
             return new RishElement<T>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps,
-                children = children
+                Key = key,
+                Style = style,
+                Transform = transform,
+                Children = children
             };
         }
         
         // === KEY, STYLE, DIV, PROPS, CHILDREN ===
 
-        public static IRishElement Create<T, P>(RishTransform divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, divProps, props, children);
-        public static IRishElement Create<T, P>(int key, RishTransform divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, divProps, props, children);
-        public static IRishElement Create<T, P>(uint style, RishTransform divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform divProps, P props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props, children);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props, children);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps,
+                Key = key,
+                Style = style,
+                Transform = transform,
                 customProps = true,
                 props = props,
-                children = children
+                Children = children
             };
         }
         
         // === KEY, STYLE, DIV, PROPS ACTION, CHILDREN ===
 
-        public static IRishElement Create<T, P>(RishTransform divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, divProps, props, children);
-        public static IRishElement Create<T, P>(int key, RishTransform divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, divProps, props, children);
-        public static IRishElement Create<T, P>(uint style, RishTransform divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, divProps, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform divProps, Func<P, P> props, params IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props, children);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props, children);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
         {
             return new RishElement<T, P>
             {
-                key = key,
-                inheritedStyle = style == null,
-                style = style ?? 0,
-                customDivProps = true,
-                divProps = divProps,
+                Key = key,
+                Style = style,
+                Transform = transform,
                 customProps = props != null,
                 propsFunc = props,
-                children = children
+                Children = children
             };
         }
 
