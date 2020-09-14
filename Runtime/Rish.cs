@@ -24,8 +24,8 @@ namespace RishUI
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
         
         [SerializeField]
-        private App app;
-        private App App => app;
+        private AppComponent app;
+        private AppComponent App => app;
         
         public StateNode Root { get; private set; }
 
@@ -339,7 +339,7 @@ namespace RishUI
                     element.Render();
                     break;
                 }
-                case App element:
+                case AppComponent element:
                 {
                     var child = element.Render();
 
@@ -367,7 +367,7 @@ namespace RishUI
             {
                 var childNode = AddChild(node, child);
 
-                if (childNode.IsReal)
+                if (childNode.Component is AppComponent || (childNode.Component is UnityComponent unityComponent && !unityComponent.IsLeaf))
                 {
                     Reconcile(childNode, child.Children);
                 }
@@ -394,7 +394,7 @@ namespace RishUI
                     {
                         var childNode = AddChild(node, child);
 
-                        if (childNode.IsReal)
+                        if (childNode.Component is AppComponent || (childNode.Component is UnityComponent unityComponent && !unityComponent.IsLeaf))
                         {
                             Reconcile(childNode, child.Children);
                         }

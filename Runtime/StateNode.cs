@@ -20,7 +20,7 @@ namespace RishUI
 
         public Type Type { get; private set; }
         
-        internal bool IsReal => Component is MonoBehaviour;
+        private bool IsReal => Component is MonoBehaviour;
         
         public StateNode Parent { get; private set; }
         private Transform Transform { get; set; }

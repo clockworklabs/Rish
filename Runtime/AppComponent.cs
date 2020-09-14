@@ -5,7 +5,7 @@ namespace RishUI
 {
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class App : MonoBehaviour, IRishComponent
+    public abstract class AppComponent : MonoBehaviour, IRishComponent
     {
         public OnDirty OnDirty { private get; set; }
         public OnWorld OnWorld { private get; set; }
@@ -30,7 +30,7 @@ namespace RishUI
     
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class App<S> : App where S : struct, State
+    public abstract class AppComponent<S> : AppComponent where S : struct, State
     {
         private S state;
         protected S State
