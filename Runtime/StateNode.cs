@@ -97,6 +97,11 @@ namespace RishUI
 
         private void NotifyTransform(RishTransform world)
         {
+            if (Children == null)
+            {
+                return;
+            }
+            
             for (var i = 0; i < ChildCount; i++)
             {
                 Children[i].Component.Parent = world;
@@ -211,6 +216,8 @@ namespace RishUI
                 Children.Clear();
             }
 
+            ChildCount = 0;
+            
             Depth = -1;
             Parent = null;
 

@@ -7,8 +7,8 @@ namespace RishUI
     public class Pool : MonoBehaviour
     {
         [SerializeField]
-        private ElementsProvider provider;
-        private ElementsProvider Provider => provider;
+        private ComponentsProvider provider;
+        private ComponentsProvider Provider => provider;
 
         [Space]
         
@@ -43,15 +43,15 @@ namespace RishUI
                     continue;
                 }
 
-                var defaultElement = defaultPrototype.Component;
+                var defaultComponent = defaultPrototype.Component;
                 var defaultInitialCount = defaultPrototype.InitialCount;
 
-                var type = defaultElement.GetType();
+                var type = defaultComponent.GetType();
 
                 var poolsDictionary = new Dictionary<uint, Stack<UnityComponent>>();
 
                 var defaultPool = new Stack<UnityComponent>(defaultInitialCount * defaultInitialCount);
-                PopulatePool(defaultPool, defaultElement, defaultInitialCount);
+                PopulatePool(defaultPool, defaultComponent, defaultInitialCount);
                 poolsDictionary[0] = defaultPool;
 
                 for (uint j = 1; j < stylesCount; j++)
@@ -62,11 +62,11 @@ namespace RishUI
                         continue;
                     }
                     
-                    var styleElement = stylePrototype.Component;
+                    var styleComponent = stylePrototype.Component;
                     var styleInitialCount = stylePrototype.InitialCount;
 
                     var stylePool = new Stack<UnityComponent>(styleInitialCount * styleInitialCount);
-                    PopulatePool(stylePool, styleElement, styleInitialCount);
+                    PopulatePool(stylePool, styleComponent, styleInitialCount);
                     poolsDictionary[j] = stylePool;
                 }
 
@@ -76,14 +76,14 @@ namespace RishUI
 
         internal IRishComponent GetFromPool(Type type, uint style) 
         {
-            if (GetDOMElement(type, style, out var element))
+            if (GetUnityComponent(type, style, out var component))
             {
-                return element;
+                return component;
             }
 
-            if (GetVirtualElement(type, out element))
+            if (GetRishComponent(type, out component))
             {
-                return element;
+                return component;
             }
 
             throw new UnityException("Pool doesn't exist.");
@@ -97,20 +97,20 @@ namespace RishUI
             }
             
             var type = component.GetType();
-            if (ReturnDOMElement(type, component, style))
+            if (ReturnUnityComponent(type, component, style))
             {
                 return true;
             }
 
-            if (ReturnVirtualElement(type, component))
+            if (ReturnRishComponent(type, component))
             {
                 return true;
             }
-
+            
             return false;
         }
 
-        private bool GetDOMElement(Type type, uint style, out IRishComponent component)
+        private bool GetUnityComponent(Type type, uint style, out IRishComponent component)
         {
             if (!RealPools.TryGetValue(type, out var dictionary))
             {
@@ -121,7 +121,7 @@ namespace RishUI
             dictionary.TryGetValue(style, out var pool);
             if (pool == null)
             {
-                return GetDOMElement(type, 0, out component);
+                return GetUnityComponent(type, 0, out component);
             }
 
             if (pool.Count == 0)
@@ -135,7 +135,7 @@ namespace RishUI
             return true;
         }
 
-        private bool GetVirtualElement(Type type, out IRishComponent component)
+        private bool GetRishComponent(Type type, out IRishComponent component)
         {
             if (!type.IsSubclassOf(typeof(RishComponent)))
             {
@@ -166,28 +166,34 @@ namespace RishUI
             return true;
         }
 
-        private bool ReturnDOMElement(Type type, IRishComponent component, uint style)
+        private bool ReturnUnityComponent(Type type, IRishComponent component, uint style)
         {
             if (!RealPools.TryGetValue(type, out var dictionary)) return false;
-            if (!dictionary.TryGetValue(style, out var pool)) return false;
+            if (!dictionary.TryGetValue(style, out var pool))
+            {
+                if (!dictionary.TryGetValue(0, out pool))
+                {
+                    return false;
+                }
+            }
 
-            if (!(component is UnityComponent domElement)) return false;
+            if (!(component is UnityComponent unityComponent)) return false;
             
-            domElement.gameObject.SetActive(false);
-            domElement.transform.SetParent(transform, false);
+            unityComponent.gameObject.SetActive(false);
+            unityComponent.transform.SetParent(transform, false);
 
-            pool.Push(domElement);
+            pool.Push(unityComponent);
 
             return true;
         }
 
-        private bool ReturnVirtualElement(Type type, IRishComponent component)
+        private bool ReturnRishComponent(Type type, IRishComponent component)
         {
             if (!VirtualPools.TryGetValue(type, out var pool)) return false;
 
-            if (!(component is RishComponent virtualElement)) return false;
+            if (!(component is RishComponent rishComponent)) return false;
             
-            pool.Push(virtualElement);
+            pool.Push(rishComponent);
 
             return true;
         }

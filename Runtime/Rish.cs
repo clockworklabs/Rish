@@ -181,7 +181,7 @@ namespace RishUI
             };
         }
         
-        // === KEY< STYLE, DIV, PROPS ===
+        // === KEY, STYLE, DIV, PROPS ===
 
         public static IRishElement Create<T, P>(RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
         public static IRishElement Create<T, P>(int key, RishTransform transform, P props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);
@@ -198,7 +198,7 @@ namespace RishUI
             };
         }
 
-        // === KEY< STYLE, DIV, PROPS ACTION ===
+        // === KEY, STYLE, DIV, PROPS ACTION ===
         
         public static IRishElement Create<T, P>(RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
         public static IRishElement Create<T, P>(int key, RishTransform transform, Func<P, P> props) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);

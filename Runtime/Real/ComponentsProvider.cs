@@ -4,7 +4,7 @@ using UnityEngine;
 namespace RishUI
 {
     [CreateAssetMenu(fileName = "Provider", menuName = "Rish/Provider")]
-    public class ElementsProvider : ScriptableObject
+    public class ComponentsProvider : ScriptableObject
     {
         [SerializeField]
         private Style[] styles;
