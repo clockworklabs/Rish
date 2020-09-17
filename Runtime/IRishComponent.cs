@@ -32,9 +32,4 @@
         P DefaultProps { get; }
         P Props { set; }
     }
-
-    public interface IRishComponent<P, S> : IRishComponent<P> where P : struct, Props where S : struct, State
-    {
-        S State { get; }
-    }
 }

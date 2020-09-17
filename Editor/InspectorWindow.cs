@@ -32,7 +32,7 @@ namespace RishUI.Editor
 		private bool DebugTransform { get; set; } = true;
 		private bool DebugExtras { get; set; }
 		private bool AbstractTransform { get; set; }
-		private bool WorldTransform { get; set; }
+		private bool GlobalTransform { get; set; }
 		
 		private Vector2 InspectorScroll { get; set; }
 		
@@ -45,8 +45,6 @@ namespace RishUI.Editor
 			var window = GetWindow<InspectorWindow>();
 			window.titleContent = new GUIContent("Rish Inspector", Resources.Load<Texture2D>("react-icon"));
 			window.Show();
-
-			window.SizeRatio = 1 - 300 / window.position.height;
 		}
 
 		private void OnEnable ()
@@ -56,10 +54,14 @@ namespace RishUI.Editor
 			ExpandIcon = EditorGUIUtility.IconContent("Toolbar Plus").image as Texture2D;
 			CollapseIcon = EditorGUIUtility.IconContent("Toolbar Minus").image as Texture2D;
 
-			ResizerStyle = new GUIStyle();
-			ResizerStyle.normal.background = EditorGUIUtility.IconContent("d_AvatarBlendBackground").image as Texture2D;
-			
+			ResizerStyle = new GUIStyle
+			{
+				normal = {background = EditorGUIUtility.IconContent("d_AvatarBlendBackground").image as Texture2D}
+			};
+
 			TreeViewState = new TreeViewState();
+
+			SizeRatio = 1 - 300 / position.height;
 			
 			EditorApplication.playModeStateChanged += OnPlayModeChange;
 
@@ -132,8 +134,8 @@ namespace RishUI.Editor
 			var element = Selected?.Component;
 			var type = element?.GetType();
 				
-			Props = type?.GetProperty("Props");
-			State = type?.GetProperty("State");
+			Props = type?.GetProperty("Props", BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			State = type?.GetProperty("State", BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			
 			UpdateInspector();
 		}
@@ -218,19 +220,25 @@ namespace RishUI.Editor
 
 				if (DebugTransform && !(Selected.Component is AppComponent))
 				{
-					TransformDebug.Draw(rect.width, Selected, AbstractTransform, WorldTransform);
+					TransformDebug.Draw(rect.width, Selected, AbstractTransform, GlobalTransform);
 					EditorGUILayout.Space();
 				}
 
 				if (DebugID)
 				{
-					EditorGUILayout.LabelField($"ID: {Selected.ID}");
+					GUILayout.Label($"ID: {Selected.ID}");
 				}
 				
-				EditorGUILayout.LabelField($"Style: {Selected.Style}");
+				GUILayout.Label($"Style: {Selected.Style}");
+
+				if (DebugExtras && Selected.Component is IExtraInspection extra)
+				{
+					GUILayout.Label($"{extra.GetExtraDescription()}");
+				}
+				
 				EditorGUILayout.Space();
 				
-				if (!string.IsNullOrEmpty(SelectedPropsJson))
+				if (!string.IsNullOrEmpty(SelectedPropsJson) && SelectedPropsJson != "{}")
 				{
 					GUILayout.Label("Props:", EditorStyles.boldLabel);
 					GUILayout.Label(SelectedPropsJson);
@@ -238,7 +246,7 @@ namespace RishUI.Editor
 					EditorGUILayout.Space();
 				}
 
-				if (!string.IsNullOrEmpty(SelectedStateJson))
+				if (!string.IsNullOrEmpty(SelectedStateJson) && SelectedStateJson != "{}")
 				{
 					GUILayout.Label("State:", EditorStyles.boldLabel);
 					GUILayout.Label(SelectedStateJson);
@@ -263,7 +271,7 @@ namespace RishUI.Editor
 
 			GUI.enabled = DebugTransform;
 			AbstractTransform = GUILayout.Toggle(AbstractTransform, "Abstract", EditorStyles.toolbarButton);
-			WorldTransform = GUILayout.Toggle(WorldTransform, "World", EditorStyles.toolbarButton);
+			GlobalTransform = GUILayout.Toggle(GlobalTransform, "Global", EditorStyles.toolbarButton);
 			GUI.enabled = true;
 			
 			GUILayout.EndHorizontal();
@@ -317,7 +325,7 @@ namespace RishUI.Editor
 			SelectedStateJson = null;
 
 			var element = Selected?.Component;
-
+			
 			var props = Props?.GetValue(element);
 			if (props != null)
 			{

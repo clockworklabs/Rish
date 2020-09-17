@@ -158,13 +158,13 @@ namespace RishUI
         protected virtual P GetDefaultProps() => default;
     }
 
-    public abstract class RishComponent<P, S> : RishComponent<P>, IRishComponent<P, S> where P : struct, Props where S : struct, State
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, Props where S : struct, State
     {
         private S state;
-        public S State
+        protected S State
         {
             get => state;
-            protected set
+            set
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
                 state = value;
