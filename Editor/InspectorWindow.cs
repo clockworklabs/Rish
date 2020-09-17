@@ -1,15 +1,11 @@
-using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
-using UnityEngine.PlayerLoop;
-using UnityEngine.UI;
-using Object = System.Object;
 
 namespace RishUI.Editor
 {
-	public class DOMInspectorWindow : EditorWindow
+	public class InspectorWindow : EditorWindow
 	{
 		private Texture2D VirtualIcon { get; set; }
 		private Texture2D RealIcon { get; set; }
@@ -19,7 +15,7 @@ namespace RishUI.Editor
 		
 		private Rish Rish { get; set; }
 		
-		private float SizeRatio { get; set; } = 0.8f; 
+		private float SizeRatio { get; set; } 
 		private bool IsResizing { get; set; } 
  
 		private float ResizerHeight { get; } = 1f; 
@@ -31,18 +27,26 @@ namespace RishUI.Editor
 		private PropertyInfo State { get; set; }
 		private string SelectedPropsJson { get; set; }
 		private string SelectedStateJson { get; set; }
+
+		private bool DebugID { get; set; }
+		private bool DebugTransform { get; set; } = true;
+		private bool DebugExtras { get; set; }
+		private bool AbstractTransform { get; set; }
+		private bool WorldTransform { get; set; }
 		
 		private Vector2 InspectorScroll { get; set; }
 		
 		private Texture2D ExpandIcon { get; set; }
 		private Texture2D CollapseIcon { get; set; }
 
-		[MenuItem("Rish/DOM Inspector")]
+		[MenuItem("Window/Rish/Inspector")]
 		private static void ShowWindow()
 		{
-			var window = GetWindow<DOMInspectorWindow>();
-			window.titleContent = new GUIContent("DOM Inspector", Resources.Load<Texture2D>("react-icon"));
+			var window = GetWindow<InspectorWindow>();
+			window.titleContent = new GUIContent("Rish Inspector", Resources.Load<Texture2D>("react-icon"));
 			window.Show();
+
+			window.SizeRatio = 1 - 300 / window.position.height;
 		}
 
 		private void OnEnable ()
@@ -136,17 +140,25 @@ namespace RishUI.Editor
 
 		private void OnGUI ()
 		{
-			DoToolbar();
 			DoTreeView(Selected == null ? 1 : SizeRatio);
 
-			if (Selected == null) return;
-			
 			DrawInspector(SizeRatio);
 			var resizer = DrawResizer();
 			ProcessEvents(resizer, Event.current);
 		}
+		
+		private void DoTreeView(float size)
+		{
+			DoTreeToolbar();
+			
+			var rect = new Rect(0, EditorStyles.toolbar.fixedHeight, position.width, (position.height * size) - ResizerHeight - EditorStyles.toolbar.fixedHeight);
+			
+			GUILayout.BeginArea(rect);
+			TreeView?.OnGUI(GUILayoutUtility.GetRect (0, 100000, 0, 100000));
+			GUILayout.EndArea();
+		}
 
-		private void DoToolbar()
+		private void DoTreeToolbar()
 		{
 			GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
@@ -192,44 +204,69 @@ namespace RishUI.Editor
 			GUILayout.EndHorizontal();
 		}
 		
-		private void DoTreeView(float size)
-		{
-			var rect = new Rect(0, EditorStyles.toolbar.fixedHeight, position.width, (position.height * size) - ResizerHeight - EditorStyles.toolbar.fixedHeight);
-			
-			GUILayout.BeginArea(rect);
-			TreeView?.OnGUI(GUILayoutUtility.GetRect (0, 100000, 0, 100000));
-			GUILayout.EndArea();
-		}
-		
 		private void DrawInspector(float size)
 		{
 			var rect = new Rect(0, (position.height * size) + ResizerHeight, position.width, (position.height * (1 - size)) - ResizerHeight);
-
-			GUILayout.BeginArea(rect);
-			InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
 			
-			EditorGUILayout.LabelField($"ID: {Selected.ID}");
-			EditorGUILayout.LabelField($"Style: {Selected.Style}");
-			EditorGUILayout.Space();
-			EditorGUILayout.Space();
-			if (!string.IsNullOrEmpty(SelectedPropsJson))
+			GUILayout.BeginArea(rect);
+			
+			DoInspectorToolbar();
+			
+			if (Selected != null)
 			{
-				GUILayout.Label("Props:", EditorStyles.boldLabel);
-				GUILayout.Label(SelectedPropsJson);
-				
-				EditorGUILayout.Space();
-			}
+				InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
 
-			if (!string.IsNullOrEmpty(SelectedStateJson))
-			{
-				GUILayout.Label("State:", EditorStyles.boldLabel);
-				GUILayout.Label(SelectedStateJson);
-				
-				EditorGUILayout.Space();
+				if (DebugTransform && !(Selected.Component is AppComponent))
+				{
+					TransformDebug.Draw(rect.width, Selected, AbstractTransform, WorldTransform);
+					EditorGUILayout.Space();
+				}
 
+				if (DebugID)
+				{
+					EditorGUILayout.LabelField($"ID: {Selected.ID}");
+				}
+				
+				EditorGUILayout.LabelField($"Style: {Selected.Style}");
+				EditorGUILayout.Space();
+				
+				if (!string.IsNullOrEmpty(SelectedPropsJson))
+				{
+					GUILayout.Label("Props:", EditorStyles.boldLabel);
+					GUILayout.Label(SelectedPropsJson);
+					
+					EditorGUILayout.Space();
+				}
+
+				if (!string.IsNullOrEmpty(SelectedStateJson))
+				{
+					GUILayout.Label("State:", EditorStyles.boldLabel);
+					GUILayout.Label(SelectedStateJson);
+					
+					EditorGUILayout.Space();
+
+				}
+				GUILayout.EndScrollView();
 			}
-			GUILayout.EndScrollView();
 			GUILayout.EndArea();
+		}
+
+		private void DoInspectorToolbar()
+		{
+			GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+			DebugID = GUILayout.Toggle(DebugID, "ID", EditorStyles.toolbarButton);
+			DebugTransform = GUILayout.Toggle(DebugTransform, "Transform", EditorStyles.toolbarButton);
+			DebugExtras = GUILayout.Toggle(DebugExtras, "Extras", EditorStyles.toolbarButton);
+
+			GUILayout.FlexibleSpace();
+
+			GUI.enabled = DebugTransform;
+			AbstractTransform = GUILayout.Toggle(AbstractTransform, "Abstract", EditorStyles.toolbarButton);
+			WorldTransform = GUILayout.Toggle(WorldTransform, "World", EditorStyles.toolbarButton);
+			GUI.enabled = true;
+			
+			GUILayout.EndHorizontal();
 		}
 
 		private Rect DrawResizer()
@@ -266,8 +303,11 @@ namespace RishUI.Editor
 		private void Resize(Event e)
 		{
 			if (!IsResizing) return;
+
+			var min = 150 / position.height;
+			var max = 1 - 250 / position.height;
 			
-			SizeRatio = Mathf.Clamp(e.mousePosition.y / position.height, 0.2f, 0.8f);
+			SizeRatio = Mathf.Clamp(e.mousePosition.y / position.height, min, max);
 			Repaint();
 		}
 

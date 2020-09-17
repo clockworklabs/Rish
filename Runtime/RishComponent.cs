@@ -27,7 +27,7 @@ namespace RishUI
         private RishTransform local;
         public RishTransform Local
         {
-            private get => local;
+            get => local;
             set
             {
                 if (value.Equals(local))
@@ -158,13 +158,13 @@ namespace RishUI
         protected virtual P GetDefaultProps() => default;
     }
 
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, Props where S : struct, State
+    public abstract class RishComponent<P, S> : RishComponent<P>, IRishComponent<P, S> where P : struct, Props where S : struct, State
     {
         private S state;
-        protected S State
+        public S State
         {
             get => state;
-            set
+            protected set
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
                 state = value;

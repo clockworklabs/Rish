@@ -30,7 +30,7 @@ namespace RishUI
         private RishTransform local;
         public RishTransform Local
         {
-            private get => local;
+            get => local;
             set
             {
                 if (local.Equals(value))

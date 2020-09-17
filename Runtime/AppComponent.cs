@@ -11,7 +11,7 @@ namespace RishUI
         public OnWorld OnWorld { private get; set; }
         
         public RishTransform Parent { private get; set; }
-        public RishTransform Local { private get; set; }
+        public RishTransform Local { get; set; }
         public RishTransform World => RishTransform.Default;
         
         public void Initialize() { }

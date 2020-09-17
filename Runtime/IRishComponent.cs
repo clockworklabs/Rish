@@ -8,6 +8,8 @@
     {
     }
 
+    public struct NoProps : Props { }
+
     public delegate void OnDirty();
     public delegate void OnWorld(RishTransform world);
     
@@ -16,7 +18,7 @@
         OnWorld OnWorld { set; }
         
         RishTransform Parent { set; }
-        RishTransform Local { set; }
+        RishTransform Local { get; set; }
         RishTransform World { get; }
 
         void Initialize();
@@ -29,5 +31,10 @@
     {
         P DefaultProps { get; }
         P Props { set; }
+    }
+
+    public interface IRishComponent<P, S> : IRishComponent<P> where P : struct, Props where S : struct, State
+    {
+        S State { get; }
     }
 }
