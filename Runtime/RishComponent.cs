@@ -42,6 +42,9 @@ namespace RishUI
         }
         public RishTransform World{ get; private set; }
 
+        public Transform TopLevelTransform => null;
+        public Transform BottomLevelTransform => null;
+
         private void UpdateWorldTransform()
         {
             World = Parent * Local;

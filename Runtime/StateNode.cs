@@ -23,7 +23,8 @@ namespace RishUI
         private bool IsReal => Component is MonoBehaviour;
         
         public StateNode Parent { get; private set; }
-        private Transform Transform { get; set; }
+        private Transform TopLevelTransform => Component.TopLevelTransform;
+        private Transform BottomLevelTransform => Component.BottomLevelTransform;
 
         private Transform ParentTransform
         {
@@ -31,10 +32,10 @@ namespace RishUI
             {
                 if (Parent == null)
                 {
-                    return Transform;
+                    return BottomLevelTransform;
                 }
 
-                return Parent.IsReal ? Parent.Transform : Parent.ParentTransform;
+                return Parent.IsReal ? Parent.BottomLevelTransform : Parent.ParentTransform;
             }
         }
         internal int Depth { get; private set; }
@@ -84,7 +85,6 @@ namespace RishUI
             Style = style;
 
             Type = component.GetType();
-            Transform = Component is MonoBehaviour monoBehaviour ? monoBehaviour.transform : null;
             
             Component.Initialize();
 
@@ -124,8 +124,8 @@ namespace RishUI
             
             if (IsReal)
             {
-                Transform.SetParent(ParentTransform, false);
-                Transform.SetSiblingIndex(RealIndex);
+                TopLevelTransform.SetParent(ParentTransform, false);
+                TopLevelTransform.SetSiblingIndex(RealIndex);
             }
         }
 

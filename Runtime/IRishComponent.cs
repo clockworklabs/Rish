@@ -1,4 +1,6 @@
-﻿namespace RishUI
+﻿using UnityEngine;
+
+namespace RishUI
 {
     public interface Props
     {
@@ -20,7 +22,10 @@
         RishTransform Parent { set; }
         RishTransform Local { get; set; }
         RishTransform World { get; }
-
+        
+        Transform TopLevelTransform { get; }
+        Transform BottomLevelTransform { get; }
+    
         void Initialize();
 
         void Show();

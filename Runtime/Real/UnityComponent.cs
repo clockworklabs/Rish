@@ -46,6 +46,9 @@ namespace RishUI
         
         public RishTransform World => RishTransform.Default;
 
+        public Transform TopLevelTransform => transform;
+        public virtual Transform BottomLevelTransform => transform;
+
         public virtual void Initialize()
         {
             Parent = RishTransform.Default;

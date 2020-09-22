@@ -13,7 +13,10 @@ namespace RishUI
         public RishTransform Parent { private get; set; }
         public RishTransform Local { get; set; }
         public RishTransform World => RishTransform.Default;
-        
+
+        public Transform TopLevelTransform => transform;
+        public Transform BottomLevelTransform => transform;
+
         public void Initialize() { }
         
         public void Show() { }
