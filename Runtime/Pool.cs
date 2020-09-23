@@ -45,6 +45,8 @@ namespace RishUI
 
                 var defaultComponent = defaultPrototype.Component;
                 var defaultInitialCount = defaultPrototype.InitialCount;
+                
+                defaultComponent.gameObject.SetActive(false);
 
                 var type = defaultComponent.GetType();
 
@@ -64,6 +66,8 @@ namespace RishUI
                     
                     var styleComponent = stylePrototype.Component;
                     var styleInitialCount = stylePrototype.InitialCount;
+                
+                    styleComponent.gameObject.SetActive(false);
 
                     var stylePool = new Stack<UnityComponent>(styleInitialCount * styleInitialCount);
                     PopulatePool(stylePool, styleComponent, styleInitialCount);
@@ -203,7 +207,6 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Instantiate(prototype, transform, false);
-                instance.gameObject.SetActive(false);
                 pool.Push(instance);
             }
         }
