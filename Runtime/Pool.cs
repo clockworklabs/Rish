@@ -203,6 +203,7 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Instantiate(prototype, transform, false);
+                instance.gameObject.SetActive(false);
                 pool.Push(instance);
             }
         }
