@@ -7,9 +7,8 @@ namespace RishUI
     [DisallowMultipleComponent]
     public abstract class AppComponent : MonoBehaviour, IRishComponent
     {
-        public OnDirty OnDirty { private get; set; }
-        public OnWorld OnWorld { private get; set; }
-        public OnSize OnSize { private get; set; }
+        internal event OnDirty OnDirty;
+        internal event OnSize OnSize;
         
         public RishTransform Local { get; set; }
         public RishTransform World => RishTransform.Default;

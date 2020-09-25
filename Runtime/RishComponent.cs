@@ -5,9 +5,9 @@ namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        public OnDirty OnDirty { private get; set; }
-        public OnWorld OnWorld { private get; set; }
-        public OnSize OnSize { private get; set; }
+        internal event OnDirty OnDirty;
+        internal event OnWorld OnWorld;
+        internal event OnSize OnSize;
         
         private RishTransform parent;
         internal RishTransform Parent

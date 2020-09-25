@@ -88,9 +88,22 @@ namespace RishUI
             
             Component.Initialize();
 
-            Component.OnDirty = NotifyDirty;
-            Component.OnWorld = NotifyTransform;
-            Component.OnSize = NotifySize;
+            switch (Component)
+            {
+                case AppComponent comp:
+                    comp.OnDirty += NotifyDirty;
+                    comp.OnSize += NotifySize;
+                    break;
+                case UnityComponent comp:
+                    comp.OnDirty += NotifyDirty;
+                    comp.OnSize += NotifySize;
+                    break;
+                case RishComponent comp:
+                    comp.OnDirty += NotifyDirty;
+                    comp.OnWorld += NotifyTransform;
+                    comp.OnSize += NotifySize;
+                    break;
+            }
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
@@ -254,10 +267,24 @@ namespace RishUI
             
             Depth = -1;
             Parent = null;
-
-            Component.OnDirty = null;
-            Component.OnWorld = null;
             
+            switch (Component)
+            {
+                case AppComponent comp:
+                    comp.OnDirty -= NotifyDirty;
+                    comp.OnSize -= NotifySize;
+                    break;
+                case UnityComponent comp:
+                    comp.OnDirty -= NotifyDirty;
+                    comp.OnSize -= NotifySize;
+                    break;
+                case RishComponent comp:
+                    comp.OnDirty -= NotifyDirty;
+                    comp.OnWorld -= NotifyTransform;
+                    comp.OnSize -= NotifySize;
+                    break;
+            }
+
             Component.Hide();
 
             pool.ReturnToPool(Component, Style);

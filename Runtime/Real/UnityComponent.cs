@@ -5,12 +5,11 @@ namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
+        internal event OnDirty OnDirty;
+        internal event OnSize OnSize;
+        
         public abstract bool IsLeaf { get; }
         
-        public OnDirty OnDirty { private get; set; }
-        public OnWorld OnWorld { private get; set; }
-        public OnSize OnSize { private get; set; }
-
         private RishTransform parent;
         internal RishTransform Parent
         {

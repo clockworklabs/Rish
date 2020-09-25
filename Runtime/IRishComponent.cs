@@ -17,9 +17,9 @@ namespace RishUI
     public delegate void OnSize(Vector2 size);
     
     public interface IRishComponent {
-        OnDirty OnDirty { set; }
-        OnWorld OnWorld { set; }
-        OnSize OnSize { set; }
+        //OnDirty OnDirty { set; }
+        //OnWorld OnWorld { set; }
+        //OnSize OnSize { set; }
         
         //RishTransform Parent { set; }
         RishTransform Local { get; set; }
