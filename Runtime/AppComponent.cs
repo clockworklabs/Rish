@@ -9,13 +9,31 @@ namespace RishUI
     {
         public OnDirty OnDirty { private get; set; }
         public OnWorld OnWorld { private get; set; }
+        public OnSize OnSize { private get; set; }
         
-        public RishTransform Parent { private get; set; }
         public RishTransform Local { get; set; }
         public RishTransform World => RishTransform.Default;
+        
+        private Vector2 size;
+        public Vector2 Size
+        {
+            get => size;
+            private set
+            {
+                if (value == size)
+                {
+                    return;
+                }
+                
+                size = value;
+                OnSize?.Invoke(Size);
+            }
+        }
 
         public Transform TopLevelTransform => transform;
         public Transform BottomLevelTransform => transform;
+
+        private RectTransform RectTransform => (RectTransform) transform;
 
         public void Initialize() { }
         
@@ -26,6 +44,11 @@ namespace RishUI
         protected void Notify()
         {
             OnDirty?.Invoke();
+        }
+        
+        private void OnRectTransformDimensionsChange()
+        {
+            Size = RectTransform.rect.size;
         }
         
         public abstract IRishElement Render();

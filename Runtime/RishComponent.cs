@@ -7,9 +7,10 @@ namespace RishUI
     {
         public OnDirty OnDirty { private get; set; }
         public OnWorld OnWorld { private get; set; }
+        public OnSize OnSize { private get; set; }
         
         private RishTransform parent;
-        public RishTransform Parent
+        internal RishTransform Parent
         {
             private get => parent;
             set
@@ -42,13 +43,57 @@ namespace RishUI
         }
         public RishTransform World{ get; private set; }
 
+        private Vector2 parentSize;
+
+        internal Vector2 ParentSize
+        {
+            private get => parentSize;
+            set
+            {
+                if (value == parentSize)
+                {
+                    return;
+                }
+
+                parentSize = value;
+
+                UpdateSize();
+            }
+        }
+        private Vector2 size;
+        public Vector2 Size
+        {
+            get => size;
+            private set
+            {
+                if (value == size)
+                {
+                    return;
+                }
+                
+                size = value;
+                OnSize?.Invoke(Size);
+            }
+        }
+
         public Transform TopLevelTransform => null;
         public Transform BottomLevelTransform => null;
 
         private void UpdateWorldTransform()
         {
             World = Parent * Local;
+            UpdateSize();
             OnWorld?.Invoke(World);
+        }
+
+        private void UpdateSize()
+        {
+            var size = ParentSize * (new Vector2(2, 2) - World.min - World.max);
+            
+            size.x = size.x - World.left - World.right;
+            size.y = size.y - World.top - World.bottom;
+
+            Size = size;
         }
 
         protected void Notify()

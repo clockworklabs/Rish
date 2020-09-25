@@ -90,6 +90,7 @@ namespace RishUI
 
             Component.OnDirty = NotifyDirty;
             Component.OnWorld = NotifyTransform;
+            Component.OnSize = NotifySize;
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
@@ -104,7 +105,31 @@ namespace RishUI
             
             for (var i = 0; i < ChildCount; i++)
             {
-                Children[i].Component.Parent = world;
+                switch (Children[i].Component)
+                {
+                    case UnityComponent component:
+                        component.Parent = world;
+                        break;
+                    case RishComponent component:
+                        component.Parent = world;
+                        break;
+                }
+            }
+        }
+
+        private void NotifySize(Vector2 size)
+        {
+            if (Children == null)
+            {
+                return;
+            }
+            
+            for (var i = 0; i < ChildCount; i++)
+            {
+                if(Children[i].Component is RishComponent component)
+                {
+                    component.ParentSize = size;
+                }
             }
         }
 
@@ -120,7 +145,16 @@ namespace RishUI
 
             parent.AddChild(this);
 
-            Component.Parent = parent.Component.World;
+            switch(Component)
+            {
+                case UnityComponent component:
+                    component.Parent = parent.Component.World;
+                    break;
+                case RishComponent component:
+                    component.Parent = parent.Component.World;
+                    component.ParentSize = parent.Component.Size;
+                    break;
+            }
             
             if (IsReal)
             {

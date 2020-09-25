@@ -9,9 +9,10 @@ namespace RishUI
         
         public OnDirty OnDirty { private get; set; }
         public OnWorld OnWorld { private get; set; }
+        public OnSize OnSize { private get; set; }
 
         private RishTransform parent;
-        public RishTransform Parent
+        internal RishTransform Parent
         {
             private get => parent;
             set
@@ -46,8 +47,26 @@ namespace RishUI
         
         public RishTransform World => RishTransform.Default;
 
+        private Vector2 size;
+        public Vector2 Size
+        {
+            get => size;
+            private set
+            {
+                if (value == size)
+                {
+                    return;
+                }
+                
+                size = value;
+                OnSize?.Invoke(Size);
+            }
+        }
+
         public Transform TopLevelTransform => transform;
         public virtual Transform BottomLevelTransform => transform;
+
+        private RectTransform RectTransform => (RectTransform) transform;
 
         public virtual void Initialize()
         {
@@ -67,6 +86,11 @@ namespace RishUI
         public abstract void Render();
         
         protected void Notify() => OnDirty?.Invoke();
+        
+        private void OnRectTransformDimensionsChange()
+        {
+            Size = RectTransform.rect.size;
+        }
 
         private void UpdateTransform()
         {
