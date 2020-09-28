@@ -58,9 +58,17 @@ namespace RishUI
                 }
                 
                 size = value;
+                
                 OnSize?.Invoke(Size);
+                
+                if (RenderOnResize)
+                {
+                    Notify();
+                }
             }
         }
+        
+        protected virtual bool RenderOnResize => false;
 
         public Transform TopLevelTransform => transform;
         public virtual Transform BottomLevelTransform => transform;

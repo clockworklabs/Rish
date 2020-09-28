@@ -72,9 +72,17 @@ namespace RishUI
                 }
                 
                 size = value;
+
                 OnSize?.Invoke(Size);
+                
+                if (RenderOnResize)
+                {
+                    Notify();
+                }
             }
         }
+        
+        protected virtual bool RenderOnResize => false;
 
         public Transform TopLevelTransform => null;
         public Transform BottomLevelTransform => null;
@@ -88,12 +96,7 @@ namespace RishUI
 
         private void UpdateSize()
         {
-            var size = ParentSize * (new Vector2(2, 2) - World.min - World.max);
-            
-            size.x = size.x - World.left - World.right;
-            size.y = size.y - World.top - World.bottom;
-
-            Size = size;
+            Size = ParentSize * (Local.max - Local.min) - new Vector2(Local.left + Local.right, Local.top + Local.bottom);
         }
 
         protected void Notify()
@@ -141,14 +144,15 @@ namespace RishUI
             set
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
-                props = value;
-                
+
                 if (changed)
                 {
                     Disable();
                     Dirty = true;
                     Notify();
                 }
+                
+                props = value;
             }
         }
         
@@ -161,7 +165,10 @@ namespace RishUI
             Props = DefaultProps;
         }
 
-        public override void Show() { }
+        public override void Show()
+        {
+            Dirty = true;
+        }
 
         public override void Hide()
         {
@@ -215,7 +222,6 @@ namespace RishUI
             set
             {
                 var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
-                state = value;
 
                 if (changed)
                 {

@@ -45,6 +45,11 @@ namespace RishUI
 
                 var defaultComponent = defaultPrototype.Component;
                 var defaultInitialCount = defaultPrototype.InitialCount;
+
+                if (defaultComponent == null)
+                {
+                    continue;
+                }
                 
                 defaultComponent.gameObject.SetActive(false);
 
