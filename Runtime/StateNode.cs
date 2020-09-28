@@ -44,7 +44,9 @@ namespace RishUI
         public int ChildCount { get; private set; }
         private List<StateNode> Children { get; set; }
 
-        private int VirtualIndex { get; set; }
+        private int VirtualIndex { get; set; } = -1;
+
+        private bool ChildrenDirty { get; set; } = false;
         
         private int RealIndex
         {
@@ -60,7 +62,7 @@ namespace RishUI
             }
         }
 
-        private StateNode PrevSibling => VirtualIndex == 0 ? null : Parent.Children[VirtualIndex - 1];
+        private StateNode PrevSibling => VirtualIndex <= 0 ? null : Parent.Children[VirtualIndex - 1];
 
         private bool IsRealTree()
         {
@@ -179,17 +181,18 @@ namespace RishUI
         internal void Clear()
         {
             ChildCount = 0;
+            ChildrenDirty = false;
         }
 
-        internal void Clean(Pool pool)
+        internal bool Clean(Pool pool)
         {
             if (Children == null)
             {
-                return;
+                return false;
             } 
             
             var count = Children.Count - ChildCount;
-            if (count <= 0) return;
+            if (count <= 0) return ChildrenDirty;
             
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
@@ -197,6 +200,8 @@ namespace RishUI
                 child.Destroy(pool);
             }
             Children.RemoveRange(ChildCount, count);
+
+            return true;
         }
         
         private void AddChild(StateNode child)
@@ -207,6 +212,7 @@ namespace RishUI
             }
             
             Children.Add(child);
+            ChildrenDirty |= child.VirtualIndex != ChildCount;
             child.VirtualIndex = ChildCount;
 
             SwapChildren(ChildCount, Children.Count - 1);
@@ -264,9 +270,10 @@ namespace RishUI
             }
 
             ChildCount = 0;
-            
+
             Depth = -1;
             Parent = null;
+            VirtualIndex = -1;
             
             switch (Component)
             {

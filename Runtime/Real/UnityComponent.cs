@@ -69,6 +69,7 @@ namespace RishUI
         }
         
         protected virtual bool RenderOnResize => false;
+        public virtual bool RenderOnChildrenChange => false;
 
         public Transform TopLevelTransform => transform;
         public virtual Transform BottomLevelTransform => transform;

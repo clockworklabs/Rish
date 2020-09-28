@@ -217,10 +217,10 @@ namespace RishUI
         
         // === KEY, STYLE, CHILDREN ===
         
-        public static IRishElement Create<T>(IRishElement[] children) where T : IRishComponent => Create<T>(0, null, children);
-        public static IRishElement Create<T>(int key, IRishElement[] children) where T : IRishComponent => Create<T>(key, null, children);
-        public static IRishElement Create<T>(uint style, IRishElement[] children) where T : IRishComponent => Create<T>(0, style, children);
-        public static IRishElement Create<T>(int key, uint? style, IRishElement[] children) where T : IRishComponent
+        public static IRishElement Create<T>(IRishElement[] children) where T : UnityComponent => Create<T>(0, null, children);
+        public static IRishElement Create<T>(int key, IRishElement[] children) where T : UnityComponent => Create<T>(key, null, children);
+        public static IRishElement Create<T>(uint style, IRishElement[] children) where T : UnityComponent => Create<T>(0, style, children);
+        public static IRishElement Create<T>(int key, uint? style, IRishElement[] children) where T : UnityComponent
         {
             return new RishElement<T>
             {
@@ -232,10 +232,10 @@ namespace RishUI
         
         // === KEY, STYLE, PROPS, CHILDREN ===
 
-        public static IRishElement Create<T, P>(P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, props, children);
-        public static IRishElement Create<T, P>(int key, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, props, children);
-        public static IRishElement Create<T, P>(uint style, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
+        public static IRishElement Create<T, P>(P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
+        public static IRishElement Create<T, P>(int key, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
+        public static IRishElement Create<T, P>(uint style, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
             return new RishElement<T, P>
             {
@@ -249,10 +249,10 @@ namespace RishUI
         
         // === KEY, STYLE, PROPS ACTION, CHILDREN ===
 
-        public static IRishElement Create<T, P>(Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, props, children);
-        public static IRishElement Create<T, P>(int key, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, props, children);
-        public static IRishElement Create<T, P>(uint style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
+        public static IRishElement Create<T, P>(Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
+        public static IRishElement Create<T, P>(int key, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
+        public static IRishElement Create<T, P>(uint style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
             return new RishElement<T, P>
             {
@@ -266,10 +266,10 @@ namespace RishUI
         
         // === KEY, STYLE, DIV, CHILDREN ===
         
-        public static IRishElement Create<T>(RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(0, null, transform, children);
-        public static IRishElement Create<T>(int key, RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(key, null, transform, children);
-        public static IRishElement Create<T>(uint style, RishTransform transform, IRishElement[] children) where T : IRishComponent => Create<T>(0, style, transform, children);
-        public static IRishElement Create<T>(int key, uint? style, RishTransform transform, IRishElement[] children) where T : IRishComponent
+        public static IRishElement Create<T>(RishTransform transform, IRishElement[] children) where T : UnityComponent => Create<T>(0, null, transform, children);
+        public static IRishElement Create<T>(int key, RishTransform transform, IRishElement[] children) where T : UnityComponent => Create<T>(key, null, transform, children);
+        public static IRishElement Create<T>(uint style, RishTransform transform, IRishElement[] children) where T : UnityComponent => Create<T>(0, style, transform, children);
+        public static IRishElement Create<T>(int key, uint? style, RishTransform transform, IRishElement[] children) where T : UnityComponent
         {
             return new RishElement<T>
             {
@@ -282,10 +282,10 @@ namespace RishUI
         
         // === KEY, STYLE, DIV, PROPS, CHILDREN ===
 
-        public static IRishElement Create<T, P>(RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props, children);
-        public static IRishElement Create<T, P>(int key, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props, children);
-        public static IRishElement Create<T, P>(uint style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, transform, props, children);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, transform, props, children);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, transform, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, P props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
             return new RishElement<T, P>
             {
@@ -300,10 +300,10 @@ namespace RishUI
         
         // === KEY, STYLE, DIV, PROPS ACTION, CHILDREN ===
 
-        public static IRishElement Create<T, P>(RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, null, transform, props, children);
-        public static IRishElement Create<T, P>(int key, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(key, null, transform, props, children);
-        public static IRishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P> => Create<T, P>(0, style, transform, props, children);
-        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : IRishComponent<P>
+        public static IRishElement Create<T, P>(RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, null, transform, props, children);
+        public static IRishElement Create<T, P>(int key, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(key, null, transform, props, children);
+        public static IRishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P> => Create<T, P>(0, style, transform, props, children);
+        public static IRishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props, IRishElement[] children) where P : struct, Props where T : UnityComponent<P>
         {
             return new RishElement<T, P>
             {
@@ -367,13 +367,19 @@ namespace RishUI
             {
                 var childNode = AddChild(node, child);
 
-                if (childNode.Component is AppComponent || (childNode.Component is UnityComponent unityComponent && !unityComponent.IsLeaf))
+                if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
                 {
                     Reconcile(childNode, child.Children);
                 }
             }
 
-            node.Clean(Pool);
+            var dirtyChildren = node.Clean(Pool);
+            
+            if (dirtyChildren && node.Component is UnityComponent unityComponent && unityComponent.RenderOnChildrenChange)
+            {
+                Debug.Log("DirtyChildren");
+                Render(node);
+            }
         }
 
         private void Reconcile(StateNode node, IRishElement[] children)
@@ -394,7 +400,7 @@ namespace RishUI
                     {
                         var childNode = AddChild(node, child);
 
-                        if (childNode.Component is AppComponent || (childNode.Component is UnityComponent unityComponent && !unityComponent.IsLeaf))
+                        if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
                         {
                             Reconcile(childNode, child.Children);
                         }
@@ -402,7 +408,13 @@ namespace RishUI
                 }
             }
 
-            node.Clean(Pool);
+            var dirtyChildren = node.Clean(Pool);
+            
+            if (dirtyChildren && node.Component is UnityComponent unityComponent && unityComponent.RenderOnChildrenChange)
+            {
+                Debug.Log("DirtyChildren");
+                Render(node);
+            }
         }
 
         private StateNode AddChild(StateNode node, IRishElement child)
