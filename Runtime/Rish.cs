@@ -377,8 +377,7 @@ namespace RishUI
             
             if (dirtyChildren && node.Component is UnityComponent unityComponent && unityComponent.RenderOnChildrenChange)
             {
-                Debug.Log("DirtyChildren");
-                Render(node);
+                OnNodeDirty(node);
             }
         }
 
@@ -412,8 +411,7 @@ namespace RishUI
             
             if (dirtyChildren && node.Component is UnityComponent unityComponent && unityComponent.RenderOnChildrenChange)
             {
-                Debug.Log("DirtyChildren");
-                Render(node);
+                OnNodeDirty(node);
             }
         }
 
