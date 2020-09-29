@@ -19,7 +19,6 @@ namespace RishUI
         private int CurrentDepth { get; set; } = -1;
         private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
         private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
-        private FastPriorityQueue<StateNode> SecondDirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
         private List<StateNode> Destroyed { get; } = new List<StateNode>(MaxSize);
         
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
@@ -64,16 +63,6 @@ namespace RishUI
                     Render(node);
                 }
             }
-            
-            while (SecondDirtyQueue.Count > 0)
-            {
-                var node = SecondDirtyQueue.Dequeue();
-                
-                if (node.IsValid)
-                {
-                    Render(node);
-                }
-            }
 
             CurrentDepth = -1;
 
@@ -90,20 +79,13 @@ namespace RishUI
 
         public void OnNodeDirty(StateNode node, bool forceThisFrame = false)
         {
-            if (node.Depth <= CurrentDepth)
+            if (forceThisFrame || node.Depth > CurrentDepth)
             {
-                if (forceThisFrame)
-                {
-                    AddNodeToSecondQueue(node);
-                }
-                else
-                {
-                    AddNodeToList(node);
-                }
+                AddNodeToQueue(node);
             }
             else
             {
-                AddNodeToQueue(node);
+                AddNodeToList(node);
             }
         }
 
@@ -115,16 +97,6 @@ namespace RishUI
             }
 
             DirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
-        }
-
-        private void AddNodeToSecondQueue(StateNode node)
-        {
-            if (SecondDirtyQueue.Contains(node))
-            {
-                return;
-            }
-
-            SecondDirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
         }
 
         private void AddNodeToList(StateNode node) => DirtyList.Add(node);
