@@ -25,19 +25,7 @@ namespace RishUI
         public StateNode Parent { get; private set; }
         private Transform TopLevelTransform => Component.TopLevelTransform;
         private Transform BottomLevelTransform => Component.BottomLevelTransform;
-
-        private Transform ParentTransform
-        {
-            get
-            {
-                if (Parent == null)
-                {
-                    return BottomLevelTransform;
-                }
-
-                return Parent.IsReal ? Parent.BottomLevelTransform : Parent.ParentTransform;
-            }
-        }
+        
         internal int Depth { get; private set; }
         public bool IsValid => Depth >= 0;
         
@@ -45,23 +33,7 @@ namespace RishUI
         private List<StateNode> Children { get; set; }
 
         private int VirtualIndex { get; set; } = -1;
-
-        private bool ChildrenDirty { get; set; } = false;
         
-        private int RealIndex
-        {
-            get
-            {
-                if (!Parent.IsReal)
-                {
-                    return Parent.RealIndex;
-                }
-                
-                var prev = PrevSibling?.RealIndex ?? -1;
-                return IsRealTree() ? prev + 1 : prev;
-            }
-        }
-
         private StateNode PrevSibling => VirtualIndex <= 0 ? null : Parent.Children[VirtualIndex - 1];
 
         private bool IsRealTree()
@@ -72,6 +44,27 @@ namespace RishUI
             }
 
             return Children != null && Children.Any(child => child.IsRealTree());
+        }
+
+        private StateNode GetRealParent()
+        {
+            if (Parent == null)
+            {
+                return null;
+            }
+
+            return Parent.IsReal ? Parent : Parent.GetRealParent();
+        }
+
+        private int GetRealIndex()
+        {
+            if (!Parent.IsReal)
+            {
+                return Parent.GetRealIndex();
+            }
+                
+            var prev = PrevSibling?.GetRealIndex() ?? -1;
+            return IsRealTree() ? prev + 1 : prev;
         }
 
         internal StateNode(Rish rish)
@@ -173,26 +166,37 @@ namespace RishUI
             
             if (IsReal)
             {
-                TopLevelTransform.SetParent(ParentTransform, false);
-                TopLevelTransform.SetSiblingIndex(RealIndex);
+                var realParent = GetRealParent();
+                var realParentTransform = realParent.BottomLevelTransform;
+
+                var realIndex = GetRealIndex();
+                
+                var realParentDirty = TopLevelTransform.parent != realParentTransform || TopLevelTransform.GetSiblingIndex() != realIndex;
+                
+                TopLevelTransform.SetParent(realParentTransform, false);
+                TopLevelTransform.SetSiblingIndex(realIndex);
+
+                if (realParentDirty && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+                {
+                    Rish.OnNodeDirty(this, true);
+                }
             }
         }
 
         internal void Clear()
         {
             ChildCount = 0;
-            ChildrenDirty = false;
         }
 
-        internal bool Clean(Pool pool)
+        internal void Clean(Pool pool)
         {
             if (Children == null)
             {
-                return false;
+                return;
             } 
             
             var count = Children.Count - ChildCount;
-            if (count <= 0) return ChildrenDirty;
+            if (count <= 0) return;
             
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
@@ -200,8 +204,6 @@ namespace RishUI
                 child.Destroy(pool);
             }
             Children.RemoveRange(ChildCount, count);
-
-            return true;
         }
         
         private void AddChild(StateNode child)
@@ -212,7 +214,6 @@ namespace RishUI
             }
             
             Children.Add(child);
-            ChildrenDirty |= child.VirtualIndex != ChildCount;
             child.VirtualIndex = ChildCount;
 
             SwapChildren(ChildCount, Children.Count - 1);
@@ -259,6 +260,15 @@ namespace RishUI
 
         private void Destroy(Pool pool)
         {
+            Depth = -1;
+            VirtualIndex = -1;
+            
+            var realParent = GetRealParent();
+            if (realParent != null && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            {
+                Rish.OnNodeDirty(realParent, true);
+            }
+            
             if (Children != null)
             {
                 for (var i = Children.Count - 1; i >= 0; i--)
@@ -269,12 +279,9 @@ namespace RishUI
                 Children.Clear();
             }
 
+            Parent = null;
             ChildCount = 0;
 
-            Depth = -1;
-            Parent = null;
-            VirtualIndex = -1;
-            
             switch (Component)
             {
                 case AppComponent comp:
