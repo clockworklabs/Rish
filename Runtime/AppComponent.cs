@@ -42,7 +42,7 @@ namespace RishUI
 
         private RectTransform RectTransform => (RectTransform) transform;
 
-        public void Initialize() { }
+        public virtual void Initialize() { }
         
         public void Show() { }
 
@@ -65,6 +65,21 @@ namespace RishUI
     [DisallowMultipleComponent]
     public abstract class AppComponent<S> : AppComponent where S : struct, State
     {
+        private bool Initialized { get; set; }
+        
+        private S defaultState;
+        private S DefaultState {
+            get
+            {
+                if (Initialized) return defaultState;
+                
+                defaultState = GetDefaultState();
+                Initialized = true;
+
+                return defaultState;
+            }
+        }
+        
         private S state;
         protected S State
         {
@@ -81,5 +96,14 @@ namespace RishUI
                 Notify();
             }
         }
+        
+        public override void Initialize()
+        {
+            base.Initialize();
+            
+            State = DefaultState;
+        }
+
+        protected virtual S GetDefaultState() => default;
     }
 }
