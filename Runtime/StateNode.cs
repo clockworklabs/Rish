@@ -228,7 +228,7 @@ namespace RishUI
                 return null;
             }
             
-            var index = Children.FindIndex(ChildCount, (other) => other.Key == key && other.Type == type && other.Style == style);
+            var index = Children.FindIndex(ChildCount, other => other.Key == key && other.Type == type && other.Style == style);
 
             if (index < 0)
             {

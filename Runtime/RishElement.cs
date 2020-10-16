@@ -1,18 +1,19 @@
 ﻿using System;
+using UnityEngine;
 
 namespace RishUI
 {
-    public struct RishElement : IEquatable<RishElement>
+    public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
         
-        private Type type;
-        private int key;
-        private bool inheritedStyle;
-        private uint style;
-        private RishTransform transform;
-        private Action<IRishComponent> setup;
-        private RishElement[] children;
+        private readonly Type type;
+        private readonly int key;
+        private readonly bool inheritedStyle;
+        private readonly uint style;
+        private readonly RishTransform transform;
+        private readonly Action<IRishComponent> setup;
+        private readonly RishElement[] children;
         
         public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
         public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
@@ -70,7 +71,66 @@ namespace RishUI
         
         public bool Equals(RishElement other)
         {
-            return type == other.type && key == other.key && inheritedStyle == other.inheritedStyle && style == other.style && transform.Equals(other.transform) && Equals(setup, other.setup) && Equals(children, other.children);
+            if (type != other.type)
+            {
+                return false;
+            }
+
+            if (key != other.key)
+            {
+                return false;
+            }
+
+            if (inheritedStyle != other.inheritedStyle)
+            {
+                return false;
+            }
+
+            if (style != other.style)
+            {
+                return false;
+            }
+
+            if (setup != null || other.setup != null)
+            {
+                return false;
+            }
+
+            if (!transform.Equals(other.transform))
+            {
+                return false;
+            }
+
+            if (children != null && other.children == null)
+            {
+                return false;
+            }
+
+            if (children == null && other.children != null)
+            {
+                return false;
+            }
+
+            if (children != null && other.children != null)
+            {
+                if (children.Length != other.children.Length)
+                {
+                    return false;
+                }
+                
+                for (int i = 0, n = children.Length; i < n; i++)
+                {
+                    var child = children[i];
+                    var otherChild = other.children[i];
+
+                    if (!child.Equals(otherChild))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }
