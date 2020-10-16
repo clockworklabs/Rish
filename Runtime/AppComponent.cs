@@ -58,7 +58,7 @@ namespace RishUI
             Size = RectTransform.rect.size;
         }
         
-        public abstract IRishElement Render();
+        public abstract RishElement Render();
     }
     
     [RequireComponent(typeof(Canvas))]

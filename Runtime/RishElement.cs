@@ -2,132 +2,75 @@
 
 namespace RishUI
 {
-    public interface IRishElement
+    public struct RishElement : IEquatable<RishElement>
     {
-        Type Type { get; }
-        int Key { get; set; }
+        public static RishElement Null => new RishElement();
         
-        uint? Style { get; set; }
-        
-        RishTransform Transform { get; set; }
-        
-        IRishElement[] Children { get; }
-
-        void Setup(IRishComponent component);
-    }
-    
-    internal struct RishElement<T> : IRishElement where T : IRishComponent
-    {
-        public Type Type => typeof(T);
-        public int Key { get; set; }
-
+        private Type type;
+        private int key;
         private bool inheritedStyle;
         private uint style;
-        public uint? Style
-        {
-            get
-            {
-                if (inheritedStyle)
-                {
-                    return null;
-                }
-
-                return style;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    inheritedStyle = true;
-                }
-                else
-                {
-                    inheritedStyle = false;
-                    style = value.Value;
-                }
-            }
-        }
-        
-        private bool customTransform;
         private RishTransform transform;
-        public RishTransform Transform
+        private Action<IRishComponent> setup;
+        private RishElement[] children;
+        
+        public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
+        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
+        public RishElement(Type type, int key, uint? style, RishTransform transform) : this(type, key, style, transform, null, null) { }
+        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup) : this(type, key, style, transform, setup, null) { }
+        public RishElement(Type type, int key, uint? style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
+        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
+        public RishElement(Type type, int key, uint? style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
+        
+        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup, RishElement[] children)
         {
-            get => customTransform ? transform : RishTransform.Default;
-            set
-            {
-                customTransform = true;
-                transform = value;
-            }
+            this.type = type;
+            this.key = key;
+            
+            inheritedStyle = style == null;
+            this.style = style ?? 0;
+
+            this.transform = transform;
+
+            this.setup = setup;
+            this.children = children;
         }
 
-        public IRishElement[] Children { get; set; }
+        public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
+        public RishElement(RishElement other, Action<IRishComponent> setup) : this(other, other.transform, setup) { }
+
+        public RishElement(RishElement other, RishTransform transform, Action<IRishComponent> setup)
+        {
+            type = other.type;
+            key = other.key;
+            
+            inheritedStyle = other.inheritedStyle;
+            style = other.style;
+            children = other.children;
+
+            this.transform = transform;
+
+            this.setup = other.setup + setup;
+        }
+
+        public bool Valid => type != null;
+
+        public Type Type => type;
+        public int Key => key;
+        public uint? Style => style;
+        public RishElement[] Children => children;
+
 
         public void Setup(IRishComponent component)
         {
-            component.Local = Transform;
-        }
-    }
-    
-    internal struct RishElement<T, P> : IRishElement where P : struct, Props where T : IRishComponent<P>
-    {
-        internal bool customProps;
-        internal P props;
-        internal Func<P, P> propsFunc;
-        
-        public Type Type => typeof(T);
-        public int Key {get; set; }
+            component.Local = transform;
 
-        private bool inheritedStyle;
-        private uint style;
-        public uint? Style
-        {
-            get
-            {
-                if (inheritedStyle)
-                {
-                    return null;
-                }
-
-                return style;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    inheritedStyle = true;
-                }
-                else
-                {
-                    inheritedStyle = false;
-                    style = value.Value;
-                }
-            }
+            setup?.Invoke(component);
         }
         
-        private bool customTransform;
-        private RishTransform transform;
-        public RishTransform Transform
+        public bool Equals(RishElement other)
         {
-            get => customTransform ? transform : RishTransform.Default;
-            set
-            {
-                customTransform = true;
-                transform = value;
-            }
-        }
-
-        public IRishElement[] Children { get; set; }
-
-        public void Setup(IRishComponent component)
-        {
-            component.Local = Transform;
-
-            if (customProps && component is T propsComponent)
-            {
-                propsComponent.Props = propsFunc?.Invoke(propsComponent.DefaultProps) ?? props;
-            }
+            return type == other.type && key == other.key && inheritedStyle == other.inheritedStyle && style == other.style && transform.Equals(other.transform) && Equals(setup, other.setup) && Equals(children, other.children);
         }
     }
 }

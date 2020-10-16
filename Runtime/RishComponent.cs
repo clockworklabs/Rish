@@ -115,7 +115,7 @@ namespace RishUI
         public virtual void Hide() { }
 
         public virtual void Setup() { }
-        public abstract IRishElement Render();
+        public abstract RishElement Render();
     }
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, Props
