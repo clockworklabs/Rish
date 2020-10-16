@@ -6,15 +6,15 @@ namespace RishUI
     public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
-        
-        private readonly Type type;
-        private readonly int key;
+
+        public Type Type { get; }
+        public int Key { get; }
         private readonly bool inheritedStyle;
         private readonly uint style;
         private readonly RishTransform transform;
         private readonly Action<IRishComponent> setup;
-        private readonly RishElement[] children;
-        
+        public RishElement[] Children { get; }
+
         public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
         public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
         public RishElement(Type type, int key, uint? style, RishTransform transform) : this(type, key, style, transform, null, null) { }
@@ -25,8 +25,8 @@ namespace RishUI
         
         public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup, RishElement[] children)
         {
-            this.type = type;
-            this.key = key;
+            Type = type;
+            Key = key;
             
             inheritedStyle = style == null;
             this.style = style ?? 0;
@@ -34,7 +34,7 @@ namespace RishUI
             this.transform = transform;
 
             this.setup = setup;
-            this.children = children;
+            Children = children;
         }
 
         public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
@@ -42,24 +42,30 @@ namespace RishUI
 
         public RishElement(RishElement other, RishTransform transform, Action<IRishComponent> setup)
         {
-            type = other.type;
-            key = other.key;
+            Type = other.Type;
+            Key = other.Key;
             
             inheritedStyle = other.inheritedStyle;
             style = other.style;
-            children = other.children;
+            Children = other.Children;
 
             this.transform = transform;
 
             this.setup = other.setup + setup;
         }
 
-        public bool Valid => type != null;
+        public bool Valid => Type != null;
 
-        public Type Type => type;
-        public int Key => key;
-        public uint? Style => style;
-        public RishElement[] Children => children;
+
+        public uint? Style
+        {
+            get
+            {
+                if(inheritedStyle) return null;
+                return style;
+            }
+        }
+
 
 
         public void Setup(IRishComponent component)
@@ -71,12 +77,12 @@ namespace RishUI
         
         public bool Equals(RishElement other)
         {
-            if (type != other.type)
+            if (Type != other.Type)
             {
                 return false;
             }
 
-            if (key != other.key)
+            if (Key != other.Key)
             {
                 return false;
             }
@@ -101,27 +107,27 @@ namespace RishUI
                 return false;
             }
 
-            if (children != null && other.children == null)
+            if (Children != null && other.Children == null)
             {
                 return false;
             }
 
-            if (children == null && other.children != null)
+            if (Children == null && other.Children != null)
             {
                 return false;
             }
 
-            if (children != null && other.children != null)
+            if (Children != null && other.Children != null)
             {
-                if (children.Length != other.children.Length)
+                if (Children.Length != other.Children.Length)
                 {
                     return false;
                 }
                 
-                for (int i = 0, n = children.Length; i < n; i++)
+                for (int i = 0, n = Children.Length; i < n; i++)
                 {
-                    var child = children[i];
-                    var otherChild = other.children[i];
+                    var child = Children[i];
+                    var otherChild = other.Children[i];
 
                     if (!child.Equals(otherChild))
                     {
