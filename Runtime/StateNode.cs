@@ -58,6 +58,11 @@ namespace RishUI
 
         private int GetRealIndex()
         {
+            if (Parent == null)
+            {
+                return 0;
+            }
+            
             if (!Parent.IsReal)
             {
                 return Parent.GetRealIndex();
@@ -85,10 +90,6 @@ namespace RishUI
 
             switch (Component)
             {
-                case AppComponent comp:
-                    comp.OnDirty += NotifyDirty;
-                    comp.OnSize += NotifySize;
-                    break;
                 case UnityComponent comp:
                     comp.OnDirty += NotifyDirty;
                     comp.OnSize += NotifySize;
@@ -167,16 +168,15 @@ namespace RishUI
             if (IsReal)
             {
                 var realParent = GetRealParent();
-                var realParentTransform = realParent.BottomLevelTransform;
+                var realParentTransform = realParent != null ? realParent.BottomLevelTransform : Rish.AppTransform;
 
                 var realIndex = GetRealIndex();
-                
                 var realParentDirty = TopLevelTransform.parent != realParentTransform || TopLevelTransform.GetSiblingIndex() != realIndex;
                 
                 TopLevelTransform.SetParent(realParentTransform, false);
                 TopLevelTransform.SetSiblingIndex(realIndex);
 
-                if (realParentDirty && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+                if (realParent != null && realParentDirty && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
                 {
                     Rish.OnNodeDirty(this, true);
                 }
@@ -284,10 +284,6 @@ namespace RishUI
 
             switch (Component)
             {
-                case AppComponent comp:
-                    comp.OnDirty -= NotifyDirty;
-                    comp.OnSize -= NotifySize;
-                    break;
                 case UnityComponent comp:
                     comp.OnDirty -= NotifyDirty;
                     comp.OnSize -= NotifySize;

@@ -28,6 +28,7 @@ namespace RishUI
         private AppComponent App => app;
         
         public StateNode Root { get; private set; }
+        public Transform AppTransform => App.transform;
 
         private void Start()
         {
@@ -37,9 +38,9 @@ namespace RishUI
             {
                 return;
             }
-            
-            Root = new StateNode(this);
-            Root.Setup(0, 0, App);
+
+            Root = AddChild(null, App.GetRoot());
+
             OnNodeDirty(Root);
         }
 
@@ -303,14 +304,6 @@ namespace RishUI
                     element.Render();
                     break;
                 }
-                case AppComponent element:
-                {
-                    var child = element.Render();
-
-                    Reconcile(node, child);
-                    
-                    break;
-                }
             }
             
             #if UNITY_EDITOR
@@ -373,10 +366,10 @@ namespace RishUI
         {
             var type = child.Type;
             var key = child.Key;
-            var style = child.Style ?? node.Style;
+            var style = child.Style ?? (node?.Style ?? 0);
 
             var newNode = false;
-            var childNode = node.FindFreeChild(type, key, style);
+            var childNode = node?.FindFreeChild(type, key, style);
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
