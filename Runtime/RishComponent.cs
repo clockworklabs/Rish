@@ -118,7 +118,7 @@ namespace RishUI
         public abstract RishElement Render();
     }
 
-    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, Props
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IEquatable<P>
     {
         private bool Initialized { get; set; }
         
@@ -143,7 +143,7 @@ namespace RishUI
             protected get => props;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
+                var changed = !value.Equals(props);
 
                 if (changed)
                 {
@@ -213,7 +213,7 @@ namespace RishUI
         protected virtual P GetDefaultProps() => default;
     }
 
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, Props where S : struct, State
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IEquatable<P> where S : struct, IEquatable<S>
     {
         private bool Initialized { get; set; }
         
@@ -236,7 +236,7 @@ namespace RishUI
             get => state;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
+                var changed = !value.Equals(null);
 
                 if (changed)
                 {

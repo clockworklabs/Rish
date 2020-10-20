@@ -1,27 +1,18 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace RishUI
 {
-    public interface Props
+    public struct NoProps : IEquatable<NoProps>
     {
+        public bool Equals(NoProps other) => true;
     }
-
-    public interface State
-    {
-    }
-
-    public struct NoProps : Props { }
 
     public delegate void OnDirty();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
     
     public interface IRishComponent {
-        //OnDirty OnDirty { set; }
-        //OnWorld OnWorld { set; }
-        //OnSize OnSize { set; }
-        
-        //RishTransform Parent { set; }
         RishTransform Local { get; set; }
         RishTransform World { get; }
         
@@ -36,7 +27,13 @@ namespace RishUI
         void Hide();
     }
 
-    public interface IRishComponent<P> : IRishComponent where P : struct, Props
+    public interface IRishComponent<P> : IRishComponent where P : struct, IEquatable<P>
+    {
+        P DefaultProps { get; }
+        P Props { set; }
+    }
+
+    public interface IRishComponent<P, S> : IRishComponent<P> where P : struct, IEquatable<P> where S : struct, IEquatable<S>
     {
         P DefaultProps { get; }
         P Props { set; }

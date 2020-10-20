@@ -139,7 +139,7 @@ namespace RishUI
         }
     }
 
-    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, Props
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IEquatable<P>
     {
         private bool Initialized { get; set; }
         
@@ -162,7 +162,7 @@ namespace RishUI
             protected get => props;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
+                var changed = !value.Equals(props);
                 props = value;
                 
                 if (changed)

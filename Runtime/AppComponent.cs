@@ -63,7 +63,7 @@ namespace RishUI
     
     [RequireComponent(typeof(Canvas))]
     [DisallowMultipleComponent]
-    public abstract class AppComponent<S> : AppComponent where S : struct, State
+    public abstract class AppComponent<S> : AppComponent where S : struct
     {
         private bool Initialized { get; set; }
         
