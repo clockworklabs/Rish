@@ -19,10 +19,10 @@ namespace RishUI
         Vector2 Size { get; }
 
         void ForceRender();
-
-        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
     
         void Reset();
+
+        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct, IEquatable<P>

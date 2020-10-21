@@ -91,15 +91,27 @@ namespace RishUI
             Local = RishTransform.Default;
         }
 
-        internal void Mount(OnDirty onDirty, OnWorld onWorld, OnSize onSize)
+        internal virtual void Mount(OnDirty onDirty, OnWorld onWorld, OnSize onSize)
         {
             OnDirty = onDirty;
             OnWorld = onWorld;
             OnSize = onSize;
+            
+            ForceRender();
+
+            if (this is IMountingListener mountingListener)
+            {
+                mountingListener.ComponentDidMount();
+            }
         }
 
-        internal void Unmount()
+        internal virtual void Unmount()
         {
+            if (this is IMountingListener mountingListener)
+            {
+                mountingListener.ComponentWillUnmount();
+            }
+            
             OnDirty = null;
             OnWorld = null;
             OnSize = null;
@@ -116,10 +128,6 @@ namespace RishUI
         {
             Size = ParentSize * (Local.max - Local.min) - new Vector2(Local.left + Local.right, Local.top + Local.bottom);
         }
-
-        public virtual void Show()  { }
-
-        public virtual void Hide() { }
 
         public virtual void Setup() { }
 
@@ -177,16 +185,14 @@ namespace RishUI
             base.Reset();
             
             Props = DefaultProps;
-        }
-
-        public override void Show()
-        {
+            
             Dirty = true;
         }
 
-        public override void Hide()
+        internal override void Unmount()
         {
             Disable();
+            base.Unmount();
         }
 
         private void Enable()

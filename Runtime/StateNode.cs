@@ -285,7 +285,6 @@ namespace RishUI
                     unityComponent.Unmount();
                     break;
                 case RishComponent rishComponent:
-                    rishComponent.Hide();
                     rishComponent.Unmount();
                     break;
             }

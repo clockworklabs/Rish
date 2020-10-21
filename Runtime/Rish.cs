@@ -368,28 +368,16 @@ namespace RishUI
             var key = child.key;
             var style = child.Style ?? (node?.Style ?? 0);
 
-            var newNode = false;
             var childNode = node?.FindFreeChild(type, key, style);
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
                 childNode.Initialize(key, style, Pool.GetFromPool(type, style));
-                newNode = true;
             }
             childNode.SetParent(node);
             
             var component = childNode.Component;
             component.UpdateComponent(child.transform, child.setup);
-
-            if (newNode)
-            {
-                OnNodeDirty(childNode);
-
-                if (component is RishComponent childRishComponent)
-                {
-                    childRishComponent.Show();
-                }
-            }
 
             return childNode;
         }

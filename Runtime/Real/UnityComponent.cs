@@ -89,6 +89,8 @@ namespace RishUI
             OnDirty = onDirty;
             OnSize = onSize;
             
+            ForceRender();
+            
             gameObject.SetActive(true);
         }
 
