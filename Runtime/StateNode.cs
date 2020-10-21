@@ -96,11 +96,12 @@ namespace RishUI
             Depth = parent?.Depth + 1 ?? 0;
 
             Component.Reset();
-            Component.OnDirty += NotifyDirty;
 
             switch (Component)
             {
                 case UnityComponent unityComponent:
+                    unityComponent.OnDirty += NotifyDirty;
+                    
                     RealParent = null;
                     while (RealParent == null && parent != null)
                     {
@@ -115,6 +116,8 @@ namespace RishUI
                     unityComponent.Mount(Parent?.Component);
                     break;
                 case RishComponent rishComponent:
+                    rishComponent.OnDirty += NotifyDirty;
+                    
                     rishComponent.Mount(Parent?.Component);
                     break;
             }
@@ -238,14 +241,14 @@ namespace RishUI
             RealParent = null;
             ChildCount = 0;
             
-            Component.OnDirty -= NotifyDirty;
-            
             switch (Component)
             {
                 case UnityComponent unityComponent:
+                    unityComponent.OnDirty -= NotifyDirty;
                     unityComponent.Unmount();
                     break;
                 case RishComponent rishComponent:
+                    rishComponent.OnDirty -= NotifyDirty;
                     rishComponent.Unmount();
                     break;
             }

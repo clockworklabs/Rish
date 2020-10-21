@@ -5,7 +5,7 @@ namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        public event OnDirty OnDirty;
+        internal event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         
@@ -42,7 +42,7 @@ namespace RishUI
                 local = value;
                 
                 World = ParentWorld * local;
-                Size = Local.GetSize(parentSize);
+                Size = local.GetSize(ParentSize);
             }
         }
 
