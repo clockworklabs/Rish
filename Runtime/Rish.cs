@@ -372,9 +372,9 @@ namespace RishUI
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
-                childNode.Initialize(key, style, Pool.GetFromPool(type, style));
+                childNode.Initialize(key, style, Pool.GetFromPool(type, style), node);
             }
-            childNode.SetParent(node);
+            childNode.UpdateIndex();
             
             var component = childNode.Component;
             component.UpdateComponent(child.transform, child.setup);

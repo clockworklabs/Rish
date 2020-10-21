@@ -8,11 +8,14 @@ namespace RishUI
         public bool Equals(NoProps other) => true;
     }
 
-    internal delegate void OnDirty();
-    internal delegate void OnWorld(RishTransform world);
-    internal delegate void OnSize(Vector2 size);
+    public delegate void OnDirty();
+    public delegate void OnWorld(RishTransform world);
+    public delegate void OnSize(Vector2 size);
     
     public interface IRishComponent {
+        event OnWorld OnWorld;
+        event OnSize OnSize;
+        
         RishTransform Local { get; }
         RishTransform World { get; }
         

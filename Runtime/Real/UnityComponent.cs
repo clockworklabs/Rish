@@ -6,32 +6,35 @@ namespace RishUI
     public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
         private OnDirty OnDirty { get; set; }
-        private OnSize OnSize { get; set; }
+        public event OnWorld OnWorld;
+        public event OnSize OnSize;
         
         public abstract bool IsLeaf { get; }
+
+        private IRishComponent Parent { get; set; }
         
-        private RishTransform parent;
-        internal RishTransform Parent
+        private RishTransform parentWorld;
+        private RishTransform ParentWorld
         {
-            private get => parent;
+            get => parentWorld;
             set
             {
-                if (parent.Equals(value))
+                if (value.Equals(parentWorld))
                 {
                     return;
                 }
 
-                parent = value;
-                
-                UpdateTransform();
+                parentWorld = value;
+
+                UpdateWorldTransform();
             }
         }
-                
+
         private RishTransform local;
         public RishTransform Local
         {
             get => local;
-            protected set
+            private set
             {
                 if (local.Equals(value))
                 {
@@ -40,7 +43,7 @@ namespace RishUI
                 
                 local = value;
 
-                UpdateTransform();
+                UpdateWorldTransform();
             }
         }
         
@@ -52,14 +55,14 @@ namespace RishUI
             get => size;
             private set
             {
-                if (value == size)
+                if (size.Equals(value))
                 {
                     return;
                 }
                 
                 size = value;
                 
-                OnSize?.Invoke(Size);
+                OnSize?.Invoke(size);
                 
                 if (RenderOnResize)
                 {
@@ -80,15 +83,22 @@ namespace RishUI
 
         public virtual void Reset()
         {
-            Parent = RishTransform.Default;
             Local = RishTransform.Default;
+            ParentWorld = RishTransform.Default;
         }
 
-        internal void Mount(OnDirty onDirty, OnSize onSize)
+        internal void Mount(OnDirty onDirty, IRishComponent parent)
         {
             OnDirty = onDirty;
-            OnSize = onSize;
-            
+            Parent = parent;
+            if (Parent != null)
+            {
+                Parent.OnWorld += SetParentWorld;
+                
+                SetParentWorld(Parent.World);
+            }
+
+            UpdateWorldTransform();
             ForceRender();
             
             gameObject.SetActive(true);
@@ -96,8 +106,12 @@ namespace RishUI
 
         internal void Unmount()
         {
+            if (Parent != null)
+            {
+                Parent.OnWorld -= SetParentWorld;
+            }
+            Parent = null;
             OnDirty = null;
-            OnSize = null;
             
             gameObject.SetActive(false);
         }
@@ -109,22 +123,25 @@ namespace RishUI
         }
         
         public abstract void Render();
+
+        private void SetParentWorld(RishTransform parentWorld)
+        {
+            ParentWorld = parentWorld;
+        }
         
         private void OnRectTransformDimensionsChange()
         {
             Size = RectTransform.rect.size;
         }
 
-        private void UpdateTransform()
+        private void UpdateWorldTransform()
         {
-            var world = Parent * Local;
+            var world = ParentWorld * Local;
             
-            var rectTransform = (RectTransform) transform;
-                
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            RectTransform.pivot = new Vector2(0.5f, 0.5f);
             
-            rectTransform.anchorMin = world.min;
-            rectTransform.anchorMax = world.max;
+            RectTransform.anchorMin = world.min;
+            RectTransform.anchorMax = world.max;
             
             var width = world.left + world.right;
             var height = world.top + world.bottom;
@@ -149,8 +166,8 @@ namespace RishUI
                 anchoredPosition.y = -height * 0.5f + world.bottom;
             }
             
-            rectTransform.anchoredPosition = anchoredPosition;
-            rectTransform.sizeDelta = sizeDelta;
+            RectTransform.anchoredPosition = anchoredPosition;
+            RectTransform.sizeDelta = sizeDelta;
         }
     }
 

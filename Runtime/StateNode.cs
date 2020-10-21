@@ -4,6 +4,7 @@ using System.Linq;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace RishUI
 {
@@ -20,11 +21,15 @@ namespace RishUI
 
         public Type Type { get; private set; }
         
-        private bool IsReal => Component is MonoBehaviour;
+        private bool IsReal => Component is UnityComponent;
         
         public StateNode Parent { get; private set; }
-        private Transform TopLevelTransform => (Component is UnityComponent unityComponent) ? unityComponent.TopLevelTransform : null;
-        private Transform BottomLevelTransform => (Component is UnityComponent unityComponent) ? unityComponent.BottomLevelTransform : null;
+        
+        private Transform TopLevelTransform => Component is UnityComponent unityComponent ? unityComponent.TopLevelTransform : null;
+        private Transform BottomLevelTransform => Component is UnityComponent unityComponent ? unityComponent.BottomLevelTransform : null;
+        
+        private StateNode RealParent { get; set; }
+        private Transform RealParentTransform => RealParent != null ? RealParent.BottomLevelTransform : Rish.AppTransform;
         
         internal int Depth { get; private set; }
         public bool IsValid => Depth >= 0;
@@ -46,6 +51,7 @@ namespace RishUI
             return Children != null && Children.Any(child => child.IsRealTree());
         }
 
+        /*
         private StateNode GetRealParent()
         {
             if (Parent == null)
@@ -55,6 +61,7 @@ namespace RishUI
 
             return Parent.IsReal ? Parent : Parent.GetRealParent();
         }
+        */
 
         private int GetRealIndex()
         {
@@ -78,23 +85,36 @@ namespace RishUI
             Rish = rish;
         }
         
-        internal void Initialize(int key, uint style, IRishComponent component)
+        internal void Initialize(int key, uint style, IRishComponent component, StateNode parent)
         {
             Key = key;
             Component = component;
             Style = style;
 
             Type = component.GetType();
-            
+            Parent = parent;
+            Depth = parent?.Depth + 1 ?? 0;
+
             Component.Reset();
 
             switch (Component)
             {
                 case UnityComponent unityComponent:
-                    unityComponent.Mount(NotifyDirty, NotifySize);
+                    RealParent = null;
+                    while (RealParent == null && parent != null)
+                    {
+                        if (parent.IsReal)
+                        {
+                            RealParent = parent;
+                        }
+                        parent = parent.Parent;
+                    }
+                    
+                    TopLevelTransform.SetParent(RealParentTransform);
+                    unityComponent.Mount(NotifyDirty, Parent?.Component);
                     break;
                 case RishComponent rishComponent:
-                    rishComponent.Mount(NotifyDirty, NotifyTransform, NotifySize);
+                    rishComponent.Mount(NotifyDirty, Parent?.Component);
                     break;
             }
         }
@@ -102,84 +122,25 @@ namespace RishUI
         private void NotifyDirty() => Rish.OnNodeDirty(this);
         private void NotifyDestroy() => Rish.OnNodeDestroyed(this);
 
-        private void NotifyTransform(RishTransform world)
+        internal void UpdateIndex()
         {
-            if (Children == null)
-            {
-                return;
-            }
+            if (Parent == null) return;
+
+            Parent.AddChild(this);
+
+            if (!IsReal) return;
             
-            for (var i = 0; i < ChildCount; i++)
-            {
-                switch (Children[i].Component)
-                {
-                    case UnityComponent component:
-                        component.Parent = world;
-                        break;
-                    case RishComponent component:
-                        component.Parent = world;
-                        break;
-                }
-            }
-        }
-
-        private void NotifySize(Vector2 size)
-        {
-            if (Children == null)
-            {
-                return;
-            }
-            
-            for (var i = 0; i < ChildCount; i++)
-            {
-                if(Children[i].Component is RishComponent component)
-                {
-                    component.ParentSize = size;
-                }
-            }
-        }
-
-        internal void SetParent(StateNode parent)
-        {
-            if (parent == null)
-            {
-                return;
-            }
-            
-            Parent = parent;
-            Depth = parent.Depth + 1;
-
-            parent.AddChild(this);
-
-            switch(Component)
-            {
-                case UnityComponent component:
-                    component.Parent = parent.Component.World;
-                    break;
-                case RishComponent component:
-                    component.Parent = parent.Component.World;
-                    component.ParentSize = parent.Component.Size;
-                    break;
-            }
-            
-            if (IsReal)
-            {
-                var realParent = GetRealParent();
-                var realParentTransform = realParent != null ? realParent.BottomLevelTransform : Rish.AppTransform;
-
-                var realIndex = GetRealIndex();
-                var realParentDirty = TopLevelTransform.parent != realParentTransform || TopLevelTransform.GetSiblingIndex() != realIndex;
+            var realIndex = GetRealIndex();
+            var realParentDirty = TopLevelTransform.parent != RealParentTransform || TopLevelTransform.GetSiblingIndex() != realIndex;
                 
-                TopLevelTransform.SetParent(realParentTransform, false);
-                TopLevelTransform.SetSiblingIndex(realIndex);
+            TopLevelTransform.SetSiblingIndex(realIndex);
 
-                if (realParent != null && realParentDirty && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
-                {
-                    Rish.OnNodeDirty(this, true);
-                }
+            if (RealParent != null && realParentDirty && RealParent.IsValid && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            {
+                Rish.OnNodeDirty(this, true);
             }
         }
-
+        
         internal void Clear()
         {
             ChildCount = 0;
@@ -187,11 +148,8 @@ namespace RishUI
 
         internal void Clean(Pool pool)
         {
-            if (Children == null)
-            {
-                return;
-            } 
-            
+            if (Children == null) return;
+
             var count = Children.Count - ChildCount;
             if (count <= 0) return;
             
@@ -260,10 +218,9 @@ namespace RishUI
             Depth = -1;
             VirtualIndex = -1;
             
-            var realParent = GetRealParent();
-            if (realParent != null && realParent.IsValid && realParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            if (RealParent != null && RealParent.IsValid && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
             {
-                Rish.OnNodeDirty(realParent, true);
+                Rish.OnNodeDirty(RealParent, true);
             }
             
             if (Children != null)
@@ -277,6 +234,7 @@ namespace RishUI
             }
 
             Parent = null;
+            RealParent = null;
             ChildCount = 0;
             
             switch (Component)

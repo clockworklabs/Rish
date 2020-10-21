@@ -6,25 +6,29 @@ namespace RishUI
     public abstract class RishComponent : IRishComponent
     {
         private OnDirty OnDirty { get; set; }
-        private OnWorld OnWorld { get; set; }
-        private OnSize OnSize { get; set; }
+        public event OnWorld OnWorld;
+        public event OnSize OnSize;
         
-        private RishTransform parent;
-        internal RishTransform Parent
+        private IRishComponent Parent { get; set; }
+        
+        private RishTransform parentWorld;
+        private RishTransform ParentWorld
         {
-            private get => parent;
+            get => parentWorld;
             set
             {
-                if (value.Equals(parent))
+                if (value.Equals(parentWorld))
                 {
                     return;
                 }
 
-                parent = value;
-
-                UpdateWorldTransform();
+                parentWorld = value;
+                
+                World = parentWorld * Local;
+                Size = GetWorldSize(ParentSize, Local);
             }
         }
+        
         private RishTransform local;
         public RishTransform Local
         {
@@ -37,35 +41,53 @@ namespace RishUI
                 }
 
                 local = value;
-
-                UpdateWorldTransform();
+                
+                World = ParentWorld * local;
+                Size = GetWorldSize(ParentSize, local);
             }
         }
-        public RishTransform World{ get; private set; }
 
+        private RishTransform world;
+        public RishTransform World
+        {
+            get => world;
+            private set
+            {
+                if (value.Equals(world))
+                {
+                    return;
+                }
+                
+                world = value;
+                
+                OnWorld?.Invoke(World);
+            }
+        }
+        
         private Vector2 parentSize;
-        internal Vector2 ParentSize
+        private Vector2 ParentSize
         {
             get => parentSize;
             set
             {
-                if (value == parentSize)
+                if (value.Equals(parentSize))
                 {
                     return;
                 }
 
                 parentSize = value;
 
-                UpdateSize();
+                Size = GetWorldSize(parentSize, Local);
             }
         }
+        
         private Vector2 size;
         public Vector2 Size
         {
             get => size;
             private set
             {
-                if (value == size)
+                if (value.Equals(size))
                 {
                     return;
                 }
@@ -87,16 +109,24 @@ namespace RishUI
 
         public virtual void Reset()
         {
-            Parent = RishTransform.Default;
             Local = RishTransform.Default;
+            ParentWorld = RishTransform.Default;
         }
 
-        internal virtual void Mount(OnDirty onDirty, OnWorld onWorld, OnSize onSize)
+        internal virtual void Mount(OnDirty onDirty, IRishComponent parent)
         {
             OnDirty = onDirty;
-            OnWorld = onWorld;
-            OnSize = onSize;
-            
+            Parent = parent;
+            if (Parent != null)
+            {
+                Parent.OnWorld += SetParentWorld;
+                Parent.OnSize += SetParentSize;
+
+                SetParentWorld(Parent.World);
+                SetParentSize(Parent.Size);
+            }
+
+            World = ParentWorld * Local;
             ForceRender();
 
             if (this is IMountingListener mountingListener)
@@ -111,22 +141,29 @@ namespace RishUI
             {
                 mountingListener.ComponentWillUnmount();
             }
-            
+
+            if (Parent != null)
+            {
+                Parent.OnSize -= SetParentSize;
+                Parent.OnWorld -= SetParentWorld;
+            }
+            Parent = null;
             OnDirty = null;
-            OnWorld = null;
-            OnSize = null;
         }
 
-        private void UpdateWorldTransform()
+        private void SetParentWorld(RishTransform parentWorld)
         {
-            World = Parent * Local;
-            UpdateSize();
-            OnWorld?.Invoke(World);
+            ParentWorld = parentWorld;
         }
 
-        private void UpdateSize()
+        private void SetParentSize(Vector2 parentSize)
         {
-            Size = ParentSize * (Local.max - Local.min) - new Vector2(Local.left + Local.right, Local.top + Local.bottom);
+            ParentSize = parentSize;
+        }
+
+        private static Vector2 GetWorldSize(Vector2 parentSize, RishTransform local)
+        {
+            return parentSize * (local.max - local.min) - new Vector2(local.left + local.right, local.top + local.bottom);
         }
 
         public virtual void Setup() { }
