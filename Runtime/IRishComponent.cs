@@ -31,7 +31,6 @@ namespace RishUI
 
     public interface IRishComponent<P> : IRishComponent where P : struct, IEquatable<P>
     {
-        P DefaultProps { get; }
-        P Props { set; }
+        P Props { get; set; }
     }
 }

@@ -150,7 +150,7 @@ namespace RishUI
             {
                 if (props != null && component is T tComponent)
                 {
-                    tComponent.Props = props(tComponent.DefaultProps);
+                    tComponent.Props = props(tComponent.Props);
                 }
             });
         }
@@ -192,7 +192,7 @@ namespace RishUI
             {
                 if (props != null && component is T tComponent)
                 {
-                    tComponent.Props = props(tComponent.DefaultProps);
+                    tComponent.Props = props(tComponent.Props);
                 }
             });
         }
@@ -234,7 +234,7 @@ namespace RishUI
                 {
                     if (props != null && component is T tComponent)
                     {
-                        tComponent.Props = props(tComponent.DefaultProps);
+                        tComponent.Props = props(tComponent.Props);
                     }
                 }, children);
         }
@@ -276,7 +276,7 @@ namespace RishUI
                 {
                     if (props != null && component is T tComponent)
                     {
-                        tComponent.Props = props(tComponent.DefaultProps);
+                        tComponent.Props = props(tComponent.Props);
                     }
                 }, children);
         }

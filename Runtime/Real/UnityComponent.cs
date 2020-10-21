@@ -174,7 +174,7 @@ namespace RishUI
         private bool Initialized { get; set; }
         
         private P defaultProps;
-        public P DefaultProps {
+        private P DefaultProps {
             get
             {
                 if (Initialized) return defaultProps;
@@ -189,7 +189,7 @@ namespace RishUI
         private P props;
         public P Props
         {
-            protected get => props;
+            get => props;
             set
             {
                 var changed = !value.Equals(props);
