@@ -31,7 +31,7 @@ namespace RishUI
         public RishTransform Local
         {
             get => local;
-            set
+            protected set
             {
                 if (local.Equals(value))
                 {
@@ -99,12 +99,11 @@ namespace RishUI
             
             gameObject.SetActive(false);
         }
-
-        public virtual void Show()
-        {
-        }
         
-        public virtual void Hide() {
+        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        {
+            Local = local;
+            setup?.Invoke(this);
         }
         
         public abstract void Render();

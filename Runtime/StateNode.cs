@@ -279,14 +279,13 @@ namespace RishUI
             Parent = null;
             ChildCount = 0;
             
-            Component.Hide();
-
             switch (Component)
             {
                 case UnityComponent unityComponent:
                     unityComponent.Unmount();
                     break;
                 case RishComponent rishComponent:
+                    rishComponent.Hide();
                     rishComponent.Unmount();
                     break;
             }

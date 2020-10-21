@@ -7,13 +7,13 @@ namespace RishUI
     {
         public static RishElement Null => new RishElement();
 
-        public Type Type { get; }
-        public int Key { get; }
+        public readonly Type type;
+        public readonly int key;
         private readonly bool inheritedStyle;
         private readonly uint style;
-        private readonly RishTransform transform;
-        private readonly Action<IRishComponent> setup;
-        public RishElement[] Children { get; }
+        public readonly RishTransform transform;
+        public readonly Action<IRishComponent> setup;
+        public readonly RishElement[] children;
 
         public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
         public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
@@ -25,8 +25,8 @@ namespace RishUI
         
         public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup, RishElement[] children)
         {
-            Type = type;
-            Key = key;
+            this.type = type;
+            this.key = key;
             
             inheritedStyle = style == null;
             this.style = style ?? 0;
@@ -34,7 +34,7 @@ namespace RishUI
             this.transform = transform;
 
             this.setup = setup;
-            Children = children;
+            this.children = children;
         }
 
         public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
@@ -42,20 +42,19 @@ namespace RishUI
 
         public RishElement(RishElement other, RishTransform transform, Action<IRishComponent> setup)
         {
-            Type = other.Type;
-            Key = other.Key;
+            type = other.type;
+            key = other.key;
             
             inheritedStyle = other.inheritedStyle;
             style = other.style;
-            Children = other.Children;
+            children = other.children;
 
             this.transform = transform;
 
             this.setup = other.setup + setup;
         }
 
-        public bool Valid => Type != null;
-
+        public bool Valid => type != null;
 
         public uint? Style
         {
@@ -65,24 +64,15 @@ namespace RishUI
                 return style;
             }
         }
-
-
-
-        public void Setup(IRishComponent component)
-        {
-            component.Local = transform;
-
-            setup?.Invoke(component);
-        }
         
         public bool Equals(RishElement other)
         {
-            if (Type != other.Type)
+            if (type != other.type)
             {
                 return false;
             }
 
-            if (Key != other.Key)
+            if (key != other.key)
             {
                 return false;
             }
@@ -107,27 +97,27 @@ namespace RishUI
                 return false;
             }
 
-            if (Children != null && other.Children == null)
+            if (children != null && other.children == null)
             {
                 return false;
             }
 
-            if (Children == null && other.Children != null)
+            if (children == null && other.children != null)
             {
                 return false;
             }
 
-            if (Children != null && other.Children != null)
+            if (children != null && other.children != null)
             {
-                if (Children.Length != other.Children.Length)
+                if (children.Length != other.children.Length)
                 {
                     return false;
                 }
                 
-                for (int i = 0, n = Children.Length; i < n; i++)
+                for (int i = 0, n = children.Length; i < n; i++)
                 {
-                    var child = Children[i];
-                    var otherChild = other.Children[i];
+                    var child = children[i];
+                    var otherChild = other.children[i];
 
                     if (!child.Equals(otherChild))
                     {

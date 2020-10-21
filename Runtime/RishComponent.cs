@@ -29,7 +29,7 @@ namespace RishUI
         public RishTransform Local
         {
             get => local;
-            set
+            protected set
             {
                 if (value.Equals(local))
                 {
@@ -44,10 +44,9 @@ namespace RishUI
         public RishTransform World{ get; private set; }
 
         private Vector2 parentSize;
-
         internal Vector2 ParentSize
         {
-            private get => parentSize;
+            get => parentSize;
             set
             {
                 if (value == parentSize)
@@ -123,6 +122,13 @@ namespace RishUI
         public virtual void Hide() { }
 
         public virtual void Setup() { }
+
+        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        {
+            Local = local;
+            setup?.Invoke(this);
+        }
+
         public abstract RishElement Render();
     }
 

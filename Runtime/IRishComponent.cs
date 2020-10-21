@@ -13,17 +13,16 @@ namespace RishUI
     internal delegate void OnSize(Vector2 size);
     
     public interface IRishComponent {
-        RishTransform Local { get; set; }
+        RishTransform Local { get; }
         RishTransform World { get; }
         
         Vector2 Size { get; }
 
         void ForceRender();
+
+        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
     
         void Reset();
-
-        void Show();
-        void Hide();
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct, IEquatable<P>

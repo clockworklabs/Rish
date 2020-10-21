@@ -290,18 +290,18 @@ namespace RishUI
             
             switch (node.Component)
             {
-                case RishComponent element:
+                case RishComponent rishComponent:
                 {
-                    element.Setup();
-                    var child = element.Render();
+                    rishComponent.Setup();
+                    var child = rishComponent.Render();
 
                     Reconcile(node, child);
 
                     break;
                 }
-                case UnityComponent element:
+                case UnityComponent unityComponent:
                 {
-                    element.Render();
+                    unityComponent.Render();
                     break;
                 }
             }
@@ -326,7 +326,7 @@ namespace RishUI
 
                 if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
                 {
-                    Reconcile(childNode, child.Children);
+                    Reconcile(childNode, child.children);
                 }
             }
 
@@ -353,7 +353,7 @@ namespace RishUI
 
                         if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
                         {
-                            Reconcile(childNode, child.Children);
+                            Reconcile(childNode, child.children);
                         }
                     }
                 }
@@ -364,8 +364,8 @@ namespace RishUI
 
         private StateNode AddChild(StateNode node, RishElement child)
         {
-            var type = child.Type;
-            var key = child.Key;
+            var type = child.type;
+            var key = child.key;
             var style = child.Style ?? (node?.Style ?? 0);
 
             var newNode = false;
@@ -378,13 +378,17 @@ namespace RishUI
             }
             childNode.SetParent(node);
             
-            var childComponent = childNode.Component;
-            child.Setup(childComponent);
+            var component = childNode.Component;
+            component.UpdateComponent(child.transform, child.setup);
 
             if (newNode)
             {
                 OnNodeDirty(childNode);
-                childComponent.Show();
+
+                if (component is RishComponent childRishComponent)
+                {
+                    childRishComponent.Show();
+                }
             }
 
             return childNode;
