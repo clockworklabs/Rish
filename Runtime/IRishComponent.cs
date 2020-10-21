@@ -13,6 +13,7 @@ namespace RishUI
     public delegate void OnSize(Vector2 size);
     
     public interface IRishComponent {
+        event OnDirty OnDirty;
         event OnWorld OnWorld;
         event OnSize OnSize;
         

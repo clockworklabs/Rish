@@ -5,7 +5,7 @@ namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
-        private OnDirty OnDirty { get; set; }
+        public event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         
@@ -87,9 +87,8 @@ namespace RishUI
             ParentWorld = RishTransform.Default;
         }
 
-        internal void Mount(OnDirty onDirty, IRishComponent parent)
+        internal void Mount(IRishComponent parent)
         {
-            OnDirty = onDirty;
             Parent = parent;
             if (Parent != null)
             {
@@ -111,7 +110,6 @@ namespace RishUI
                 Parent.OnWorld -= SetParentWorld;
             }
             Parent = null;
-            OnDirty = null;
             
             gameObject.SetActive(false);
         }

@@ -17,6 +17,11 @@ namespace RishUI
             max = Vector2.one
         };
 
+        public Vector2 GetSize(Vector2 parentSize)
+        {
+            return parentSize * (max - min) - new Vector2(left + right, top + bottom);
+        }
+
         public override string ToString()
         {
             return $"{min} - {max} - {top} - {left} - {bottom} - {right}";
