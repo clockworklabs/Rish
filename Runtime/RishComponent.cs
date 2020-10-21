@@ -5,9 +5,9 @@ namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        internal event OnDirty OnDirty;
-        internal event OnWorld OnWorld;
-        internal event OnSize OnSize;
+        private OnDirty OnDirty { get; set; }
+        private OnWorld OnWorld { get; set; }
+        private OnSize OnSize { get; set; }
         
         private RishTransform parent;
         internal RishTransform Parent
@@ -77,15 +77,34 @@ namespace RishUI
                 
                 if (RenderOnResize)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
         
         protected virtual bool RenderOnResize => false;
+        
+        public void ForceRender() => OnDirty?.Invoke();
 
-        public Transform TopLevelTransform => null;
-        public Transform BottomLevelTransform => null;
+        public virtual void Reset()
+        {
+            Parent = RishTransform.Default;
+            Local = RishTransform.Default;
+        }
+
+        internal void Mount(OnDirty onDirty, OnWorld onWorld, OnSize onSize)
+        {
+            OnDirty = onDirty;
+            OnWorld = onWorld;
+            OnSize = onSize;
+        }
+
+        internal void Unmount()
+        {
+            OnDirty = null;
+            OnWorld = null;
+            OnSize = null;
+        }
 
         private void UpdateWorldTransform()
         {
@@ -97,17 +116,6 @@ namespace RishUI
         private void UpdateSize()
         {
             Size = ParentSize * (Local.max - Local.min) - new Vector2(Local.left + Local.right, Local.top + Local.bottom);
-        }
-
-        protected void Notify()
-        {
-            OnDirty?.Invoke();
-        }
-
-        public virtual void Initialize()
-        {
-            Parent = RishTransform.Default;
-            Local = RishTransform.Default;
         }
 
         public virtual void Show()  { }
@@ -149,7 +157,7 @@ namespace RishUI
                 {
                     Disable();
                     Dirty = true;
-                    Notify();
+                    ForceRender();
                 }
                 
                 props = value;
@@ -158,9 +166,9 @@ namespace RishUI
         
         private bool Enabled { get; set; }
         
-        public override void Initialize()
+        public override void Reset()
         {
-            base.Initialize();
+            base.Reset();
             
             Props = DefaultProps;
         }
@@ -240,16 +248,16 @@ namespace RishUI
 
                 if (changed)
                 {
-                    Notify();
+                    ForceRender();
                 }
                 
                 state = value;
             }
         }
         
-        public override void Initialize()
+        public override void Reset()
         {
-            base.Initialize();
+            base.Reset();
             
             State = DefaultState;
         }

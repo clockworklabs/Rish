@@ -23,8 +23,8 @@ namespace RishUI
         private bool IsReal => Component is MonoBehaviour;
         
         public StateNode Parent { get; private set; }
-        private Transform TopLevelTransform => Component.TopLevelTransform;
-        private Transform BottomLevelTransform => Component.BottomLevelTransform;
+        private Transform TopLevelTransform => (Component is UnityComponent unityComponent) ? unityComponent.TopLevelTransform : null;
+        private Transform BottomLevelTransform => (Component is UnityComponent unityComponent) ? unityComponent.BottomLevelTransform : null;
         
         internal int Depth { get; private set; }
         public bool IsValid => Depth >= 0;
@@ -78,7 +78,7 @@ namespace RishUI
             Rish = rish;
         }
         
-        internal void Setup(int key, uint style, IRishComponent component)
+        internal void Initialize(int key, uint style, IRishComponent component)
         {
             Key = key;
             Component = component;
@@ -86,18 +86,15 @@ namespace RishUI
 
             Type = component.GetType();
             
-            Component.Initialize();
+            Component.Reset();
 
             switch (Component)
             {
-                case UnityComponent comp:
-                    comp.OnDirty += NotifyDirty;
-                    comp.OnSize += NotifySize;
+                case UnityComponent unityComponent:
+                    unityComponent.Mount(NotifyDirty, NotifySize);
                     break;
-                case RishComponent comp:
-                    comp.OnDirty += NotifyDirty;
-                    comp.OnWorld += NotifyTransform;
-                    comp.OnSize += NotifySize;
+                case RishComponent rishComponent:
+                    rishComponent.Mount(NotifyDirty, NotifyTransform, NotifySize);
                     break;
             }
         }
@@ -281,22 +278,19 @@ namespace RishUI
 
             Parent = null;
             ChildCount = 0;
+            
+            Component.Hide();
 
             switch (Component)
             {
-                case UnityComponent comp:
-                    comp.OnDirty -= NotifyDirty;
-                    comp.OnSize -= NotifySize;
+                case UnityComponent unityComponent:
+                    unityComponent.Unmount();
                     break;
-                case RishComponent comp:
-                    comp.OnDirty -= NotifyDirty;
-                    comp.OnWorld -= NotifyTransform;
-                    comp.OnSize -= NotifySize;
+                case RishComponent rishComponent:
+                    rishComponent.Unmount();
                     break;
             }
-
-            Component.Hide();
-
+            
             pool.ReturnToPool(Component, Style);
 
             NotifyDestroy();

@@ -5,8 +5,8 @@ namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
-        internal event OnDirty OnDirty;
-        internal event OnSize OnSize;
+        private OnDirty OnDirty { get; set; }
+        private OnSize OnSize { get; set; }
         
         public abstract bool IsLeaf { get; }
         
@@ -63,7 +63,7 @@ namespace RishUI
                 
                 if (RenderOnResize)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
@@ -71,29 +71,43 @@ namespace RishUI
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
 
-        public Transform TopLevelTransform => transform;
+        internal Transform TopLevelTransform => transform;
         public virtual Transform BottomLevelTransform => transform;
 
         private RectTransform RectTransform => (RectTransform) transform;
 
-        public virtual void Initialize()
+        public void ForceRender() => OnDirty?.Invoke();
+
+        public virtual void Reset()
         {
             Parent = RishTransform.Default;
             Local = RishTransform.Default;
         }
 
+        internal void Mount(OnDirty onDirty, OnSize onSize)
+        {
+            OnDirty = onDirty;
+            OnSize = onSize;
+            
+            gameObject.SetActive(true);
+        }
+
+        internal void Unmount()
+        {
+            OnDirty = null;
+            OnSize = null;
+            
+            gameObject.SetActive(false);
+        }
+
         public virtual void Show()
         {
-            gameObject.SetActive(true);
         }
         
         public virtual void Hide() {
-            gameObject.SetActive(false);
         }
         
         public abstract void Render();
-        
-        protected void Notify() => OnDirty?.Invoke();
         
         private void OnRectTransformDimensionsChange()
         {
@@ -167,14 +181,14 @@ namespace RishUI
                 
                 if (changed)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
         
-        public override void Initialize()
+        public override void Reset()
         {
-            base.Initialize();
+            base.Reset();
             
             Props = DefaultProps;
         }
