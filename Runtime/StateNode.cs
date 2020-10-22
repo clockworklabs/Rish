@@ -95,7 +95,6 @@ namespace RishUI
             Parent = parent;
             Depth = parent?.Depth + 1 ?? 0;
 
-            
             if(IsReal) {
                 RealParent = null;
                 while (RealParent == null && parent != null)

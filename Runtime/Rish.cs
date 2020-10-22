@@ -146,13 +146,18 @@ namespace RishUI
         public static RishElement Create<T, P>(uint style, Func<P, P> props) where P : struct, IEquatable<P> where T : IRishComponent<P> => Create<T, P>(0, style, props);
         public static RishElement Create<T, P>(int key, uint? style, Func<P, P> props) where P : struct, IEquatable<P> where T : IRishComponent<P>
         {
-            return new RishElement(typeof(T), key, style, component =>
+            if (props != null)
             {
-                if (props != null && component is T tComponent)
+                return new RishElement(typeof(T), key, style, component =>
                 {
-                    tComponent.Props = props(tComponent.Props);
-                }
-            });
+                    if (component is T tComponent)
+                    {
+                        tComponent.Props = props(tComponent.Props);
+                    }
+                });
+            }
+            
+            return new RishElement(typeof(T), key, style);
         }
         
         // === KEY, STYLE, TRANSFORM ===
@@ -188,13 +193,18 @@ namespace RishUI
         public static RishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props) where P : struct, IEquatable<P> where T : IRishComponent<P> => Create<T, P>(0, style, transform, props);
         public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props) where P : struct, IEquatable<P> where T : IRishComponent<P>
         {
-            return new RishElement(typeof(T), key, style, transform, component =>
+            if (props != null)
             {
-                if (props != null && component is T tComponent)
+                return new RishElement(typeof(T), key, style, transform, component =>
                 {
-                    tComponent.Props = props(tComponent.Props);
-                }
-            });
+                    if (component is T tComponent)
+                    {
+                        tComponent.Props = props(tComponent.Props);
+                    }
+                });
+            }
+            
+            return new RishElement(typeof(T), key, style, transform);
         }
         
         // === KEY, STYLE, CHILDREN ===
@@ -230,13 +240,18 @@ namespace RishUI
         public static RishElement Create<T, P>(uint style, Func<P, P> props, RishElement[] children) where P : struct, IEquatable<P> where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
         public static RishElement Create<T, P>(int key, uint? style, Func<P, P> props, RishElement[] children) where P : struct, IEquatable<P> where T : UnityComponent<P>
         {
-            return new RishElement(typeof(T), key, style, component =>
+            if (props != null)
+            {
+                return new RishElement(typeof(T), key, style, component =>
                 {
-                    if (props != null && component is T tComponent)
+                    if (component is T tComponent)
                     {
                         tComponent.Props = props(tComponent.Props);
                     }
                 }, children);
+            }
+            
+            return new RishElement(typeof(T), key, style, children);
         }
         
         // === KEY, STYLE, TRANSFORM, CHILDREN ===
@@ -272,13 +287,18 @@ namespace RishUI
         public static RishElement Create<T, P>(uint style, RishTransform transform, Func<P, P> props, RishElement[] children) where P : struct, IEquatable<P> where T : UnityComponent<P> => Create<T, P>(0, style, transform, props, children);
         public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, Func<P, P> props, RishElement[] children) where P : struct, IEquatable<P> where T : UnityComponent<P>
         {
-            return new RishElement(typeof(T), key, style, transform, component =>
+            if (props != null)
+            {
+                return new RishElement(typeof(T), key, style, transform, component =>
                 {
-                    if (props != null && component is T tComponent)
+                    if (component is T tComponent)
                     {
                         tComponent.Props = props(tComponent.Props);
                     }
                 }, children);
+            }
+            
+            return new RishElement(typeof(T), key, style, transform, children);
         }
 
         private void Render(StateNode node)
