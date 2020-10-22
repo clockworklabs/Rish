@@ -11,7 +11,7 @@ namespace RishUI
         public int Key { get; }
         private readonly bool inheritedStyle;
         private readonly uint style;
-        private readonly RishTransform transform;
+        public readonly RishTransform transform;
         private readonly Action<IRishComponent> setup;
         public RishElement[] Children { get; }
 
