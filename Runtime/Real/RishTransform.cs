@@ -11,20 +11,38 @@ namespace RishUI
         public float left;
         public float bottom;
         public float right;
+        public Vector2 scale;
+        public float rotation;
 
         public static RishTransform Default => new RishTransform
         {
-            max = Vector2.one
+            max = Vector2.one,
+            scale = Vector2.one
         };
+        
+        public static RishTransform operator *(RishTransform a, RishTransform b)
+        {
+            return new RishTransform
+            {
+                min = a.min + b.min * (a.max - a.min),
+                max = a.min - b.max * (a.min - a.max),
+                top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
+                left = a.left + b.left - b.min.x * (a.left + a.right),
+                bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
+                right = a.right + b.right - (1 - b.max.x) * (a.left + a.right),
+                scale = a.scale * b.scale,
+                rotation = a.rotation + b.rotation
+            };
+        }
 
         public Vector2 GetSize(Vector2 parentSize)
         {
-            return parentSize * (max - min) - new Vector2(left + right, top + bottom);
+            return (parentSize * (max - min) - new Vector2(left + right, top + bottom)) * scale;
         }
 
         public override string ToString()
         {
-            return $"{min} - {max} - {top} - {left} - {bottom} - {right}";
+            return $"{min} - {max} - {top} - {left} - {bottom} - {right} - {scale}";
         }
 
         public bool Equals(RishTransform other)
@@ -61,21 +79,20 @@ namespace RishUI
             {
                 return false;
             }
+            if(!Mathf.Approximately(scale.x, other.scale.x))
+            {
+                return false;
+            }
+            if(!Mathf.Approximately(scale.y, other.scale.y))
+            {
+                return false;
+            }
+            if(!Mathf.Approximately(rotation, other.rotation))
+            {
+                return false;
+            }
 
             return true;
-        }
-        
-        public static RishTransform operator *(RishTransform a, RishTransform b)
-        {
-            return new RishTransform
-            {
-                min = a.min + b.min * (a.max - a.min),
-                max = a.min - b.max * (a.min - a.max),
-                top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
-                left = a.left + b.left - b.min.x * (a.left + a.right),
-                bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
-                right = a.right + b.right - (1 - b.max.x) * (a.left + a.right)
-            };
         }
     }
 }

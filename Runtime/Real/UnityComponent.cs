@@ -166,6 +166,9 @@ namespace RishUI
             
             RectTransform.anchoredPosition = anchoredPosition;
             RectTransform.sizeDelta = sizeDelta;
+
+            RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
+            RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
     }
 
