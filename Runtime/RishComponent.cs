@@ -5,7 +5,7 @@ namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        internal event OnDirty OnDirty;
+        public event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         
@@ -112,7 +112,7 @@ namespace RishUI
             ParentWorld = RishTransform.Default;
         }
 
-        internal virtual void Mount(IRishComponent parent)
+        public virtual void Mount(IRishComponent parent)
         {
             Parent = parent;
             if (Parent != null)
@@ -133,7 +133,7 @@ namespace RishUI
             }
         }
 
-        internal virtual void Unmount()
+        public virtual void Unmount()
         {
             if (this is IMountingListener mountingListener)
             {
@@ -158,13 +158,13 @@ namespace RishUI
             ParentSize = parentSize;
         }
 
-        public virtual void Setup() { }
-
         public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             Local = local;
             setup?.Invoke(this);
         }
+
+        public virtual void Setup() { }
 
         public abstract RishElement Render();
     }
@@ -218,7 +218,7 @@ namespace RishUI
             Dirty = true;
         }
 
-        internal override void Unmount()
+        public override void Unmount()
         {
             Disable();
             base.Unmount();
@@ -232,7 +232,16 @@ namespace RishUI
             }
 
             Enabled = true;
-            OnEnable();
+
+            if (this is IPropsListener propsListener)
+            {
+                propsListener.PropsDidChange();
+            }
+
+            if (this is IDerivedState derivedState)
+            {
+                derivedState.UpdateStateFromProps();
+            }
         }
 
         private void Disable()
@@ -243,11 +252,12 @@ namespace RishUI
             }
             
             Enabled = false;
-            OnDisable();
+
+            if (this is IPropsListener propsListener)
+            {
+                propsListener.PropsWillChange();
+            }
         }
-        
-        protected virtual void OnEnable() { }
-        protected virtual void OnDisable() { }
         
         public override void Setup()
         {

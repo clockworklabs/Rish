@@ -29,7 +29,7 @@ namespace RishUI
         private Transform BottomLevelTransform => Component is UnityComponent unityComponent ? unityComponent.BottomLevelTransform : null;
         
         private StateNode RealParent { get; set; }
-        private Transform RealParentTransform => RealParent != null ? RealParent.BottomLevelTransform : Rish.AppTransform;
+        private Transform RealParentTransform { get; set; }
         
         internal int Depth { get; private set; }
         public bool IsValid => Depth >= 0;
@@ -95,32 +95,24 @@ namespace RishUI
             Parent = parent;
             Depth = parent?.Depth + 1 ?? 0;
 
-            Component.Reset();
-
-            switch (Component)
-            {
-                case UnityComponent unityComponent:
-                    unityComponent.OnDirty += NotifyDirty;
-                    
-                    RealParent = null;
-                    while (RealParent == null && parent != null)
+            
+            if(IsReal) {
+                RealParent = null;
+                while (RealParent == null && parent != null)
+                {
+                    if (parent.IsReal)
                     {
-                        if (parent.IsReal)
-                        {
-                            RealParent = parent;
-                        }
-                        parent = parent.Parent;
+                        RealParent = parent;
                     }
-                    
-                    TopLevelTransform.SetParent(RealParentTransform);
-                    unityComponent.Mount(Parent?.Component);
-                    break;
-                case RishComponent rishComponent:
-                    rishComponent.OnDirty += NotifyDirty;
-                    
-                    rishComponent.Mount(Parent?.Component);
-                    break;
+                    parent = parent.Parent;
+                }
+                RealParentTransform = RealParent != null ? RealParent.BottomLevelTransform : Rish.AppTransform;
+                TopLevelTransform.SetParent(RealParentTransform);
             }
+            
+            Component.Reset();
+            Component.OnDirty += NotifyDirty;
+            Component.Mount(Parent?.Component);
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
@@ -239,19 +231,11 @@ namespace RishUI
 
             Parent = null;
             RealParent = null;
+            RealParentTransform = null;
             ChildCount = 0;
             
-            switch (Component)
-            {
-                case UnityComponent unityComponent:
-                    unityComponent.OnDirty -= NotifyDirty;
-                    unityComponent.Unmount();
-                    break;
-                case RishComponent rishComponent:
-                    rishComponent.OnDirty -= NotifyDirty;
-                    rishComponent.Unmount();
-                    break;
-            }
+            Component.OnDirty -= NotifyDirty;
+            Component.Unmount();
 
             pool.ReturnToPool(Component, Style);
 

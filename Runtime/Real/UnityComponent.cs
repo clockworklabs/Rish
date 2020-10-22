@@ -87,7 +87,7 @@ namespace RishUI
             ParentWorld = RishTransform.Default;
         }
 
-        internal void Mount(IRishComponent parent)
+        public void Mount(IRishComponent parent)
         {
             Parent = parent;
             if (Parent != null)
@@ -103,7 +103,7 @@ namespace RishUI
             gameObject.SetActive(true);
         }
 
-        internal void Unmount()
+        public void Unmount()
         {
             if (Parent != null)
             {
