@@ -14,7 +14,7 @@ namespace RishUI
         public Vector2 scale;
         public float rotation;
 
-        public static RishTransform Default => new RishTransform
+        public static readonly RishTransform Default = new RishTransform
         {
             max = Vector2.one,
             scale = Vector2.one
