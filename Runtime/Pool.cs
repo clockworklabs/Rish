@@ -95,7 +95,7 @@ namespace RishUI
                 return component;
             }
 
-            throw new UnityException("Pool doesn't exist.");
+            throw new UnityException($"Pool of type {type} doesn't exist.");
         }
 
         internal bool ReturnToPool(IRishComponent component, uint style)
