@@ -101,8 +101,11 @@ namespace RishUI
                 }
             }
         }
-        
+
+        public bool JustMounted { get; private set; }
+
         protected virtual bool RenderOnResize => false;
+        protected virtual bool ManualTransform => false; 
         
         public void ForceRender() => OnDirty?.Invoke();
 
@@ -125,6 +128,9 @@ namespace RishUI
             }
 
             World = ParentWorld * Local;
+
+            JustMounted = true;
+            
             ForceRender();
 
             if (this is IMountingListener mountingListener)
@@ -160,11 +166,19 @@ namespace RishUI
 
         public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
-            Local = local;
+            if (JustMounted || !ManualTransform)
+            {
+                Local = local;
+            }
+
             setup?.Invoke(this);
         }
 
-        public virtual void Setup() { }
+        public virtual RishElement SetupAndRender()
+        {
+            JustMounted = false;
+            return Render();
+        }
 
         public abstract RishElement Render();
     }
@@ -259,7 +273,7 @@ namespace RishUI
             }
         }
         
-        public override void Setup()
+        public override RishElement SetupAndRender()
         {
             if (Dirty)
             {
@@ -267,6 +281,8 @@ namespace RishUI
 
                 Dirty = false;
             }
+
+            return base.SetupAndRender();
         }
 
         protected virtual P GetDefaultProps() => default;

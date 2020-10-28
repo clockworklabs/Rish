@@ -70,7 +70,7 @@ namespace RishUI
                 }
             }
         }
-        
+
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
 

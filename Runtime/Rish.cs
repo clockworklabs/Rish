@@ -312,8 +312,7 @@ namespace RishUI
             {
                 case RishComponent rishComponent:
                 {
-                    rishComponent.Setup();
-                    var child = rishComponent.Render();
+                    var child = rishComponent.SetupAndRender();
 
                     Reconcile(node, child);
 
