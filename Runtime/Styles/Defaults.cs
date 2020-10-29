@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RishUI.RDS
 {
@@ -19,14 +18,25 @@ namespace RishUI.RDS
             }
         }
         
-        public void Get<T>(uint style, out T result) where T : struct, IEquatable<T>
+        public void Get<T>(uint style, out T result) where T : struct, IProps<T>
         {
             result = default;
+            result.Default();
 
-            if (StyleSheets.TryGetValue(style, out var stylesheet))
+            if (style > 0)
             {
-                stylesheet.Get(ref result);
+                Override(0, ref result);
             }
+            Override(style, ref result);
+        }
+
+        private void Override<T>(uint style, ref T result) where T : struct, IProps<T>
+        {
+            if (!StyleSheets.TryGetValue(style, out var styleSheet)) return;
+
+            if (!(styleSheet is IStyleSheet<T> tStyleSheet)) return;
+            
+            tStyleSheet.Get(ref result);
         }
     }
 }

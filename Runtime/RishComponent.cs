@@ -166,14 +166,15 @@ namespace RishUI
 
         public virtual RishElement SetupAndRender()
         {
+            var result = Render();
             JustMounted = false;
-            return Render();
+            return result;
         }
 
         public abstract RishElement Render();
     }
 
-    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IEquatable<P>
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IProps<P>
     {
         private bool Dirty { get; set; }
 
@@ -202,17 +203,14 @@ namespace RishUI
         
         public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Mount(style, defaults, parent);
             Defaults = defaults;
             
             defaults.Get<P>(style, out var defaultProps);
-            if (this is IInternalProps<P> internalProps)
-            {
-                internalProps.SetDefaultProps(style, ref defaultProps);
-            }
             Props = defaultProps;
             
             Dirty = true;
+            
+            base.Mount(style, defaults, parent);
         }
 
         public override void Unmount()
@@ -268,8 +266,8 @@ namespace RishUI
             return base.SetupAndRender();
         }
     }
-
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IEquatable<P> where S : struct, IEquatable<S>
+    
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IProps<P> where S : struct, IProps<S>
     {
         private S state;
         protected S State
@@ -290,16 +288,12 @@ namespace RishUI
         
         public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Mount(style, defaults, parent);
+            S defaultState = default;
+            defaultState.Default();
             
-            defaults.Get<S>(style, out var defaultState);
-            if (this is IInternalState<S> internalProps)
-            {
-                internalProps.SetDefaultState(style, ref defaultState);
-            }
             State = defaultState;
+            
+            base.Mount(style, defaults, parent);
         }
-
-        protected virtual P GetDefaultState() => default;
     }
 }

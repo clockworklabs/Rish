@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace RishUI
 {
+    [Serializable]
     public struct RishTransform : IEquatable<RishTransform>
     {
         public Vector2 min;

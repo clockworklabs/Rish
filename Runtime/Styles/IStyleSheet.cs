@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace RishUI.RDS
+﻿namespace RishUI.RDS
 {
-    public interface IStyleSheet
+    public interface IStyleSheet { }
+    
+    public interface IStyleSheet<P> : IStyleSheet where P : struct, IProps<P>
     {
-        void Get<T>(ref T result) where T : struct, IEquatable<T>;
+        void Get(ref P result);
     }
 }

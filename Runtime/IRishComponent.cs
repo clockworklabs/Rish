@@ -4,8 +4,15 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public struct NoProps : IEquatable<NoProps>
+    public interface IProps<T> : IEquatable<T>
     {
+        void Default();
+    }
+    
+    public struct NoProps : IProps<NoProps>
+    {
+        public void Default() { }
+        
         public bool Equals(NoProps other) => true;
     }
 
@@ -31,7 +38,7 @@ namespace RishUI
         void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
     }
 
-    public interface IRishComponent<P> : IRishComponent where P : struct, IEquatable<P>
+    public interface IRishComponent<P> : IRishComponent where P : struct, IProps<P>
     {
         P Props { get; set; }
     }

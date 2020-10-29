@@ -166,7 +166,7 @@ namespace RishUI
         }
     }
 
-    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IEquatable<P>
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IProps<P>
     {
         private P props;
         public P Props
