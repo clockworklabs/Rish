@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Priority_Queue;
+using RishUI.RDS;
 using Unity.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -109,9 +110,8 @@ namespace RishUI
                 TopLevelTransform.SetParent(RealParentTransform);
             }
             
-            Component.Reset();
             Component.OnDirty += NotifyDirty;
-            Component.Mount(Parent?.Component);
+            Component.Mount(style, Rish.Defaults, Parent?.Component);
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
@@ -236,7 +236,7 @@ namespace RishUI
             Component.OnDirty -= NotifyDirty;
             Component.Unmount();
 
-            pool.ReturnToPool(Component, Style);
+            pool.ReturnToPool(Component);
 
             NotifyDestroy();
         }

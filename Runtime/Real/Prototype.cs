@@ -11,7 +11,7 @@ namespace RishUI
         public UnityComponent Component => component;
         
         [SerializeField]
-        private int initialCount = 1;
+        private int initialCount;
         public int InitialCount => Mathf.Max(1, initialCount);
     }
 }

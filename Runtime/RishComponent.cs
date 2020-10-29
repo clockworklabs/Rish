@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
@@ -102,32 +103,28 @@ namespace RishUI
             }
         }
 
-        public bool JustMounted { get; private set; }
+        protected uint Style { get; private set; }
+
+        protected bool JustMounted { get; private set; }
 
         protected virtual bool RenderOnResize => false;
         protected virtual bool ManualTransform => false; 
         
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Reset()
+        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            Local = RishTransform.Default;
-            ParentWorld = RishTransform.Default;
-        }
-
-        public virtual void Mount(IRishComponent parent)
-        {
+            Style = style;
+            
             Parent = parent;
             if (Parent != null)
             {
                 Parent.OnWorld += SetParentWorld;
                 Parent.OnSize += SetParentSize;
-
-                SetParentWorld(Parent.World);
-                SetParentSize(Parent.Size);
             }
-
-            World = ParentWorld * Local;
+            
+            ParentWorld = Parent?.World ?? RishTransform.Default;
+            ParentSize = Parent?.Size ?? Vector2.zero;
 
             JustMounted = true;
             
@@ -154,15 +151,8 @@ namespace RishUI
             Parent = null;
         }
 
-        private void SetParentWorld(RishTransform parentWorld)
-        {
-            ParentWorld = parentWorld;
-        }
-
-        private void SetParentSize(Vector2 parentSize)
-        {
-            ParentSize = parentSize;
-        }
+        private void SetParentWorld(RishTransform parentWorld) => ParentWorld = parentWorld;
+        private void SetParentSize(Vector2 parentSize) => ParentSize = parentSize;
 
         public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
@@ -185,21 +175,6 @@ namespace RishUI
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IEquatable<P>
     {
-        private bool Initialized { get; set; }
-        
-        private P defaultProps;
-        private P DefaultProps {
-            get
-            {
-                if (Initialized) return defaultProps;
-                
-                defaultProps = GetDefaultProps();
-                Initialized = true;
-
-                return defaultProps;
-            }
-        }
-        
         private bool Dirty { get; set; }
 
         private P props;
@@ -221,13 +196,21 @@ namespace RishUI
             }
         }
         
+        protected Defaults Defaults { get; private set; }
+        
         private bool Enabled { get; set; }
         
-        public override void Reset()
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Reset();
+            base.Mount(style, defaults, parent);
+            Defaults = defaults;
             
-            Props = DefaultProps;
+            defaults.Get<P>(style, out var defaultProps);
+            if (this is IInternalProps<P> internalProps)
+            {
+                internalProps.SetDefaultProps(style, ref defaultProps);
+            }
+            Props = defaultProps;
             
             Dirty = true;
         }
@@ -284,27 +267,10 @@ namespace RishUI
 
             return base.SetupAndRender();
         }
-
-        protected virtual P GetDefaultProps() => default;
     }
 
     public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IEquatable<P> where S : struct, IEquatable<S>
     {
-        private bool Initialized { get; set; }
-        
-        private S defaultState;
-        private S DefaultState {
-            get
-            {
-                if (Initialized) return defaultState;
-                
-                defaultState = GetDefaultState();
-                Initialized = true;
-
-                return defaultState;
-            }
-        }
-        
         private S state;
         protected S State
         {
@@ -322,13 +288,18 @@ namespace RishUI
             }
         }
         
-        public override void Reset()
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Reset();
+            base.Mount(style, defaults, parent);
             
-            State = DefaultState;
+            defaults.Get<S>(style, out var defaultState);
+            if (this is IInternalState<S> internalProps)
+            {
+                internalProps.SetDefaultState(style, ref defaultState);
+            }
+            State = defaultState;
         }
 
-        protected virtual S GetDefaultState() => default;
+        protected virtual P GetDefaultState() => default;
     }
 }

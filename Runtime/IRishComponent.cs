@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
@@ -23,10 +24,8 @@ namespace RishUI
         Vector2 Size { get; }
 
         void ForceRender();
-    
-        void Reset();
         
-        void Mount(IRishComponent parent);
+        void Mount(uint style, Defaults defaults, IRishComponent parent);
         void Unmount();
 
         void UpdateComponent(RishTransform local, Action<IRishComponent> setup);

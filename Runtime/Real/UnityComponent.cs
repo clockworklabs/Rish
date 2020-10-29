@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
@@ -81,23 +82,16 @@ namespace RishUI
 
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Reset()
-        {
-            Local = RishTransform.Default;
-            ParentWorld = RishTransform.Default;
-        }
-
-        public void Mount(IRishComponent parent)
+        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
             Parent = parent;
             if (Parent != null)
             {
                 Parent.OnWorld += SetParentWorld;
-                
-                SetParentWorld(Parent.World);
             }
 
-            UpdateWorldTransform();
+            ParentWorld = Parent?.World ?? RishTransform.Default;
+
             ForceRender();
             
             gameObject.SetActive(true);
@@ -174,21 +168,6 @@ namespace RishUI
 
     public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IEquatable<P>
     {
-        private bool Initialized { get; set; }
-        
-        private P defaultProps;
-        private P DefaultProps {
-            get
-            {
-                if (Initialized) return defaultProps;
-                
-                defaultProps = GetDefaultProps();
-                Initialized = true;
-
-                return defaultProps;
-            }
-        }
-        
         private P props;
         public P Props
         {
@@ -204,14 +183,13 @@ namespace RishUI
                 }
             }
         }
-        
-        public override void Reset()
-        {
-            base.Reset();
-            
-            Props = DefaultProps;
-        }
 
-        protected virtual P GetDefaultProps() => default;
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
+        {
+            base.Mount(style, defaults, parent);
+
+            defaults.Get<P>(style, out var defaultProps);
+            Props = defaultProps;
+        }
     }
 }

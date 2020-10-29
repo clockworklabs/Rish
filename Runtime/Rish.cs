@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Priority_Queue;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
@@ -29,6 +30,8 @@ namespace RishUI
         
         public StateNode Root { get; private set; }
         public Transform AppTransform => App.transform;
+        
+        public Defaults Defaults { get; private set; }
 
         private void Start()
         {
@@ -38,6 +41,8 @@ namespace RishUI
             {
                 return;
             }
+            
+            Defaults = new Defaults(App.ImportStyleSheets());
 
             Root = AddChild(null, App.GetRoot());
 
@@ -391,7 +396,7 @@ namespace RishUI
             if (childNode == null)
             {
                 childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
-                childNode.Initialize(key, style, Pool.GetFromPool(type, style), node);
+                childNode.Initialize(key, style, Pool.GetFromPool(type), node);
             }
             childNode.UpdateIndex();
             

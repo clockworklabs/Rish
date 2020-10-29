@@ -5,7 +5,7 @@ using UnityObject = UnityEngine.Object;
 
 namespace RishUI.Editor
 {
-    [CustomEditor(typeof(Style))]
+    //[CustomEditor(typeof(Style))]
     public class StyleInspector : UnityEditor.Editor
     {
         private SerializedProperty ScriptProperty { get; set; }
