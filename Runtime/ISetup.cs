@@ -27,9 +27,14 @@ namespace RishUI
 
         public bool Equals(ISetup other)
         {
-            if (!(other is NoSetup)) return false;
+            if (other == null)
+            {
+                return ExtraSetup == null;
+            }
 
-            return ExtraSetup == null && other.ExtraSetup == null;
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+            
+            return other is NoSetup;
         }
     }
     
@@ -56,11 +61,16 @@ namespace RishUI
 
         public bool Equals(ISetup other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+
             if (!(other is BasicSetup<P> otherBasic)) return false;
 
-            if (!Props.Equals(otherBasic.Props)) return false; 
-
-            return ExtraSetup == null && other.ExtraSetup == null;
+            return Props.Equals(otherBasic.Props);
         }
     }
     
@@ -87,7 +97,24 @@ namespace RishUI
             ExtraSetup?.Invoke(component);
         }
 
-        public bool Equals(ISetup other) => false;
+        public bool Equals(ISetup other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+            
+            if (!(other is AdvancedSetup<P> otherAdvanced)) return false;
+
+            P props = default;
+            P otherProps = default;
+            Props(ref props);
+            otherAdvanced.Props(ref otherProps);
+
+            return props.Equals(otherProps);
+        }
     }
 }
 
