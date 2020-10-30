@@ -88,7 +88,7 @@ namespace RishUI
                 return false;
             }
 
-            if (setup != null || other.setup != null)
+            if (!setup.Equals(other.setup))
             {
                 return false;
             }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public interface ISetup
+    public interface ISetup : IEquatable<ISetup>
     {
         Action<IRishComponent> ExtraSetup { get; set; }
         
@@ -23,6 +23,13 @@ namespace RishUI
         public void Setup(IRishComponent component)
         {
             ExtraSetup?.Invoke(component);
+        }
+
+        public bool Equals(ISetup other)
+        {
+            if (!(other is NoSetup)) return false;
+
+            return ExtraSetup == null && other.ExtraSetup == null;
         }
     }
     
@@ -45,6 +52,15 @@ namespace RishUI
             }
             
             ExtraSetup?.Invoke(component);
+        }
+
+        public bool Equals(ISetup other)
+        {
+            if (!(other is BasicSetup<P> otherBasic)) return false;
+
+            if (!Props.Equals(otherBasic.Props)) return false; 
+
+            return ExtraSetup == null && other.ExtraSetup == null;
         }
     }
     
@@ -70,6 +86,8 @@ namespace RishUI
             
             ExtraSetup?.Invoke(component);
         }
+
+        public bool Equals(ISetup other) => false;
     }
 }
 
