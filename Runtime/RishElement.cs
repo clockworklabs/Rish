@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace RishUI
 {
+    [Serializable]
     public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
@@ -88,9 +92,22 @@ namespace RishUI
                 return false;
             }
 
-            if (!setup.Equals(other.setup))
+            if (setup == null && other.setup != null)
             {
                 return false;
+            }
+
+            if (setup != null && other.setup == null)
+            {
+                return false;
+            }
+
+            if (setup != null && other.setup != null)
+            {
+                if (!setup.Equals(other.setup))
+                {
+                    return false;
+                }
             }
 
             if (!transform.Equals(other.transform))
@@ -98,32 +115,39 @@ namespace RishUI
                 return false;
             }
 
-            if (children != null && other.children == null)
+            return children.Compare(other.children);
+        }
+    }
+
+    public static class RishElementArrayExtensions
+    {
+        public static bool Compare(this RishElement[] first, RishElement[] second)
+        {
+            if (first == second)
+            {
+                return true;
+            }
+            
+            if (first == null && second != null)
+            {
+                return false;
+            }
+            
+            if (first != null && second == null)
             {
                 return false;
             }
 
-            if (children == null && other.children != null)
+            if (first.Length != second.Length)
             {
                 return false;
             }
 
-            if (children != null && other.children != null)
+            for (var i = first.Length - 1; i >= 0; i--)
             {
-                if (children.Length != other.children.Length)
+                if (!first[i].Equals(second[i]))
                 {
                     return false;
-                }
-                
-                for (int i = 0, n = children.Length; i < n; i++)
-                {
-                    var child = children[i];
-                    var otherChild = other.children[i];
-
-                    if (!child.Equals(otherChild))
-                    {
-                        return false;
-                    }
                 }
             }
 

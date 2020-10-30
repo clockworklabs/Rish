@@ -83,6 +83,8 @@ namespace RishUI
                 
                 Destroyed.Clear();
             }
+            
+            SetupPool.ReturnAll();
         }
 
         public void OnNodeDirty(StateNode node, bool forceThisFrame = false)
@@ -291,10 +293,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement child)
         {
-            if (!node.IsValid)
-            {
-                return;
-            }
+            if (!node.IsValid) return;
             
             node.Clear();
 
@@ -313,10 +312,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement[] children)
         {
-            if (!node.IsValid)
-            {
-                return;
-            }
+            if (!node.IsValid) return;
             
             node.Clear();
 
@@ -325,14 +321,13 @@ namespace RishUI
                 for (int i = 0, n = children.Length; i < n; i++)
                 {
                     var child = children[i];
-                    if (child.Valid)
-                    {
-                        var childNode = AddChild(node, child);
+                    if (!child.Valid) continue;
+                    
+                    var childNode = AddChild(node, child);
 
-                        if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
-                        {
-                            Reconcile(childNode, child.children);
-                        }
+                    if (childNode.Component is UnityComponent unityChildComponent && !unityChildComponent.IsLeaf)
+                    {
+                        Reconcile(childNode, child.children);
                     }
                 }
             }
@@ -356,7 +351,6 @@ namespace RishUI
             
             var component = childNode.Component;
             component.UpdateComponent(child.transform, child.setup);
-            SetupPool.Return(child.setup);
 
             return childNode;
         }

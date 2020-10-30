@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace RishUI
 {
-    public static class SetupPool
+    internal static class SetupPool
     {
         private static Dictionary<Type, Stack<ISetup>> SetupPools { get; } = new Dictionary<Type, Stack<ISetup>>();
+        private static List<ISetup> Active { get; } = new List<ISetup>();
         
-        public static NoSetup GetEmpty()
+        internal static NoSetup GetEmpty()
         {
             var type = typeof(NoSetup);
             if(!SetupPools.TryGetValue(type, out var pool))
@@ -21,7 +22,7 @@ namespace RishUI
             return setup;
         }
 
-        public static BasicSetup<P> GetBasic<P>(P props) where P : struct, IProps<P>
+        internal static BasicSetup<P> GetBasic<P>(P props) where P : struct, IProps<P>
         {
             var type = typeof(BasicSetup<P>);
             if(!SetupPools.TryGetValue(type, out var pool))
@@ -36,7 +37,7 @@ namespace RishUI
             return setup;
         }
 
-        public static AdvancedSetup<P> GetAdvanced<P>(Props<P> props) where P : struct, IProps<P>
+        internal static AdvancedSetup<P> GetAdvanced<P>(Props<P> props) where P : struct, IProps<P>
         {
             var type = typeof(AdvancedSetup<P>);
             if(!SetupPools.TryGetValue(type, out var pool))
@@ -51,7 +52,17 @@ namespace RishUI
             return setup;
         }
 
-        public static void Return(ISetup setup)
+        internal static void ReturnAll()
+        {
+            for (var i = Active.Count - 1; i >= 0; i--)
+            {
+                Return(Active[i]);
+            }
+            
+            Active.Clear();
+        }
+
+        private static void Return(ISetup setup)
         {
             if (setup == null) return;
             

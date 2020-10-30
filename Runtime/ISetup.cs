@@ -11,7 +11,7 @@ namespace RishUI
         void Setup(IRishComponent component);
     }
     
-    public class NoSetup : ISetup
+    internal class NoSetup : ISetup
     {
         public Action<IRishComponent> ExtraSetup { get; set; }
         
@@ -32,13 +32,16 @@ namespace RishUI
                 return ExtraSetup == null;
             }
 
-            if (ExtraSetup != null || other.ExtraSetup != null) return false;
-            
-            return other is NoSetup;
+            if (!(other is NoSetup))
+            {
+                return false;
+            }
+
+            return ExtraSetup != other.ExtraSetup;
         }
     }
     
-    public class BasicSetup<P> : ISetup where P : struct, IProps<P>
+    internal class BasicSetup<P> : ISetup where P : struct, IProps<P>
     {
         public P Props { get; set; }
         public Action<IRishComponent> ExtraSetup { get; set; }
@@ -66,7 +69,7 @@ namespace RishUI
                 return false;
             }
 
-            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+            if (ExtraSetup != other.ExtraSetup) return false;
 
             if (!(other is BasicSetup<P> otherBasic)) return false;
 
@@ -74,7 +77,7 @@ namespace RishUI
         }
     }
     
-    public class AdvancedSetup<P> : ISetup where P : struct, IProps<P>
+    internal class AdvancedSetup<P> : ISetup where P : struct, IProps<P>
     {
         public Props<P> Props { get; set; }
         public Action<IRishComponent> ExtraSetup { get; set; }
@@ -104,13 +107,24 @@ namespace RishUI
                 return false;
             }
 
-            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+            if (ExtraSetup != other.ExtraSetup) return false;
             
             if (!(other is AdvancedSetup<P> otherAdvanced)) return false;
 
+            if (Props == null)
+            {
+                return otherAdvanced.Props == null;
+            }
+
+            if (otherAdvanced.Props == null)
+            {
+                return false;
+            }
+
             P props = default;
-            P otherProps = default;
             Props(ref props);
+            
+            P otherProps = default;
             otherAdvanced.Props(ref otherProps);
 
             return props.Equals(otherProps);
