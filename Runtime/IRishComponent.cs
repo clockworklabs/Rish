@@ -35,7 +35,7 @@ namespace RishUI
         void Mount(uint style, Defaults defaults, IRishComponent parent);
         void Unmount();
 
-        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
+        void UpdateComponent(RishTransform local, ISetup setup);
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct, IProps<P>

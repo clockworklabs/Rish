@@ -11,18 +11,18 @@ namespace RishUI
         private readonly bool inheritedStyle;
         private readonly uint style;
         public readonly RishTransform transform;
-        public readonly Action<IRishComponent> setup;
+        public readonly ISetup setup;
         public readonly RishElement[] children;
 
         public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
-        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
+        public RishElement(Type type, int key, uint? style, ISetup setup) : this(type, key, style, RishTransform.Default, setup, null) { }
         public RishElement(Type type, int key, uint? style, RishTransform transform) : this(type, key, style, transform, null, null) { }
-        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup) : this(type, key, style, transform, setup, null) { }
+        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup) : this(type, key, style, transform, setup, null) { }
         public RishElement(Type type, int key, uint? style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
-        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
+        public RishElement(Type type, int key, uint? style, ISetup setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
         public RishElement(Type type, int key, uint? style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
         
-        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup, RishElement[] children)
+        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup, RishElement[] children)
         {
             this.type = type;
             this.key = key;
@@ -50,7 +50,9 @@ namespace RishUI
 
             this.transform = transform;
 
-            this.setup = other.setup + setup;
+            var otherSetup = other.setup ?? SetupPool.GetEmpty();
+            otherSetup.ExtraSetup += setup;
+            this.setup = otherSetup;
         }
 
         public bool Valid => type != null;

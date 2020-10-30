@@ -108,10 +108,10 @@ namespace RishUI
             gameObject.SetActive(false);
         }
         
-        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        public void UpdateComponent(RishTransform local, ISetup setup)
         {
             Local = local;
-            setup?.Invoke(this);
+            setup?.Setup(this);
         }
         
         public abstract void Render();

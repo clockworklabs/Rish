@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using RishUI.RDS;
 using UnityEngine;
 
@@ -154,14 +155,14 @@ namespace RishUI
         private void SetParentWorld(RishTransform parentWorld) => ParentWorld = parentWorld;
         private void SetParentSize(Vector2 parentSize) => ParentSize = parentSize;
 
-        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        public void UpdateComponent(RishTransform local, ISetup setup)
         {
             if (JustMounted || !ManualTransform)
             {
                 Local = local;
             }
 
-            setup?.Invoke(this);
+            setup?.Setup(this);
         }
 
         public virtual RishElement SetupAndRender()
