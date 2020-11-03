@@ -79,7 +79,7 @@ namespace RishUI
     
     internal class AdvancedSetup<P> : ISetup where P : struct, IProps<P>
     {
-        public Props<P> Props { get; set; }
+        public RefAction<P> Props { get; set; }
         public Action<IRishComponent> ExtraSetup { get; set; }
 
         public void Reset()

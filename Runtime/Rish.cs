@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public delegate void Props<P>(ref P props) where P : struct, IProps<P>;
+    public delegate void RefAction<T>(ref T value) where T : struct;
+    //public delegate void RefFunc<P>(ref P props) where P : struct, IProps<P>;
     
     [RequireComponent(typeof(Pool))]
     public class Rish : MonoBehaviour
@@ -144,10 +145,10 @@ namespace RishUI
         
         // === KEY, STYLE, PROPS ACTION ===
 
-        public static RishElement Create<T, P>(Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, null, props);
-        public static RishElement Create<T, P>(int key, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(key, null, props);
-        public static RishElement Create<T, P>(uint style, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, style, props);
-        public static RishElement Create<T, P>(int key, uint? style, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P>
+        public static RishElement Create<T, P>(RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, null, props);
+        public static RishElement Create<T, P>(int key, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(key, null, props);
+        public static RishElement Create<T, P>(uint style, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, style, props);
+        public static RishElement Create<T, P>(int key, uint? style, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P>
         {
             if (props != null)
             {
@@ -179,10 +180,10 @@ namespace RishUI
 
         // === KEY, STYLE, TRANSFORM, PROPS ACTION ===
         
-        public static RishElement Create<T, P>(RishTransform transform, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
-        public static RishElement Create<T, P>(int key, RishTransform transform, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);
-        public static RishElement Create<T, P>(uint style, RishTransform transform, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, style, transform, props);
-        public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, Props<P> props) where P : struct, IProps<P> where T : IRishComponent<P>
+        public static RishElement Create<T, P>(RishTransform transform, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, null, transform, props);
+        public static RishElement Create<T, P>(int key, RishTransform transform, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(key, null, transform, props);
+        public static RishElement Create<T, P>(uint style, RishTransform transform, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P> => Create<T, P>(0, style, transform, props);
+        public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, RefAction<P> props) where P : struct, IProps<P> where T : IRishComponent<P>
         {
             if (props != null)
             {
@@ -214,10 +215,10 @@ namespace RishUI
         
         // === KEY, STYLE, PROPS ACTION, CHILDREN ===
 
-        public static RishElement Create<T, P>(Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
-        public static RishElement Create<T, P>(int key, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
-        public static RishElement Create<T, P>(uint style, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
-        public static RishElement Create<T, P>(int key, uint? style, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P>
+        public static RishElement Create<T, P>(RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, null, props, children);
+        public static RishElement Create<T, P>(int key, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(key, null, props, children);
+        public static RishElement Create<T, P>(uint style, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, style, props, children);
+        public static RishElement Create<T, P>(int key, uint? style, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P>
         {
             if (props != null)
             {
@@ -249,10 +250,10 @@ namespace RishUI
         
         // === KEY, STYLE, TRANSFORM, PROPS ACTION, CHILDREN ===
 
-        public static RishElement Create<T, P>(RishTransform transform, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, null, transform, props, children);
-        public static RishElement Create<T, P>(int key, RishTransform transform, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(key, null, transform, props, children);
-        public static RishElement Create<T, P>(uint style, RishTransform transform, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, style, transform, props, children);
-        public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, Props<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P>
+        public static RishElement Create<T, P>(RishTransform transform, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, null, transform, props, children);
+        public static RishElement Create<T, P>(int key, RishTransform transform, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(key, null, transform, props, children);
+        public static RishElement Create<T, P>(uint style, RishTransform transform, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P> => Create<T, P>(0, style, transform, props, children);
+        public static RishElement Create<T, P>(int key, uint? style, RishTransform transform, RefAction<P> props, RishElement[] children) where P : struct, IProps<P> where T : UnityComponent<P>
         {
             if (props != null)
             {
