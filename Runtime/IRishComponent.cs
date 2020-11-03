@@ -19,11 +19,15 @@ namespace RishUI
     public delegate void OnDirty();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
+    public delegate void OnReadyToDestroy();
     
     public interface IRishComponent {
         event OnDirty OnDirty;
         event OnWorld OnWorld;
         event OnSize OnSize;
+        event OnReadyToDestroy OnReadyToDestroy;
+
+        bool ReadyToDestroy { get; }
         
         RishTransform Local { get; }
         RishTransform World { get; }
@@ -33,6 +37,7 @@ namespace RishUI
         void ForceRender();
         
         void Mount(uint style, Defaults defaults, IRishComponent parent);
+        void WillDestroy();
         void Unmount();
 
         void UpdateComponent(RishTransform local, ISetup setup);

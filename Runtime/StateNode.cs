@@ -141,7 +141,7 @@ namespace RishUI
             ChildCount = 0;
         }
 
-        internal void Clean(Pool pool)
+        internal void Clean()
         {
             if (Children == null) return;
 
@@ -151,7 +151,7 @@ namespace RishUI
             for (var i = Children.Count - 1; i >= ChildCount; i--)
             {
                 var child = Children[i];
-                child.Destroy(pool);
+                child.Destroy();
             }
             Children.RemoveRange(ChildCount, count);
         }
@@ -208,7 +208,7 @@ namespace RishUI
             Children[b] = temp;
         }
 
-        private void Destroy(Pool pool)
+        private void Destroy()
         {
             Depth = -1;
             VirtualIndex = -1;
@@ -222,7 +222,7 @@ namespace RishUI
             {
                 for (var i = Children.Count - 1; i >= 0; i--)
                 {
-                    Children[i].Destroy(pool);
+                    Children[i].Destroy();
                 }
                 
                 Children.Clear();
@@ -236,7 +236,7 @@ namespace RishUI
             Component.OnDirty -= NotifyDirty;
             Component.Unmount();
 
-            pool.ReturnToPool(Component);
+            Rish.Pool.ReturnToPool(Component);
 
             NotifyDestroy();
         }

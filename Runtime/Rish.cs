@@ -18,7 +18,7 @@ namespace RishUI
         public event Action<StateNode> OnRender;
         # endif
 
-        private Pool Pool { get; set; }
+        internal Pool Pool { get; private set; }
 
         private int CurrentDepth { get; set; } = -1;
         private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
@@ -308,7 +308,7 @@ namespace RishUI
                 }
             }
 
-            node.Clean(Pool);
+            node.Clean();
         }
 
         private void Reconcile(StateNode node, RishElement[] children)
@@ -333,7 +333,7 @@ namespace RishUI
                 }
             }
 
-            node.Clean(Pool);
+            node.Clean();
         }
 
         private StateNode AddChild(StateNode node, RishElement child)

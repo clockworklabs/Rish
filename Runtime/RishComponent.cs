@@ -10,7 +10,24 @@ namespace RishUI
         public event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
-        
+        public event OnReadyToDestroy OnReadyToDestroy;
+
+        private bool readyToDestroy;
+        public bool ReadyToDestroy
+        {
+            get => readyToDestroy;
+            set
+            {
+                if (readyToDestroy == value) return;
+
+                readyToDestroy = value;
+                if (value)
+                {
+                    OnReadyToDestroy?.Invoke();
+                }
+            }
+        }
+
         private IRishComponent Parent { get; set; }
         
         private RishTransform parentWorld;
@@ -116,6 +133,8 @@ namespace RishUI
         public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
             Style = style;
+
+            ReadyToDestroy = false;
             
             Parent = parent;
             if (Parent != null)
@@ -135,6 +154,11 @@ namespace RishUI
             {
                 mountingListener.ComponentDidMount();
             }
+        }
+
+        public void WillDestroy()
+        {
+            ReadyToDestroy = true;
         }
 
         public virtual void Unmount()
