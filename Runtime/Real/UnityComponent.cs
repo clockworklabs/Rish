@@ -1,37 +1,58 @@
 ﻿using System;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent
     {
-        internal event OnDirty OnDirty;
-        internal event OnSize OnSize;
+        public event OnDirty OnDirty;
+        public event OnWorld OnWorld;
+        public event OnSize OnSize;
+        public event OnReadyToDestroy OnReadyToDestroy;
         
         public abstract bool IsLeaf { get; }
-        
-        private RishTransform parent;
-        internal RishTransform Parent
+
+        private bool readyToDestroy;
+        public bool ReadyToDestroy
         {
-            private get => parent;
+            get => readyToDestroy;
             set
             {
-                if (parent.Equals(value))
+                if (readyToDestroy == value) return;
+
+                readyToDestroy = value;
+                if (value)
+                {
+                    OnReadyToDestroy?.Invoke();
+                }
+            }
+        }
+
+        private IRishComponent Parent { get; set; }
+        
+        private RishTransform parentWorld;
+        private RishTransform ParentWorld
+        {
+            get => parentWorld;
+            set
+            {
+                if (value.Equals(parentWorld))
                 {
                     return;
                 }
 
-                parent = value;
-                
-                UpdateTransform();
+                parentWorld = value;
+
+                UpdateWorldTransform();
             }
         }
-                
+
         private RishTransform local;
         public RishTransform Local
         {
             get => local;
-            set
+            private set
             {
                 if (local.Equals(value))
                 {
@@ -40,7 +61,7 @@ namespace RishUI
                 
                 local = value;
 
-                UpdateTransform();
+                UpdateWorldTransform();
             }
         }
         
@@ -52,64 +73,93 @@ namespace RishUI
             get => size;
             private set
             {
-                if (value == size)
+                if (size.Equals(value))
                 {
                     return;
                 }
                 
                 size = value;
                 
-                OnSize?.Invoke(Size);
+                OnSize?.Invoke(size);
                 
                 if (RenderOnResize)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
-        
+
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
 
-        public Transform TopLevelTransform => transform;
+        internal Transform TopLevelTransform => transform;
         public virtual Transform BottomLevelTransform => transform;
 
         private RectTransform RectTransform => (RectTransform) transform;
 
-        public virtual void Initialize()
-        {
-            Parent = RishTransform.Default;
-            Local = RishTransform.Default;
-        }
+        public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Show()
+        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
+            ReadyToDestroy = false;
+            
+            Parent = parent;
+            if (Parent != null)
+            {
+                Parent.OnWorld += SetParentWorld;
+            }
+
+            ParentWorld = Parent?.World ?? RishTransform.Default;
+            
+            UpdateWorldTransform();
+
+            ForceRender();
+            
             gameObject.SetActive(true);
         }
-        
-        public virtual void Hide() {
+
+        public void WillDestroy()
+        {
+            ReadyToDestroy = true;
+        }
+
+        public void Unmount()
+        {
+            if (Parent != null)
+            {
+                Parent.OnWorld -= SetParentWorld;
+            }
+            Parent = null;
+            
             gameObject.SetActive(false);
         }
         
-        public abstract void Render();
+        public void UpdateComponent(RishTransform local, ISetup setup)
+        {
+            Local = local;
+            setup?.Setup(this);
+        }
         
-        protected void Notify() => OnDirty?.Invoke();
+        public abstract void Render();
+
+        private void SetParentWorld(RishTransform parentWorld)
+        {
+            ParentWorld = parentWorld;
+        }
         
         private void OnRectTransformDimensionsChange()
         {
             Size = RectTransform.rect.size;
         }
 
-        private void UpdateTransform()
+        private void UpdateWorldTransform()
         {
-            var world = Parent * Local;
+            var world = ParentWorld * Local;
             
-            var rectTransform = (RectTransform) transform;
-                
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            RectTransform.pivot = new Vector2(0.5f, 0.5f);
             
-            rectTransform.anchorMin = world.min;
-            rectTransform.anchorMax = world.max;
+            RectTransform.anchorMin = world.min;
+            RectTransform.anchorMax = world.max;
             
             var width = world.left + world.right;
             var height = world.top + world.bottom;
@@ -134,51 +184,38 @@ namespace RishUI
                 anchoredPosition.y = -height * 0.5f + world.bottom;
             }
             
-            rectTransform.anchoredPosition = anchoredPosition;
-            rectTransform.sizeDelta = sizeDelta;
+            RectTransform.anchoredPosition = anchoredPosition;
+            RectTransform.sizeDelta = sizeDelta;
+
+            RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
+            RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
     }
 
-    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, Props
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IProps<P>
     {
-        private bool Initialized { get; set; }
-        
-        private P defaultProps;
-        public P DefaultProps {
-            get
-            {
-                if (Initialized) return defaultProps;
-                
-                defaultProps = GetDefaultProps();
-                Initialized = true;
-
-                return defaultProps;
-            }
-        }
-        
         private P props;
         public P Props
         {
-            protected get => props;
+            get => props;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
+                var changed = !value.Equals(props);
                 props = value;
                 
                 if (changed)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
-        
-        public override void Initialize()
-        {
-            base.Initialize();
-            
-            Props = DefaultProps;
-        }
 
-        protected virtual P GetDefaultProps() => default;
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
+        {
+            base.Mount(style, defaults, parent);
+
+            defaults.Get<P>(style, out var defaultProps);
+            Props = defaultProps;
+        }
     }
 }

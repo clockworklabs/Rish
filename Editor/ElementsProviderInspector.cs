@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace RishUI.Editor
 {
-    [CustomEditor(typeof(ComponentsProvider))]
+    //[CustomEditor(typeof(ComponentsProvider))]
     public class ElementsProviderInspector : Inspector
     {
         private SerializedProperty ScriptProperty { get; set; }

@@ -1,32 +1,35 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace RishUI
 {
+    [Serializable]
     public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
 
-        public Type Type { get; }
-        public int Key { get; }
+        public readonly Type type;
+        public readonly int key;
         private readonly bool inheritedStyle;
         private readonly uint style;
         public readonly RishTransform transform;
-        private readonly Action<IRishComponent> setup;
-        public RishElement[] Children { get; }
+        public readonly ISetup setup;
+        public readonly RishElement[] children;
 
         public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
-        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup, null) { }
+        public RishElement(Type type, int key, uint? style, ISetup setup) : this(type, key, style, RishTransform.Default, setup, null) { }
         public RishElement(Type type, int key, uint? style, RishTransform transform) : this(type, key, style, transform, null, null) { }
-        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup) : this(type, key, style, transform, setup, null) { }
+        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup) : this(type, key, style, transform, setup, null) { }
         public RishElement(Type type, int key, uint? style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
-        public RishElement(Type type, int key, uint? style, Action<IRishComponent> setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
+        public RishElement(Type type, int key, uint? style, ISetup setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
         public RishElement(Type type, int key, uint? style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
         
-        public RishElement(Type type, int key, uint? style, RishTransform transform, Action<IRishComponent> setup, RishElement[] children)
+        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup, RishElement[] children)
         {
-            Type = type;
-            Key = key;
+            this.type = type;
+            this.key = key;
             
             inheritedStyle = style == null;
             this.style = style ?? 0;
@@ -34,7 +37,7 @@ namespace RishUI
             this.transform = transform;
 
             this.setup = setup;
-            Children = children;
+            this.children = children;
         }
 
         public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
@@ -42,20 +45,21 @@ namespace RishUI
 
         public RishElement(RishElement other, RishTransform transform, Action<IRishComponent> setup)
         {
-            Type = other.Type;
-            Key = other.Key;
+            type = other.type;
+            key = other.key;
             
             inheritedStyle = other.inheritedStyle;
             style = other.style;
-            Children = other.Children;
+            children = other.children;
 
             this.transform = transform;
 
-            this.setup = other.setup + setup;
+            var otherSetup = other.setup ?? SetupPool.GetEmpty();
+            otherSetup.ExtraSetup += setup;
+            this.setup = otherSetup;
         }
 
-        public bool Valid => Type != null;
-
+        public bool Valid => type != null;
 
         public uint? Style
         {
@@ -65,24 +69,15 @@ namespace RishUI
                 return style;
             }
         }
-
-
-
-        public void Setup(IRishComponent component)
-        {
-            component.Local = transform;
-
-            setup?.Invoke(component);
-        }
         
         public bool Equals(RishElement other)
         {
-            if (Type != other.Type)
+            if (type != other.type)
             {
                 return false;
             }
 
-            if (Key != other.Key)
+            if (key != other.key)
             {
                 return false;
             }
@@ -97,9 +92,22 @@ namespace RishUI
                 return false;
             }
 
-            if (setup != null || other.setup != null)
+            if (setup == null && other.setup != null)
             {
                 return false;
+            }
+
+            if (setup != null && other.setup == null)
+            {
+                return false;
+            }
+
+            if (setup != null && other.setup != null)
+            {
+                if (!setup.Equals(other.setup))
+                {
+                    return false;
+                }
             }
 
             if (!transform.Equals(other.transform))
@@ -107,32 +115,39 @@ namespace RishUI
                 return false;
             }
 
-            if (Children != null && other.Children == null)
+            return children.Compare(other.children);
+        }
+    }
+
+    public static class RishElementArrayExtensions
+    {
+        public static bool Compare(this RishElement[] first, RishElement[] second)
+        {
+            if (first == second)
+            {
+                return true;
+            }
+            
+            if (first == null && second != null)
+            {
+                return false;
+            }
+            
+            if (first != null && second == null)
             {
                 return false;
             }
 
-            if (Children == null && other.Children != null)
+            if (first.Length != second.Length)
             {
                 return false;
             }
 
-            if (Children != null && other.Children != null)
+            for (var i = first.Length - 1; i >= 0; i--)
             {
-                if (Children.Length != other.Children.Length)
+                if (!first[i].Equals(second[i]))
                 {
                     return false;
-                }
-                
-                for (int i = 0, n = Children.Length; i < n; i++)
-                {
-                    var child = Children[i];
-                    var otherChild = other.Children[i];
-
-                    if (!child.Equals(otherChild))
-                    {
-                        return false;
-                    }
                 }
             }
 

@@ -1,35 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
+using RishUI.RDS;
 using UnityEngine;
 
 namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        internal event OnDirty OnDirty;
-        internal event OnWorld OnWorld;
-        internal event OnSize OnSize;
-        
-        private RishTransform parent;
-        internal RishTransform Parent
+        public event OnDirty OnDirty;
+        public event OnWorld OnWorld;
+        public event OnSize OnSize;
+        public event OnReadyToDestroy OnReadyToDestroy;
+
+        private bool readyToDestroy;
+        public bool ReadyToDestroy
         {
-            private get => parent;
+            get => readyToDestroy;
             set
             {
-                if (value.Equals(parent))
+                if (readyToDestroy == value) return;
+
+                readyToDestroy = value;
+                if (value)
+                {
+                    OnReadyToDestroy?.Invoke();
+                }
+            }
+        }
+
+        private IRishComponent Parent { get; set; }
+        
+        private RishTransform parentWorld;
+        private RishTransform ParentWorld
+        {
+            get => parentWorld;
+            set
+            {
+                if (value.Equals(parentWorld))
                 {
                     return;
                 }
 
-                parent = value;
-
-                UpdateWorldTransform();
+                parentWorld = value;
+                
+                World = parentWorld * Local;
             }
         }
+        
         private RishTransform local;
         public RishTransform Local
         {
             get => local;
-            set
+            protected set
             {
                 if (value.Equals(local))
                 {
@@ -37,36 +59,53 @@ namespace RishUI
                 }
 
                 local = value;
-
-                UpdateWorldTransform();
+                
+                World = ParentWorld * local;
+                Size = local.GetSize(ParentSize);
             }
         }
-        public RishTransform World{ get; private set; }
 
-        private Vector2 parentSize;
-
-        internal Vector2 ParentSize
+        private RishTransform world;
+        public RishTransform World
         {
-            private get => parentSize;
+            get => world;
+            private set
+            {
+                if (value.Equals(world))
+                {
+                    return;
+                }
+                
+                world = value;
+                
+                OnWorld?.Invoke(World);
+            }
+        }
+        
+        private Vector2 parentSize;
+        private Vector2 ParentSize
+        {
+            get => parentSize;
             set
             {
-                if (value == parentSize)
+                if (value.Equals(parentSize))
                 {
                     return;
                 }
 
                 parentSize = value;
 
-                UpdateSize();
+                Size = Local.GetSize(parentSize);
             }
         }
+        
         private Vector2 size;
         public Vector2 Size
         {
             get => size;
             private set
             {
-                if (value == size)
+                if (value.Equals(size))
                 {
                     return;
                 }
@@ -77,102 +116,132 @@ namespace RishUI
                 
                 if (RenderOnResize)
                 {
-                    Notify();
+                    ForceRender();
                 }
             }
         }
-        
+
+        protected uint Style { get; private set; }
+
+        protected bool JustMounted { get; private set; }
+
         protected virtual bool RenderOnResize => false;
+        protected virtual bool ManualTransform => false; 
+        
+        public void ForceRender() => OnDirty?.Invoke();
 
-        public Transform TopLevelTransform => null;
-        public Transform BottomLevelTransform => null;
-
-        private void UpdateWorldTransform()
+        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            World = Parent * Local;
-            UpdateSize();
-            OnWorld?.Invoke(World);
+            Style = style;
+
+            ReadyToDestroy = false;
+            
+            Parent = parent;
+            if (Parent != null)
+            {
+                Parent.OnWorld += SetParentWorld;
+                Parent.OnSize += SetParentSize;
+            }
+            
+            ParentWorld = Parent?.World ?? RishTransform.Default;
+            ParentSize = Parent?.Size ?? Vector2.zero;
+
+            JustMounted = true;
+            
+            ForceRender();
+
+            if (this is IMountingListener mountingListener)
+            {
+                mountingListener.ComponentDidMount();
+            }
         }
 
-        private void UpdateSize()
+        public void WillDestroy()
         {
-            Size = ParentSize * (Local.max - Local.min) - new Vector2(Local.left + Local.right, Local.top + Local.bottom);
+            ReadyToDestroy = true;
         }
 
-        protected void Notify()
+        public virtual void Unmount()
         {
-            OnDirty?.Invoke();
+            if (this is IMountingListener mountingListener)
+            {
+                mountingListener.ComponentWillUnmount();
+            }
+
+            if (Parent != null)
+            {
+                Parent.OnSize -= SetParentSize;
+                Parent.OnWorld -= SetParentWorld;
+            }
+            Parent = null;
         }
 
-        public virtual void Initialize()
+        private void SetParentWorld(RishTransform parentWorld) => ParentWorld = parentWorld;
+        private void SetParentSize(Vector2 parentSize) => ParentSize = parentSize;
+
+        public void UpdateComponent(RishTransform local, ISetup setup)
         {
-            Parent = RishTransform.Default;
-            Local = RishTransform.Default;
+            if (JustMounted || !ManualTransform)
+            {
+                Local = local;
+            }
+
+            setup?.Setup(this);
         }
 
-        public virtual void Show()  { }
+        public virtual RishElement SetupAndRender()
+        {
+            var result = Render();
+            JustMounted = false;
+            return result;
+        }
 
-        public virtual void Hide() { }
-
-        public virtual void Setup() { }
         public abstract RishElement Render();
     }
 
-    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, Props
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IProps<P>
     {
-        private bool Initialized { get; set; }
-        
-        private P defaultProps;
-        public P DefaultProps {
-            get
-            {
-                if (Initialized) return defaultProps;
-                
-                defaultProps = GetDefaultProps();
-                Initialized = true;
-
-                return defaultProps;
-            }
-        }
-        
         private bool Dirty { get; set; }
 
         private P props;
         public P Props
         {
-            protected get => props;
+            get => props;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(props);
+                var changed = !value.Equals(props);
 
                 if (changed)
                 {
                     Disable();
                     Dirty = true;
-                    Notify();
+                    ForceRender();
                 }
                 
                 props = value;
             }
         }
         
+        protected Defaults Defaults { get; private set; }
+        
         private bool Enabled { get; set; }
         
-        public override void Initialize()
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Initialize();
+            Defaults = defaults;
             
-            Props = DefaultProps;
-        }
-
-        public override void Show()
-        {
+            defaults.Get<P>(style, out var defaultProps);
+            Props = defaultProps;
+            
             Dirty = true;
+            
+            base.Mount(style, defaults, parent);
         }
 
-        public override void Hide()
+        public override void Unmount()
         {
             Disable();
+            base.Unmount();
         }
 
         private void Enable()
@@ -183,7 +252,16 @@ namespace RishUI
             }
 
             Enabled = true;
-            OnEnable();
+
+            if (this is IPropsListener propsListener)
+            {
+                propsListener.PropsDidChange();
+            }
+
+            if (this is IDerivedState derivedState)
+            {
+                derivedState.UpdateStateFromProps();
+            }
         }
 
         private void Disable()
@@ -194,13 +272,14 @@ namespace RishUI
             }
             
             Enabled = false;
-            OnDisable();
+
+            if (this is IPropsListener propsListener)
+            {
+                propsListener.PropsWillChange();
+            }
         }
         
-        protected virtual void OnEnable() { }
-        protected virtual void OnDisable() { }
-        
-        public override void Setup()
+        public override RishElement SetupAndRender()
         {
             if (Dirty)
             {
@@ -208,52 +287,38 @@ namespace RishUI
 
                 Dirty = false;
             }
-        }
 
-        protected virtual P GetDefaultProps() => default;
+            return base.SetupAndRender();
+        }
     }
-
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, Props where S : struct, State
+    
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IProps<P> where S : struct, IProps<S>
     {
-        private bool Initialized { get; set; }
-        
-        private S defaultState;
-        private S DefaultState {
-            get
-            {
-                if (Initialized) return defaultState;
-                
-                defaultState = GetDefaultState();
-                Initialized = true;
-
-                return defaultState;
-            }
-        }
-        
         private S state;
         protected S State
         {
             get => state;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(state);
+                var changed = !value.Equals(null);
 
                 if (changed)
                 {
-                    Notify();
+                    ForceRender();
                 }
                 
                 state = value;
             }
         }
         
-        public override void Initialize()
+        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            base.Initialize();
+            S defaultState = default;
+            defaultState.Default();
             
-            State = DefaultState;
+            State = defaultState;
+            
+            base.Mount(style, defaults, parent);
         }
-
-        protected virtual S GetDefaultState() => default;
     }
 }

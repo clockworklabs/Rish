@@ -331,7 +331,7 @@ namespace RishUI.Editor
 			{
 				SelectedPropsJson = JsonUtility.ToJson(props, true);
 			}
-			var state = (State) State?.GetValue(element);
+			var state = State?.GetValue(element);
 			if (state != null)
 			{
 				SelectedStateJson = JsonUtility.ToJson(state, true);

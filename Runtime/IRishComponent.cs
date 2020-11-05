@@ -1,44 +1,50 @@
-﻿using UnityEngine;
+﻿using System;
+using RishUI.RDS;
+using UnityEngine;
 
 namespace RishUI
 {
-    public interface Props
+    public interface IProps<T> : IEquatable<T>
     {
+        void Default();
     }
-
-    public interface State
+    
+    public struct NoProps : IProps<NoProps>
     {
+        public void Default() { }
+        
+        public bool Equals(NoProps other) => true;
     }
-
-    public struct NoProps : Props { }
 
     public delegate void OnDirty();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
+    public delegate void OnReadyToDestroy();
     
     public interface IRishComponent {
-        //OnDirty OnDirty { set; }
-        //OnWorld OnWorld { set; }
-        //OnSize OnSize { set; }
+        event OnDirty OnDirty;
+        event OnWorld OnWorld;
+        event OnSize OnSize;
+        event OnReadyToDestroy OnReadyToDestroy;
+
+        bool ReadyToDestroy { get; }
         
-        //RishTransform Parent { set; }
-        RishTransform Local { get; set; }
+        RishTransform Local { get; }
         RishTransform World { get; }
         
         Vector2 Size { get; }
-        
-        Transform TopLevelTransform { get; }
-        Transform BottomLevelTransform { get; }
-    
-        void Initialize();
 
-        void Show();
-        void Hide();
+        void ForceRender();
+        
+        void Mount(uint style, Defaults defaults, IRishComponent parent);
+        void WillDestroy();
+        void Unmount();
+
+        void UpdateComponent(RishTransform local, ISetup setup);
     }
 
-    public interface IRishComponent<P> : IRishComponent where P : struct, Props
+    public interface IRishComponent<P> : IRishComponent where P : struct, IProps<P>
     {
-        P DefaultProps { get; }
-        P Props { set; }
+        P Props { get; set; }
     }
 }
