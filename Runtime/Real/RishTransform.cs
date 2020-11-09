@@ -6,6 +6,13 @@ namespace RishUI
     [Serializable]
     public struct RishTransform : IEquatable<RishTransform>
     {
+        public static RishTransform Zero = default;
+        public static RishTransform Default = new RishTransform
+        {
+            max = Vector2.one,
+            scale = Vector2.one
+        };
+        
         public Vector2 min;
         public Vector2 max;
         public float top;
@@ -15,16 +22,17 @@ namespace RishUI
         public Vector2 scale;
         public float rotation;
 
-        public static readonly RishTransform Zero = default;
-        public static readonly RishTransform Default = new RishTransform
+        public RishTransform(RishTransform other)
         {
-            max = Vector2.one,
-            scale = Vector2.one
-        };
-        public static readonly RishTransform Null = new RishTransform
-        {
-            top = float.NaN
-        };
+            min = other.min;
+            max = other.max;
+            top = other.top;
+            left = other.left;
+            bottom = other.bottom;
+            right = other.right;
+            scale = other.scale;
+            rotation = other.rotation;
+        }
         
         public static RishTransform operator *(RishTransform a, RishTransform b)
         {

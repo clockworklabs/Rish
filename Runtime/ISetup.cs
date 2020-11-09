@@ -37,7 +37,9 @@ namespace RishUI
                 return false;
             }
 
-            return ExtraSetup != other.ExtraSetup;
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
+
+            return true;
         }
     }
     
@@ -69,7 +71,7 @@ namespace RishUI
                 return false;
             }
 
-            if (ExtraSetup != other.ExtraSetup) return false;
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
 
             if (!(other is BasicSetup<P> otherBasic)) return false;
 
@@ -107,7 +109,7 @@ namespace RishUI
                 return false;
             }
 
-            if (ExtraSetup != other.ExtraSetup) return false;
+            if (ExtraSetup != null || other.ExtraSetup != null) return false;
             
             if (!(other is AdvancedSetup<P> otherAdvanced)) return false;
 
