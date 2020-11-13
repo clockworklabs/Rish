@@ -113,16 +113,10 @@ namespace RishUI
             
             if (!(other is AdvancedSetup<P> otherAdvanced)) return false;
 
-            if (Props == null)
-            {
-                return otherAdvanced.Props == null;
-            }
-
-            if (otherAdvanced.Props == null)
-            {
-                return false;
-            }
-
+            if (Props == null && otherAdvanced.Props == null) return true;
+            if (Props == null || otherAdvanced.Props == null) return false;
+            if (Props == otherAdvanced.Props) return false;
+            
             P props = default;
             Props(ref props);
             

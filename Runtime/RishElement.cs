@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace RishUI
 {
@@ -125,12 +126,7 @@ namespace RishUI
                 return true;
             }
             
-            if (first == null && second != null)
-            {
-                return false;
-            }
-            
-            if (first != null && second == null)
+            if (first == null || second == null)
             {
                 return false;
             }
