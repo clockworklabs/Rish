@@ -67,7 +67,7 @@ namespace RishUI
                 var node = DirtyQueue.Dequeue();
                 CurrentDepth = node.Depth;
                 
-                if (node.Active)
+                if (node.Mounted)
                 {
                     Render(node);
                 }
@@ -265,11 +265,8 @@ namespace RishUI
 
         private void Render(StateNode node)
         {
-            if (!node.Active)
-            {
-                return;
-            }
-            
+            if (!node.Mounted) return;
+
             switch (node.Component)
             {
                 case RishComponent rishComponent:
@@ -294,7 +291,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement child)
         {
-            if (!node.Active) return;
+            if (!node.Mounted) return;
             
             node.Clear();
 

@@ -41,6 +41,7 @@ namespace RishUI
 
         private int RemainingChildren { get; set; }
         public bool Active { get; private set; }
+        public bool Mounted { get; private set; } = true;
         
         private bool IsRealTree()
         {
@@ -77,6 +78,7 @@ namespace RishUI
         internal void Initialize(int key, uint style, IRishComponent component, StateNode parent)
         {
             Active = true;
+            Mounted = true;
             
             Key = key;
             Component = component;
@@ -201,12 +203,12 @@ namespace RishUI
         private void Destroy()
         {
             if (!Active) return;
+            if (!Mounted) return;
+            
+            Component.WillDestroy();
             
             Active = false;
             RemainingChildren = Children?.Count ?? 0;
-            
-            Component.OnReadyToUnmount += Unmount;
-            Unmount();
             
             if (Children != null)
             {
@@ -215,11 +217,15 @@ namespace RishUI
                     Children[i].Destroy();
                 }
             }
+
+            Component.OnReadyToUnmount += Unmount;
+            Unmount();
         }
 
         private void Unmount()
         {
             if (Active) return;
+            if (!Mounted) return;
             
             if (Children != null)
             {
@@ -230,22 +236,25 @@ namespace RishUI
             }
 
             if (!CanUnmount()) return;
+
+            Mounted = false;
             
             if (RealParent != null && RealParent.Active && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
             {
                 Rish.OnNodeDirty(RealParent, true);
             }
 
-            Depth = -1;
-            VirtualIndex = -1;
-            Active = true;
-            
             if (Parent != null)
             {
                 Parent.RemainingChildren--;
                 Parent.Unmount();
             }
             
+            Active = true;
+            Mounted = true;
+            
+            Depth = -1;
+            VirtualIndex = -1;
             Parent = null;
             RealParent = null;
             RealParentTransform = null;
@@ -269,7 +278,7 @@ namespace RishUI
 
             if (Component.CustomUnmount) return true;
             
-            return Parent == null || Parent.Active || Parent.Component.ReadyToUnmount;
+            return Parent == null || Parent.Active || Parent.ReadyToUnmount();
         }
 
         private bool CanUnmount()

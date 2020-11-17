@@ -10,18 +10,18 @@ namespace RishUI
         public event OnSize OnSize;
         public event OnReadyToUnmount OnReadyToUnmount;
 
-        public virtual bool CustomUnmount => false;
+        public bool CustomUnmount { get; protected set; } = false;
 
         private bool readyToUnmount;
         public bool ReadyToUnmount
         {
-            get => !CustomUnmount || readyToUnmount;
+            get => readyToUnmount;
             protected set
             {
                 if (readyToUnmount == value) return;
 
                 readyToUnmount = value;
-                if (CustomUnmount && value)
+                if (value)
                 {
                     OnReadyToUnmount?.Invoke();
                 }
@@ -159,6 +159,11 @@ namespace RishUI
         public void WillDestroy()
         {
             ReadyToUnmount = true;
+            
+            if (this is IDestroyListener destroyListener)
+            {
+                destroyListener.ComponentWillDestroy();
+            }
         }
 
         public virtual void Unmount()
