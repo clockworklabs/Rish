@@ -114,7 +114,7 @@ namespace RishUI.Editor
 
 			if (Selected != null)
 			{
-				if (!Selected.IsValid)
+				if (!Selected.Active)
 				{
 					OnSelection(null);
 				}

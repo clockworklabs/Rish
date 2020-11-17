@@ -8,25 +8,12 @@ namespace RishUI
         public event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
-        public event OnReadyToDestroy OnReadyToDestroy;
+        public event OnReadyToUnmount OnReadyToUnmount;
         
         public abstract bool IsLeaf { get; }
 
-        private bool readyToDestroy;
-        public bool ReadyToDestroy
-        {
-            get => readyToDestroy;
-            set
-            {
-                if (readyToDestroy == value) return;
-
-                readyToDestroy = value;
-                if (value)
-                {
-                    OnReadyToDestroy?.Invoke();
-                }
-            }
-        }
+        public bool CustomUnmount => false;
+        public bool ReadyToUnmount => true;
 
         private IRishComponent Parent { get; set; }
         
@@ -100,8 +87,6 @@ namespace RishUI
 
         public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
         {
-            ReadyToDestroy = false;
-            
             Parent = parent;
             if (Parent != null)
             {
@@ -117,10 +102,7 @@ namespace RishUI
             gameObject.SetActive(true);
         }
 
-        public void WillDestroy()
-        {
-            ReadyToDestroy = true;
-        }
+        public void WillDestroy() { }
 
         public void Unmount()
         {

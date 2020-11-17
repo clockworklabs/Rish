@@ -23,7 +23,7 @@ namespace RishUI
         private int CurrentDepth { get; set; } = -1;
         private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
         private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
-        private List<StateNode> Destroyed { get; } = new List<StateNode>(MaxSize);
+        private List<StateNode> Unmounted { get; } = new List<StateNode>(MaxSize);
         
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
         
@@ -67,7 +67,7 @@ namespace RishUI
                 var node = DirtyQueue.Dequeue();
                 CurrentDepth = node.Depth;
                 
-                if (node.IsValid)
+                if (node.Active)
                 {
                     Render(node);
                 }
@@ -75,14 +75,14 @@ namespace RishUI
 
             CurrentDepth = -1;
 
-            if (Destroyed.Count > 0)
+            if (Unmounted.Count > 0)
             {
-                for (int i = 0, n = Destroyed.Count; i < n; i++)
+                for (int i = 0, n = Unmounted.Count; i < n; i++)
                 {
-                    NodesPool.Push(Destroyed[i]);
+                    NodesPool.Push(Unmounted[i]);
                 }
                 
-                Destroyed.Clear();
+                Unmounted.Clear();
             }
             
             SetupPool.ReturnAll();
@@ -112,9 +112,9 @@ namespace RishUI
 
         private void AddNodeToList(StateNode node) => DirtyList.Add(node);
 
-        public void OnNodeDestroyed(StateNode node)
+        public void OnNodeUnmounted(StateNode node)
         {
-            Destroyed.Add(node);
+            Unmounted.Add(node);
         }
         
         // === KEY, STYLE ===
@@ -265,7 +265,7 @@ namespace RishUI
 
         private void Render(StateNode node)
         {
-            if (!node.IsValid)
+            if (!node.Active)
             {
                 return;
             }
@@ -294,7 +294,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement child)
         {
-            if (!node.IsValid) return;
+            if (!node.Active) return;
             
             node.Clear();
 
@@ -313,7 +313,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement[] children)
         {
-            if (!node.IsValid) return;
+            if (!node.Active) return;
             
             node.Clear();
 
@@ -345,8 +345,15 @@ namespace RishUI
             var childNode = node?.FindFreeChild(type, key, style);
             if (childNode == null)
             {
-                childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
-                childNode.Initialize(key, style, Pool.GetFromPool(type), node);
+                if (node == null || node.Active)
+                {
+                    childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
+                    childNode.Initialize(key, style, Pool.GetFromPool(type), node);
+                }
+                else
+                {
+                    return null;
+                }
             }
             childNode.UpdateIndex();
             

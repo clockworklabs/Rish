@@ -8,20 +8,22 @@ namespace RishUI
         public event OnDirty OnDirty;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
-        public event OnReadyToDestroy OnReadyToDestroy;
+        public event OnReadyToUnmount OnReadyToUnmount;
 
-        private bool readyToDestroy;
-        public bool ReadyToDestroy
+        public virtual bool CustomUnmount => false;
+
+        private bool readyToUnmount;
+        public bool ReadyToUnmount
         {
-            get => readyToDestroy;
-            set
+            get => !CustomUnmount || readyToUnmount;
+            protected set
             {
-                if (readyToDestroy == value) return;
+                if (readyToUnmount == value) return;
 
-                readyToDestroy = value;
-                if (value)
+                readyToUnmount = value;
+                if (CustomUnmount && value)
                 {
-                    OnReadyToDestroy?.Invoke();
+                    OnReadyToUnmount?.Invoke();
                 }
             }
         }
@@ -132,7 +134,7 @@ namespace RishUI
         {
             Style = style;
 
-            ReadyToDestroy = false;
+            ReadyToUnmount = false;
             
             Parent = parent;
             if (Parent != null)
@@ -156,7 +158,7 @@ namespace RishUI
 
         public void WillDestroy()
         {
-            ReadyToDestroy = true;
+            ReadyToUnmount = true;
         }
 
         public virtual void Unmount()

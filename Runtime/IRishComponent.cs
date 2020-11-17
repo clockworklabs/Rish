@@ -19,15 +19,16 @@ namespace RishUI
     public delegate void OnDirty();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
-    public delegate void OnReadyToDestroy();
+    public delegate void OnReadyToUnmount();
     
     public interface IRishComponent {
         event OnDirty OnDirty;
         event OnWorld OnWorld;
         event OnSize OnSize;
-        event OnReadyToDestroy OnReadyToDestroy;
+        event OnReadyToUnmount OnReadyToUnmount;
 
-        bool ReadyToDestroy { get; }
+        bool CustomUnmount { get; }
+        bool ReadyToUnmount { get; }
         
         RishTransform Local { get; }
         RishTransform World { get; }

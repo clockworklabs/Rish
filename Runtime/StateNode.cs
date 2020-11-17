@@ -31,7 +31,6 @@ namespace RishUI
         private Transform RealParentTransform { get; set; }
         
         internal int Depth { get; private set; }
-        public bool IsValid => Depth >= 0;
         
         public int ChildCount { get; private set; }
         private List<StateNode> Children { get; set; }
@@ -40,6 +39,9 @@ namespace RishUI
         
         private StateNode PrevSibling => VirtualIndex <= 0 ? null : Parent.Children[VirtualIndex - 1];
 
+        private int RemainingChildren { get; set; }
+        public bool Active { get; private set; }
+        
         private bool IsRealTree()
         {
             if (IsReal)
@@ -49,18 +51,6 @@ namespace RishUI
 
             return Children != null && Children.Any(child => child.IsRealTree());
         }
-
-        /*
-        private StateNode GetRealParent()
-        {
-            if (Parent == null)
-            {
-                return null;
-            }
-
-            return Parent.IsReal ? Parent : Parent.GetRealParent();
-        }
-        */
 
         private int GetRealIndex()
         {
@@ -86,6 +76,8 @@ namespace RishUI
         
         internal void Initialize(int key, uint style, IRishComponent component, StateNode parent)
         {
+            Active = true;
+            
             Key = key;
             Component = component;
             Style = style;
@@ -113,7 +105,7 @@ namespace RishUI
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
-        private void NotifyDestroy() => Rish.OnNodeDestroyed(this);
+        private void NotifyUnmount() => Rish.OnNodeUnmounted(this);
 
         internal void UpdateIndex()
         {
@@ -128,7 +120,7 @@ namespace RishUI
                 
             TopLevelTransform.SetSiblingIndex(realIndex);
 
-            if (RealParent != null && realParentDirty && RealParent.IsValid && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            if (RealParent != null && realParentDirty && RealParent.Active && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
             {
                 Rish.OnNodeDirty(this, true);
             }
@@ -208,13 +200,13 @@ namespace RishUI
 
         private void Destroy()
         {
-            Depth = -1;
-            VirtualIndex = -1;
+            if (!Active) return;
             
-            if (RealParent != null && RealParent.IsValid && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
-            {
-                Rish.OnNodeDirty(RealParent, true);
-            }
+            Active = false;
+            RemainingChildren = Children?.Count ?? 0;
+            
+            Component.OnReadyToUnmount += Unmount;
+            Unmount();
             
             if (Children != null)
             {
@@ -222,21 +214,69 @@ namespace RishUI
                 {
                     Children[i].Destroy();
                 }
-                
-                Children.Clear();
+            }
+        }
+
+        private void Unmount()
+        {
+            if (Active) return;
+            
+            if (Children != null)
+            {
+                for (var i = Children.Count - 1; i >= 0; i--)
+                {
+                    Children[i].Unmount();
+                }
             }
 
+            if (!CanUnmount()) return;
+            
+            if (RealParent != null && RealParent.Active && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            {
+                Rish.OnNodeDirty(RealParent, true);
+            }
+
+            Depth = -1;
+            VirtualIndex = -1;
+            Active = true;
+            
+            if (Parent != null)
+            {
+                Parent.RemainingChildren--;
+                Parent.Unmount();
+            }
+            
             Parent = null;
             RealParent = null;
             RealParentTransform = null;
+            Children?.Clear();
             ChildCount = 0;
-            
+            RemainingChildren = 0;
+
             Component.OnDirty -= NotifyDirty;
+            Component.OnReadyToUnmount -= Unmount;
+            
             Component.Unmount();
 
             Rish.Pool.ReturnToPool(Component);
 
-            NotifyDestroy();
+            NotifyUnmount();
+        }
+
+        private bool ReadyToUnmount()
+        {
+            if (!Component.ReadyToUnmount) return false;
+
+            if (Component.CustomUnmount) return true;
+            
+            return Parent == null || Parent.Active || Parent.Component.ReadyToUnmount;
+        }
+
+        private bool CanUnmount()
+        {
+            if (RemainingChildren > 0) return false;
+
+            return ReadyToUnmount();
         }
         
         #if UNITY_EDITOR
