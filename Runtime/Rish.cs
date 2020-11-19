@@ -345,6 +345,7 @@ namespace RishUI
                 if (node == null || node.Active)
                 {
                     childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this);
+                    childNode.Reset();
                     childNode.Initialize(key, style, Pool.GetFromPool(type), node);
                 }
                 else

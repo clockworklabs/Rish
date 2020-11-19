@@ -78,6 +78,23 @@ namespace RishUI
             Rish = rish;
         }
 
+        internal void Reset()
+        {
+            Component = null;
+
+            Active = false;
+            Mounted = false;
+            
+            Depth = -1;
+            VirtualIndex = -1;
+            Parent = null;
+            RealParent = null;
+            RealParentTransform = null;
+            Children?.Clear();
+            ChildCount = 0;
+            RemainingChildren = 0;
+        }
+
         internal void Initialize(int key, uint style, IRishComponent component, StateNode parent)
         {
             Active = true;
@@ -272,7 +289,7 @@ namespace RishUI
                 Rish.OnNodeDirty(RealParent, true);
             }
 
-            if (Parent != null)
+            if (Parent != null && Parent.RemainingChildren > 0)
             {
                 Parent.RemainingChildren--;
                 Parent.OnReady();
@@ -289,15 +306,6 @@ namespace RishUI
             Rish.Pool.ReturnToPool(Component);
 
             NotifyUnmount();
-            
-            Depth = -1;
-            VirtualIndex = -1;
-            Parent = null;
-            RealParent = null;
-            RealParentTransform = null;
-            Children?.Clear();
-            ChildCount = 0;
-            RemainingChildren = 0;
         }
 
         private bool ReadyToUnmount()
