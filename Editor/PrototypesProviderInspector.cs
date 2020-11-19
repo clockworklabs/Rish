@@ -5,8 +5,8 @@ using UnityObject = UnityEngine.Object;
 
 namespace RishUI.Editor
 {
-    //[CustomEditor(typeof(Style))]
-    public class StyleInspector : UnityEditor.Editor
+    [CustomEditor(typeof(PrototypesProvider))]
+    public class PrototypesProviderInspector : UnityEditor.Editor
     {
         private SerializedProperty ScriptProperty { get; set; }
         
@@ -49,10 +49,10 @@ namespace RishUI.Editor
         private void OnAdd(ReorderableList list)
         {
             var item = list.AddItem();
-            var elementProperty = item.FindPropertyRelative("component");
+            var componentProperty = item.FindPropertyRelative("component");
             var initialCountProperty = item.FindPropertyRelative("initialCount");
 
-            elementProperty.objectReferenceValue = null;
+            componentProperty.objectReferenceValue = null;
             initialCountProperty.intValue = 1;
         }
 
@@ -74,14 +74,14 @@ namespace RishUI.Editor
 
         private void OnAppendDragAndDrop(UnityObject reference, ReorderableList list)
         {
-            if(reference is UnityComponent element)
+            if(reference is UnityComponent component)
             {
                 var item = list.AddItem();
 
-                var elementProperty = item.FindPropertyRelative("element");
+                var elementProperty = item.FindPropertyRelative("component");
                 var initialCountProperty = item.FindPropertyRelative("initialCount");
 
-                elementProperty.objectReferenceValue = element;
+                elementProperty.objectReferenceValue = component;
                 initialCountProperty.intValue = 1;
             }
         }

@@ -7,8 +7,8 @@ namespace RishUI
     public class Pool : MonoBehaviour
     {
         [SerializeField]
-        private List<Prototype> components;
-        private List<Prototype> Components => components;
+        private PrototypesProvider provider;
+        private PrototypesProvider Provider => provider;
 
         [Space]
         
@@ -22,14 +22,14 @@ namespace RishUI
 
         private void Awake()
         {
-            if (Components == null)
+            if (Provider == null)
             {
                 return;
             }
             
-            for (int i = 0, n = Components.Count; i < n; i++)
+            for (int i = 0, n = Provider.Count; i < n; i++)
             {
-                var defaultPrototype = Components[i];
+                var defaultPrototype = Provider[i];
                 
                 if (defaultPrototype == null) continue;
 
@@ -103,7 +103,7 @@ namespace RishUI
             
             if (pool.Count == 0)
             {
-                var prototype = Components.Find( p => p.Component.GetType() == type);
+                var prototype = Provider.Find(p => p.Component.GetType() == type);
                 
                 PopulatePool(pool, prototype.Component, prototype.InitialCount);
             }
