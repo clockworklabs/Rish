@@ -1,4 +1,4 @@
-﻿namespace RishUI
+﻿namespace RishUI.Components
 {
     public class Div : UnityComponent
     {
