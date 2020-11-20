@@ -278,7 +278,7 @@ namespace RishUI
                 }
                 case UnityComponent unityComponent:
                 {
-                    unityComponent.Render();
+                    unityComponent.SetupAndRender();
                     break;
                 }
             }

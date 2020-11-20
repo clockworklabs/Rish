@@ -197,14 +197,14 @@ namespace RishUI
             setup?.Setup(this);
         }
 
-        public virtual RishElement SetupAndRender()
+        internal virtual RishElement SetupAndRender()
         {
             var result = Render();
             JustMounted = false;
             return result;
         }
 
-        public abstract RishElement Render();
+        protected abstract RishElement Render();
     }
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IRishData<P>
@@ -283,7 +283,7 @@ namespace RishUI
             }
         }
         
-        public override RishElement SetupAndRender()
+        internal override RishElement SetupAndRender()
         {
             if (Dirty)
             {

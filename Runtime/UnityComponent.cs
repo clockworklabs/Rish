@@ -76,6 +76,8 @@ namespace RishUI
         }
         
         protected Assets Assets { get; private set; }
+        
+        protected bool JustMounted { get; private set; }
 
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
@@ -101,6 +103,8 @@ namespace RishUI
             
             UpdateWorldTransform();
 
+            JustMounted = true;
+
             ForceRender();
             
             gameObject.SetActive(true);
@@ -125,7 +129,13 @@ namespace RishUI
             setup?.Setup(this);
         }
         
-        public abstract void Render();
+        internal void  SetupAndRender()
+        {
+            Render();
+            JustMounted = false;
+        }
+        
+        protected abstract void Render();
 
         private void SetParentWorld(RishTransform parentWorld)
         {

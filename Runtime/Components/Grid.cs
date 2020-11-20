@@ -6,7 +6,7 @@ namespace RishUI.Components
     {
         protected override bool RenderOnResize => true;
         
-        public override RishElement Render()
+        protected override RishElement Render()
         {
             if (Props.children == null)
             {

@@ -4,6 +4,6 @@
     {
         public override bool IsLeaf => false;
 
-        public override void Render() { }
+        protected override void Render() { }
     }
 }
