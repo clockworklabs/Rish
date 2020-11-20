@@ -76,7 +76,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct VerticalProps : IProps<VerticalProps>
+    public struct VerticalProps : IRishData<VerticalProps>
     {
         public float spacing;
         public float elementSize;

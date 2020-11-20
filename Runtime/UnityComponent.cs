@@ -1,4 +1,4 @@
-﻿using RishUI.RDS;
+﻿using RishUI.AssetsManagement;
 using UnityEngine;
 
 namespace RishUI
@@ -74,6 +74,8 @@ namespace RishUI
                 }
             }
         }
+        
+        protected Assets Assets { get; private set; }
 
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
@@ -85,8 +87,10 @@ namespace RishUI
 
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
+        public virtual void Mount(uint style, Assets assets, IRishComponent parent)
         {
+            Assets = assets;
+            
             Parent = parent;
             if (Parent != null)
             {
@@ -173,7 +177,7 @@ namespace RishUI
         }
     }
 
-    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IProps<P>
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IRishData<P>
     {
         private P props;
         public P Props
@@ -191,11 +195,11 @@ namespace RishUI
             }
         }
 
-        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
+        public override void Mount(uint style, AssetsManagement.Assets assets, IRishComponent parent)
         {
-            base.Mount(style, defaults, parent);
+            base.Mount(style, assets, parent);
 
-            defaults.Get<P>(style, out var defaultProps);
+            assets.Get<P>(style, out var defaultProps);
             Props = defaultProps;
         }
     }

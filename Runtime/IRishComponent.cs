@@ -1,15 +1,15 @@
 ﻿using System;
-using RishUI.RDS;
+using RishUI.AssetsManagement;
 using UnityEngine;
 
 namespace RishUI
 {
-    public interface IProps<T> : IEquatable<T>
+    public interface IRishData<T> : IEquatable<T>
     {
         void Default();
     }
     
-    public struct NoProps : IProps<NoProps>
+    public struct NoProps : IRishData<NoProps>
     {
         public void Default() { }
         
@@ -37,14 +37,14 @@ namespace RishUI
 
         void ForceRender();
         
-        void Mount(uint style, Defaults defaults, IRishComponent parent);
+        void Mount(uint style, AssetsManagement.Assets assets, IRishComponent parent);
         void WillDestroy();
         void Unmount();
 
         void UpdateComponent(RishTransform local, ISetup setup);
     }
 
-    public interface IRishComponent<P> : IRishComponent where P : struct, IProps<P>
+    public interface IRishComponent<P> : IRishComponent where P : struct, IRishData<P>
     {
         P Props { get; set; }
     }

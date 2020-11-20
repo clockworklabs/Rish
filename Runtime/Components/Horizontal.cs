@@ -76,7 +76,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct HorizontalProps : IProps<HorizontalProps>
+    public struct HorizontalProps : IRishData<HorizontalProps>
     {
         public float spacing;
         public float elementSize;

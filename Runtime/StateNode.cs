@@ -121,12 +121,12 @@ namespace RishUI
                     parent = parent.Parent;
                 }
 
-                RealParentTransform = RealParent != null ? RealParent.BottomLevelTransform : Rish.AppTransform;
+                RealParentTransform = RealParent != null ? RealParent.BottomLevelTransform : Rish.RootTransform;
                 TopLevelTransform.SetParent(RealParentTransform);
             }
 
             Component.OnDirty += NotifyDirty;
-            Component.Mount(style, Rish.Defaults, Parent?.Component);
+            Component.Mount(style, Rish.Assets, Parent?.Component);
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);

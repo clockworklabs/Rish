@@ -1,14 +1,26 @@
-﻿using RishUI.RDS;
+﻿using System;
+using RishUI.AssetsManagement;
 using UnityEngine;
 
 namespace RishUI
 {
-    [RequireComponent(typeof(Canvas))]
+    [RequireComponent(typeof(Rish))]
     [DisallowMultipleComponent]
     public abstract class AppComponent : MonoBehaviour
     {
-        public abstract (uint, IStyleSheet)[] ImportStyleSheets();
-        
+        private Assets assets;
+        protected Assets Assets
+        {
+            get
+            {
+                if (assets == null)
+                {
+                    assets = GetComponent<Assets>();
+                }
+                return assets;
+            }
+        }
+
         public abstract RishElement GetRoot();
     }
 }

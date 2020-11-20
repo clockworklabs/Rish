@@ -22,7 +22,7 @@ namespace RishUI
             return setup;
         }
 
-        internal static BasicSetup<P> GetBasic<P>(P props) where P : struct, IProps<P>
+        internal static BasicSetup<P> GetBasic<P>(P props) where P : struct, IRishData<P>
         {
             var type = typeof(BasicSetup<P>);
             if(!SetupPools.TryGetValue(type, out var pool))
@@ -37,7 +37,7 @@ namespace RishUI
             return setup;
         }
 
-        internal static AdvancedSetup<P> GetAdvanced<P>(RefAction<P> props) where P : struct, IProps<P>
+        internal static AdvancedSetup<P> GetAdvanced<P>(RefAction<P> props) where P : struct, IRishData<P>
         {
             var type = typeof(AdvancedSetup<P>);
             if(!SetupPools.TryGetValue(type, out var pool))

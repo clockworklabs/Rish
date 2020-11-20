@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -23,11 +21,11 @@ namespace RishUI.Editor
             GameObjectUtility.SetParentAndAlign(rishGO, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(rishGO, null);
 
-            var appGO = new GameObject("App", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            appGO.transform.SetParent(rishGO.transform, false);
-            Undo.RegisterCreatedObjectUndo(appGO, null);
+            var rootGO = new GameObject("Root", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            rootGO.transform.SetParent(rishGO.transform, false);
+            Undo.RegisterCreatedObjectUndo(rootGO, null);
 
-            var canvas = appGO.GetComponent<Canvas>();
+            var canvas = rootGO.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
             var eventSystem = Object.FindObjectOfType<EventSystem>();
@@ -36,6 +34,13 @@ namespace RishUI.Editor
                 var eventSystemGO = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
                 Undo.RegisterCreatedObjectUndo(eventSystemGO, null);
             }
+            
+            var rish = rishGO.GetComponent<Rish>();
+            var rootTransform = rootGO.GetComponent<RectTransform>();
+            
+            var rishSO = new SerializedObject(rish);
+            rishSO.FindProperty("rootTransform").objectReferenceValue = rootTransform;
+            rishSO.ApplyModifiedProperties();
             
             Undo.CollapseUndoOperations(undoGroupIndex);
             

@@ -1,4 +1,4 @@
-﻿using RishUI.RDS;
+﻿using RishUI.AssetsManagement;
 using UnityEngine;
 
 namespace RishUI
@@ -120,6 +120,8 @@ namespace RishUI
                 }
             }
         }
+        
+        protected Assets Assets { get; private set; }
 
         protected uint Style { get; private set; }
 
@@ -130,9 +132,10 @@ namespace RishUI
         
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Mount(uint style, Defaults defaults, IRishComponent parent)
+        public virtual void Mount(uint style, Assets assets, IRishComponent parent)
         {
             Style = style;
+            Assets = assets;
 
             ReadyToUnmount = false;
             
@@ -204,7 +207,7 @@ namespace RishUI
         public abstract RishElement Render();
     }
 
-    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IProps<P>
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IRishData<P>
     {
         private bool Dirty { get; set; }
 
@@ -227,20 +230,16 @@ namespace RishUI
             }
         }
         
-        protected Defaults Defaults { get; private set; }
-        
         private bool Enabled { get; set; }
         
-        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
+        public override void Mount(uint style, Assets assets, IRishComponent parent)
         {
-            Defaults = defaults;
-            
-            defaults.Get<P>(style, out var defaultProps);
+            assets.Get<P>(style, out var defaultProps);
             Props = defaultProps;
             
             Dirty = true;
             
-            base.Mount(style, defaults, parent);
+            base.Mount(style, assets, parent);
         }
 
         public override void Unmount()
@@ -297,7 +296,7 @@ namespace RishUI
         }
     }
     
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IProps<P> where S : struct, IProps<S>
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IRishData<P> where S : struct, IRishData<S>
     {
         private S state;
         protected S State
@@ -316,14 +315,14 @@ namespace RishUI
             }
         }
         
-        public override void Mount(uint style, Defaults defaults, IRishComponent parent)
+        public override void Mount(uint style, Assets assets, IRishComponent parent)
         {
             S defaultState = default;
             defaultState.Default();
             
             State = defaultState;
             
-            base.Mount(style, defaults, parent);
+            base.Mount(style, assets, parent);
         }
     }
 }

@@ -288,7 +288,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct GridProps : IProps<GridProps>
+    public struct GridProps : IRishData<GridProps>
     {
         public Vector2 spacing;
         public Vector2 elementSize;
