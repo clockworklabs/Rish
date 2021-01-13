@@ -1,5 +1,7 @@
 ﻿using RishUI.AssetsManagement;
+using RishUI.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace RishUI
 {
@@ -130,6 +132,9 @@ namespace RishUI
         protected virtual bool RenderOnResize => false;
         protected virtual bool ManualTransform => false; 
         
+        private int HoverCount { get; set; }
+        private int TapCount { get; set; }
+        
         public void ForceRender() => OnDirty?.Invoke();
 
         public virtual void Mount(uint style, Assets assets, IRishComponent parent)
@@ -205,6 +210,106 @@ namespace RishUI
         }
 
         protected abstract RishElement Render();
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            HoverCount++;
+
+            if (HoverCount == 1 && this is IHoverStartListener listener)
+            {
+                listener.OnHoverStart(eventData.position);
+            }
+            
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerEnter(eventData);
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            HoverCount--;
+
+            if (HoverCount == 0 && this is IHoverEndListener listener)
+            {
+                listener.OnHoverEnd(eventData.position);
+            }
+            
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerExit(eventData);
+            }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            TapCount++;
+
+            if (TapCount == 1)
+            {
+                if (this is ITapStartListener listener && listener.OnTapStart(eventData.position))
+                {
+                    return;
+                }
+                
+                Parent?.OnPointerDown(eventData);
+            }
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            TapCount--;
+
+            if (TapCount == 0)
+            {
+                if (this is ITapEndListener listener && listener.OnTapEnd(eventData.position))
+                {
+                    return;
+                }
+            
+                Parent?.OnPointerUp(eventData);
+            }
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            if (this is IScrollListener listener && listener.OnScroll(eventData.scrollDelta))
+            {
+                return;
+            }
+            
+            Parent?.OnScroll(eventData);
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (this is IDragStartListener listener && listener.OnDragStart(eventData.position))
+            {
+                return;
+            }
+            
+            Parent?.OnBeginDrag(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (this is IDragListener listener && listener.OnDrag(eventData.delta))
+            {
+                return;
+            }
+            
+            Parent?.OnDrag(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (this is IDragEndListener listener && listener.OnDragEnd(eventData.position))
+            {
+                return;
+            }
+            
+            Parent?.OnEndDrag(eventData);
+        }
     }
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IRishData<P>

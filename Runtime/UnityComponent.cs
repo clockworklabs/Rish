@@ -1,5 +1,6 @@
 ﻿using RishUI.AssetsManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace RishUI
 {
@@ -184,6 +185,53 @@ namespace RishUI
 
             RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
             RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
+        }
+
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerEnter(eventData);
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerExit(eventData);
+            }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            Parent?.OnPointerDown(eventData);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            Parent?.OnPointerUp(eventData);
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            Parent?.OnScroll(eventData);
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            Parent?.OnBeginDrag(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            Parent?.OnDrag(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            Parent?.OnEndDrag(eventData);
         }
     }
 
