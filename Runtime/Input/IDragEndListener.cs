@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace RishUI.Input
+﻿namespace RishUI.Input
 {
     public interface IDragEndListener
     {
