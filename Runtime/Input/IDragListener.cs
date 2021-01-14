@@ -4,6 +4,6 @@ namespace RishUI.Input
 {
     public interface IDragListener
     {
-        bool OnDrag(Vector2 delta);
+        bool OnDrag(DragInfo info);
     }
 }

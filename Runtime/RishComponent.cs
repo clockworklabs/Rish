@@ -133,7 +133,11 @@ namespace RishUI
         protected virtual bool ManualTransform => false; 
         
         private int HoverCount { get; set; }
+        private bool Hover => HoverCount > 0;
         private int TapCount { get; set; }
+        private bool Tap => TapCount > 0;
+        private Vector2 DragPoint { get; set; }
+        private Vector2 DragStartPoint { get; set; }
         
         public void ForceRender() => OnDirty?.Invoke();
 
@@ -217,7 +221,11 @@ namespace RishUI
 
             if (HoverCount == 1 && this is IHoverStartListener listener)
             {
-                listener.OnHoverStart(eventData.position);
+                var info = new HoverInfo
+                {
+                    position = eventData.position
+                };
+                listener.OnHoverStart(info);
             }
             
             if (Parent is RishComponent rishParent)
@@ -232,7 +240,11 @@ namespace RishUI
 
             if (HoverCount == 0 && this is IHoverEndListener listener)
             {
-                listener.OnHoverEnd(eventData.position);
+                var info = new HoverInfo
+                {
+                    position = eventData.position
+                };
+                listener.OnHoverEnd(info);
             }
             
             if (Parent is RishComponent rishParent)
@@ -247,9 +259,16 @@ namespace RishUI
 
             if (TapCount == 1)
             {
-                if (this is ITapStartListener listener && listener.OnTapStart(eventData.position))
+                if (this is ITapStartListener listener)
                 {
-                    return;
+                    var info = new TapInfo
+                    {
+                        position = eventData.position
+                    };
+                    if (listener.OnTapStart(info))
+                    {
+                        return;
+                    }
                 }
                 
                 Parent?.OnPointerDown(eventData);
@@ -262,20 +281,41 @@ namespace RishUI
 
             if (TapCount == 0)
             {
-                if (this is ITapEndListener listener && listener.OnTapEnd(eventData.position))
+                var info = new TapInfo
                 {
-                    return;
+                    position = eventData.position
+                };
+                if (Hover)
+                {
+                    if (this is ITapListener listener && listener.OnTap(info))
+                    {
+                        return;
+                    }
                 }
-            
+                else
+                {
+                    if (this is ITapCancelListener listener && listener.OnTapCancel(info))
+                    {
+                        return;
+                    }
+                }
+                
                 Parent?.OnPointerUp(eventData);
             }
         }
 
         public void OnScroll(PointerEventData eventData)
         {
-            if (this is IScrollListener listener && listener.OnScroll(eventData.scrollDelta))
+            if (this is IScrollListener listener)
             {
-                return;
+                var info = new ScrollInfo
+                {
+                    delta = eventData.scrollDelta
+                };
+                if (listener.OnScroll(info))
+                {
+                    return;
+                }
             }
             
             Parent?.OnScroll(eventData);
@@ -283,29 +323,72 @@ namespace RishUI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (this is IDragStartListener listener && listener.OnDragStart(eventData.position))
-            {
-                return;
-            }
+            DragPoint = eventData.position;
+            DragStartPoint = DragPoint;
             
+            if (this is IDragStartListener listener)
+            {
+                var info = new DragInfo
+                {
+                    position = DragPoint,
+                    delta = Vector2.zero,
+                    offset = Vector2.zero,
+                    velocity = Vector2.zero
+                };
+                if(listener.OnDragStart(info))
+                {
+                    return;
+                }
+            }
+
             Parent?.OnBeginDrag(eventData);
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (this is IDragListener listener && listener.OnDrag(eventData.delta))
+            var point = eventData.position;
+            
+            if (this is IDragListener listener)
             {
-                return;
+                var delta = point - DragPoint;
+                DragPoint = point;
+                
+                var info = new DragInfo
+                {
+                    position = point,
+                    delta = delta,
+                    offset = point - DragStartPoint,
+                    velocity = delta * Time.deltaTime
+                };
+                if(listener.OnDrag(info))
+                {
+                    return;
+                }
             }
             
+            DragPoint = point;
+
             Parent?.OnDrag(eventData);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (this is IDragEndListener listener && listener.OnDragEnd(eventData.position))
+            var point = eventData.position;
+            
+            if (this is IDragEndListener listener)
             {
-                return;
+                var delta = point - DragPoint;
+                var info = new DragInfo
+                {
+                    position = point,
+                    delta = delta,
+                    offset = point - DragStartPoint,
+                    velocity = delta * Time.deltaTime
+                };
+                if(listener.OnDragEnd(info))
+                {
+                    return;
+                }
             }
             
             Parent?.OnEndDrag(eventData);

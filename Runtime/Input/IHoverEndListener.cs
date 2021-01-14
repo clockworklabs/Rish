@@ -4,6 +4,6 @@ namespace RishUI.Input
 {
     public interface IHoverEndListener
     {
-        void OnHoverEnd(Vector2 position);
+        void OnHoverEnd(HoverInfo info);
     }
 }

@@ -4,6 +4,6 @@ namespace RishUI.Input
 {
     public interface ITapStartListener
     {
-        bool OnTapStart(Vector2 position);
+        bool OnTapStart(TapInfo info);
     }
 }
