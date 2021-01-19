@@ -85,10 +85,10 @@ namespace RishUI
         }
         
         private Vector2 parentSize;
-        private Vector2 ParentSize
+        protected Vector2 ParentSize
         {
             get => parentSize;
-            set
+            private set
             {
                 if (value.Equals(parentSize))
                 {
@@ -136,6 +136,7 @@ namespace RishUI
         private bool Hover => HoverCount > 0;
         private int TapCount { get; set; }
         private bool Tap => TapCount > 0;
+        private bool Drag { get; set; }
         private Vector2 DragPoint { get; set; }
         private Vector2 DragStartPoint { get; set; }
         
@@ -157,6 +158,10 @@ namespace RishUI
             
             ParentWorld = Parent?.World ?? RishTransform.Default;
             ParentSize = Parent?.Size ?? Vector2.zero;
+
+            HoverCount = 0;
+            TapCount = 0;
+            Drag = false;
 
             JustMounted = true;
             
@@ -217,6 +222,11 @@ namespace RishUI
         
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             HoverCount++;
 
             if (HoverCount == 1 && this is IHoverStartListener listener)
@@ -236,6 +246,11 @@ namespace RishUI
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             HoverCount--;
 
             if (HoverCount == 0 && this is IHoverEndListener listener)
@@ -255,6 +270,11 @@ namespace RishUI
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             TapCount++;
 
             if (TapCount == 1)
@@ -277,6 +297,11 @@ namespace RishUI
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             TapCount--;
 
             if (TapCount == 0)
@@ -306,6 +331,11 @@ namespace RishUI
 
         public void OnScroll(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             if (this is IScrollListener listener)
             {
                 var info = new ScrollInfo
@@ -323,6 +353,11 @@ namespace RishUI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             DragPoint = eventData.position;
             DragStartPoint = DragPoint;
             
@@ -346,6 +381,11 @@ namespace RishUI
 
         public void OnDrag(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             var point = eventData.position;
             
             if (this is IDragListener listener)
@@ -358,7 +398,7 @@ namespace RishUI
                     position = point,
                     delta = delta,
                     offset = point - DragStartPoint,
-                    velocity = delta * Time.deltaTime
+                    velocity = delta / Time.deltaTime
                 };
                 if(listener.OnDrag(info))
                 {
@@ -373,6 +413,11 @@ namespace RishUI
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
             var point = eventData.position;
             
             if (this is IDragEndListener listener)
@@ -383,7 +428,7 @@ namespace RishUI
                     position = point,
                     delta = delta,
                     offset = point - DragStartPoint,
-                    velocity = delta * Time.deltaTime
+                    velocity = delta / Time.deltaTime
                 };
                 if(listener.OnDragEnd(info))
                 {

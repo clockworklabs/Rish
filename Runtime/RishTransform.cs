@@ -12,6 +12,10 @@ namespace RishUI
             max = Vector2.one,
             scale = Vector2.one
         };
+        public static RishTransform Null = new RishTransform
+        {
+            top = float.NaN
+        };
         
         public Vector2 min;
         public Vector2 max;
