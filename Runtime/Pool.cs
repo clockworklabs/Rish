@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RishUI.AssetsManagement;
 using UnityEngine;
 
 namespace RishUI
@@ -19,7 +20,9 @@ namespace RishUI
         private Dictionary<Type, Activator<RishComponent>> VirtualActivators { get; } = new Dictionary<Type, Activator<RishComponent>>();
         private Dictionary<Type, Stack<RishComponent>> VirtualPools { get; } = new Dictionary<Type, Stack<RishComponent>>();
         private Dictionary<Type, Stack<UnityComponent>> RealPools { get; } = new Dictionary<Type, Stack<UnityComponent>>();
-
+        
+        private RCSS RCSS { get; set; }
+        
         private void Awake()
         {
             if (Provider == null)
@@ -49,6 +52,11 @@ namespace RishUI
                 
                 RealPools[type] = defaultPool;
             }
+        }
+
+        internal void Setup(RCSS rcss)
+        {
+            RCSS = rcss;
         }
 
         internal IRishComponent GetFromPool(Type type) 
@@ -173,15 +181,17 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Instantiate(prototype, transform, false);
+                instance.Constructor(RCSS);
                 pool.Push(instance);
             }
         }
 
-        private static void PopulatePool(Stack<RishComponent> pool, Activator<RishComponent> activator, int count)
+        private void PopulatePool(Stack<RishComponent> pool, Activator<RishComponent> activator, int count)
         {
             for (var j = 0; j < count; j++)
             {
                 var instance = activator();
+                instance.Constructor(RCSS);
                 pool.Push(instance);
             }
         }

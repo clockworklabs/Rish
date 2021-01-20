@@ -123,7 +123,7 @@ namespace RishUI
             }
         }
         
-        protected Assets Assets { get; private set; }
+        private RCSS RCSS { get; set; }
 
         protected uint Style { get; private set; }
 
@@ -142,13 +142,17 @@ namespace RishUI
         
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Mount(uint style, Assets assets, IRishComponent parent)
+        public void Constructor(RCSS rcss)
+        {
+            RCSS = rcss;
+        }
+
+        public void Mount(uint style, IRishComponent parent)
         {
             Style = style;
-            Assets = assets;
 
-            ReadyToUnmount = false;
-            
+            Initialize();
+
             Parent = parent;
             if (Parent != null)
             {
@@ -159,10 +163,6 @@ namespace RishUI
             ParentWorld = Parent?.World ?? RishTransform.Default;
             ParentSize = Parent?.Size ?? Vector2.zero;
 
-            HoverCount = 0;
-            TapCount = 0;
-            Drag = false;
-
             JustMounted = true;
             
             ForceRender();
@@ -171,6 +171,15 @@ namespace RishUI
             {
                 mountingListener.ComponentDidMount();
             }
+        }
+
+        protected virtual void Initialize()
+        {
+            ReadyToUnmount = false;
+
+            HoverCount = 0;
+            TapCount = 0;
+            Drag = false;
         }
 
         public void WillDestroy()
@@ -219,6 +228,21 @@ namespace RishUI
         }
 
         protected abstract RishElement Render();
+        
+        public void StyleData<T>(out T result) where T : struct, IRishData<T>
+        {
+            if (Parent == null)
+            {
+                result = default;
+                result.Default();
+            }
+            else
+            {
+                Parent.StyleData(out result);
+            }
+            
+            RCSS.Override(Style, ref result);
+        }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -465,14 +489,14 @@ namespace RishUI
         
         private bool Enabled { get; set; }
         
-        public override void Mount(uint style, Assets assets, IRishComponent parent)
+        protected override void Initialize()
         {
-            assets.Get<P>(style, out var defaultProps);
+            StyleData<P>(out var defaultProps);
             Props = defaultProps;
             
             Dirty = true;
             
-            base.Mount(style, assets, parent);
+            base.Initialize();
         }
 
         public override void Unmount()
@@ -548,14 +572,14 @@ namespace RishUI
             }
         }
         
-        public override void Mount(uint style, Assets assets, IRishComponent parent)
+        protected override void Initialize()
         {
             S defaultState = default;
             defaultState.Default();
             
             State = defaultState;
             
-            base.Mount(style, assets, parent);
+            base.Initialize();
         }
     }
 }

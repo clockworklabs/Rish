@@ -126,7 +126,7 @@ namespace RishUI
             }
 
             Component.OnDirty += NotifyDirty;
-            Component.Mount(style, Rish.Assets, Parent?.Component);
+            Component.Mount(style, Parent?.Component);
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);

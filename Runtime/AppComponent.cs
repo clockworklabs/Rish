@@ -8,18 +8,25 @@ namespace RishUI
     [DisallowMultipleComponent]
     public abstract class AppComponent : MonoBehaviour
     {
-        private Assets assets;
-        protected Assets Assets
+        private RCSS rcss;
+        protected RCSS Rcss
         {
             get
             {
-                if (assets == null)
+                if (rcss == null)
                 {
-                    assets = GetComponent<Assets>();
+                    rcss = GetComponent<AssetsManagement.RCSS>();
                 }
-                return assets;
+                return rcss;
             }
         }
+
+        private void Awake()
+        {
+            GetComponent<Pool>().Setup(Rcss);
+        }
+
+        public abstract void GetAsset<T>(string address, Action<T> callback);
 
         public abstract RishElement GetRoot();
     }

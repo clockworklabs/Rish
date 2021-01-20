@@ -8,7 +8,7 @@ namespace RishUI
 {
     public delegate void RefAction<T>(ref T value) where T : struct;
     
-    [RequireComponent(typeof(Assets))]
+    [RequireComponent(typeof(AssetsManagement.RCSS))]
     [RequireComponent(typeof(Pool))]
     public class Rish : MonoBehaviour
     {
@@ -19,7 +19,7 @@ namespace RishUI
         # endif
 
         internal Pool Pool { get; private set; }
-        public Assets Assets { get; private set; }
+        public AssetsManagement.RCSS Rcss { get; private set; }
 
         private int CurrentDepth { get; set; } = -1;
         private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
@@ -37,7 +37,7 @@ namespace RishUI
         private void Start()
         {
             Pool = GetComponent<Pool>();
-            Assets = GetComponent<Assets>();
+            Rcss = GetComponent<AssetsManagement.RCSS>();
 
             var app = GetComponent<AppComponent>();
 

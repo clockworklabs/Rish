@@ -76,7 +76,9 @@ namespace RishUI
             }
         }
         
-        protected Assets Assets { get; private set; }
+        protected RCSS RCSS { get; private set; }
+        
+        protected uint Style { get; private set; }
         
         protected bool JustMounted { get; private set; }
 
@@ -90,9 +92,16 @@ namespace RishUI
 
         public void ForceRender() => OnDirty?.Invoke();
 
-        public virtual void Mount(uint style, Assets assets, IRishComponent parent)
+        public void Constructor(RCSS rcss)
         {
-            Assets = assets;
+            RCSS = rcss;
+        }
+
+        public virtual void Mount(uint style, IRishComponent parent)
+        {
+            Style = style;
+            
+            Initialize();
             
             Parent = parent;
             if (Parent != null)
@@ -110,6 +119,8 @@ namespace RishUI
             
             gameObject.SetActive(true);
         }
+
+        protected virtual void Initialize() { }
 
         public void WillDestroy() { }
 
@@ -186,8 +197,22 @@ namespace RishUI
             RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
             RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
-
-
+        
+        public void StyleData<T>(out T result) where T : struct, IRishData<T>
+        {
+            if (Parent == null)
+            {
+                result = default;
+                result.Default();
+            }
+            else
+            {
+                Parent.StyleData(out result);
+            }
+            
+            RCSS.Override(Style, ref result);
+        }
+        
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (Parent is RishComponent rishParent)
@@ -253,12 +278,12 @@ namespace RishUI
             }
         }
 
-        public override void Mount(uint style, AssetsManagement.Assets assets, IRishComponent parent)
+        protected override void Initialize()
         {
-            base.Mount(style, assets, parent);
-
-            assets.Get<P>(style, out var defaultProps);
+            StyleData<P>(out var defaultProps);
             Props = defaultProps;
+            
+            base.Initialize();
         }
     }
 }
