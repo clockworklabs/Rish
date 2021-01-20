@@ -10,11 +10,11 @@ namespace RishUI.Editor
         // Add a menu item to create custom GameObjects.
         // Priority 1 ensures it is grouped with the other menu items of the same kind
         // and propagated to the hierarchy dropdown and hierarchy context menus.
-        [MenuItem("GameObject/Rish/New DOM", false, 10)]
-        static void CreateCustomGameObject(MenuCommand menuCommand)
+        [MenuItem("GameObject/Rish", false, 10)]
+        private static void CreateRishTree(MenuCommand menuCommand)
         {
             Undo.IncrementCurrentGroup();
-            Undo.SetCurrentGroupName("Undo Create Rish DOM");
+            Undo.SetCurrentGroupName("Undo Create Rish");
             var undoGroupIndex = Undo.GetCurrentGroup();
             
             var rishGO = new GameObject("Rish", typeof(Rish));
@@ -39,7 +39,7 @@ namespace RishUI.Editor
             var rootTransform = rootGO.GetComponent<RectTransform>();
             
             var rishSO = new SerializedObject(rish);
-            rishSO.FindProperty("rootTransform").objectReferenceValue = rootTransform;
+            rishSO.FindProperty("_rootTransform").objectReferenceValue = rootTransform;
             rishSO.ApplyModifiedProperties();
             
             Undo.CollapseUndoOperations(undoGroupIndex);
