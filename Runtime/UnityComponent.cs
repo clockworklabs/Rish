@@ -1,4 +1,4 @@
-﻿using RishUI.AssetsManagement;
+﻿using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -76,7 +76,8 @@ namespace RishUI
             }
         }
         
-        protected RCSS RCSS { get; private set; }
+        private RCSS RCSS { get; set; }
+        protected AssetsManager Assets { get; private set; }
         
         protected uint Style { get; private set; }
         
@@ -92,9 +93,10 @@ namespace RishUI
 
         public void ForceRender() => OnDirty?.Invoke();
 
-        public void Constructor(RCSS rcss)
+        public void Constructor(RCSS rcss, AssetsManager assets)
         {
             RCSS = rcss;
+            Assets = assets;
         }
 
         public virtual void Mount(uint style, IRishComponent parent)

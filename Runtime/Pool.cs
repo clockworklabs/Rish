@@ -1,34 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using RishUI.AssetsManagement;
+using RishUI.Styling;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace RishUI
 {
-    public class Pool : MonoBehaviour
+    public class Pool
     {
-        [SerializeField]
-        private PrototypesProvider provider;
-        private PrototypesProvider Provider => provider;
-
-        [Space]
-        
-        [SerializeField]
-        private int virtualInitialSize = 5;
-        private int VirtualInitialSize => Mathf.Max(1, virtualInitialSize);
-
         private Dictionary<Type, Activator<RishComponent>> VirtualActivators { get; } = new Dictionary<Type, Activator<RishComponent>>();
         private Dictionary<Type, Stack<RishComponent>> VirtualPools { get; } = new Dictionary<Type, Stack<RishComponent>>();
         private Dictionary<Type, Stack<UnityComponent>> RealPools { get; } = new Dictionary<Type, Stack<UnityComponent>>();
         
-        private RCSS RCSS { get; set; }
+        private RCSS RCSS { get; }
+        private AssetsManager Assets { get; }
         
-        private void Awake()
+        private PrototypesProvider Provider { get; }
+        private Transform Transform { get; }
+        private int VirtualInitialSize { get; }
+
+        public Pool(RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
         {
-            if (Provider == null)
+            if (provider == null)
             {
-                return;
+                throw new UnityException("The pool needs a valid PrototypesProvider");
             }
+            
+            RCSS = rcss ?? throw new UnityException("The pool needs a valid RCSS");
+            Assets = assets ?? throw new UnityException("The pool needs a valid AssetsManager");
+            
+            Provider = provider;
+            Transform = transform;
+            VirtualInitialSize = virtualInitialSize;
             
             for (int i = 0, n = Provider.Count; i < n; i++)
             {
@@ -52,11 +55,6 @@ namespace RishUI
                 
                 RealPools[type] = defaultPool;
             }
-        }
-
-        internal void Setup(RCSS rcss)
-        {
-            RCSS = rcss;
         }
 
         internal IRishComponent GetFromPool(Type type) 
@@ -158,7 +156,7 @@ namespace RishUI
             if (!(component is UnityComponent unityComponent)) return false;
             
             unityComponent.gameObject.SetActive(false);
-            unityComponent.transform.SetParent(transform, false);
+            unityComponent.transform.SetParent(Transform, false);
 
             pool.Push(unityComponent);
 
@@ -180,8 +178,8 @@ namespace RishUI
         {
             for (var j = 0; j < count; j++)
             {
-                var instance = Instantiate(prototype, transform, false);
-                instance.Constructor(RCSS);
+                var instance = Object.Instantiate(prototype, Transform, false);
+                instance.Constructor(RCSS, Assets);
                 pool.Push(instance);
             }
         }
@@ -191,7 +189,7 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = activator();
-                instance.Constructor(RCSS);
+                instance.Constructor(RCSS, Assets);
                 pool.Push(instance);
             }
         }

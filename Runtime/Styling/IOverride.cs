@@ -2,7 +2,7 @@
 {
     public interface IOverride<T> where T : IRishData<T>
     {
-        void Get(ref T result);
+        void Override(ref T result);
     }
 }
 

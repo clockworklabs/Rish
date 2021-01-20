@@ -1,4 +1,4 @@
-﻿using RishUI.AssetsManagement;
+﻿using RishUI.Styling;
 using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -124,8 +124,9 @@ namespace RishUI
         }
         
         private RCSS RCSS { get; set; }
+        protected AssetsManager Assets { get; private set; }
 
-        protected uint Style { get; private set; }
+        private uint Style { get; set; }
 
         protected bool JustMounted { get; private set; }
 
@@ -142,9 +143,10 @@ namespace RishUI
         
         public void ForceRender() => OnDirty?.Invoke();
 
-        public void Constructor(RCSS rcss)
+        public void Constructor(RCSS rcss, AssetsManager assets)
         {
             RCSS = rcss;
+            Assets = assets;
         }
 
         public void Mount(uint style, IRishComponent parent)

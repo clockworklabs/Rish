@@ -10,27 +10,25 @@ namespace RishUI
 
         public readonly Type type;
         public readonly int key;
-        private readonly bool inheritedStyle;
-        private readonly uint style;
+        public readonly uint style;
         public readonly RishTransform transform;
         public readonly ISetup setup;
         public readonly RishElement[] children;
 
-        public RishElement(Type type, int key, uint? style) : this(type, key, style, RishTransform.Default, null, null) { }
-        public RishElement(Type type, int key, uint? style, ISetup setup) : this(type, key, style, RishTransform.Default, setup, null) { }
-        public RishElement(Type type, int key, uint? style, RishTransform transform) : this(type, key, style, transform, null, null) { }
-        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup) : this(type, key, style, transform, setup, null) { }
-        public RishElement(Type type, int key, uint? style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
-        public RishElement(Type type, int key, uint? style, ISetup setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
-        public RishElement(Type type, int key, uint? style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
+        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Default, null, null) { }
+        public RishElement(Type type, int key, uint style, ISetup setup) : this(type, key, style, RishTransform.Default, setup, null) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, style, transform, null, null) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform, ISetup setup) : this(type, key, style, transform, setup, null) { }
+        public RishElement(Type type, int key, uint style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
+        public RishElement(Type type, int key, uint style, ISetup setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
         
-        public RishElement(Type type, int key, uint? style, RishTransform transform, ISetup setup, RishElement[] children)
+        public RishElement(Type type, int key, uint style, RishTransform transform, ISetup setup, RishElement[] children)
         {
             this.type = type;
             this.key = key;
             
-            inheritedStyle = style == null;
-            this.style = style ?? 0;
+            this.style = style;
 
             this.transform = transform;
 
@@ -46,8 +44,8 @@ namespace RishUI
             type = other.type;
             key = other.key;
             
-            inheritedStyle = other.inheritedStyle;
             style = other.style;
+            
             children = other.children;
 
             this.transform = transform;
@@ -59,15 +57,6 @@ namespace RishUI
 
         public bool Valid => type != null;
 
-        public uint? Style
-        {
-            get
-            {
-                if(inheritedStyle) return null;
-                return style;
-            }
-        }
-        
         public bool Equals(RishElement other)
         {
             if (type != other.type)
@@ -76,11 +65,6 @@ namespace RishUI
             }
 
             if (key != other.key)
-            {
-                return false;
-            }
-
-            if (inheritedStyle != other.inheritedStyle)
             {
                 return false;
             }

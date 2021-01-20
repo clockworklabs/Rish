@@ -2,9 +2,9 @@
 using RishUI.Styling;
 using UnityEngine;
 
-namespace RishUI.AssetsManagement
+namespace RishUI.Styling
 {
-    public class RCSS : MonoBehaviour
+    public class RCSS
     {
         private Dictionary<uint, IStyleSheet> StyleSheets { get; } = new Dictionary<uint, IStyleSheet>();
 
@@ -20,6 +20,16 @@ namespace RishUI.AssetsManagement
 
         public bool Import(uint style, IStyleSheet styleSheet)
         {
+            if (style == 0)
+            {
+                throw new UnityException("The style 0 is reserved for 'no style'");
+            }
+
+            if (styleSheet == null)
+            {
+                return false;
+            }
+            
             if(StyleSheets.ContainsKey(style)) return false;
             
             StyleSheets[style] = styleSheet;
@@ -33,7 +43,7 @@ namespace RishUI.AssetsManagement
 
             if (!(styleSheet is IOverride<T> tStyleSheet)) return;
             
-            tStyleSheet.Get(ref result);
+            tStyleSheet.Override(ref result);
         }
     }
 }

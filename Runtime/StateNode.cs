@@ -12,6 +12,7 @@ namespace RishUI
         private static int nextID;
 
         private Rish Rish { get; }
+        private Pool Pool { get; }
 
         public int ID { get; }
         public int Key { get; private set; }
@@ -72,7 +73,7 @@ namespace RishUI
             return IsRealTree() ? prev + 1 : prev;
         }
 
-        internal StateNode(Rish rish)
+        internal StateNode(Rish rish, Pool pool)
         {
             ID = nextID++;
             Rish = rish;
@@ -303,7 +304,7 @@ namespace RishUI
             
             Component.Unmount();
 
-            Rish.Pool.ReturnToPool(Component);
+            Pool.ReturnToPool(Component);
 
             NotifyUnmount();
         }

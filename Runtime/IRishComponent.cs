@@ -1,5 +1,5 @@
 ﻿using System;
-using RishUI.AssetsManagement;
+using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -38,7 +38,7 @@ namespace RishUI
 
         void ForceRender();
 
-        void Constructor(RCSS rcss);
+        void Constructor(RCSS rcss, AssetsManager assets);
         
         void Mount(uint style, IRishComponent parent);
         void WillDestroy();
