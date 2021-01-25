@@ -69,10 +69,13 @@ namespace RishUI.Components
                 children[i] = child;
             }
             
-            return Rish.Create<Div>(new RishTransform(RishTransform.Default)
+            return Rish.Create<Div, DivProps>(new RishTransform(RishTransform.Default)
             {
                 right = Size.x - width
-            }, children);
+            }, new DivProps
+            {
+                children = children
+            });
         }
     }
 

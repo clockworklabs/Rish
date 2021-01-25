@@ -10,43 +10,41 @@ namespace RishUI
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         public event OnReadyToUnmount OnReadyToUnmount;
-        
-        public abstract bool IsLeaf { get; }
 
         public bool CustomUnmount => false;
         public bool ReadyToUnmount => true;
 
         private IRishComponent Parent { get; set; }
         
-        private RishTransform parentWorld;
+        private RishTransform _parentWorld;
         private RishTransform ParentWorld
         {
-            get => parentWorld;
+            get => _parentWorld;
             set
             {
-                if (value.Equals(parentWorld))
+                if (value.Equals(_parentWorld))
                 {
                     return;
                 }
 
-                parentWorld = value;
+                _parentWorld = value;
 
                 UpdateWorldTransform();
             }
         }
 
-        private RishTransform local;
+        private RishTransform _local;
         public RishTransform Local
         {
-            get => local;
+            get => _local;
             private set
             {
-                if (local.Equals(value))
+                if (_local.Equals(value))
                 {
                     return;
                 }
                 
-                local = value;
+                _local = value;
 
                 UpdateWorldTransform();
             }
@@ -54,20 +52,20 @@ namespace RishUI
         
         public RishTransform World => RishTransform.Default;
 
-        private Vector2 size;
+        private Vector2 _size;
         public Vector2 Size
         {
-            get => size;
+            get => _size;
             private set
             {
-                if (size.Equals(value))
+                if (_size.Equals(value))
                 {
                     return;
                 }
                 
-                size = value;
+                _size = value;
                 
-                OnSize?.Invoke(size);
+                OnSize?.Invoke(_size);
                 
                 if (RenderOnResize)
                 {
@@ -75,13 +73,6 @@ namespace RishUI
                 }
             }
         }
-        
-        private RCSS RCSS { get; set; }
-        protected AssetsManager Assets { get; private set; }
-        
-        protected uint Style { get; private set; }
-        
-        protected bool JustMounted { get; private set; }
 
         protected virtual bool RenderOnResize => false;
         public virtual bool RenderOnChildrenChange => false;
@@ -91,20 +82,10 @@ namespace RishUI
 
         private RectTransform RectTransform => (RectTransform) transform;
 
-        public void ForceRender() => OnDirty?.Invoke();
+        protected void ForceRender() => OnDirty?.Invoke();
 
-        public void Constructor(RCSS rcss, AssetsManager assets)
+        internal virtual void Mount(IRishComponent parent)
         {
-            RCSS = rcss;
-            Assets = assets;
-        }
-
-        public virtual void Mount(uint style, IRishComponent parent)
-        {
-            Style = style;
-            
-            Initialize();
-            
             Parent = parent;
             if (Parent != null)
             {
@@ -115,14 +96,10 @@ namespace RishUI
             
             UpdateWorldTransform();
 
-            JustMounted = true;
-
             ForceRender();
             
             gameObject.SetActive(true);
         }
-
-        protected virtual void Initialize() { }
 
         public void WillDestroy() { }
 
@@ -143,13 +120,7 @@ namespace RishUI
             setup?.Setup(this);
         }
         
-        internal void  SetupAndRender()
-        {
-            Render();
-            JustMounted = false;
-        }
-        
-        protected abstract void Render();
+        public abstract void Render();
 
         private void SetParentWorld(RishTransform parentWorld)
         {
@@ -211,8 +182,6 @@ namespace RishUI
             {
                 Parent.StyleData(out result);
             }
-            
-            RCSS.Override(Style, ref result);
         }
         
         public void OnPointerEnter(PointerEventData eventData)
@@ -262,30 +231,25 @@ namespace RishUI
         }
     }
 
-    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct, IRishData<P>
+    public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct
     {
-        private P props;
+        private P _props;
         public P Props
         {
-            get => props;
+            get => _props;
             set
             {
-                var changed = !value.Equals(props);
-                props = value;
+                _props = value;
                 
-                if (changed)
-                {
-                    ForceRender();
-                }
+                ForceRender();
             }
         }
 
-        protected override void Initialize()
+        internal override void Mount(IRishComponent parent)
         {
-            StyleData<P>(out var defaultProps);
-            Props = defaultProps;
+            Props = default;
             
-            base.Initialize();
+            base.Mount(parent);
         }
     }
 }

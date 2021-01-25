@@ -36,11 +36,8 @@ namespace RishUI
         
         Vector2 Size { get; }
 
-        void ForceRender();
+        //void ForceRender();
 
-        void Constructor(RCSS rcss, AssetsManager assets);
-        
-        void Mount(uint style, IRishComponent parent);
         void WillDestroy();
         void Unmount();
 
@@ -49,7 +46,7 @@ namespace RishUI
         void StyleData<T>(out T result) where T : struct, IRishData<T>;
     }
 
-    public interface IRishComponent<P> : IRishComponent where P : struct, IRishData<P>
+    public interface IRishComponent<P> : IRishComponent where P : struct
     {
         P Props { get; set; }
     }

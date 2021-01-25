@@ -43,7 +43,7 @@ namespace RishUI
         }
     }
     
-    internal class BasicSetup<P> : ISetup where P : struct, IRishData<P>
+    internal class BasicSetup<P> : ISetup where P : struct
     {
         public P Props { get; set; }
         public Action<IRishComponent> ExtraSetup { get; set; }

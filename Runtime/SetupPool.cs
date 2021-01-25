@@ -22,7 +22,7 @@ namespace RishUI
             return setup;
         }
 
-        internal static BasicSetup<P> GetBasic<P>(P props) where P : struct, IRishData<P>
+        internal static BasicSetup<P> GetBasic<P>(P props) where P : struct
         {
             var type = typeof(BasicSetup<P>);
             if(!SetupPools.TryGetValue(type, out var pool))
