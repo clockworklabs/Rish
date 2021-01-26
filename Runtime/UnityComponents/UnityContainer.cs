@@ -85,9 +85,7 @@ namespace RishUI.UnityComponents
     }
     
     public struct MaskDef {
-        public enum Type {
-            Graphic, Rect, Both
-        }
+        public enum Type { Graphic, Rect, Both }
 
         public bool enabled;
         public Type type;
