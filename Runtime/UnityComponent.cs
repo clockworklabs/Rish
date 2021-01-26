@@ -14,7 +14,7 @@ namespace RishUI
         public bool CustomUnmount => false;
         public bool ReadyToUnmount => true;
 
-        private IRishComponent Parent { get; set; }
+        internal IRishComponent Parent { get; private set; }
         
         private RishTransform _parentWorld;
         private RishTransform ParentWorld
@@ -170,20 +170,7 @@ namespace RishUI
             RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
             RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
-        
-        public void StyleData<T>(out T result) where T : struct, IRishData<T>
-        {
-            if (Parent == null)
-            {
-                result = default;
-                result.Default();
-            }
-            else
-            {
-                Parent.StyleData(out result);
-            }
-        }
-        
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (Parent is RishComponent rishParent)

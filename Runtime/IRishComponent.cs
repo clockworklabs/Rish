@@ -1,5 +1,4 @@
 ﻿using System;
-using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -36,14 +35,10 @@ namespace RishUI
         
         Vector2 Size { get; }
 
-        //void ForceRender();
-
         void WillDestroy();
         void Unmount();
 
         void UpdateComponent(RishTransform local, ISetup setup);
-
-        void StyleData<T>(out T result) where T : struct, IRishData<T>;
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct

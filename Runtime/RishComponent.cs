@@ -231,19 +231,29 @@ namespace RishUI
 
         protected abstract RishElement Render();
         
-        public void StyleData<T>(out T result) where T : struct, IRishData<T>
+        protected void StyleData<T>(out T result) where T : struct, IRishData<T>
         {
-            if (Parent == null)
+            var parent = Parent;
+            while (parent is UnityComponent unityParent)
             {
-                result = default;
-                result.Default();
+                parent = unityParent.Parent;
+            }
+            
+            if(parent is RishComponent rishParent)
+            {
+                rishParent.StyleData(out result);
             }
             else
             {
-                Parent.StyleData(out result);
+                result = default;
+                result.Default();
+                RCSS.Override(0, ref result);
             }
-            
-            RCSS.Override(Style, ref result);
+
+            if (Style > 0)
+            {
+                RCSS.Override(Style, ref result);
+            }
         }
         
         public void OnPointerEnter(PointerEventData eventData)

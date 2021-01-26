@@ -15,11 +15,6 @@ namespace RishUI.Styling
                 return false;
             }
             
-            if (style == 0)
-            {
-                throw new UnityException("The style 0 is reserved for 'no style'");
-            }
-            
             if(StyleSheets.ContainsKey(style)) return false;
             
             StyleSheets[style] = styleSheet;
