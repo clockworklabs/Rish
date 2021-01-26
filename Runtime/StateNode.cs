@@ -127,7 +127,13 @@ namespace RishUI
             }
 
             Component.OnDirty += NotifyDirty;
-            Component.Mount(style, Parent?.Component);
+            if (Component is RishComponent rishComponent)
+            {
+                rishComponent.Mount(style, Parent?.Component);
+            } else if (Component is UnityComponent unityComponent)
+            {
+                unityComponent.Mount(Parent?.Component);
+            }
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);

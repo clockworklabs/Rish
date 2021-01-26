@@ -19,7 +19,7 @@ namespace RishUI
         private Transform Transform { get; }
         private int VirtualInitialSize { get; }
 
-        public Pool(RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
+        internal Pool(RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
         {
             if (provider == null)
             {
@@ -179,7 +179,6 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Object.Instantiate(prototype, Transform, false);
-                instance.Constructor(RCSS, Assets);
                 pool.Push(instance);
             }
         }

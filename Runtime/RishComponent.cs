@@ -14,15 +14,15 @@ namespace RishUI
 
         public bool CustomUnmount { get; protected set; } = false;
 
-        private bool readyToUnmount;
+        private bool _readyToUnmount;
         public bool ReadyToUnmount
         {
-            get => readyToUnmount;
+            get => _readyToUnmount;
             protected set
             {
-                if (readyToUnmount == value) return;
+                if (_readyToUnmount == value) return;
 
-                readyToUnmount = value;
+                _readyToUnmount = value;
                 if (value)
                 {
                     OnReadyToUnmount?.Invoke();
@@ -32,87 +32,87 @@ namespace RishUI
 
         private IRishComponent Parent { get; set; }
         
-        private RishTransform parentWorld;
+        private RishTransform _parentWorld;
         private RishTransform ParentWorld
         {
-            get => parentWorld;
+            get => _parentWorld;
             set
             {
-                if (value.Equals(parentWorld))
+                if (value.Equals(_parentWorld))
                 {
                     return;
                 }
 
-                parentWorld = value;
+                _parentWorld = value;
                 
-                World = parentWorld * Local;
+                World = _parentWorld * Local;
             }
         }
         
-        private RishTransform local;
+        private RishTransform _local;
         public RishTransform Local
         {
-            get => local;
+            get => _local;
             protected set
             {
-                if (value.Equals(local))
+                if (value.Equals(_local))
                 {
                     return;
                 }
 
-                local = value;
+                _local = value;
                 
-                World = ParentWorld * local;
-                Size = local.GetSize(ParentSize);
+                World = ParentWorld * _local;
+                Size = _local.GetSize(ParentSize);
             }
         }
 
-        private RishTransform world;
+        private RishTransform _world;
         public RishTransform World
         {
-            get => world;
+            get => _world;
             private set
             {
-                if (value.Equals(world))
+                if (value.Equals(_world))
                 {
                     return;
                 }
                 
-                world = value;
+                _world = value;
                 
                 OnWorld?.Invoke(World);
             }
         }
         
-        private Vector2 parentSize;
+        private Vector2 _parentSize;
         protected Vector2 ParentSize
         {
-            get => parentSize;
+            get => _parentSize;
             private set
             {
-                if (value.Equals(parentSize))
+                if (value.Equals(_parentSize))
                 {
                     return;
                 }
 
-                parentSize = value;
+                _parentSize = value;
 
-                Size = Local.GetSize(parentSize);
+                Size = Local.GetSize(_parentSize);
             }
         }
         
-        private Vector2 size;
+        private Vector2 _size;
         public Vector2 Size
         {
-            get => size;
+            get => _size;
             private set
             {
-                if (value.Equals(size))
+                if (value.Equals(_size))
                 {
                     return;
                 }
                 
-                size = value;
+                _size = value;
 
                 OnSize?.Invoke(Size);
                 
@@ -470,13 +470,13 @@ namespace RishUI
     {
         private bool Dirty { get; set; }
 
-        private P props;
+        private P _props;
         public P Props
         {
-            get => props;
+            get => _props;
             set
             {
-                var changed = !value.Equals(props);
+                var changed = !value.Equals(_props);
 
                 if (changed)
                 {
@@ -485,7 +485,7 @@ namespace RishUI
                     ForceRender();
                 }
                 
-                props = value;
+                _props = value;
             }
         }
         
@@ -557,10 +557,10 @@ namespace RishUI
     
     public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IRishData<P> where S : struct, IRishData<S>
     {
-        private S state;
+        private S _state;
         protected S State
         {
-            get => state;
+            get => _state;
             set
             {
                 var changed = !value.Equals(null);
@@ -570,7 +570,7 @@ namespace RishUI
                     ForceRender();
                 }
                 
-                state = value;
+                _state = value;
             }
         }
         
