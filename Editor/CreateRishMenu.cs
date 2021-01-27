@@ -7,9 +7,6 @@ namespace RishUI.Editor
 {
     public static class CreateRishMenu
     {
-        // Add a menu item to create custom GameObjects.
-        // Priority 1 ensures it is grouped with the other menu items of the same kind
-        // and propagated to the hierarchy dropdown and hierarchy context menus.
         [MenuItem("GameObject/Rish", false, 10)]
         private static void CreateRishTree(MenuCommand menuCommand)
         {
@@ -21,7 +18,7 @@ namespace RishUI.Editor
             GameObjectUtility.SetParentAndAlign(rishGO, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(rishGO, null);
 
-            var rootGO = new GameObject("Root", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var rootGO = new GameObject("Root", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(DimensionsTracker));
             rootGO.transform.SetParent(rishGO.transform, false);
             Undo.RegisterCreatedObjectUndo(rootGO, null);
 

@@ -12,6 +12,7 @@ namespace RishUI
         private Dictionary<Type, Stack<RishComponent>> VirtualPools { get; } = new Dictionary<Type, Stack<RishComponent>>();
         private Dictionary<Type, Stack<UnityComponent>> RealPools { get; } = new Dictionary<Type, Stack<UnityComponent>>();
         
+        private DimensionsTracker DimensionsTracker { get; }
         private RCSS RCSS { get; }
         private AssetsManager Assets { get; }
         
@@ -19,13 +20,14 @@ namespace RishUI
         private Transform Transform { get; }
         private int VirtualInitialSize { get; }
 
-        internal Pool(RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
+        internal Pool(DimensionsTracker dimensionsTracker, RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
         {
             if (provider == null)
             {
                 throw new UnityException("The pool needs a valid PrototypesProvider");
             }
-            
+
+            DimensionsTracker = dimensionsTracker;
             RCSS = rcss ?? throw new UnityException("The pool needs a valid RCSS");
             Assets = assets ?? throw new UnityException("The pool needs a valid AssetsManager");
             
@@ -188,7 +190,7 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = activator();
-                instance.Constructor(RCSS, Assets);
+                instance.Constructor(DimensionsTracker, RCSS, Assets);
                 pool.Push(instance);
             }
         }

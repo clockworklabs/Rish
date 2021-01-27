@@ -123,8 +123,12 @@ namespace RishUI
             }
         }
         
+        private DimensionsTracker DimensionsTracker { get; set; }
+        
         private RCSS RCSS { get; set; }
         protected AssetsManager Assets { get; private set; }
+        
+        private Vector2 InputRatio { get; set; }
 
         private uint Style { get; set; }
 
@@ -140,11 +144,12 @@ namespace RishUI
         private bool Drag { get; set; }
         private Vector2 DragPoint { get; set; }
         private Vector2 DragStartPoint { get; set; }
-        
-        public void ForceRender() => OnDirty?.Invoke();
 
-        public void Constructor(RCSS rcss, AssetsManager assets)
+        protected void ForceRender() => OnDirty?.Invoke();
+
+        public void Constructor(DimensionsTracker dimensionsTracker, RCSS rcss, AssetsManager assets)
         {
+            DimensionsTracker = dimensionsTracker;
             RCSS = rcss;
             Assets = assets;
         }
@@ -164,6 +169,9 @@ namespace RishUI
             
             ParentWorld = Parent?.World ?? RishTransform.Default;
             ParentSize = Parent?.Size ?? Vector2.zero;
+
+            DimensionsTracker.OnNewInputRatio += SetInputRatio;
+            SetInputRatio(DimensionsTracker.InputRatio);
 
             JustMounted = true;
             
@@ -207,10 +215,14 @@ namespace RishUI
                 Parent.OnWorld -= SetParentWorld;
             }
             Parent = null;
+            
+            DimensionsTracker.OnNewInputRatio -= SetInputRatio;
         }
 
         private void SetParentWorld(RishTransform parentWorld) => ParentWorld = parentWorld;
         private void SetParentSize(Vector2 parentSize) => ParentSize = parentSize;
+
+        private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
         public void UpdateComponent(RishTransform local, ISetup setup)
         {
@@ -269,7 +281,7 @@ namespace RishUI
             {
                 var info = new HoverInfo
                 {
-                    position = eventData.position
+                    position = eventData.position * InputRatio
                 };
                 listener.OnHoverStart(info);
             }
@@ -293,7 +305,7 @@ namespace RishUI
             {
                 var info = new HoverInfo
                 {
-                    position = eventData.position
+                    position = eventData.position * InputRatio
                 };
                 listener.OnHoverEnd(info);
             }
@@ -319,7 +331,7 @@ namespace RishUI
                 {
                     var info = new TapInfo
                     {
-                        position = eventData.position
+                        position = eventData.position * InputRatio
                     };
                     if (listener.OnTapStart(info))
                     {
@@ -344,7 +356,7 @@ namespace RishUI
             {
                 var info = new TapInfo
                 {
-                    position = eventData.position
+                    position = eventData.position * InputRatio
                 };
                 if (Hover)
                 {
@@ -394,7 +406,7 @@ namespace RishUI
                 return;
             }
             
-            DragPoint = eventData.position;
+            DragPoint = eventData.position * InputRatio;
             DragStartPoint = DragPoint;
             
             if (this is IDragStartListener listener)
@@ -422,7 +434,7 @@ namespace RishUI
                 return;
             }
             
-            var point = eventData.position;
+            var point = eventData.position * InputRatio;
             
             if (this is IDragListener listener)
             {
@@ -454,7 +466,7 @@ namespace RishUI
                 return;
             }
             
-            var point = eventData.position;
+            var point = eventData.position * InputRatio;
             
             if (this is IDragEndListener listener)
             {

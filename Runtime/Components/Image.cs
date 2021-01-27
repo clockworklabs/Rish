@@ -1,8 +1,7 @@
-﻿using RishUI;
-using RishUI.UnityComponents;
+﻿using RishUI.UnityComponents;
 using UnityEngine;
 
-namespace Samples
+namespace RishUI.Components
 {
     public class Image : RishComponent<ImageProps, ImageState>, IDerivedState
     {

@@ -77,6 +77,7 @@ namespace RishUI
         {
             ID = nextID++;
             Rish = rish;
+            Pool = pool;
         }
 
         internal void Reset()

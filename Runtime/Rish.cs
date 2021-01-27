@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Priority_Queue;
 using RishUI.Styling;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RishUI
 {
@@ -31,8 +32,6 @@ namespace RishUI
         private RectTransform _rootTransform;
         public RectTransform RootTransform => _rootTransform;
 
-        private RCSS RCSS { get; set; }
-        private AssetsManager Assets { get; set; }
         private Pool Pool { get; set; }
 
         private int CurrentDepth { get; set; } = -1;
@@ -43,7 +42,7 @@ namespace RishUI
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
         
         public StateNode Root { get; private set; }
-        
+
         private void Start()
         {
             var app = GetComponent<AppComponent>();
@@ -53,11 +52,18 @@ namespace RishUI
                 throw new UnityException("No app found");
             }
             
-            RCSS = new RCSS();
-            Assets = new AssetsManager(app);
-            Pool = new Pool(RCSS, Assets, PrototypesProvider, transform, VirtualInitialSize);
+            var dimensionsTracker = RootTransform.GetComponent<DimensionsTracker>();
+            if (dimensionsTracker == null)
+            {
+                dimensionsTracker = RootTransform.gameObject.AddComponent<DimensionsTracker>();
+                dimensionsTracker.ForceUpdate();
+            }
+            
+            var rcss = new RCSS();
+            var assets = new AssetsManager(app);
+            Pool = new Pool(dimensionsTracker, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
 
-            Root = AddChild(null, app.Run(RCSS));
+            Root = AddChild(null, app.Run(rcss));
 
             OnNodeDirty(Root);
         }
