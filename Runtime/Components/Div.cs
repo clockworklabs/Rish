@@ -13,22 +13,24 @@ namespace RishUI.Components
         
         protected override RishElement Render()
         {
-            var empty = Props.Equals(new DivProps());
+            var sprite = State.sprite != null;
+            var image = sprite || Props.raycastTarget;
+            
+            var empty = !image && !Props.maskContent;
             if (empty)
             {
                 return Rish.CreateUnity<UnityEmptyContainer>(Props.children);
             }
             
-            var sprite = State.sprite != null;
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
                 image = new ImageDef
                 {
-                    enabled = true,
+                    enabled = image,
                     color = sprite ? Color.white : Color.clear,
                     sprite = State.sprite,
-                    maskable = true,
-                    raycastTarget = true,
+                    maskable = Props.maskable,
+                    raycastTarget = Props.raycastTarget,
                     type = sprite && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple
                 },
                 mask = new MaskDef
@@ -65,23 +67,31 @@ namespace RishUI.Components
     public struct DivProps : IRishData<DivProps>
     {
         public string backgroundSpriteAddress;
+        public bool maskable;
         public bool raycastTarget;
+        
         public bool maskContent;
         public Vector2Int maskSoftness;
 
         public bool stopInputPropagation;
         
         public RishElement[] children;
-        
-        public void Default() { }
+
+        public void Default()
+        {
+            maskable = true;
+        }
 
         public bool Equals(DivProps other)
         {
+            if (maskable != other.maskable)
+            {
+                return false;
+            }
             if (raycastTarget != other.raycastTarget)
             {
                 return false;
             }
-
             if (maskContent != other.maskContent)
             {
                 return false;
