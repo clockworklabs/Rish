@@ -47,19 +47,19 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTap(TapInfo info) => Props.consumeInput;
+        public bool OnTap(TapInfo info) => Props.stopInputPropagation;
 
-        public bool OnTapStart(TapInfo info) => Props.consumeInput;
+        public bool OnTapStart(TapInfo info) => Props.stopInputPropagation;
 
-        public bool OnTapCancel(TapInfo info) => Props.consumeInput;
+        public bool OnTapCancel(TapInfo info) => Props.stopInputPropagation;
 
-        public bool OnDrag(DragInfo info) => Props.consumeInput;
+        public bool OnDrag(DragInfo info) => Props.stopInputPropagation;
 
-        public bool OnDragStart(DragInfo info) => Props.consumeInput;
+        public bool OnDragStart(DragInfo info) => Props.stopInputPropagation;
 
-        public bool OnDragEnd(DragInfo info) => Props.consumeInput;
+        public bool OnDragEnd(DragInfo info) => Props.stopInputPropagation;
 
-        public bool OnScroll(ScrollInfo info) => Props.consumeInput;
+        public bool OnScroll(ScrollInfo info) => Props.stopInputPropagation;
     }
 
     public struct DivProps : IRishData<DivProps>
@@ -69,7 +69,7 @@ namespace RishUI.Components
         public bool maskContent;
         public Vector2Int maskSoftness;
 
-        public bool consumeInput;
+        public bool stopInputPropagation;
         
         public RishElement[] children;
         
