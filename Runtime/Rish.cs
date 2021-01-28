@@ -139,16 +139,16 @@ namespace RishUI
         
         // === KEY, STYLE ===
         
-        public static RishElement Create<T>() where T : IRishComponent
+        public static RishElement Create<T>() where T : RishComponent
         {
             return new RishElement(typeof(T), 0, 0);
         }
-        public static RishElement Create<T>(int key) where T : IRishComponent
+        public static RishElement Create<T>(int key) where T : RishComponent
         {
             return new RishElement(typeof(T), key, 0);
         }
-        public static RishElement Create<T>(uint style) where T : IRishComponent => Create<T>(0, style);
-        public static RishElement Create<T>(int key, uint style) where T : IRishComponent
+        public static RishElement Create<T>(uint style) where T : RishComponent => Create<T>(0, style);
+        public static RishElement Create<T>(int key, uint style) where T : RishComponent
         {
             return new RishElement(typeof(T), key, style);
         }
