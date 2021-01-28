@@ -1,9 +1,10 @@
-﻿using RishUI.UnityComponents;
+﻿using RishUI.Input;
+using RishUI.UnityComponents;
 using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Div : RishComponent<DivProps, DivState>, IDerivedState
+    public class Div : RishComponent<DivProps, DivState>, IDerivedState, ITapListener, ITapStartListener, ITapCancelListener, IDragListener, IDragStartListener, IDragEndListener, IScrollListener
     {
         public void UpdateStateFromProps()
         {
@@ -45,6 +46,20 @@ namespace RishUI.Components
             state.sprite = sprite;
             State = state;
         }
+
+        public bool OnTap(TapInfo info) => Props.consumeInput;
+
+        public bool OnTapStart(TapInfo info) => Props.consumeInput;
+
+        public bool OnTapCancel(TapInfo info) => Props.consumeInput;
+
+        public bool OnDrag(DragInfo info) => Props.consumeInput;
+
+        public bool OnDragStart(DragInfo info) => Props.consumeInput;
+
+        public bool OnDragEnd(DragInfo info) => Props.consumeInput;
+
+        public bool OnScroll(ScrollInfo info) => Props.consumeInput;
     }
 
     public struct DivProps : IRishData<DivProps>
@@ -53,6 +68,8 @@ namespace RishUI.Components
         public bool raycastTarget;
         public bool maskContent;
         public Vector2Int maskSoftness;
+
+        public bool consumeInput;
         
         public RishElement[] children;
         

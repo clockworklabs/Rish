@@ -377,28 +377,6 @@ namespace RishUI
             }
         }
 
-        public void OnScroll(PointerEventData eventData)
-        {
-            if (ReadyToUnmount)
-            {
-                return;
-            }
-            
-            if (this is IScrollListener listener)
-            {
-                var info = new ScrollInfo
-                {
-                    delta = eventData.scrollDelta
-                };
-                if (listener.OnScroll(info))
-                {
-                    return;
-                }
-            }
-            
-            Parent?.OnScroll(eventData);
-        }
-
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (ReadyToUnmount)
@@ -485,6 +463,28 @@ namespace RishUI
             }
             
             Parent?.OnEndDrag(eventData);
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            if (ReadyToUnmount)
+            {
+                return;
+            }
+            
+            if (this is IScrollListener listener)
+            {
+                var info = new ScrollInfo
+                {
+                    delta = eventData.scrollDelta
+                };
+                if (listener.OnScroll(info))
+                {
+                    return;
+                }
+            }
+            
+            Parent?.OnScroll(eventData);
         }
     }
 
