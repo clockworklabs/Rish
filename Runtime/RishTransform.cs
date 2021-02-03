@@ -65,9 +65,9 @@ namespace RishUI
                 max = a.min - b.max * (a.min - a.max),
                 margins = new Margins {
                     top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
-                    right = a.left + b.left - b.min.x * (a.left + a.right),
+                    right = a.right + b.right - (1 - b.max.x) * (a.left + a.right),
                     bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
-                    left = a.right + b.right - (1 - b.max.x) * (a.left + a.right)
+                    left = a.left + b.left - b.min.x * (a.left + a.right)
                 },
                 scale = a.scale * b.scale,
                 rotation = a.rotation + b.rotation
@@ -111,7 +111,7 @@ namespace RishUI
 
         public override string ToString()
         {
-            return $"{min} - {max} - {margins.top} - {margins.left} - {margins.bottom} - {margins.right} - {scale}";
+            return $"{min} - {max} - {top} - {left} - {bottom} - {right} - {scale}";
         }
 
         public bool Equals(RishTransform other)

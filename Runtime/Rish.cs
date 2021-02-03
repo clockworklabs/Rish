@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Priority_Queue;
+using RishUI.Components;
 using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.UI;
@@ -63,7 +64,13 @@ namespace RishUI
             var assets = new AssetsManager(app);
             Pool = new Pool(dimensionsTracker, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
 
-            Root = AddChild(null, app.Run(rcss));
+            Root = AddChild(null, Create<Div, DivProps>(new DivProps
+            {
+               children = new []
+               {
+                   app.Run(rcss)
+               }
+            }));
 
             OnNodeDirty(Root);
         }

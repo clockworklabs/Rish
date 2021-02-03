@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace RishUI
 {
@@ -75,6 +74,11 @@ namespace RishUI
 
         public bool Equals(RishElement other)
         {
+            if (!Valid && !other.Valid)
+            {
+                return true;
+            }
+            
             if (type != other.type)
             {
                 return false;

@@ -2,6 +2,7 @@
 
 namespace RishUI.Components
 {
+    /*
     public class Grid : RishComponent<GridProps>
     {
         protected override bool RenderOnResize => true;
@@ -253,7 +254,7 @@ namespace RishUI.Components
                 rows = Mathf.CeilToInt(count / (float) columns);
             }
 
-            var rowElements = new RishElement[rows];
+            var rowElements = new LayoutElement[rows];
             for (var i = 0; i < rows; i++)
             {
                 var elements = new RishElement[columns];
@@ -273,16 +274,16 @@ namespace RishUI.Components
                 });
             }
             
-            return Rish.Create<Vertical, VerticalProps>(new VerticalProps
+            return Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
             {
                 spacing = Props.spacing.y,
                 elementSize = elementHeight,
-                topPadding = Props.topPadding,
-                leftPadding = Props.leftPadding,
-                bottomPadding = Props.bottomPadding,
-                rightPadding = Props.rightPadding,
-                overflow = true,
-                center = Props.centerVertical,
+                PaddingTop = Props.topPadding,
+                PaddingLeft = Props.leftPadding,
+                PaddingBottom = Props.bottomPadding,
+                PaddingRight = Props.rightPadding,
+                //overflow = true,
+                //center = Props.centerVertical,
                 children = rowElements
             });
         }
@@ -361,4 +362,5 @@ namespace RishUI.Components
     }
     
     public enum GridOverflow { None, Horizontal, Vertical }
+    */
 }
