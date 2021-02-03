@@ -21,7 +21,8 @@ namespace RishUI.Components
                     color = Props.color,
                     maskable = Props.maskable,
                     raycastTarget = Props.raycastTarget,
-                    type = State.sprite != null && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple
+                    type = State.sprite != null && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple,
+                    preserveAspectRatio = Props.preserveAspectRatio
                 }
             });
         }
@@ -40,6 +41,7 @@ namespace RishUI.Components
         public Color color;
         public bool maskable;
         public bool raycastTarget;
+        public bool preserveAspectRatio;
         
         public void Default()
         {
@@ -56,6 +58,11 @@ namespace RishUI.Components
             }
 
             if (maskable != other.maskable)
+            {
+                return false;
+            }
+
+            if (preserveAspectRatio != other.preserveAspectRatio)
             {
                 return false;
             }

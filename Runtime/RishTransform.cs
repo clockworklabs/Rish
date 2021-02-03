@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI;
 using UnityEngine;
 
 namespace RishUI
@@ -9,31 +10,49 @@ namespace RishUI
         public static RishTransform Zero = default;
         public static RishTransform Default = new RishTransform
         {
-            max = Vector2.one,
+            max = Anchor.TopRight,
             scale = Vector2.one
         };
         public static RishTransform Null = new RishTransform
         {
-            top = float.NaN
+            margins = new Margins
+            {
+                top = float.NaN
+            }
         };
         
         public Vector2 min;
         public Vector2 max;
-        public float top;
-        public float left;
-        public float bottom;
-        public float right;
+        public Margins margins;
         public Vector2 scale;
         public float rotation;
+
+        public float top
+        {
+            get => margins.top;
+            set => margins.top = value;
+        }
+        public float right
+        {
+            get => margins.right;
+            set => margins.right = value;
+        }
+        public float bottom
+        {
+            get => margins.bottom;
+            set => margins.bottom = value;
+        }
+        public float left
+        {
+            get => margins.left;
+            set => margins.left = value;
+        }
 
         public RishTransform(RishTransform other)
         {
             min = other.min;
             max = other.max;
-            top = other.top;
-            left = other.left;
-            bottom = other.bottom;
-            right = other.right;
+            margins = other.margins;
             scale = other.scale;
             rotation = other.rotation;
         }
@@ -44,10 +63,12 @@ namespace RishUI
             {
                 min = a.min + b.min * (a.max - a.min),
                 max = a.min - b.max * (a.min - a.max),
-                top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
-                left = a.left + b.left - b.min.x * (a.left + a.right),
-                bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
-                right = a.right + b.right - (1 - b.max.x) * (a.left + a.right),
+                margins = new Margins {
+                    top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
+                    right = a.left + b.left - b.min.x * (a.left + a.right),
+                    bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
+                    left = a.right + b.right - (1 - b.max.x) * (a.left + a.right)
+                },
                 scale = a.scale * b.scale,
                 rotation = a.rotation + b.rotation
             };
@@ -60,19 +81,7 @@ namespace RishUI
 
         public bool IsValid()
         {
-            if (float.IsNaN(top) || float.IsInfinity(top))
-            {
-                return false;
-            }
-            if (float.IsNaN(left) || float.IsInfinity(left))
-            {
-                return false;
-            }
-            if (float.IsNaN(bottom) || float.IsInfinity(bottom))
-            {
-                return false;
-            }
-            if (float.IsNaN(right) || float.IsInfinity(right))
+            if (!margins.IsValid())
             {
                 return false;
             }
@@ -102,7 +111,7 @@ namespace RishUI
 
         public override string ToString()
         {
-            return $"{min} - {max} - {top} - {left} - {bottom} - {right} - {scale}";
+            return $"{min} - {max} - {margins.top} - {margins.left} - {margins.bottom} - {margins.right} - {scale}";
         }
 
         public bool Equals(RishTransform other)
@@ -136,19 +145,8 @@ namespace RishUI
             {
                 return false;
             }
-            if(!Mathf.Approximately(top, other.top))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(left, other.left))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(bottom, other.bottom))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(right, other.right))
+
+            if (!margins.Equals(other.margins))
             {
                 return false;
             }

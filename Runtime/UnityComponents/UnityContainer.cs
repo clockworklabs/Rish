@@ -44,6 +44,7 @@ namespace RishUI.UnityComponents
                         throw new UnityException("Image type not supported");
                 }
                 Image.type = type;
+                Image.preserveAspect = image.preserveAspectRatio;
             }
             else
             {
@@ -77,6 +78,7 @@ namespace RishUI.UnityComponents
         public bool raycastTarget;
         public bool maskable;
         public Type type;
+        public bool preserveAspectRatio;
         /*
         public UnityImage.FillMethod fillMethod;
         public int fillOrigin;

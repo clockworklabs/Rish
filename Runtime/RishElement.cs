@@ -1,5 +1,5 @@
 ﻿using System;
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace RishUI
 {
@@ -15,20 +15,36 @@ namespace RishUI
         public readonly ISetup setup;
         public readonly RishElement[] children;
 
-        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Default, null, null) { }
-        public RishElement(Type type, int key, uint style, ISetup setup) : this(type, key, style, RishTransform.Default, setup, null) { }
-        public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, style, transform, null, null) { }
-        public RishElement(Type type, int key, uint style, RishTransform transform, ISetup setup) : this(type, key, style, transform, setup, null) { }
-        public RishElement(Type type, int key, uint style, RishElement[] children) : this(type, key, style, RishTransform.Default, null, children) { }
-        public RishElement(Type type, int key, uint style, ISetup setup, RishElement[] children) : this(type, key, style, RishTransform.Default, setup, children) { }
-        public RishElement(Type type, int key, uint style, RishTransform transform, RishElement[] children) : this(type, key, style, transform, null, children) { }
-        
-        public RishElement(Type type, int key, uint style, RishTransform transform, ISetup setup, RishElement[] children)
+        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Default, null) { }
+        public RishElement(Type type, int key, uint style, ISetup setup) : this(type, key, style, RishTransform.Default, setup) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, style, transform, null) { }
+
+        public RishElement(Type type, int key, uint style, RishTransform transform, ISetup setup)
         {
             this.type = type;
             this.key = key;
             
             this.style = style;
+
+            this.transform = transform;
+
+            this.setup = setup;
+            children = null;
+        }
+
+        public RishElement(Type type) : this(type, RishTransform.Default, null, null) { }
+        public RishElement(Type type, ISetup setup) : this(type, RishTransform.Default, setup, null) { }
+        public RishElement(Type type, RishTransform transform) : this(type, transform, null, null) { }
+        public RishElement(Type type, RishElement[] children) : this(type, RishTransform.Default, null, children) { }
+        public RishElement(Type type, ISetup setup, RishElement[] children) : this(type, RishTransform.Default, setup, children) { }
+        public RishElement(Type type, RishTransform transform, RishElement[] children) : this(type, transform, null, children) { }
+        
+        public RishElement(Type type, RishTransform transform, ISetup setup, RishElement[] children = null)
+        {
+            this.type = type;
+            key = 0;
+            
+            style = 0;
 
             this.transform = transform;
 

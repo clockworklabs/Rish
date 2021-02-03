@@ -217,32 +217,60 @@ namespace RishUI
         // === UNITY COMPONENTS ===
         // ========================
         
+        // === EMPTY ===
+        
+        public static RishElement CreateUnity<T>() where T : UnityComponent
+        {
+            return new RishElement(typeof(T), 0, 0);
+        }
+        
         // === CHILDREN ===
         
-        public static RishElement CreateUnity<T>(params RishElement[] children) where T : UnityComponent
+        public static RishElement CreateUnity<T>(RishElement[] children) where T : UnityComponent
         {
-            return new RishElement(typeof(T), 0, 0, children);
+            return new RishElement(typeof(T), children);
+        }
+        
+        // === PROPS ===
+
+        public static RishElement CreateUnity<T, P>(P props) where P : struct where T : UnityComponent<P>
+        {
+            return new RishElement(typeof(T), SetupPool.GetBasic(props));
         }
         
         // === PROPS, CHILDREN ===
 
-        public static RishElement CreateUnity<T, P>(P props, params RishElement[] children) where P : struct where T : UnityComponent<P>
+        public static RishElement CreateUnity<T, P>(P props, RishElement[] children) where P : struct where T : UnityComponent<P>
         {
-            return new RishElement(typeof(T), 0, 0, SetupPool.GetBasic(props), children);
+            return new RishElement(typeof(T), SetupPool.GetBasic(props), children);
+        }
+        
+        // === TRANSFORM ===
+        
+        public static RishElement CreateUnity<T>(RishTransform transform) where T : UnityComponent
+        {
+            return new RishElement(typeof(T), transform);
         }
         
         // === TRANSFORM, CHILDREN ===
         
-        public static RishElement CreateUnity<T>(RishTransform transform, params RishElement[] children) where T : UnityComponent
+        public static RishElement CreateUnity<T>(RishTransform transform, RishElement[] children) where T : UnityComponent
         {
-            return new RishElement(typeof(T), 0, 0, transform, children);
+            return new RishElement(typeof(T), transform, children);
+        }
+        
+        // === TRANSFORM, PROPS ===
+
+        public static RishElement CreateUnity<T, P>(RishTransform transform, P props) where P : struct where T : UnityComponent<P> 
+        {
+            return new RishElement(typeof(T), transform, SetupPool.GetBasic(props));
         }
         
         // === TRANSFORM, PROPS, CHILDREN ===
 
         public static RishElement CreateUnity<T, P>(RishTransform transform, P props, params RishElement[] children) where P : struct where T : UnityComponent<P> 
         {
-            return new RishElement(typeof(T), 0, 0, transform, SetupPool.GetBasic(props), children);
+            return new RishElement(typeof(T), transform, SetupPool.GetBasic(props), children);
         }
 
         private void Render(StateNode node)
@@ -290,7 +318,7 @@ namespace RishUI
             node.Clean();
         }
 
-        private void Reconcile(StateNode node, RishElement[] children)
+        private void Reconcile(StateNode node, IReadOnlyList<RishElement> children)
         {
             if (!node.Active) return;
             
@@ -298,7 +326,7 @@ namespace RishUI
 
             if (children != null)
             {
-                for (int i = 0, n = children.Length; i < n; i++)
+                for (int i = 0, n = children.Count; i < n; i++)
                 {
                     var child = children[i];
                     if (!child.Valid) continue;

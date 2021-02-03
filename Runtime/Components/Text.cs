@@ -27,6 +27,7 @@ namespace RishUI.Components
                 size = Props.sizing.size,
                 autoSize = Props.sizing.AutoSize,
                 minSize = Props.sizing.minSize,
+                maxSize = Props.sizing.size,
                 characterWidthAdjustment = Props.sizing.characterWidthAdjustment,
                 lineSpacingAdjustment = Props.sizing.lineSpacingAdjustment,
                 characterSpacing = Props.spacing.character,
@@ -246,7 +247,7 @@ namespace RishUI.Components
         
         public void Default()
         {
-            style = FontStyles.Bold;
+            style = FontStyles.Normal;
             color = Color.black;
             sizing = new TextSizing
             {
