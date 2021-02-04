@@ -7,7 +7,7 @@ namespace RishUI
     
     public struct StretchTransform
     {
-        public Stretch stretch;
+        public Stretch anchors;
         public Vector2 size;
         public Vector2 offset;
 
@@ -20,7 +20,7 @@ namespace RishUI
                 {
                     return _pivot;
                 }
-                switch (stretch)
+                switch (anchors)
                 {
                     case Stretch.Top:
                         return Anchor.Top;
@@ -45,10 +45,19 @@ namespace RishUI
             }
         }
 
+        public StretchTransform(Stretch anchors)
+        {
+            this.anchors = anchors;
+            size = new Vector2();
+            offset = new Vector2();
+            _customPivot = false;
+            _pivot = new Vector2();
+        }
+
         public static implicit operator RishTransform(StretchTransform transform)
         {
             Vector2 min, max;
-            switch (transform.stretch)
+            switch (transform.anchors)
             {
                 case Stretch.Top:
                     min = Anchor.TopLeft;

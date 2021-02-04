@@ -2,18 +2,17 @@
 
 namespace RishUI.Components
 {
-    /*
     public class Grid : RishComponent<GridProps>
     {
         protected override bool RenderOnResize => true;
-        
+
         protected override RishElement Render()
         {
             if (Props.children == null)
             {
                 return RishElement.Null;
             }
-            
+
             var count = Props.children.Length;
 
             if (count == 0)
@@ -27,7 +26,7 @@ namespace RishUI.Components
             if (height <= 0 || width <= 0)
             {
                 return RishElement.Null;
-            } 
+            }
 
             var rows = 0;
             var columns = 0;
@@ -55,196 +54,201 @@ namespace RishUI.Components
                     columns = c;
                     elementWidth = w;
                     elementHeight = h;
-                    
-                    //Debug.Log($"{r}-{c} ... {w}*{h} => {diff}");
-                }
-            } else switch (Props.overflow)
-            {
-                case GridOverflow.None when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
-                {
-                    elementHeight = Props.elementSize.y;
-                    
-                    rows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
-                    if (rows <= 0)
-                    {
-                        return RishElement.Null;
-                    }
-                    columns = Mathf.CeilToInt(count / (float) rows);
-
-                    elementWidth = (width - Props.spacing.x * (columns - 1)) / columns;
-                    break;
-                }
-                case GridOverflow.None when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
-                { 
-                    elementWidth = Props.elementSize.x;
-                    
-                    columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-                    if (columns <= 0)
-                    {
-                        return RishElement.Null;
-                    }
-                    rows = Mathf.CeilToInt(count / (float) columns);
-                    
-                    elementHeight = (height - Props.spacing.y * (rows - 1)) / rows;
-                    break;
-                }
-                case GridOverflow.None:
-                {
-                    elementWidth = Props.elementSize.x;
-                    elementHeight = Props.elementSize.y;
-                    
-                    rows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
-                    columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-
-                    break;
-                }
-                case GridOverflow.Vertical when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
-                {
-                    elementHeight = Props.elementSize.y;
-
-                    var closest = float.MaxValue;
-                    for (var c = 1; c <= count; c++)
-                    {
-                        var w = (width - Props.spacing.x * (c - 1)) / c;
-
-                        var diff = Mathf.Abs(w - elementHeight);
-
-                        if (diff >= closest)
-                        {
-                            break;
-                        }
-
-                        closest = diff;
-
-                        columns = c;
-                        elementWidth = w;
-                    }
-
-                    if (columns <= 0)
-                    {
-                        return RishElement.Null;
-                    }
-                    
-                    rows = Mathf.CeilToInt(count / (float) columns);
-
-                    break;
-                }
-                case GridOverflow.Vertical when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
-                {
-                    elementWidth = Props.elementSize.x;
-                    elementHeight = elementWidth;
-                    
-                    columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-                    if (columns <= 0)
-                    {
-                        return RishElement.Null;
-                    }
-                    rows = Mathf.CeilToInt(count / (float) columns);
-
-                    var h = (height - Props.spacing.y * (rows - 1)) / rows;
-                    if (h > elementHeight)
-                    {
-                        elementHeight = h;
-                    }
-
-                    break;
-                }
-                case GridOverflow.Vertical:
-                {
-                    elementWidth = Props.elementSize.x;
-                    elementHeight = Props.elementSize.y;
-                    
-                    columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-                    if (columns <= 0)
-                    {
-                        return RishElement.Null;
-                    }
-                    rows = Mathf.CeilToInt(count / (float) columns);
-
-                    break;
-                }
-                case GridOverflow.Horizontal when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
-                {
-                    elementHeight = Props.elementSize.y;
-                    elementWidth = elementHeight;
-                    
-                    var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
-                    var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-
-                    for (var c = count; c >= minColumns; c--)
-                    {
-                        var r = Mathf.CeilToInt(count / (float) c);
-
-                        if (r > maxRows)
-                        {
-                            break;
-                        }
-
-                        rows = r;
-                        columns = c;
-                    }
-
-                    var w = (width - Props.spacing.x * (columns - 1)) / columns;
-                    if (w > elementWidth)
-                    {
-                        elementWidth = w;
-                    }
-                    
-                    break;
-                }
-                case GridOverflow.Horizontal when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
-                {
-                    elementWidth = Props.elementSize.x;
-                    elementHeight = elementWidth;
-                    
-                    var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
-                    var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-
-                    for (var r = maxRows; r >= 1; r--)
-                    {
-                        var c = Mathf.CeilToInt(count / (float) r);
-
-                        if (c < minColumns) continue;
-                        
-                        rows = r;
-                        columns = c;
-                        break;
-                    }
-
-                    var h = (height - Props.spacing.y * (rows - 1)) / rows;
-                    if (h > elementHeight)
-                    {
-                        elementHeight = h;
-                    }
-
-                    break;
-                }
-                case GridOverflow.Horizontal:
-                {
-                    elementWidth = Props.elementSize.x;
-                    elementHeight = Props.elementSize.y;
-                    
-                    var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
-                    var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
-
-                    for (var c = count; c >= minColumns; c--)
-                    {
-                        var r = Mathf.CeilToInt(count / (float) c);
-
-                        if (r > maxRows)
-                        {
-                            break;
-                        }
-
-                        rows = r;
-                        columns = c;
-                    }
-
-                    break;
                 }
             }
-            
-            if (columns <= 0 || rows <= 0 || elementWidth <= 0 || elementHeight <= 0 || Mathf.Approximately(elementWidth, 0) || Mathf.Approximately(elementHeight, 0))
+            else
+                switch (Props.overflow)
+                {
+                    case GridOverflow.None when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
+                    {
+                        elementHeight = Props.elementSize.y;
+
+                        rows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
+                        if (rows <= 0)
+                        {
+                            return RishElement.Null;
+                        }
+
+                        columns = Mathf.CeilToInt(count / (float) rows);
+
+                        elementWidth = (width - Props.spacing.x * (columns - 1)) / columns;
+                        break;
+                    }
+                    case GridOverflow.None when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
+                    {
+                        elementWidth = Props.elementSize.x;
+
+                        columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+                        if (columns <= 0)
+                        {
+                            return RishElement.Null;
+                        }
+
+                        rows = Mathf.CeilToInt(count / (float) columns);
+
+                        elementHeight = (height - Props.spacing.y * (rows - 1)) / rows;
+                        break;
+                    }
+                    case GridOverflow.None:
+                    {
+                        elementWidth = Props.elementSize.x;
+                        elementHeight = Props.elementSize.y;
+
+                        rows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
+                        columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+
+                        break;
+                    }
+                    case GridOverflow.Vertical when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
+                    {
+                        elementHeight = Props.elementSize.y;
+
+                        var closest = float.MaxValue;
+                        for (var c = 1; c <= count; c++)
+                        {
+                            var w = (width - Props.spacing.x * (c - 1)) / c;
+
+                            var diff = Mathf.Abs(w - elementHeight);
+
+                            if (diff >= closest)
+                            {
+                                break;
+                            }
+
+                            closest = diff;
+
+                            columns = c;
+                            elementWidth = w;
+                        }
+
+                        if (columns <= 0)
+                        {
+                            return RishElement.Null;
+                        }
+
+                        rows = Mathf.CeilToInt(count / (float) columns);
+
+                        break;
+                    }
+                    case GridOverflow.Vertical when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
+                    {
+                        elementWidth = Props.elementSize.x;
+                        elementHeight = elementWidth;
+
+                        columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+                        if (columns <= 0)
+                        {
+                            return RishElement.Null;
+                        }
+
+                        rows = Mathf.CeilToInt(count / (float) columns);
+
+                        var h = (height - Props.spacing.y * (rows - 1)) / rows;
+                        if (h > elementHeight)
+                        {
+                            elementHeight = h;
+                        }
+
+                        break;
+                    }
+                    case GridOverflow.Vertical:
+                    {
+                        elementWidth = Props.elementSize.x;
+                        elementHeight = Props.elementSize.y;
+
+                        columns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+                        if (columns <= 0)
+                        {
+                            return RishElement.Null;
+                        }
+
+                        rows = Mathf.CeilToInt(count / (float) columns);
+
+                        break;
+                    }
+                    case GridOverflow.Horizontal when Props.elementSize.y > 0 && Props.elementSize.x <= 0:
+                    {
+                        elementHeight = Props.elementSize.y;
+                        elementWidth = elementHeight;
+
+                        var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
+                        var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+
+                        for (var c = count; c >= minColumns; c--)
+                        {
+                            var r = Mathf.CeilToInt(count / (float) c);
+
+                            if (r > maxRows)
+                            {
+                                break;
+                            }
+
+                            rows = r;
+                            columns = c;
+                        }
+
+                        var w = (width - Props.spacing.x * (columns - 1)) / columns;
+                        if (w > elementWidth)
+                        {
+                            elementWidth = w;
+                        }
+
+                        break;
+                    }
+                    case GridOverflow.Horizontal when Props.elementSize.x > 0 && Props.elementSize.y <= 0:
+                    {
+                        elementWidth = Props.elementSize.x;
+                        elementHeight = elementWidth;
+
+                        var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
+                        var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+
+                        for (var r = maxRows; r >= 1; r--)
+                        {
+                            var c = Mathf.CeilToInt(count / (float) r);
+
+                            if (c < minColumns) continue;
+
+                            rows = r;
+                            columns = c;
+                            break;
+                        }
+
+                        var h = (height - Props.spacing.y * (rows - 1)) / rows;
+                        if (h > elementHeight)
+                        {
+                            elementHeight = h;
+                        }
+
+                        break;
+                    }
+                    case GridOverflow.Horizontal:
+                    {
+                        elementWidth = Props.elementSize.x;
+                        elementHeight = Props.elementSize.y;
+
+                        var maxRows = (int) ((height + Props.spacing.y) / (elementHeight + Props.spacing.y));
+                        var minColumns = (int) ((width + Props.spacing.x) / (elementWidth + Props.spacing.x));
+
+                        for (var c = count; c >= minColumns; c--)
+                        {
+                            var r = Mathf.CeilToInt(count / (float) c);
+
+                            if (r > maxRows)
+                            {
+                                break;
+                            }
+
+                            rows = r;
+                            columns = c;
+                        }
+
+                        break;
+                    }
+                }
+
+            if (columns <= 0 || rows <= 0 || elementWidth <= 0 || elementHeight <= 0 ||
+                Mathf.Approximately(elementWidth, 0) || Mathf.Approximately(elementHeight, 0))
             {
                 return RishElement.Null;
             }
@@ -257,14 +261,14 @@ namespace RishUI.Components
             var rowElements = new LayoutElement[rows];
             for (var i = 0; i < rows; i++)
             {
-                var elements = new RishElement[columns];
+                var elements = new LayoutElement[columns];
                 for (var j = 0; j < columns; j++)
                 {
                     var index = columns * i + j;
-                    elements[j] = index < count ? Props.children[index] : RishElement.Null;;
+                    elements[j] = index < count ? Props.children[index] : RishElement.Null;
                 }
-                
-                rowElements[i] = Rish.Create<Horizontal, HorizontalProps>(new HorizontalProps
+
+                rowElements[i] = Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
                 {
                     spacing = Props.spacing.x,
                     elementSize = elementWidth,
@@ -273,18 +277,23 @@ namespace RishUI.Components
                     children = elements
                 });
             }
-            
-            return Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
+
+            return Rish.Create<Div, DivProps>(new ExpandTransform
             {
-                spacing = Props.spacing.y,
-                elementSize = elementHeight,
-                PaddingTop = Props.topPadding,
-                PaddingLeft = Props.leftPadding,
-                PaddingBottom = Props.bottomPadding,
-                PaddingRight = Props.rightPadding,
-                //overflow = true,
-                //center = Props.centerVertical,
-                children = rowElements
+                margins = new Vector4(Props.topPadding, Props.rightPadding, Props.bottomPadding, Props.leftPadding)
+            }, new DivProps
+            {
+                children = new[]
+                {
+                    Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
+                    {
+                        spacing = Props.spacing.y,
+                        elementSize = elementHeight,
+                        overflow = true,
+                        center = Props.centerVertical,
+                        children = rowElements
+                    })
+                }
             });
         }
     }
@@ -362,5 +371,4 @@ namespace RishUI.Components
     }
     
     public enum GridOverflow { None, Horizontal, Vertical }
-    */
 }

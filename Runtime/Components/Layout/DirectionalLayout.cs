@@ -92,9 +92,23 @@ namespace RishUI.Components
             Children.Clear();
 
             var contentSize = fixedSize + flexibleCount * elementSize;
-            var offset = contentSize <= containerSize ? 0f : (contentSize - containerSize) * Props.scroll;
-            //Debug.Log($"{contentSize} - {containerSize} - {offset}");
-            var start = -offset;
+            float offset;
+            if (contentSize < containerSize)
+            {
+                if (Props.center)
+                {
+                    offset = (containerSize - contentSize) * 0.5f;
+                }
+                else
+                {
+                    offset = 0f;
+                }
+            }
+            else
+            {
+                offset = -(contentSize - containerSize) * Props.scroll;
+            }
+            var start = offset;
             for (int i = 0, n = Props.children.Length; i < n; i++)
             {
                 if (!Props.overflow && start > containerSize)
@@ -186,11 +200,23 @@ namespace RishUI.Components
         public float spacing;
         public float elementSize;
 
+        public bool center;
         public bool overflow;
         
         public float scroll;
 
         public LayoutElement[] children;
+
+        public DirectionalLayoutProps(Direction direction)
+        {
+            this.direction = direction;
+            spacing = 0f;
+            elementSize = 0f;
+            center = false;
+            overflow = false;
+            scroll = 0f;
+            children = null;
+        }
 
         public void Default() { }
         
@@ -201,6 +227,10 @@ namespace RishUI.Components
                 return false;
             }
 
+            if (center != other.center)
+            {
+                return false;
+            }
             if (overflow != other.overflow)
             {
                 return false;
@@ -229,6 +259,12 @@ namespace RishUI.Components
     {
         public float size;
         public RishElement element;
+
+        public LayoutElement(float size)
+        {
+            this.size = size;
+            element = RishElement.Null;
+        }
 
         public bool Equals(LayoutElement other)
         {
