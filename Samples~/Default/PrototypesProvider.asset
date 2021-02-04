@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77c2372194da8c14c880779366fd3141, type: 3}
+  m_Name: PrototypesProvider
+  m_EditorClassIdentifier: 
+  prototypes:
+  - component: {fileID: 1740530798590903536, guid: 7b923833b2e2844b4b6dd68cdcb36415,
+      type: 3}
+    initialCount: 10
+  - component: {fileID: 6644197890707345234, guid: 31e740fe7463d41e3ae5ffe442ee15be,
+      type: 3}
+    initialCount: 10
+  - component: {fileID: 6457734504546308217, guid: 9691abac2d0f044c287246c83f602d88,
+      type: 3}
+    initialCount: 10
