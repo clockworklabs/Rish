@@ -11,12 +11,13 @@ namespace RishUI.Components
         {
             Assets.Get<TMP_FontAsset>(Props.fontAddress, SetFont);
             Assets.Get<Material>(Props.materialAddress, SetMaterial);
-            SetAlignment(Props.alignment);
-            SetOverflowMode(Props.overflow);
         }
 
         protected override RishElement Render()
         {
+            var (horizontalAlignment, verticalAlignment) = GetAlignment(Props.alignment);
+            var overflowMode = GetOverflowMode(Props.overflow);
+            
             return Rish.CreateUnity<UnityText, UnityTextProps>(new UnityTextProps
             {
                 text = Props.text,
@@ -34,10 +35,10 @@ namespace RishUI.Components
                 wordSpacing = Props.spacing.word,
                 lineSpacing = Props.spacing.line,
                 paragraphSpacing = Props.spacing.paragraph,
-                horizontalAlignment = State.horizontalAlignment,
-                verticalAlignment = State.verticalAlignment,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
                 wrapping = Props.wrapping,
-                overflow = State.overflow,
+                overflow = overflowMode,
                 richText = Props.richText,
                 raycastTarget = Props.raycastTarget,
                 maskable = Props.maskable
@@ -58,7 +59,7 @@ namespace RishUI.Components
             State = state;
         }
 
-        private void SetAlignment(TextAlignment alignment)
+        private (HorizontalAlignmentOptions, VerticalAlignmentOptions) GetAlignment(TextAlignment alignment)
         {
             HorizontalAlignmentOptions horizontal;
             switch (alignment.horizontal)
@@ -95,7 +96,7 @@ namespace RishUI.Components
                     vertical = VerticalAlignmentOptions.Middle;
                     break;
                 case TextAlignment.Vertical.Bottom:
-                    vertical = VerticalAlignmentOptions.Top;
+                    vertical = VerticalAlignmentOptions.Bottom;
                     break;
                 case TextAlignment.Vertical.Baseline:
                     vertical = VerticalAlignmentOptions.Baseline;
@@ -109,34 +110,23 @@ namespace RishUI.Components
                 default:
                     throw new UnityException("Vertical alignment type not supported");
             }
-            
-            var state = State;
-            state.horizontalAlignment = horizontal;
-            state.verticalAlignment = vertical;
-            State = state;
+
+            return (horizontal, vertical);
         }
 
-        private void SetOverflowMode(TextOverflowMode overflow)
+        private TextOverflowModes GetOverflowMode(TextOverflowMode overflow)
         {
-            TextOverflowModes overflowMode;
             switch (overflow)
             {
                 case TextOverflowMode.Overflow:
-                    overflowMode = TextOverflowModes.Overflow;
-                    break;
+                    return TextOverflowModes.Overflow;
                 case TextOverflowMode.Truncate:
-                    overflowMode = TextOverflowModes.Truncate;
-                    break;
+                    return TextOverflowModes.Truncate;
                 case TextOverflowMode.Ellipsis:
-                    overflowMode = TextOverflowModes.Ellipsis;
-                    break;
+                    return TextOverflowModes.Ellipsis;
                 default:
                     throw new UnityException("Overflow mode not supported");
             }
-
-            var state = State;
-            state.overflow = overflowMode;
-            State = state;
         }
     }
 
@@ -386,9 +376,6 @@ namespace RishUI.Components
     {
         public TMP_FontAsset font;
         public Material material;
-        public HorizontalAlignmentOptions horizontalAlignment;
-        public VerticalAlignmentOptions verticalAlignment;
-        public TextOverflowModes overflow;
 
         public void Default() { }
 
