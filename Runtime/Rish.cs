@@ -4,7 +4,6 @@ using Priority_Queue;
 using RishUI.Components;
 using RishUI.Styling;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace RishUI
 {
@@ -235,7 +234,7 @@ namespace RishUI
         
         public static RishElement CreateUnity<T>(RishElement[] children) where T : UnityComponent
         {
-            return new RishElement(typeof(T), children);
+            return new RishElement(typeof(T), 0, 0);
         }
         
         // === PROPS ===
@@ -249,7 +248,7 @@ namespace RishUI
 
         public static RishElement CreateUnity<T, P>(P props, RishElement[] children) where P : struct where T : UnityComponent<P>
         {
-            return new RishElement(typeof(T), SetupPool.GetBasic(props), children);
+            return new RishElement(typeof(T), SetupPool.GetBasic(props));
         }
         
         // === TRANSFORM ===
@@ -263,7 +262,7 @@ namespace RishUI
         
         public static RishElement CreateUnity<T>(RishTransform transform, RishElement[] children) where T : UnityComponent
         {
-            return new RishElement(typeof(T), transform, children);
+            return new RishElement(typeof(T), transform);
         }
         
         // === TRANSFORM, PROPS ===
@@ -275,9 +274,9 @@ namespace RishUI
         
         // === TRANSFORM, PROPS, CHILDREN ===
 
-        public static RishElement CreateUnity<T, P>(RishTransform transform, P props, params RishElement[] children) where P : struct where T : UnityComponent<P> 
+        public static RishElement CreateUnity<T, P>(RishTransform transform, P props, RishElement[] children) where P : struct where T : UnityComponent<P> 
         {
-            return new RishElement(typeof(T), transform, SetupPool.GetBasic(props), children);
+            return new RishElement(typeof(T), transform, SetupPool.GetBasic(props));
         }
 
         private void Render(StateNode node)
@@ -316,34 +315,31 @@ namespace RishUI
             {
                 var childNode = AddChild(node, child);
 
-                if (childNode.Component is UnityComponent)
+                if (childNode.Component is UnityComponent unityComponent)
                 {
-                    Reconcile(childNode, child.children);
+                    Reconcile(childNode, unityComponent.Children);
                 }
             }
 
             node.Clean();
         }
 
-        private void Reconcile(StateNode node, IReadOnlyList<RishElement> children)
+        private void Reconcile(StateNode node, RishChildren children)
         {
             if (!node.Active) return;
             
             node.Clear();
 
-            if (children != null)
+            for (int i = 0, n = children.Count; i < n; i++)
             {
-                for (int i = 0, n = children.Count; i < n; i++)
-                {
-                    var child = children[i];
-                    if (!child.Valid) continue;
-                    
-                    var childNode = AddChild(node, child);
+                var child = children[i];
+                if (!child.Valid) continue;
+                
+                var childNode = AddChild(node, child);
 
-                    if (childNode.Component is UnityComponent)
-                    {
-                        Reconcile(childNode, child.children);
-                    }
+                if (childNode.Component is UnityComponent unityComponent)
+                {
+                    Reconcile(childNode, unityComponent.Children);
                 }
             }
 
@@ -375,7 +371,17 @@ namespace RishUI
             childNode.UpdateIndex();
             
             var component = childNode.Component;
-            component.UpdateComponent(child.transform, child.setup);
+            switch (component)
+            {
+                case RishComponent rishComponent:
+                    rishComponent.UpdateComponent(child.transform, child.setup);
+                    break;
+                case UnityComponent unityComponent:
+                    unityComponent.UpdateComponent(child.transform, child.setup);
+                    break;
+                default:
+                    throw new UnityException("Component type not supported");
+            }
 
             return childNode;
         }

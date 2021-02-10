@@ -1,4 +1,5 @@
-﻿using RishUI.Styling;
+﻿using System;
+using RishUI.Styling;
 using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -192,7 +193,7 @@ namespace RishUI
             Drag = false;
         }
 
-        public void WillDestroy()
+        internal void WillDestroy()
         {
             ReadyToUnmount = true;
             
@@ -202,7 +203,7 @@ namespace RishUI
             }
         }
 
-        public virtual void Unmount()
+        internal virtual void Unmount()
         {
             if (this is IMountingListener mountingListener)
             {
@@ -523,7 +524,7 @@ namespace RishUI
             base.Initialize();
         }
 
-        public override void Unmount()
+        internal override void Unmount()
         {
             Disable();
             base.Unmount();

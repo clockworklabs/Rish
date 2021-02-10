@@ -1,4 +1,5 @@
-﻿using RishUI.Styling;
+﻿using System;
+using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -49,6 +50,8 @@ namespace RishUI
                 UpdateWorldTransform();
             }
         }
+        
+        public RishChildren Children { get; internal set; }
         
         public RishTransform World => RishTransform.Default;
 
@@ -101,9 +104,7 @@ namespace RishUI
             gameObject.SetActive(true);
         }
 
-        public void WillDestroy() { }
-
-        public void Unmount()
+        internal void Unmount()
         {
             if (Parent != null)
             {
@@ -117,6 +118,7 @@ namespace RishUI
         public void UpdateComponent(RishTransform local, ISetup setup)
         {
             Local = local;
+            
             setup?.Setup(this);
         }
         

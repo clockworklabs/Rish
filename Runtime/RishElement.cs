@@ -3,7 +3,7 @@
 namespace RishUI
 {
     [Serializable]
-    public readonly struct RishElement : IEquatable<RishElement>
+    public struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
 
@@ -12,7 +12,6 @@ namespace RishUI
         public readonly uint style;
         public readonly RishTransform transform;
         public readonly ISetup setup;
-        public readonly RishElement[] children;
 
         public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Default, null) { }
         public RishElement(Type type, int key, uint style, ISetup setup) : this(type, key, style, RishTransform.Default, setup) { }
@@ -28,17 +27,13 @@ namespace RishUI
             this.transform = transform;
 
             this.setup = setup;
-            children = null;
         }
-
-        public RishElement(Type type) : this(type, RishTransform.Default, null, null) { }
-        public RishElement(Type type, ISetup setup) : this(type, RishTransform.Default, setup, null) { }
-        public RishElement(Type type, RishTransform transform) : this(type, transform, null, null) { }
-        public RishElement(Type type, RishElement[] children) : this(type, RishTransform.Default, null, children) { }
-        public RishElement(Type type, ISetup setup, RishElement[] children) : this(type, RishTransform.Default, setup, children) { }
-        public RishElement(Type type, RishTransform transform, RishElement[] children) : this(type, transform, null, children) { }
         
-        public RishElement(Type type, RishTransform transform, ISetup setup, RishElement[] children = null)
+        public RishElement(Type type) : this(type, RishTransform.Default, null) { }
+        public RishElement(Type type, ISetup setup) : this(type, RishTransform.Default, setup) { }
+        public RishElement(Type type, RishTransform transform) : this(type, transform, null) { }
+        
+        public RishElement(Type type, RishTransform transform, ISetup setup)
         {
             this.type = type;
             key = 0;
@@ -48,7 +43,6 @@ namespace RishUI
             this.transform = transform;
 
             this.setup = setup;
-            this.children = children;
         }
 
         public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
@@ -60,8 +54,6 @@ namespace RishUI
             key = other.key;
             
             style = other.style;
-            
-            children = other.children;
 
             this.transform = transform;
 
@@ -117,7 +109,7 @@ namespace RishUI
                 return false;
             }
 
-            return children.Compare(other.children);
+            return true;
         }
     }
 

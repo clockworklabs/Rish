@@ -34,11 +34,6 @@ namespace RishUI
         RishTransform World { get; }
         
         Vector2 Size { get; }
-
-        void WillDestroy();
-        void Unmount();
-
-        void UpdateComponent(RishTransform local, ISetup setup);
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct
