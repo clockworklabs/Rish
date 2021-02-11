@@ -244,7 +244,9 @@ namespace RishUI
             if (!Active) return;
             if (!Mounted) return;
 
-            Component.WillDestroy();
+            if(Component is RishComponent rishComponent) {
+                rishComponent.WillDestroy();
+            }
 
             Active = false;
             RemainingChildren = Children?.Count ?? 0;
@@ -308,8 +310,18 @@ namespace RishUI
             {
                 Component.OnReadyToUnmount -= OnReady;
             }
-            
-            Component.Unmount();
+
+            switch (Component)
+            {
+                case RishComponent rishComponent:
+                    rishComponent.Unmount();
+                    break;
+                case UnityComponent unityComponent:
+                    unityComponent.Unmount();
+                    break;
+                default:
+                    throw new UnityException("Component type not supported");
+            }
 
             Pool.ReturnToPool(Component);
 

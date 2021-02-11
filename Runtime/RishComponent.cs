@@ -1,4 +1,5 @@
-﻿using RishUI.Styling;
+﻿using System;
+using RishUI.Styling;
 using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -192,7 +193,7 @@ namespace RishUI
             Drag = false;
         }
 
-        public void WillDestroy()
+        internal void WillDestroy()
         {
             ReadyToUnmount = true;
             
@@ -202,7 +203,7 @@ namespace RishUI
             }
         }
 
-        public virtual void Unmount()
+        internal virtual void Unmount()
         {
             if (this is IMountingListener mountingListener)
             {
@@ -224,15 +225,24 @@ namespace RishUI
 
         private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
-        public void UpdateComponent(RishTransform local, ISetup setup)
+        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             if (JustMounted || !ManualTransform)
             {
                 Local = local;
             }
 
-            setup?.Setup(this);
+            if (setup != null)
+            {
+                setup.Invoke(this);
+            }
+            else
+            {
+                Default();
+            }
         }
+
+        private protected virtual void Default() { }
 
         internal virtual RishElement SetupAndRender()
         {
@@ -243,7 +253,7 @@ namespace RishUI
 
         protected abstract RishElement Render();
         
-        protected void StyleData<T>(out T result) where T : struct, IRishData<T>
+        protected internal void StyleData<T>(out T result) where T : struct, IRishData<T>
         {
             var parent = Parent;
             while (parent is UnityComponent unityParent)
@@ -515,18 +525,21 @@ namespace RishUI
         
         protected override void Initialize()
         {
-            StyleData<P>(out var defaultProps);
-            Props = defaultProps;
-            
             Dirty = true;
             
             base.Initialize();
         }
 
-        public override void Unmount()
+        internal override void Unmount()
         {
             Disable();
             base.Unmount();
+        }
+
+        private protected override void Default()
+        {
+            StyleData<P>(out var defaultProps);
+            Props = defaultProps;
         }
 
         private void Enable()

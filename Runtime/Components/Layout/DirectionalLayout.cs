@@ -186,7 +186,7 @@ namespace RishUI.Components
                     
             return Rish.Create<Div, DivProps>(new DivProps
             {
-                children = Children.ToArray()
+                children = Children
             });
         }
     }
