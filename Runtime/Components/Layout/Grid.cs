@@ -309,7 +309,7 @@ namespace RishUI.Components
         public bool centerVertical;
         public bool centerHorizontal;
 
-        public RishChildren children;
+        public RishList<RishElement> children;
         
         public void Default()
         {

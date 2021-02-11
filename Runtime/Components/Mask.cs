@@ -52,7 +52,7 @@ namespace RishUI.Components
         public string spriteAddress;
         public bool rect;
 
-        public RishChildren children;
+        public RishList<RishElement> children;
 
         public void Default() { }
         

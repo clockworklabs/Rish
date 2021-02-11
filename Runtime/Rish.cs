@@ -255,7 +255,7 @@ namespace RishUI
         
         // === CHILDREN ===
         
-        public static RishElement CreateUnity<T>(RishChildren children) where T : UnityComponent
+        public static RishElement CreateUnity<T>(RishList<RishElement> children) where T : UnityComponent
         {
             return new RishElement(typeof(T), component =>
             {
@@ -281,7 +281,7 @@ namespace RishUI
         
         // === PROPS, CHILDREN ===
 
-        public static RishElement CreateUnity<T, P>(P props, RishChildren children) where P : struct where T : UnityComponent<P>
+        public static RishElement CreateUnity<T, P>(P props, RishList<RishElement> children) where P : struct where T : UnityComponent<P>
         {
             return new RishElement(typeof(T), component =>
             {
@@ -302,7 +302,7 @@ namespace RishUI
         
         // === TRANSFORM, CHILDREN ===
         
-        public static RishElement CreateUnity<T>(RishTransform transform, RishChildren children) where T : UnityComponent
+        public static RishElement CreateUnity<T>(RishTransform transform, RishList<RishElement> children) where T : UnityComponent
         {
             return new RishElement(typeof(T), transform, component =>
             {
@@ -328,7 +328,7 @@ namespace RishUI
         
         // === TRANSFORM, PROPS, CHILDREN ===
 
-        public static RishElement CreateUnity<T, P>(RishTransform transform, P props, RishChildren children) where P : struct where T : UnityComponent<P> 
+        public static RishElement CreateUnity<T, P>(RishTransform transform, P props, RishList<RishElement> children) where P : struct where T : UnityComponent<P> 
         {
             return new RishElement(typeof(T), transform, component =>
             {
@@ -385,7 +385,7 @@ namespace RishUI
             node.Clean();
         }
 
-        private void Reconcile(StateNode node, RishChildren children)
+        private void Reconcile(StateNode node, RishList<RishElement> children)
         {
             if (!node.Active) return;
             

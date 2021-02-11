@@ -1,33 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RishUI
 {
-    public readonly struct RishChildren
+    public readonly struct RishList<T> where T : struct, IEquatable<T>
     {
-        private readonly RishElement _child;
-        private readonly IList<RishElement> _children;
+        private readonly bool _childSet;
+        private readonly T _child;
+        private readonly IList<T> _children;
 
-        private RishChildren(RishElement child)
+        private RishList(T child)
         {
+            _childSet = true;
             _child = child;
             _children = null;
         }
 
-        private RishChildren(IList<RishElement> children)
+        private RishList(IList<T> children)
         {
-            _child = RishElement.Null;
+            _childSet = false;
+            _child = default;
             _children = children;
         }
 
         private bool Collection => _children != null && _children.Count > 0;
 
-        public int Count => Collection ? _children.Count : _child.Valid ? 1 : 0;
+        public int Count => Collection ? _children.Count : _childSet ? 1 : 0;
 
-        public RishElement this[int index] => Collection ? _children[index] : _child;
+        public T this[int index] => Collection ? _children[index] : _child;
 
         public Enumerator GetEnumerator() => new Enumerator(this);
 
-        public bool Equals(RishChildren other)
+        public bool Equals(RishList<T> other)
         {
             var count = Count;
             if (count != other.Count)
@@ -56,20 +60,20 @@ namespace RishUI
             return true;
         }
 
-        public static implicit operator RishChildren(RishElement element) => new RishChildren(element);
-        public static implicit operator RishChildren(RishElement[] children) => new RishChildren(children);
-        public static implicit operator RishChildren(List<RishElement> children) => new RishChildren(children);
+        public static implicit operator RishList<T>(T element) => new RishList<T>(element);
+        public static implicit operator RishList<T>(T[] children) => new RishList<T>(children);
+        public static implicit operator RishList<T>(List<T> children) => new RishList<T>(children);
         
         public struct Enumerator
         {
-            private readonly RishChildren _children;
+            private readonly RishList<T> _children;
             private readonly bool _collection;
             private readonly int _count;
         
             private int _index;
-            private RishElement _current;
+            private T _current;
 
-            public Enumerator(RishChildren children)
+            public Enumerator(RishList<T> children)
             {
                 _children = children;
                 _collection = _children.Collection;
@@ -78,7 +82,7 @@ namespace RishUI
                 _current = default;
             }
 
-            public RishElement Current => _current;
+            public T Current => _current;
 
             public bool MoveNext()
             {

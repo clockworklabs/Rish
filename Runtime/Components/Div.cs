@@ -75,7 +75,7 @@ namespace RishUI.Components
 
         public bool stopInputPropagation;
         
-        public RishChildren children;
+        public RishList<RishElement> children;
 
         public void Default()
         {

@@ -12,8 +12,9 @@ namespace RishUI.Components
 
         protected override RishElement Render()
         {
-            if (Props.children == null)
+            if (Props.children.Count == 0)
             {
+                Props.onContentSize?.Invoke(0);
                 return RishElement.Null;
             }
 
@@ -21,7 +22,7 @@ namespace RishUI.Components
             var flexibleCount = 0;
             var fixedSize = 0f;
             var minSize = float.MaxValue;
-            for (int i = 0, n = Props.children.Length; i < n; i++)
+            for (int i = 0, n = Props.children.Count; i < n; i++)
             {
                 var child = Props.children[i];
                 if (!child.element.Valid)
@@ -48,6 +49,7 @@ namespace RishUI.Components
             
             if (count <= 0)
             {
+                Props.onContentSize?.Invoke(0);
                 return RishElement.Null;
             }
             
@@ -92,6 +94,7 @@ namespace RishUI.Components
             Children.Clear();
 
             var contentSize = fixedSize + flexibleCount * elementSize;
+            Props.onContentSize?.Invoke(contentSize);
             float offset;
             if (contentSize < containerSize)
             {
@@ -108,8 +111,9 @@ namespace RishUI.Components
             {
                 offset = -(contentSize - containerSize) * Props.scroll;
             }
+            
             var start = offset;
-            for (int i = 0, n = Props.children.Length; i < n; i++)
+            for (int i = 0, n = Props.children.Count; i < n; i++)
             {
                 if (!Props.overflow && start > containerSize)
                 {
@@ -186,6 +190,7 @@ namespace RishUI.Components
                     
             return Rish.Create<Div, DivProps>(new DivProps
             {
+                raycastTarget = Props.raycastTarget,
                 children = Children
             });
         }
@@ -205,7 +210,10 @@ namespace RishUI.Components
         
         public float scroll;
 
-        public LayoutElement[] children;
+        public bool raycastTarget;
+        public Action<float> onContentSize;
+
+        public RishList<LayoutElement> children;
 
         public DirectionalLayoutProps(Direction direction)
         {
@@ -215,7 +223,9 @@ namespace RishUI.Components
             center = false;
             overflow = false;
             scroll = 0f;
-            children = null;
+            raycastTarget = false;
+            onContentSize = null;
+            children = default;
         }
 
         public void Default() { }
@@ -251,7 +261,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return children.Compare(other.children);
+            return children.Equals(other.children);
         }
     }
 
@@ -290,36 +300,5 @@ namespace RishUI.Components
         {
             element = element
         };
-    }
-    
-    public static class LayoutElementArrayExtensions
-    {
-        public static bool Compare(this LayoutElement[] first, LayoutElement[] second)
-        {
-            if (first == second)
-            {
-                return true;
-            }
-            
-            if (first == null || second == null)
-            {
-                return false;
-            }
-
-            if (first.Length != second.Length)
-            {
-                return false;
-            }
-
-            for (var i = first.Length - 1; i >= 0; i--)
-            {
-                if (!first[i].Equals(second[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 }

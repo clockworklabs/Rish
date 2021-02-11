@@ -51,7 +51,7 @@ namespace RishUI
             }
         }
         
-        public RishChildren Children { get; internal set; }
+        public RishList<RishElement> Children { get; internal set; }
         
         public RishTransform World => RishTransform.Default;
 
