@@ -75,7 +75,7 @@ namespace RishUI.Components
 
         public bool stopInputPropagation;
         
-        public RishElement[] children;
+        public RishChildren children;
 
         public void Default()
         {
@@ -113,7 +113,7 @@ namespace RishUI.Components
                 return false;
             }
             
-            return children.Compare(other.children);
+            return children.Equals(other.children);
         }
     }
 

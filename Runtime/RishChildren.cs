@@ -19,22 +19,13 @@ namespace RishUI
             _children = children;
         }
 
-        private bool Collection => _children == null || _children.Count > 0;
+        private bool Collection => _children != null && _children.Count > 0;
 
         public int Count => Collection ? _children.Count : _child.Valid ? 1 : 0;
 
         public RishElement this[int index] => Collection ? _children[index] : _child;
 
         public Enumerator GetEnumerator() => new Enumerator(this);
-
-        /*
-        IEnumerator<RishElement> IEnumerable<RishElement>.GetEnumerator()
-        {
-            return Collection ? children.GetEnumerator() : Enumerable.Repeat(child, 1).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        */
 
         public bool Equals(RishChildren other)
         {

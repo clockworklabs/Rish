@@ -8,12 +8,12 @@ namespace RishUI.Components
 
         protected override RishElement Render()
         {
-            if (Props.children == null)
+            if (Props.children.Count == 0)
             {
                 return RishElement.Null;
             }
 
-            var count = Props.children.Length;
+            var count = Props.children.Count;
 
             if (count == 0)
             {
@@ -283,17 +283,14 @@ namespace RishUI.Components
                 margins = new Vector4(Props.topPadding, Props.rightPadding, Props.bottomPadding, Props.leftPadding)
             }, new DivProps
             {
-                children = new[]
+                children = Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
                 {
-                    Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
-                    {
-                        spacing = Props.spacing.y,
-                        elementSize = elementHeight,
-                        overflow = true,
-                        center = Props.centerVertical,
-                        children = rowElements
-                    })
-                }
+                    spacing = Props.spacing.y,
+                    elementSize = elementHeight,
+                    overflow = true,
+                    center = Props.centerVertical,
+                    children = rowElements
+                })
             });
         }
     }
@@ -312,7 +309,7 @@ namespace RishUI.Components
         public bool centerVertical;
         public bool centerHorizontal;
 
-        public RishElement[] children;
+        public RishChildren children;
         
         public void Default()
         {
@@ -366,7 +363,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return children.Compare(other.children);
+            return children.Equals(other.children);
         }
     }
     

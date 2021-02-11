@@ -225,15 +225,24 @@ namespace RishUI
 
         private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
-        public void UpdateComponent(RishTransform local, ISetup setup)
+        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             if (JustMounted || !ManualTransform)
             {
                 Local = local;
             }
 
-            setup?.Setup(this);
+            if (setup != null)
+            {
+                setup.Invoke(this);
+            }
+            else
+            {
+                Default();
+            }
         }
+
+        private protected virtual void Default() { }
 
         internal virtual RishElement SetupAndRender()
         {
@@ -244,7 +253,7 @@ namespace RishUI
 
         protected abstract RishElement Render();
         
-        protected void StyleData<T>(out T result) where T : struct, IRishData<T>
+        protected internal void StyleData<T>(out T result) where T : struct, IRishData<T>
         {
             var parent = Parent;
             while (parent is UnityComponent unityParent)
@@ -516,9 +525,6 @@ namespace RishUI
         
         protected override void Initialize()
         {
-            StyleData<P>(out var defaultProps);
-            Props = defaultProps;
-            
             Dirty = true;
             
             base.Initialize();
@@ -528,6 +534,12 @@ namespace RishUI
         {
             Disable();
             base.Unmount();
+        }
+
+        private protected override void Default()
+        {
+            StyleData<P>(out var defaultProps);
+            Props = defaultProps;
         }
 
         private void Enable()

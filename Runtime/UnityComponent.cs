@@ -111,16 +111,19 @@ namespace RishUI
                 Parent.OnWorld -= SetParentWorld;
             }
             Parent = null;
+            Children = default;
             
             gameObject.SetActive(false);
         }
         
-        public void UpdateComponent(RishTransform local, ISetup setup)
+        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             Local = local;
             
-            setup?.Setup(this);
+            setup?.Invoke(this);
         }
+        
+        private protected virtual void Default() { }
         
         public abstract void Render();
 
