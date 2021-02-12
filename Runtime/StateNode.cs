@@ -216,8 +216,16 @@ namespace RishUI
                 return null;
             }
 
-            var index = Children.FindIndex(ChildCount,
-                other => other.Key == key && other.Type == type && other.Style == style);
+            int index = -1;
+            for (int i = ChildCount; i < Children.Count; i++)
+            {
+                var other = Children[i];
+                if (other.Key == key && other.Type == type && other.Style == style)
+                {
+                    index = i;
+                    break;
+                }
+            }
 
             if (index < 0)
             {
