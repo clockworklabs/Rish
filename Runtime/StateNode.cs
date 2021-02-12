@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -54,7 +53,20 @@ namespace RishUI
                 return true;
             }
 
-            return Children != null && Children.Any(child => child.IsRealTree());
+            if (Children == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Children.Count; i++)
+            {
+                var child = Children[i];
+                if (child.IsRealTree()) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private int GetRealIndex()
