@@ -93,7 +93,11 @@ namespace RishUI
             {
                 return false;
             }
-            if (float.IsNaN(rotation) || float.IsInfinity(rotation))
+            if (float.IsNaN(max.x) || float.IsInfinity(max.x))
+            {
+                return false;
+            }
+            if (float.IsNaN(max.y) || float.IsInfinity(max.y))
             {
                 return false;
             }
@@ -105,21 +109,24 @@ namespace RishUI
             {
                 return false;
             }
+            if (float.IsNaN(rotation) || float.IsInfinity(rotation))
+            {
+                return false;
+            }
 
             return true;
         }
 
         public override string ToString()
         {
-            return $"{min} - {max} - {top} - {left} - {bottom} - {right} - {scale}";
+            return $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale}";
         }
 
         public bool Equals(RishTransform other)
         {
             var isValid = IsValid();
-            var otherIsValid = other.IsValid();
             
-            if (isValid != otherIsValid)
+            if (isValid != other.IsValid())
             {
                 return false;
             }

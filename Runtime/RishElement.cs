@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace RishUI
 {
@@ -64,7 +64,14 @@ namespace RishUI
 
         public bool Equals(RishElement other)
         {
-            if (!Valid && !other.Valid)
+            var isValid = Valid;
+            
+            if (isValid != other.Valid)
+            {
+                return false;
+            }
+
+            if (!isValid)
             {
                 return true;
             }

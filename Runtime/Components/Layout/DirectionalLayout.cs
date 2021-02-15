@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -187,10 +187,11 @@ namespace RishUI.Components
 
                 start += childSize + Props.spacing;
             }
-                    
+            
             return Rish.Create<Div, DivProps>(new DivProps
             {
                 raycastTarget = Props.raycastTarget,
+                maskContent = Props.maskContent,
                 children = Children
             });
         }
@@ -201,6 +202,8 @@ namespace RishUI.Components
     public struct DirectionalLayoutProps : IRishData<DirectionalLayoutProps>
     {
         public Direction direction;
+
+        public bool maskContent;
         
         public float spacing;
         public float elementSize;
@@ -218,6 +221,7 @@ namespace RishUI.Components
         public DirectionalLayoutProps(Direction direction)
         {
             this.direction = direction;
+            maskContent = true;
             spacing = 0f;
             elementSize = 0f;
             center = false;
@@ -228,7 +232,10 @@ namespace RishUI.Components
             children = default;
         }
 
-        public void Default() { }
+        public void Default()
+        {
+            maskContent = true;
+        }
         
         public bool Equals(DirectionalLayoutProps other)
         {
@@ -237,6 +244,10 @@ namespace RishUI.Components
                 return false;
             }
 
+            if (maskContent != other.maskContent)
+            {
+                return false;
+            }
             if (center != other.center)
             {
                 return false;

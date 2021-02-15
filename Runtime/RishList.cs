@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace RishUI
@@ -47,6 +47,11 @@ namespace RishUI
             if (Count == 1)
             {
                 return this[0].Equals(other[0]);
+            }
+
+            if (_children == other._children)
+            {
+                return false;
             }
 
             for (var i = Count - 1; i >= 0; i--)

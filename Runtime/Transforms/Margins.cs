@@ -16,7 +16,7 @@ namespace RishUI
             {
                 return false;
             }
-            if (float.IsNaN(left) || float.IsInfinity(left))
+            if (float.IsNaN(right) || float.IsInfinity(right))
             {
                 return false;
             }
@@ -24,7 +24,7 @@ namespace RishUI
             {
                 return false;
             }
-            if (float.IsNaN(right) || float.IsInfinity(right))
+            if (float.IsNaN(left) || float.IsInfinity(left))
             {
                 return false;
             }
