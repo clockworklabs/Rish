@@ -334,7 +334,6 @@ namespace RishUI
             }
             
             TapCount++;
-            Debug.Log(TapCount);
             
             if (TapCount == 1)
             {
