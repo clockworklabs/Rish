@@ -25,6 +25,11 @@
             set => margins.left = value;
         }
 
+        public ExpandTransform(Margins margins)
+        {
+            this.margins = margins;
+        }
+
         public static implicit operator RishTransform(ExpandTransform transform)
         {
             return new RishTransform(RishTransform.Default)
