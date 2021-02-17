@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -21,7 +22,7 @@ namespace RishUI
     public delegate void OnSize(Vector2 size);
     public delegate void OnReadyToUnmount();
     
-    public interface IRishComponent : IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
+    public interface IRishComponent : IRishInputListener {
         event OnDirty OnDirty;
         event OnWorld OnWorld;
         event OnSize OnSize;

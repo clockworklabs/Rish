@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace RishUI
 {
-    public abstract class UnityComponent : MonoBehaviour, IRishComponent
+    public abstract class UnityComponent : MonoBehaviour, IRishComponent, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public event OnDirty OnDirty;
         public event OnWorld OnWorld;
@@ -116,7 +116,7 @@ namespace RishUI
             gameObject.SetActive(false);
         }
         
-        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        internal void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             Local = local;
             
@@ -175,7 +175,7 @@ namespace RishUI
             RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
             RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
-
+        
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (Parent is RishComponent rishParent)
@@ -183,7 +183,6 @@ namespace RishUI
                 rishParent.OnPointerEnter(eventData);
             }
         }
-
         public void OnPointerExit(PointerEventData eventData)
         {
             if (Parent is RishComponent rishParent)
@@ -191,36 +190,21 @@ namespace RishUI
                 rishParent.OnPointerExit(eventData);
             }
         }
+        public void OnPointerDown(PointerEventData eventData, bool tapStartHandled) => Parent?.OnPointerDown(eventData, tapStartHandled);
+        public void OnPointerUp(PointerEventData eventData, bool tapHandled, bool tapCancelHandled) => Parent?.OnPointerUp(eventData, tapHandled, tapCancelHandled);
+        public void OnDrag(PointerEventData eventData, bool dragHandled) => Parent?.OnDrag(eventData, dragHandled);
+        public void OnBeginDrag(PointerEventData eventData, bool dragStartHandled) => Parent?.OnBeginDrag(eventData, dragStartHandled);
+        public void OnEndDrag(PointerEventData eventData, bool dragEndHandled) => Parent?.OnEndDrag(eventData, dragEndHandled);
+        public void OnScroll(PointerEventData eventData, bool scrollHandled) => Parent?.OnScroll(eventData, scrollHandled);
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            Parent?.OnPointerDown(eventData);
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            Parent?.OnPointerUp(eventData);
-        }
-
-        public void OnScroll(PointerEventData eventData)
-        {
-            Parent?.OnScroll(eventData);
-        }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            Parent?.OnBeginDrag(eventData);
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            Parent?.OnDrag(eventData);
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            Parent?.OnEndDrag(eventData);
-        }
+        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData) => OnPointerEnter(eventData);
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData) => OnPointerExit(eventData);
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) => OnPointerDown(eventData, false);
+        void IPointerUpHandler.OnPointerUp(PointerEventData eventData) => OnPointerUp(eventData, false, false);
+        void IDragHandler.OnDrag(PointerEventData eventData) => OnDrag(eventData, false);
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) => OnBeginDrag(eventData, false);
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData) => OnEndDrag(eventData, false);
+        void IScrollHandler.OnScroll(PointerEventData eventData) => OnScroll(eventData, false);
     }
 
     public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct

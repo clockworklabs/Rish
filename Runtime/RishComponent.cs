@@ -155,7 +155,7 @@ namespace RishUI
             Assets = assets;
         }
 
-        public void Mount(uint style, IRishComponent parent)
+        internal void Mount(uint style, IRishComponent parent)
         {
             Style = style;
 
@@ -225,7 +225,7 @@ namespace RishUI
 
         private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
-        public void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        internal void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             if (JustMounted || !ManualTransform)
             {
@@ -326,7 +326,7 @@ namespace RishUI
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public void OnPointerDown(PointerEventData eventData, bool tapStartHandled)
         {
             if (ReadyToUnmount)
             {
@@ -334,27 +334,25 @@ namespace RishUI
             }
             
             TapCount++;
+            Debug.Log(TapCount);
             
             if (TapCount == 1)
             {
-                if (this is ITapStartListener listener)
+                if (!tapStartHandled && this is ITapStartListener listener)
                 {
                     var info = new TapInfo
                     {
                         position = eventData.position * InputRatio,
                         button = (int) eventData.button
                     };
-                    if (listener.OnTapStart(info))
-                    {
-                        return;
-                    }
+                    tapStartHandled = listener.OnTapStart(info);
                 }
                 
-                Parent?.OnPointerDown(eventData);
+                Parent?.OnPointerDown(eventData, tapStartHandled);
             }
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        public void OnPointerUp(PointerEventData eventData, bool tapHandled, bool tapCancelHandled)
         {
             if (ReadyToUnmount)
             {
@@ -372,24 +370,24 @@ namespace RishUI
                 };
                 if (Hover)
                 {
-                    if (this is ITapListener listener && listener.OnTap(info))
+                    if (!tapHandled && this is ITapListener listener && listener.OnTap(info))
                     {
-                        return;
+                        tapHandled = true;
                     }
                 }
                 else
                 {
-                    if (this is ITapCancelListener listener && listener.OnTapCancel(info))
+                    if (!tapCancelHandled && this is ITapCancelListener listener && listener.OnTapCancel(info))
                     {
-                        return;
+                        tapCancelHandled = true;
                     }
                 }
                 
-                Parent?.OnPointerUp(eventData);
+                Parent?.OnPointerUp(eventData, tapHandled, tapCancelHandled);
             }
         }
 
-        public void OnBeginDrag(PointerEventData eventData)
+        public void OnBeginDrag(PointerEventData eventData, bool dragStartHandled)
         {
             if (ReadyToUnmount)
             {
@@ -399,7 +397,7 @@ namespace RishUI
             DragPoint = eventData.position * InputRatio;
             DragStartPoint = DragPoint;
             
-            if (this is IDragStartListener listener)
+            if (!dragStartHandled && this is IDragStartListener listener)
             {
                 var info = new DragInfo
                 {
@@ -408,16 +406,14 @@ namespace RishUI
                     offset = Vector2.zero,
                     velocity = Vector2.zero
                 };
-                if(listener.OnDragStart(info))
-                {
-                    return;
-                }
+
+                dragStartHandled = listener.OnDragStart(info);
             }
 
-            Parent?.OnBeginDrag(eventData);
+            Parent?.OnBeginDrag(eventData, dragStartHandled);
         }
 
-        public void OnDrag(PointerEventData eventData)
+        public void OnDrag(PointerEventData eventData, bool dragHandled)
         {
             if (ReadyToUnmount)
             {
@@ -426,7 +422,7 @@ namespace RishUI
             
             var point = eventData.position * InputRatio;
             
-            if (this is IDragListener listener)
+            if (!dragHandled && this is IDragListener listener)
             {
                 var delta = point - DragPoint;
                 DragPoint = point;
@@ -438,18 +434,16 @@ namespace RishUI
                     offset = point - DragStartPoint,
                     velocity = delta / Time.deltaTime
                 };
-                if(listener.OnDrag(info))
-                {
-                    return;
-                }
+
+                dragHandled = listener.OnDrag(info);
             }
             
             DragPoint = point;
 
-            Parent?.OnDrag(eventData);
+            Parent?.OnDrag(eventData, dragHandled);
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        public void OnEndDrag(PointerEventData eventData, bool dragEndHandled)
         {
             if (ReadyToUnmount)
             {
@@ -458,7 +452,7 @@ namespace RishUI
             
             var point = eventData.position * InputRatio;
             
-            if (this is IDragEndListener listener)
+            if (!dragEndHandled && this is IDragEndListener listener)
             {
                 var delta = point - DragPoint;
                 var info = new DragInfo
@@ -468,35 +462,31 @@ namespace RishUI
                     offset = point - DragStartPoint,
                     velocity = delta / Time.deltaTime
                 };
-                if(listener.OnDragEnd(info))
-                {
-                    return;
-                }
+
+                dragEndHandled = listener.OnDragEnd(info);
             }
             
-            Parent?.OnEndDrag(eventData);
+            Parent?.OnEndDrag(eventData, dragEndHandled);
         }
 
-        public void OnScroll(PointerEventData eventData)
+        public void OnScroll(PointerEventData eventData, bool scrollHandled)
         {
             if (ReadyToUnmount)
             {
                 return;
             }
             
-            if (this is IScrollListener listener)
+            if (!scrollHandled && this is IScrollListener listener)
             {
                 var info = new ScrollInfo
                 {
                     delta = eventData.scrollDelta
                 };
-                if (listener.OnScroll(info))
-                {
-                    return;
-                }
+
+                scrollHandled = listener.OnScroll(info);
             }
             
-            Parent?.OnScroll(eventData);
+            Parent?.OnScroll(eventData, scrollHandled);
         }
     }
 
