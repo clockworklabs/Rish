@@ -334,14 +334,15 @@ namespace RishUI
             }
             
             TapCount++;
-
+            
             if (TapCount == 1)
             {
                 if (this is ITapStartListener listener)
                 {
                     var info = new TapInfo
                     {
-                        position = eventData.position * InputRatio
+                        position = eventData.position * InputRatio,
+                        button = (int) eventData.button
                     };
                     if (listener.OnTapStart(info))
                     {
@@ -366,7 +367,8 @@ namespace RishUI
             {
                 var info = new TapInfo
                 {
-                    position = eventData.position * InputRatio
+                    position = eventData.position * InputRatio,
+                    button = (int) eventData.button
                 };
                 if (Hover)
                 {
