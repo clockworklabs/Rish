@@ -12,13 +12,14 @@ namespace RishUI.Components
 
         protected override RishElement Render()
         {
+            var color = State.sprite != null || string.IsNullOrWhiteSpace(Props.spriteAddress) ? Props.color : Color.clear;
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
                 image = new ImageDef
                 {
                     enabled = true,
                     sprite = State.sprite,
-                    color = Props.color,
+                    color = color,
                     maskable = Props.maskable,
                     raycastTarget = Props.raycastTarget,
                     type = State.sprite != null && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple,

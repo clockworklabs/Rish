@@ -23,6 +23,8 @@ namespace RishUI.UnityComponents
             var image = Props.image;
             if (image.enabled)
             {
+                Image.enabled = true;
+                
                 Image.sprite = Props.image.sprite;
                 Image.color = image.color;
                 Image.raycastTarget = image.raycastTarget;
