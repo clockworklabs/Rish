@@ -218,24 +218,12 @@ namespace RishUI.Components
 
         public RishList<LayoutElement> children;
 
-        public DirectionalLayoutProps(Direction direction)
+        public DirectionalLayoutProps(Direction direction) : this()
         {
             this.direction = direction;
-            maskContent = true;
-            spacing = 0f;
-            elementSize = 0f;
-            center = false;
-            overflow = false;
-            scroll = 0f;
-            raycastTarget = false;
-            onContentSize = null;
-            children = default;
         }
 
-        public void Default()
-        {
-            maskContent = true;
-        }
+        public void Default() { }
         
         public bool Equals(DirectionalLayoutProps other)
         {
