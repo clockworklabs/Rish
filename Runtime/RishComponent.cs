@@ -287,18 +287,22 @@ namespace RishUI
             
             HoverCount++;
 
-            if (HoverCount == 1 && this is IHoverStartListener listener)
+            if (HoverCount == 1)
             {
-                var info = new HoverInfo
+                if (this is IHoverStartListener listener)
                 {
-                    position = eventData.position * InputRatio
-                };
-                listener.OnHoverStart(info);
-            }
-            
-            if (Parent is RishComponent rishParent)
-            {
-                rishParent.OnPointerEnter(eventData);
+                    var info = new HoverInfo
+                    {
+                        position = eventData.position * InputRatio
+                    };
+                    
+                    listener.OnHoverStart(info);
+                }
+
+                if (Parent is RishComponent rishParent)
+                {
+                    rishParent.OnPointerEnter(eventData);
+                }
             }
         }
 
@@ -311,18 +315,21 @@ namespace RishUI
             
             HoverCount--;
 
-            if (HoverCount == 0 && this is IHoverEndListener listener)
+            if (HoverCount == 0)
             {
-                var info = new HoverInfo
+                if (this is IHoverEndListener listener)
                 {
-                    position = eventData.position * InputRatio
-                };
-                listener.OnHoverEnd(info);
-            }
-            
-            if (Parent is RishComponent rishParent)
-            {
-                rishParent.OnPointerExit(eventData);
+                    var info = new HoverInfo
+                    {
+                        position = eventData.position * InputRatio
+                    };
+                    listener.OnHoverEnd(info);
+                }
+
+                if (Parent is RishComponent rishParent)
+                {
+                    rishParent.OnPointerExit(eventData);
+                }
             }
         }
 
