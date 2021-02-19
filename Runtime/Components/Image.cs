@@ -3,10 +3,23 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Image : RishComponent<ImageProps, ImageState>, IDerivedState
+    public class Image : RishComponent<ImageProps, ImageState>, IDerivedState, IDestroyListener
     {
+        private string SpriteAddress { get; set; }
+        
+        public void ComponentWillDestroy()
+        {
+            SpriteAddress = null;
+        }
+        
         public void UpdateStateFromProps()
         {
+            if (SpriteAddress == Props.spriteAddress)
+            {
+                return;
+            }
+            
+            SetSprite(null);
             Assets.Get<Sprite>(Props.spriteAddress, SetSprite);
         }
 
