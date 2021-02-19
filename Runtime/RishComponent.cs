@@ -136,13 +136,12 @@ namespace RishUI
         protected bool JustMounted { get; private set; }
 
         protected virtual bool RenderOnResize => false;
-        protected virtual bool ManualTransform => false; 
+        protected virtual bool ManualTransform => false;
+
+        private PointerEventData HoverEventData { get; set; }
+        private PointerEventData TapEventData { get; set; }
+        private PointerEventData DragEventData { get; set; }
         
-        private int HoverCount { get; set; }
-        private bool Hover => HoverCount > 0;
-        private int TapCount { get; set; }
-        private bool Tap => TapCount > 0;
-        private bool Drag { get; set; }
         private Vector2 DragPoint { get; set; }
         private Vector2 DragStartPoint { get; set; }
 
@@ -188,9 +187,9 @@ namespace RishUI
         {
             ReadyToUnmount = false;
 
-            HoverCount = 0;
-            TapCount = 0;
-            Drag = false;
+            HoverEventData = null;
+            TapEventData = null;
+            DragEventData = null;
         }
 
         internal void WillDestroy()
@@ -280,130 +279,127 @@ namespace RishUI
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (ReadyToUnmount)
+            if (HoverEventData != null)
             {
                 return;
             }
-            
-            HoverCount++;
 
-            if (HoverCount == 1)
+            HoverEventData = eventData;
+
+            if (!ReadyToUnmount && this is IHoverStartListener listener)
             {
-                if (this is IHoverStartListener listener)
+                var info = new HoverInfo
                 {
-                    var info = new HoverInfo
-                    {
-                        position = eventData.position * InputRatio
-                    };
-                    
-                    listener.OnHoverStart(info);
-                }
+                    position = eventData.position * InputRatio
+                };
+                
+                listener.OnHoverStart(info);
+            }
 
-                if (Parent is RishComponent rishParent)
-                {
-                    rishParent.OnPointerEnter(eventData);
-                }
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerEnter(eventData);
             }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (ReadyToUnmount)
+            if (HoverEventData == null || eventData.pointerId != HoverEventData.pointerId)
             {
                 return;
             }
+
+            HoverEventData = null;
             
-            HoverCount--;
-
-            if (HoverCount == 0)
+            if (!ReadyToUnmount && this is IHoverEndListener listener)
             {
-                if (this is IHoverEndListener listener)
+                var info = new HoverInfo
                 {
-                    var info = new HoverInfo
-                    {
-                        position = eventData.position * InputRatio
-                    };
-                    listener.OnHoverEnd(info);
-                }
+                    position = eventData.position * InputRatio
+                };
+                listener.OnHoverEnd(info);
+            }
 
-                if (Parent is RishComponent rishParent)
-                {
-                    rishParent.OnPointerExit(eventData);
-                }
+            if (Parent is RishComponent rishParent)
+            {
+                rishParent.OnPointerExit(eventData);
             }
         }
 
         public void OnPointerDown(PointerEventData eventData, bool tapStartHandled)
         {
-            if (ReadyToUnmount)
+            if (TapEventData != null)
             {
                 return;
             }
-            
-            TapCount++;
-            
-            if (TapCount == 1)
-            {
-                if (!tapStartHandled && this is ITapStartListener listener)
-                {
-                    var info = new TapInfo
-                    {
-                        position = eventData.position * InputRatio,
-                        button = (int) eventData.button
-                    };
-                    tapStartHandled = listener.OnTapStart(info);
-                }
-                
-                Parent?.OnPointerDown(eventData, tapStartHandled);
-            }
-        }
 
-        public void OnPointerUp(PointerEventData eventData, bool tapHandled, bool tapCancelHandled)
-        {
-            if (ReadyToUnmount)
-            {
-                return;
-            }
+            TapEventData = eventData;
             
-            TapCount--;
-
-            if (TapCount == 0)
+            if (!ReadyToUnmount && !tapStartHandled && this is ITapStartListener listener)
             {
                 var info = new TapInfo
                 {
                     position = eventData.position * InputRatio,
                     button = (int) eventData.button
                 };
-                if (Hover)
+                tapStartHandled = listener.OnTapStart(info);
+            }
+            
+            Parent?.OnPointerDown(eventData, tapStartHandled);
+        }
+
+        public void OnPointerUp(PointerEventData eventData, bool tapHandled, bool tapCancelHandled)
+        {
+            if (TapEventData == null || eventData.pointerId != TapEventData.pointerId)
+            {
+                return;
+            }
+
+            TapEventData = null;
+
+            if (!ReadyToUnmount)
+            {
+                if (HoverEventData != null)
                 {
-                    if (!tapHandled && this is ITapListener listener && listener.OnTap(info))
+                    if (!tapHandled && this is ITapListener listener)
                     {
-                        tapHandled = true;
+                        var info = new TapInfo
+                        {
+                            position = eventData.position * InputRatio,
+                            button = (int) eventData.button
+                        };
+                        tapHandled = listener.OnTap(info);
                     }
                 }
                 else
                 {
-                    if (!tapCancelHandled && this is ITapCancelListener listener && listener.OnTapCancel(info))
+                    if (!tapCancelHandled && this is ITapCancelListener listener)
                     {
-                        tapCancelHandled = true;
+                        var info = new TapInfo
+                        {
+                            position = eventData.position * InputRatio,
+                            button = (int) eventData.button
+                        };
+                        tapCancelHandled = listener.OnTapCancel(info);
                     }
                 }
-                
-                Parent?.OnPointerUp(eventData, tapHandled, tapCancelHandled);
             }
+
+            Parent?.OnPointerUp(eventData, tapHandled, tapCancelHandled);
         }
 
         public void OnBeginDrag(PointerEventData eventData, bool dragStartHandled)
         {
-            if (ReadyToUnmount)
+            if (DragEventData != null)
             {
                 return;
             }
-            
+
+            DragEventData = eventData;
             DragPoint = eventData.position * InputRatio;
             DragStartPoint = DragPoint;
             
-            if (!dragStartHandled && this is IDragStartListener listener)
+            if (!ReadyToUnmount && !dragStartHandled && this is IDragStartListener listener)
             {
                 var info = new DragInfo
                 {
@@ -421,14 +417,14 @@ namespace RishUI
 
         public void OnDrag(PointerEventData eventData, bool dragHandled)
         {
-            if (ReadyToUnmount)
+            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
             {
                 return;
             }
             
             var point = eventData.position * InputRatio;
             
-            if (!dragHandled && this is IDragListener listener)
+            if (!ReadyToUnmount && !dragHandled && this is IDragListener listener)
             {
                 var delta = point - DragPoint;
                 DragPoint = point;
@@ -451,10 +447,12 @@ namespace RishUI
 
         public void OnEndDrag(PointerEventData eventData, bool dragEndHandled)
         {
-            if (ReadyToUnmount)
+            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
             {
                 return;
             }
+
+            DragEventData = null;
             
             var point = eventData.position * InputRatio;
             
@@ -477,12 +475,7 @@ namespace RishUI
 
         public void OnScroll(PointerEventData eventData, bool scrollHandled)
         {
-            if (ReadyToUnmount)
-            {
-                return;
-            }
-            
-            if (!scrollHandled && this is IScrollListener listener)
+            if (!ReadyToUnmount && !scrollHandled && this is IScrollListener listener)
             {
                 var info = new ScrollInfo
                 {

@@ -84,11 +84,19 @@ namespace RishUI
         public virtual Transform BottomLevelTransform => transform;
 
         private RectTransform RectTransform => (RectTransform) transform;
+        
+        private PointerEventData HoverEventData { get; set; }
+        private PointerEventData TapEventData { get; set; }
+        private PointerEventData DragEventData { get; set; }
 
         protected void ForceRender() => OnDirty?.Invoke();
 
         internal virtual void Mount(IRishComponent parent)
         {
+            HoverEventData = null;
+            TapEventData = null;
+            DragEventData = null;
+            
             Parent = parent;
             if (Parent != null)
             {
@@ -105,11 +113,25 @@ namespace RishUI
         }
 
         internal void Unmount()
-        {
+        {        
+            if (TapEventData != null)
+            {
+                ((IPointerUpHandler) this).OnPointerUp(TapEventData);
+            }
+            if (DragEventData != null)
+            {
+                ((IEndDragHandler) this).OnEndDrag(DragEventData);
+            }
+            if (HoverEventData != null)
+            {
+                ((IPointerExitHandler) this).OnPointerExit(HoverEventData);
+            }
+            
             if (Parent != null)
             {
                 Parent.OnWorld -= SetParentWorld;
             }
+
             Parent = null;
             Children = default;
             
@@ -122,8 +144,6 @@ namespace RishUI
             
             setup?.Invoke(this);
         }
-        
-        private protected virtual void Default() { }
         
         public abstract void Render();
 
@@ -197,13 +217,83 @@ namespace RishUI
         public void OnEndDrag(PointerEventData eventData, bool dragEndHandled) => Parent?.OnEndDrag(eventData, dragEndHandled);
         public void OnScroll(PointerEventData eventData, bool scrollHandled) => Parent?.OnScroll(eventData, scrollHandled);
 
-        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData) => OnPointerEnter(eventData);
-        void IPointerExitHandler.OnPointerExit(PointerEventData eventData) => OnPointerExit(eventData);
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) => OnPointerDown(eventData, false);
-        void IPointerUpHandler.OnPointerUp(PointerEventData eventData) => OnPointerUp(eventData, false, false);
-        void IDragHandler.OnDrag(PointerEventData eventData) => OnDrag(eventData, false);
-        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) => OnBeginDrag(eventData, false);
-        void IEndDragHandler.OnEndDrag(PointerEventData eventData) => OnEndDrag(eventData, false);
+        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+        {
+            if (HoverEventData != null)
+            {
+                return;
+            }
+        
+            HoverEventData = eventData;
+            
+            OnPointerEnter(eventData);
+        }
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+        {
+            if (HoverEventData == null || eventData.pointerId != HoverEventData.pointerId)
+            {
+                return;
+            }
+
+            HoverEventData = null;
+            
+            OnPointerExit(eventData);
+        }
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+        {
+            if (TapEventData != null)
+            {
+                return;
+            }
+        
+            TapEventData = eventData;
+            
+            OnPointerDown(eventData, false);
+        }
+        void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+        {
+            if (TapEventData == null || eventData.pointerId != TapEventData.pointerId)
+            {
+                return;
+            }
+
+            TapEventData = null;
+            
+            OnPointerUp(eventData, false, false);
+        }
+
+        void IDragHandler.OnDrag(PointerEventData eventData)
+        {
+            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
+            {
+                return;
+            }
+            
+            OnDrag(eventData, false);
+        }
+
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
+        {
+            if (DragEventData != null)
+            {
+                return;
+            }
+
+            DragEventData = eventData;
+            
+            OnBeginDrag(eventData, false);
+        }
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
+        {
+            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
+            {
+                return;
+            }
+
+            DragEventData = null;
+            
+            OnEndDrag(eventData, false);
+        }
         void IScrollHandler.OnScroll(PointerEventData eventData) => OnScroll(eventData, false);
     }
 
@@ -228,4 +318,4 @@ namespace RishUI
             base.Mount(parent);
         }
     }
-}
+} 
