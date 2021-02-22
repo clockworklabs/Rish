@@ -31,7 +31,7 @@ namespace RishUI
             }
         }
 
-        private IRishComponent Parent { get; set; }
+        protected IRishComponent Parent { get; private set; }
         
         private RishTransform _parentWorld;
         private RishTransform ParentWorld
@@ -50,12 +50,19 @@ namespace RishUI
             }
         }
         
+        private bool LocalLocked { get; set; }
+        
         private RishTransform _local;
         public RishTransform Local
         {
             get => _local;
             protected set
             {
+                if (LocalLocked && !ManualTransform)
+                {
+                    return;
+                }
+                
                 if (value.Equals(_local))
                 {
                     return;
@@ -228,7 +235,9 @@ namespace RishUI
         {
             if (JustMounted || !ManualTransform)
             {
+                LocalLocked = false;
                 Local = local;
+                LocalLocked = true;
             }
 
             if (setup != null)

@@ -77,7 +77,9 @@ namespace RishUI
             }
         }
 
+        // TODO: Remove
         protected virtual bool RenderOnResize => false;
+        // TODO: Remove
         public virtual bool RenderOnChildrenChange => false;
 
         internal Transform TopLevelTransform => transform;

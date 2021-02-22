@@ -187,11 +187,18 @@ namespace RishUI.Components
 
                 start += childSize + Props.spacing;
             }
-            
+
+            var maskSoftness = !Props.maskContent
+                ? new Vector2Int(0, 0)
+                : Props.direction == Direction.TopDown || Props.direction == Direction.BottomUp
+                    ? new Vector2Int(0, Props.maskSoftness)
+                    : new Vector2Int(Props.maskSoftness, 0);
+
             return Rish.Create<Div, DivProps>(new DivProps
             {
                 raycastTarget = Props.raycastTarget,
                 maskContent = Props.maskContent,
+                maskSoftness = maskSoftness,
                 children = Children
             });
         }
@@ -204,6 +211,7 @@ namespace RishUI.Components
         public Direction direction;
 
         public bool maskContent;
+        public int maskSoftness;
         
         public float spacing;
         public float elementSize;
@@ -236,6 +244,10 @@ namespace RishUI.Components
             {
                 return false;
             }
+            if (maskContent && maskSoftness != other.maskSoftness)
+            {
+                return false;
+            }
             if (center != other.center)
             {
                 return false;
@@ -249,12 +261,10 @@ namespace RishUI.Components
             {
                 return false;
             }
-            
             if (!Mathf.Approximately(elementSize, other.elementSize))
             {
                 return false;
             }
-            
             if (!Mathf.Approximately(scroll, other.scroll))
             {
                 return false;
