@@ -31,7 +31,7 @@ namespace RishUI
             }
         }
 
-        protected IRishComponent Parent { get; private set; }
+        private IRishComponent Parent { get; set; }
         
         private RishTransform _parentWorld;
         private RishTransform ParentWorld
