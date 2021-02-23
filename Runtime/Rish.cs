@@ -12,7 +12,7 @@ namespace RishUI
     [DisallowMultipleComponent]
     public class Rish : MonoBehaviour
     {
-        private const int MaxSize = 256;
+        private const int MaxDirtySize = 256;
         
         #if UNITY_EDITOR
         public event Action<StateNode> OnRender;
@@ -35,11 +35,11 @@ namespace RishUI
         private Pool Pool { get; set; }
 
         private int CurrentDepth { get; set; } = -1;
-        private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxSize);
-        private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxSize);
-        private List<StateNode> Unmounted { get; } = new List<StateNode>(MaxSize);
+        private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxDirtySize);
+        private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxDirtySize);
+        private List<StateNode> Unmounted { get; } = new List<StateNode>(MaxDirtySize);
         
-        private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>();
+        private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>(MaxDirtySize * 4);
         
         public StateNode Root { get; private set; }
 
@@ -122,6 +122,11 @@ namespace RishUI
             if (DirtyQueue.Contains(node))
             {
                 return;
+            }
+
+            if (DirtyQueue.Count >= DirtyQueue.MaxSize)
+            {
+                DirtyQueue.Resize(DirtyQueue.MaxSize * 2);
             }
 
             DirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
