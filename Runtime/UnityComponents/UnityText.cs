@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using TMPro;
 
 namespace RishUI.UnityComponents
@@ -46,6 +47,8 @@ namespace RishUI.UnityComponents
             Text.richText = Props.richText;
             Text.raycastTarget = Props.raycastTarget;
             Text.maskable = Props.maskable;
+            
+            Props.onPreferredSize?.Invoke(Text.GetPreferredValues(Size.x, Size.y));
         }
     }
     
@@ -79,5 +82,7 @@ namespace RishUI.UnityComponents
         public bool richText;
         public bool raycastTarget;
         public bool maskable;
+
+        public Action<Vector2> onPreferredSize;
     }
 }

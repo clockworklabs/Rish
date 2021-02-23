@@ -268,7 +268,7 @@ namespace RishUI.Components
                     elements[j] = index < count ? Props.children[index] : RishElement.Null;
                 }
 
-                rowElements[i] = Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
+                rowElements[i] = Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps(Direction.LeftRight)
                 {
                     spacing = Props.spacing.x,
                     elementSize = elementWidth,

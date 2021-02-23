@@ -5,12 +5,19 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Text : RishComponent<TextProps, TextComponentState>, IDerivedState
+    public class Text : RishComponent<TextProps, TextComponentState>, IDerivedState, IDestroyListener
     {
+        private Vector2 PreferredSize { get; set; } = Vector2.negativeInfinity;
+        
         public void UpdateStateFromProps()
         {
             Assets.Get<TMP_FontAsset>(Props.fontAddress, SetFont);
             Assets.Get<Material>(Props.materialAddress, SetMaterial);
+        }
+
+        public void ComponentWillDestroy()
+        {
+            PreferredSize = Vector2.negativeInfinity;
         }
 
         protected override RishElement Render()
@@ -41,7 +48,8 @@ namespace RishUI.Components
                 overflow = overflowMode,
                 richText = Props.richText,
                 raycastTarget = Props.raycastTarget,
-                maskable = Props.maskable
+                maskable = Props.maskable,
+                onPreferredSize = OnPreferredSize
             });
         }
 
@@ -127,6 +135,24 @@ namespace RishUI.Components
                 default:
                     throw new UnityException("Overflow mode not supported");
             }
+        }
+
+        private void OnPreferredSize(Vector2 preferredSize)
+        {
+            if (Props.onPreferredSize == null)
+            {
+                return;
+            }
+            
+            if (Mathf.Approximately(PreferredSize.x, preferredSize.x) &&
+                Mathf.Approximately(PreferredSize.y, preferredSize.y))
+            {
+                return;
+            }
+            
+            PreferredSize = preferredSize;
+
+            Props.onPreferredSize(PreferredSize);
         }
     }
 
@@ -234,6 +260,8 @@ namespace RishUI.Components
         public bool richText;
         public bool raycastTarget;
         public bool maskable;
+
+        public Action<Vector2> onPreferredSize;
         
         public void Default()
         {
@@ -258,6 +286,11 @@ namespace RishUI.Components
 
         public bool Equals(TextProps other)
         {
+            if (onPreferredSize != null || other.onPreferredSize != null)
+            {
+                return false;
+            }
+            
             if (wrapping != other.wrapping)
             {
                 return false;
