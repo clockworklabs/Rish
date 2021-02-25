@@ -63,7 +63,7 @@ namespace RishUI.Components
             var (placeholderHorizontalAlignment, placeholderVerticalAlignment) = Text.GetAlignment(placeholderSettings.alignment);
             var placeholderOverflowMode = Text.GetOverflowMode(placeholderSettings.overflow);
             
-            var textSettings = Props.placeholderSettings;
+            var textSettings = Props.textSettings;
             var (textHorizontalAlignment, textVerticalAlignment) = Text.GetAlignment(textSettings.alignment);
             var textOverflowMode = Text.GetOverflowMode(textSettings.overflow);
             
