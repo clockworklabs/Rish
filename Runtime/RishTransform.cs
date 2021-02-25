@@ -7,13 +7,13 @@ namespace RishUI
     [Serializable]
     public struct RishTransform : IEquatable<RishTransform>
     {
-        public static RishTransform Zero = default;
-        public static RishTransform Default = new RishTransform
+        public static readonly RishTransform Zero = default;
+        public static readonly RishTransform Default = new RishTransform
         {
             max = Anchor.TopRight,
             scale = Vector2.one
         };
-        public static RishTransform Null = new RishTransform
+        public static readonly RishTransform Null = new RishTransform
         {
             margins = new Margins
             {

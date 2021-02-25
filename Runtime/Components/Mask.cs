@@ -22,19 +22,19 @@ namespace RishUI.Components
             
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
-                image = new ImageDef
+                imageDefinition = new UnityComponents.UnityImageDefinition
                 {
                     enabled = sprite,
                     sprite = State.sprite,
                     color = Color.white,
                     maskable = false,
                     raycastTarget = false,
-                    type = sprite && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple
+                    type = sprite && State.sprite.border != Vector4.zero ? UnityComponents.UnityImageDefinition.Type.Sliced : UnityComponents.UnityImageDefinition.Type.Simple
                 },
-                mask = new MaskDef
+                maskDefinition = new UnityMaskDefinition
                 {
                     enabled = true,
-                    type = Props.rect && sprite ? MaskDef.Type.Both : sprite ? MaskDef.Type.Graphic : MaskDef.Type.Rect
+                    type = Props.rect && sprite ? UnityMaskDefinition.Type.Both : sprite ? UnityMaskDefinition.Type.Graphic : UnityMaskDefinition.Type.Rect
                 }
             }, Props.children);
         }

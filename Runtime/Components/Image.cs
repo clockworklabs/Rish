@@ -1,4 +1,5 @@
-﻿using RishUI.UnityComponents;
+﻿using System;
+using RishUI.UnityComponents;
 using UnityEngine;
 
 namespace RishUI.Components
@@ -18,6 +19,8 @@ namespace RishUI.Components
             {
                 return;
             }
+
+            SpriteAddress = Props.spriteAddress;
             
             SetSprite(null);
             Assets.Get<Sprite>(Props.spriteAddress, SetSprite);
@@ -25,18 +28,20 @@ namespace RishUI.Components
 
         protected override RishElement Render()
         {
-            var color = State.sprite != null || string.IsNullOrWhiteSpace(Props.spriteAddress) ? Props.color : Color.clear;
+            var settings = Props.settings;
+            
+            var color = State.sprite != null || string.IsNullOrWhiteSpace(Props.spriteAddress) ? settings.color : Color.clear;
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
-                image = new ImageDef
+                imageDefinition = new UnityImageDefinition
                 {
                     enabled = true,
                     sprite = State.sprite,
                     color = color,
-                    maskable = Props.maskable,
-                    raycastTarget = Props.raycastTarget,
-                    type = State.sprite != null && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple,
-                    preserveAspectRatio = Props.preserveAspectRatio
+                    maskable = settings.maskable,
+                    raycastTarget = settings.raycastTarget,
+                    type = State.sprite != null && State.sprite.border != Vector4.zero ? UnityImageDefinition.Type.Sliced : UnityImageDefinition.Type.Simple,
+                    preserveAspectRatio = settings.preserveAspectRatio
                 }
             });
         }
@@ -48,23 +53,30 @@ namespace RishUI.Components
             State = state;
         }
     }
-    
-    public struct ImageProps : IRishData<ImageProps>
+
+    public struct ImageSettings : IEquatable<ImageSettings>
     {
-        public string spriteAddress;
+        public static readonly ImageSettings Default = new ImageSettings
+        {
+            color = Color.white,
+            maskable = true,
+            raycastTarget = true
+        };
+        
         public Color color;
         public bool maskable;
         public bool raycastTarget;
         public bool preserveAspectRatio;
-        
-        public void Default()
+
+        public ImageSettings(ImageSettings other)
         {
-            color = Color.white;
-            maskable = true;
-            raycastTarget = true;
+            color = other.color;
+            maskable = other.maskable;
+            raycastTarget = other.raycastTarget;
+            preserveAspectRatio = other.preserveAspectRatio;
         }
         
-        public bool Equals(ImageProps other)
+        public bool Equals(ImageSettings other)
         {            
             if (raycastTarget != other.raycastTarget)
             {
@@ -88,11 +100,38 @@ namespace RishUI.Components
             }
 
             if (!transparent && (!Mathf.Approximately(color.r, other.color.r) || !Mathf.Approximately(color.g, other.color.g) ||
-                !Mathf.Approximately(color.b, other.color.b)))
+                                 !Mathf.Approximately(color.b, other.color.b) || !Mathf.Approximately(color.a, other.color.a)))
             {
                 return false;
             }
 
+            return true;
+        }
+    }
+    
+    public struct ImageProps : IRishData<ImageProps>
+    {
+        public string spriteAddress;
+        public ImageSettings settings;
+
+        public ImageProps(ImageSettings settings)
+        {
+            spriteAddress = null;
+            this.settings = settings;
+        }
+        
+        public void Default()
+        {
+            settings = ImageSettings.Default;
+        }
+        
+        public bool Equals(ImageProps other)
+        {
+            if (!settings.Equals(other.settings))
+            {
+                return false;
+            }
+            
             var emptyAddress = string.IsNullOrWhiteSpace(spriteAddress);
             if (emptyAddress != string.IsNullOrWhiteSpace(other.spriteAddress))
             {

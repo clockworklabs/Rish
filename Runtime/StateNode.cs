@@ -58,7 +58,7 @@ namespace RishUI
                 return false;
             }
 
-            for (int i = 0; i < Children.Count; i++)
+            for (var i = 0; i < Children.Count; i++)
             {
                 var child = Children[i];
                 if (child.IsRealTree()) {

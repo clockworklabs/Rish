@@ -1,13 +1,27 @@
-﻿using RishUI.Input;
+﻿using Microsoft.VisualBasic;
+using RishUI.Input;
 using RishUI.UnityComponents;
 using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Div : RishComponent<DivProps, DivState>, IDerivedState, ITapListener, ITapStartListener, ITapCancelListener, IDragListener, IDragStartListener, IDragEndListener, IScrollListener
+    public class Div : RishComponent<DivProps, DivState>, IDerivedState, IDestroyListener, ITapListener, ITapStartListener, ITapCancelListener, IDragListener, IDragStartListener, IDragEndListener, IScrollListener
     {
+        private string BackgroundSpriteAddress { get; set; }
+
+        public void ComponentWillDestroy()
+        {
+            BackgroundSpriteAddress = null;
+        }
+
         public void UpdateStateFromProps()
         {
+            if (BackgroundSpriteAddress == Props.backgroundSpriteAddress)
+            {
+                return;
+            }
+
+            BackgroundSpriteAddress = Props.backgroundSpriteAddress;
             Assets.Get<Sprite>(Props.backgroundSpriteAddress, SetSprite);
         }
         
@@ -24,19 +38,19 @@ namespace RishUI.Components
             
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
-                image = new ImageDef
+                imageDefinition = new UnityImageDefinition
                 {
                     enabled = image,
                     color = sprite ? Color.white : Color.clear,
                     sprite = State.sprite,
                     maskable = Props.maskable,
                     raycastTarget = Props.raycastTarget,
-                    type = sprite && State.sprite.border != Vector4.zero ? ImageDef.Type.Sliced : ImageDef.Type.Simple
+                    type = sprite && State.sprite.border != Vector4.zero ? UnityImageDefinition.Type.Sliced : UnityImageDefinition.Type.Simple
                 },
-                mask = new MaskDef
+                maskDefinition = new UnityMaskDefinition
                 {
                     enabled = Props.maskContent,
-                    type = MaskDef.Type.Rect,
+                    type = UnityMaskDefinition.Type.Rect,
                     rectMaskSoftness = Props.maskSoftness
                 }
             }, Props.children);

@@ -1,0 +1,53 @@
+﻿using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace RishUI.UnityComponents
+{
+    [RequireComponent(typeof(TMP_InputField))]
+    public class UnityInputField : UnityComponent<UnityInputFieldProps>
+    {
+        [SerializeField] 
+        private Image _image;
+        private Image Image => _image;
+        [SerializeField]
+        private TextMeshProUGUI _placeholderText;
+        private TextMeshProUGUI PlaceholderText => _placeholderText;
+        [SerializeField]
+        private TextMeshProUGUI _text;
+        private TextMeshProUGUI Text => _text;
+        
+        [SerializeField] 
+        private TMP_InputField _inputField;
+        private TMP_InputField InputField => _inputField;
+
+        private void Awake()
+        {
+            InputField.onValueChanged.RemoveAllListeners();
+            InputField.onValueChanged.AddListener(OnChange);
+        }
+
+        public override void Render()
+        {
+            Props.imageDefinition.SetComponent(Image);
+            Props.placeholderDefinition.SetComponent(PlaceholderText);
+            Props.textDefinition.SetComponent(Text);
+            Props.inputFieldDefinition.SetComponent(InputField);
+        }
+
+        private void OnChange(string value)
+        {
+            Props.onChange?.Invoke(value);
+        }
+    }
+
+    public struct UnityInputFieldProps
+    {
+        public UnityImageDefinition imageDefinition;
+        public UnityTextDefinition placeholderDefinition;
+        public UnityTextDefinition textDefinition;
+        public UnityInputFieldDefinition inputFieldDefinition;
+        public Action<string> onChange;
+    }
+}
