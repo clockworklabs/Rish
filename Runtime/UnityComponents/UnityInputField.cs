@@ -33,6 +33,8 @@ namespace RishUI.UnityComponents
             Props.imageDefinition.SetComponent(Image);
             Props.placeholderDefinition.SetComponent(PlaceholderText);
             Props.textDefinition.SetComponent(Text);
+            Text.enableWordWrapping = false;
+            Text.overflowMode = TextOverflowModes.Overflow;
             Props.inputFieldDefinition.SetComponent(InputField);
         }
 
