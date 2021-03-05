@@ -35,6 +35,8 @@ namespace RishUI.UnityComponents
             Props.textDefinition.SetComponent(Text);
             Text.enableWordWrapping = false;
             Text.overflowMode = TextOverflowModes.Overflow;
+            PlaceholderText.margin = Props.textMargin;
+            Text.margin = Props.textMargin;
             Props.inputFieldDefinition.SetComponent(InputField);
         }
 
@@ -50,6 +52,7 @@ namespace RishUI.UnityComponents
         public UnityTextDefinition placeholderDefinition;
         public UnityTextDefinition textDefinition;
         public UnityInputFieldDefinition inputFieldDefinition;
+        public Vector4 textMargin;
         public Action<string> onChange;
     }
 }

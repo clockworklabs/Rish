@@ -178,6 +178,7 @@ namespace RishUI.Components
                     readOnly = Props.readOnly,
                     richText = Props.richText
                 },
+                textMargin = new Vector4(Props.textMargin.left, Props.textMargin.top, Props.textMargin.right, Props.textMargin.bottom),
                 onChange = Props.onChange
             });
         }
@@ -245,6 +246,8 @@ namespace RishUI.Components
         public bool readOnly;
         public bool richText;
 
+        public Margins textMargin;
+
         public Action<string> onChange;
 
         public void Default()
@@ -306,6 +309,11 @@ namespace RishUI.Components
             }
             
             if(type != other.type) {
+                return false;
+            }
+
+            if (!textMargin.Equals(other.textMargin))
+            {
                 return false;
             }
 
