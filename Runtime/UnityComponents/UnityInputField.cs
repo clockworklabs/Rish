@@ -28,14 +28,19 @@ namespace RishUI.UnityComponents
             InputField.onValueChanged.AddListener(OnChange);
         }
 
+        private void OnEnable()
+        {
+            InputField.text = null;
+        }
+
         public override void Render()
         {
             Props.imageDefinition.SetComponent(Image);
             Props.placeholderDefinition.SetComponent(PlaceholderText);
+            PlaceholderText.margin = Props.textMargin;
             Props.textDefinition.SetComponent(Text);
             Text.enableWordWrapping = false;
             Text.overflowMode = TextOverflowModes.Overflow;
-            PlaceholderText.margin = Props.textMargin;
             Text.margin = Props.textMargin;
             Props.inputFieldDefinition.SetComponent(InputField);
         }

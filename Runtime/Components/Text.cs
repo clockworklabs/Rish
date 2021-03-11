@@ -411,11 +411,6 @@ namespace RishUI.Components
 
         public bool Equals(TextProps other)
         {
-            if (onPreferredSize != null || other.onPreferredSize != null)
-            {
-                return false;
-            }
-            
             var textSet = string.IsNullOrWhiteSpace(text);
             if (textSet != string.IsNullOrWhiteSpace(other.text))
             {

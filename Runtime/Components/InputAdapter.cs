@@ -49,51 +49,6 @@ namespace RishUI.Components
 
         public void Default() { }
 
-        public bool Equals(InputAdapterProps other)
-        {
-            if (onHoverStart != null || other.onHoverStart != null)
-            {
-                return false;
-            }
-            if (onHoverEnd != null || other.onHoverEnd != null)
-            {
-                return false;
-            }
-            if (onTap != null || other.onTap != null)
-            {
-                return false;
-            }
-            if (onTapStart != null || other.onTapStart != null)
-            {
-                return false;
-            }
-            if (onTapCancel != null || other.onTapCancel != null)
-            {
-                return false;
-            }
-            if (onDrag != null || other.onDrag != null)
-            {
-                return false;
-            }
-            if (onDragStart != null || other.onDragStart != null)
-            {
-                return false;
-            }
-            if (onDragEnd != null || other.onDragEnd != null)
-            {
-                return false;
-            }
-            if (onScroll != null || other.onScroll != null)
-            {
-                return false;
-            }
-
-            if (!content.Equals(other.content))
-            {
-                return false;
-            }
-
-            return true;
-        }
+        public bool Equals(InputAdapterProps other) => content.Equals(other.content);
     }
 }

@@ -256,6 +256,10 @@ namespace RishUI.Components
             {
                 return false;
             }
+            if (raycastTarget != other.raycastTarget)
+            {
+                return false;
+            }
             
             if (!Mathf.Approximately(spacing, other.spacing))
             {

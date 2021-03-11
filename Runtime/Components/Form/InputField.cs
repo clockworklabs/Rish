@@ -18,6 +18,8 @@ namespace RishUI.Components
             ImageSpriteAddress = null;
             PlaceholderFontAddress = null;
             PlaceholderMaterialAddress = null;
+            TextFontAddress = null;
+            TextMaterialAddress = null;
         }
         
         public void UpdateStateFromProps()
@@ -179,9 +181,11 @@ namespace RishUI.Components
                     richText = Props.richText
                 },
                 textMargin = new Vector4(Props.textMargin.left, Props.textMargin.top, Props.textMargin.right, Props.textMargin.bottom),
-                onChange = Props.onChange
+                onChange = OnChange
             });
         }
+
+        private void OnChange(string text) => Props.onChange?.Invoke(text);
 
         private void SetImageSprite(Sprite sprite)
         {
@@ -280,11 +284,6 @@ namespace RishUI.Components
 
         public bool Equals(InputFieldProps other)
         {
-            if (onChange != null || other.onChange != null)
-            {
-                return false;
-            }
-            
             if(selectAllOnFocus != other.selectAllOnFocus) {
                 return false;
             }

@@ -105,11 +105,6 @@ namespace RishUI.Components
 
         public bool Equals(ButtonProps other)
         {
-            if (action != null || other.action != null)
-            {
-                return false;
-            }
-
             if (interactable != other.interactable)
             {
                 return false;
