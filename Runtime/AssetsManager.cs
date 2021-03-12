@@ -1,5 +1,8 @@
 ﻿using System;
 using RishUI;
+using UnityEditor.VersionControl;
+
+public delegate void AssetResult<T>(string address, T asset);
 
 public class AssetsManager
 {
@@ -10,16 +13,16 @@ public class AssetsManager
         App = app;
     }
 
-    public void Get<T>(string address, Action<T> callback)
+    public void Get<T>(string address, AssetResult<T> callback)
     {
-        if (callback == null)
+        if(callback == null)
         {
             return;
         }
         
-        if (string.IsNullOrWhiteSpace(address))
+        if(string.IsNullOrWhiteSpace(address))
         {
-            callback.Invoke(default);
+            callback.Invoke(address, default);
             return;
         }
         

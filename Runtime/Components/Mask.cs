@@ -5,9 +5,19 @@ namespace RishUI.Components
 {
     public class Mask : RishComponent<MaskProps, MaskState>, IDerivedState
     {
+        private string SpriteAddress { get; set; }
+        
         public void UpdateStateFromProps()
         {
-            Assets.Get<Sprite>(Props.spriteAddress, SetSprite);
+            if (SpriteAddress == Props.spriteAddress)
+            {
+                return;
+            }
+
+            SpriteAddress = Props.spriteAddress;
+            
+            SetSprite(null);
+            Assets.Get<Sprite>(Props.spriteAddress, OnSprite);
         }
 
         protected override RishElement Render()
@@ -37,6 +47,16 @@ namespace RishUI.Components
                     type = Props.rect && sprite ? UnityMaskDefinition.Type.Both : sprite ? UnityMaskDefinition.Type.Graphic : UnityMaskDefinition.Type.Rect
                 }
             }, Props.children);
+        }
+
+        private void OnSprite(string address, Sprite sprite)
+        {                
+            if (address != SpriteAddress)
+            {
+                return;
+            }
+            
+            SetSprite(sprite);
         }
 
         private void SetSprite(Sprite sprite)

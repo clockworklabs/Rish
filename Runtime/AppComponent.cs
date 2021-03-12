@@ -1,5 +1,4 @@
-﻿using System;
-using RishUI.Styling;
+﻿using RishUI.Styling;
 using UnityEngine;
 
 namespace RishUI
@@ -8,7 +7,7 @@ namespace RishUI
     [DisallowMultipleComponent]
     public abstract class AppComponent : MonoBehaviour
     {
-        public abstract void GetAsset<T>(string address, Action<T> callback);
+        public abstract void GetAsset<T>(string address, AssetResult<T> callback);
 
         public abstract RishElement Run(RCSS rcss);
     }

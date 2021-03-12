@@ -22,7 +22,7 @@ namespace RishUI.Components
             }
 
             BackgroundSpriteAddress = Props.backgroundSpriteAddress;
-            Assets.Get<Sprite>(Props.backgroundSpriteAddress, SetSprite);
+            Assets.Get<Sprite>(Props.backgroundSpriteAddress, OnSprite);
         }
         
         protected override RishElement Render()
@@ -54,6 +54,16 @@ namespace RishUI.Components
                     rectMaskSoftness = Props.maskSoftness
                 }
             }, Props.children);
+        }
+
+        private void OnSprite(string address, Sprite sprite)
+        {                
+            if (address != BackgroundSpriteAddress)
+            {
+                return;
+            }
+            
+            SetSprite(sprite);
         }
 
         private void SetSprite(Sprite sprite)

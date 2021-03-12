@@ -18,12 +18,12 @@ namespace RishUI.Components
             if (FontAddress != settings.fontAddress)
             {
                 FontAddress = settings.fontAddress;
-                Assets.Get<TMP_FontAsset>(settings.fontAddress, SetFont);
+                Assets.Get<TMP_FontAsset>(settings.fontAddress, OnFont);
             }
             if (MaterialAddress != settings.materialAddress)
             {
                 MaterialAddress = settings.materialAddress;
-                Assets.Get<Material>(settings.materialAddress, SetMaterial);
+                Assets.Get<Material>(settings.materialAddress, OnMaterial);
             }
         }
 
@@ -70,6 +70,26 @@ namespace RishUI.Components
                 },
                 onPreferredSize = OnPreferredSize
             });
+        }
+
+        private void OnFont(string address, TMP_FontAsset font)
+        {                
+            if (address != FontAddress)
+            {
+                return;
+            }
+            
+            SetFont(font);
+        }
+
+        private void OnMaterial(string address, Material material)
+        {                
+            if (address != MaterialAddress)
+            {
+                return;
+            }
+            
+            SetMaterial(material);
         }
 
         private void SetFont(TMP_FontAsset font)

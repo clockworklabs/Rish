@@ -23,7 +23,7 @@ namespace RishUI.Components
             SpriteAddress = Props.spriteAddress;
             
             SetSprite(null);
-            Assets.Get<Sprite>(Props.spriteAddress, SetSprite);
+            Assets.Get<Sprite>(Props.spriteAddress, OnSprite);
         }
 
         protected override RishElement Render()
@@ -44,6 +44,16 @@ namespace RishUI.Components
                     preserveAspectRatio = settings.preserveAspectRatio
                 }
             });
+        }
+
+        private void OnSprite(string address, Sprite sprite)
+        {                
+            if (address != SpriteAddress)
+            {
+                return;
+            }
+            
+            SetSprite(sprite);
         }
 
         private void SetSprite(Sprite sprite)

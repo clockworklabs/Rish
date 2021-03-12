@@ -28,31 +28,31 @@ namespace RishUI.Components
             {            
                 ImageSpriteAddress = Props.imageSpriteAddress;
                 SetImageSprite(null);
-                Assets.Get<Sprite>(Props.imageSpriteAddress, SetImageSprite);
+                Assets.Get<Sprite>(Props.imageSpriteAddress, OnImageSprite);
             }
 
             var placeholderSettings = Props.placeholderSettings;
             if (PlaceholderFontAddress != placeholderSettings.fontAddress)
             {
                 PlaceholderFontAddress = placeholderSettings.fontAddress;
-                Assets.Get<TMP_FontAsset>(placeholderSettings.fontAddress, SetPlaceholderFont);
+                Assets.Get<TMP_FontAsset>(placeholderSettings.fontAddress, OnPlaceholderFont);
             }
             if (PlaceholderMaterialAddress != placeholderSettings.materialAddress)
             {
                 PlaceholderMaterialAddress = placeholderSettings.materialAddress;
-                Assets.Get<Material>(placeholderSettings.materialAddress, SetPlaceholderMaterial);
+                Assets.Get<Material>(placeholderSettings.materialAddress, OnPlaceholderMaterial);
             }
 
             var textSettings = Props.textSettings;
             if (TextFontAddress != textSettings.fontAddress)
             {
                 TextFontAddress = textSettings.fontAddress;
-                Assets.Get<TMP_FontAsset>(textSettings.fontAddress, SetTextFont);
+                Assets.Get<TMP_FontAsset>(textSettings.fontAddress, OnTextFont);
             }
             if (TextMaterialAddress != textSettings.materialAddress)
             {
                 TextMaterialAddress = textSettings.materialAddress;
-                Assets.Get<Material>(textSettings.materialAddress, SetTextMaterial);
+                Assets.Get<Material>(textSettings.materialAddress, OnTextMaterial);
             }
         }
         
@@ -186,6 +186,56 @@ namespace RishUI.Components
         }
 
         private void OnChange(string text) => Props.onChange?.Invoke(text);
+
+        private void OnImageSprite(string address, Sprite sprite)
+        {                
+            if (address != ImageSpriteAddress)
+            {
+                return;
+            }
+            
+            SetImageSprite(sprite);
+        }
+
+        private void OnPlaceholderFont(string address, TMP_FontAsset font)
+        {                
+            if (address != PlaceholderFontAddress)
+            {
+                return;
+            }
+            
+            SetPlaceholderFont(font);
+        }
+
+        private void OnPlaceholderMaterial(string address, Material material)
+        {                
+            if (address != PlaceholderMaterialAddress)
+            {
+                return;
+            }
+            
+            SetPlaceholderMaterial(material);
+        }
+
+        private void OnTextFont(string address, TMP_FontAsset font)
+        {                
+            if (address != TextFontAddress)
+            {
+                return;
+            }
+            
+            SetTextFont(font);
+        }
+
+        private void OnTextMaterial(string address, Material material)
+        {                
+            if (address != TextMaterialAddress)
+            {
+                return;
+            }
+            
+            SetTextMaterial(material);
+        }
 
         private void SetImageSprite(Sprite sprite)
         {

@@ -29,13 +29,13 @@ namespace RishUI.UnityComponents
                 Image.Type unityType;
                 switch (type)
                 {
-                    case UnityImageDefinition.Type.Simple:
+                    case Type.Simple:
                         unityType = Image.Type.Simple;
                         break;
-                    case UnityImageDefinition.Type.Sliced:
+                    case Type.Sliced:
                         unityType = Image.Type.Sliced;
                         break;
-                    case UnityImageDefinition.Type.Tiled:
+                    case Type.Tiled:
                         unityType = Image.Type.Tiled;
                         break;
                     default:
