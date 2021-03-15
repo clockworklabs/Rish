@@ -1,5 +1,4 @@
-﻿using System;
-using RishUI;
+using System;
 using UnityEngine;
 
 namespace RishUI

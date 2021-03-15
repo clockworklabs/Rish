@@ -4,8 +4,6 @@
     {
         public override void Render()
         {
-            
         }
     }
 }
-

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using RishUI.Styling;
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace RishUI.Styling
 {

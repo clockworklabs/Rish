@@ -1,6 +1,6 @@
-﻿using System;
-using RishUI.Styling;
+using System;
 using RishUI.Input;
+using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

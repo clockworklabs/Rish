@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using RishUI.Input;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace RishUI
 {

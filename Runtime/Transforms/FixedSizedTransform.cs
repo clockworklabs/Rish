@@ -20,6 +20,15 @@ namespace RishUI
             }
         }
 
+        public FixedSizedTransform(FixedSizedTransform other)
+        {
+            anchor = other.anchor;
+            size = other.size;
+            offset = other.offset;
+            _customPivot = other._customPivot;
+            _pivot = other._pivot;
+        }
+
         public static implicit operator RishTransform(FixedSizedTransform transform)
         {
             var ps = transform.pivot * transform.size;

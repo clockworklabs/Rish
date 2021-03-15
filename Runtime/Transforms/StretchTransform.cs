@@ -1,10 +1,9 @@
-﻿using System;
 using UnityEngine;
 
 namespace RishUI
 {
     public enum Stretch { Top, Middle, Bottom, Left, Center, Right }
-    
+
     public struct StretchTransform
     {
         public Stretch anchors;
@@ -45,13 +44,18 @@ namespace RishUI
             }
         }
 
-        public StretchTransform(Stretch anchors)
+        public StretchTransform(StretchTransform other)
+        {
+            anchors = other.anchors;
+            size = other.size;
+            offset = other.offset;
+            _customPivot = other._customPivot;
+            _pivot = other._pivot;
+        }
+
+        public StretchTransform(Stretch anchors)  : this()
         {
             this.anchors = anchors;
-            size = new Vector2();
-            offset = new Vector2();
-            _customPivot = false;
-            _pivot = new Vector2();
         }
 
         public static implicit operator RishTransform(StretchTransform transform)

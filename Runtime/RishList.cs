@@ -87,10 +87,7 @@ namespace RishUI
         {
             get
             {
-                if (Collection)
-                {
-                    return _children[index];
-                }
+                if (Collection) return _children[index];
 
                 switch (index)
                 {
@@ -110,56 +107,70 @@ namespace RishUI
             }
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(this);
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
 
         public bool Equals(RishList<T> other)
         {
             var count = Count;
-            if (count != other.Count)
-            {
-                return false;
-            }
+            if (count != other.Count) return false;
 
-            if (count <= 0)
-            {
-                return true;
-            }
+            if (count <= 0) return true;
 
-            if (Count == 1)
-            {
-                return this[0].Equals(other[0]);
-            }
+            if (Count == 1) return this[0].Equals(other[0]);
 
-            if (_children == other._children)
-            {
-                return false;
-            }
+            if (_children == other._children) return false;
 
             for (var i = Count - 1; i >= 0; i--)
-            {
                 if (!this[i].Equals(other[i]))
-                {
                     return false;
-                }
-            }
 
             return true;
         }
 
-        public static implicit operator RishList<T>(T element) => new RishList<T>(element);
-        public static implicit operator RishList<T>(T[] children) => new RishList<T>(children);
-        public static implicit operator RishList<T>(List<T> children) => new RishList<T>(children);
-        public static implicit operator RishList<T>((T, T) children) => new RishList<T>(children.Item1, children.Item2);
-        public static implicit operator RishList<T>((T, T, T) children) => new RishList<T>(children.Item1, children.Item2, children.Item3);
-        public static implicit operator RishList<T>((T, T, T, T) children) => new RishList<T>(children.Item1, children.Item2, children.Item3, children.Item4);
-        public static implicit operator RishList<T>((T, T, T, T, T) children) => new RishList<T>(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5);
-        
+        public static implicit operator RishList<T>(T element)
+        {
+            return new RishList<T>(element);
+        }
+
+        public static implicit operator RishList<T>(T[] children)
+        {
+            return new RishList<T>(children);
+        }
+
+        public static implicit operator RishList<T>(List<T> children)
+        {
+            return new RishList<T>(children);
+        }
+
+        public static implicit operator RishList<T>((T, T) children)
+        {
+            return new RishList<T>(children.Item1, children.Item2);
+        }
+
+        public static implicit operator RishList<T>((T, T, T) children)
+        {
+            return new RishList<T>(children.Item1, children.Item2, children.Item3);
+        }
+
+        public static implicit operator RishList<T>((T, T, T, T) children)
+        {
+            return new RishList<T>(children.Item1, children.Item2, children.Item3, children.Item4);
+        }
+
+        public static implicit operator RishList<T>((T, T, T, T, T) children)
+        {
+            return new RishList<T>(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5);
+        }
+
         public struct Enumerator
         {
             private readonly RishList<T> _children;
             private readonly bool _collection;
             private readonly int _count;
-        
+
             private int _index;
             private T _current;
 
@@ -183,7 +194,7 @@ namespace RishUI
                 }
 
                 _current = _children._child0;
-                
+
                 return false;
             }
         }

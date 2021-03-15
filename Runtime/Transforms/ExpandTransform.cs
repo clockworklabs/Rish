@@ -25,6 +25,11 @@
             set => margins.left = value;
         }
 
+        public ExpandTransform(ExpandTransform other)
+        {
+            margins = other.margins;
+        }
+
         public ExpandTransform(Margins margins)
         {
             this.margins = margins;

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using RishUI.Input;
-using UnityEngine;
 
 namespace RishUI.Components
 {
