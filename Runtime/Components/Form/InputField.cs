@@ -5,15 +5,22 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IDerivedState, IDestroyListener
+    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IMountingListener, IPropsListener
     {
+        private Form Form { get; set; }
+        
         private string ImageSpriteAddress { get; set; }
         private string PlaceholderFontAddress { get; set; }
         private string PlaceholderMaterialAddress { get; set; }
         private string TextFontAddress { get; set; }
         private string TextMaterialAddress { get; set; }
-        
-        public void ComponentWillDestroy()
+
+        public void ComponentDidMount()
+        {
+            Form = GetParent<Form>();
+        }
+
+        public void ComponentWillUnmount()
         {
             ImageSpriteAddress = null;
             PlaceholderFontAddress = null;
@@ -22,10 +29,12 @@ namespace RishUI.Components
             TextMaterialAddress = null;
         }
         
-        public void UpdateStateFromProps()
+        public void PropsDidChange()
         {
+            Form?.Add(Props.name, () => "Content");
+            
             if (ImageSpriteAddress != Props.imageSpriteAddress)
-            {            
+            {
                 ImageSpriteAddress = Props.imageSpriteAddress;
                 SetImageSprite(null);
                 Assets.Get<Sprite>(Props.imageSpriteAddress, OnImageSprite);
@@ -55,7 +64,12 @@ namespace RishUI.Components
                 Assets.Get<Material>(textSettings.materialAddress, OnTextMaterial);
             }
         }
-        
+
+        public void PropsWillChange()
+        {
+            Form?.Remove(Props.name);
+        }
+
         protected override RishElement Render()
         {
             var imageSettings = Props.imageSettings;
@@ -181,14 +195,16 @@ namespace RishUI.Components
                     richText = Props.richText
                 },
                 textMargin = new Vector4(Props.textMargin.left, Props.textMargin.top, Props.textMargin.right, Props.textMargin.bottom),
-                onChange = OnChange
+                onChange = OnChange,
+                onSubmit = OnSubmit
             });
         }
 
         private void OnChange(string text) => Props.onChange?.Invoke(text);
+        private void OnSubmit(string text) => Props.onSubmit?.Invoke(text);
 
         private void OnImageSprite(string address, Sprite sprite)
-        {                
+        {
             if (address != ImageSpriteAddress)
             {
                 return;
@@ -278,6 +294,8 @@ namespace RishUI.Components
 
     public struct InputFieldProps : IRishData<InputFieldProps>
     {
+        public string name;
+        
         public string imageSpriteAddress;
         public ImageSettings imageSettings;
         
@@ -303,6 +321,7 @@ namespace RishUI.Components
         public Margins textMargin;
 
         public Action<string> onChange;
+        public Action<string> onSubmit;
 
         public void Default()
         {
@@ -422,6 +441,11 @@ namespace RishUI.Components
                 {
                     return false;
                 }
+            }
+
+            if (name != other.name)
+            {
+                return false;
             }
             
             if (text != other.text)

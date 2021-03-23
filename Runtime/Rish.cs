@@ -105,6 +105,16 @@ namespace RishUI
             }
         }
 
+        private void OnGUI()
+        {
+            var e = Event.current;
+            if (!e.isKey || e.keyCode == KeyCode.None)
+            {
+                return;
+            }
+            Debug.Log(e.keyCode);
+        }
+
         public void OnNodeDirty(StateNode node, bool forceThisFrame = false)
         {
             if (forceThisFrame || node.Depth > CurrentDepth)

@@ -285,6 +285,29 @@ namespace RishUI
                 RCSS.Override(Style, ref result);
             }
         }
+
+        protected T GetParent<T>() where T : RishComponent
+        {
+            var parent = Parent;
+            do
+            {
+                switch (parent)
+                {
+                    case T tParent:
+                        return tParent;
+                    case RishComponent rishParent:
+                        parent = rishParent.Parent;
+                        break;
+                    case UnityComponent unityParent:
+                        parent = unityParent.Parent;
+                        break;
+                    default:
+                        throw new UnityException("Component type not supported");
+                }
+            } while (parent != null);
+
+            return null;
+        }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
