@@ -26,8 +26,6 @@ namespace RishUI.UnityComponents
         {
             InputField.onValueChanged.RemoveAllListeners();
             InputField.onValueChanged.AddListener(OnChange);
-            InputField.onEndEdit.RemoveAllListeners();
-            InputField.onEndEdit.AddListener(OnSubmit);
         }
 
         private void OnEnable()
@@ -48,7 +46,6 @@ namespace RishUI.UnityComponents
         }
 
         private void OnChange(string value) => Props.onChange?.Invoke(value);
-        private void OnSubmit(string value) => Props.onSubmit?.Invoke(value);
     }
 
     public struct UnityInputFieldProps
@@ -59,6 +56,5 @@ namespace RishUI.UnityComponents
         public UnityInputFieldDefinition inputFieldDefinition;
         public Vector4 textMargin;
         public Action<string> onChange;
-        public Action<string> onSubmit;
     }
 }

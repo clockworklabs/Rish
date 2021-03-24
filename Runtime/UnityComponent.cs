@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -217,6 +218,7 @@ namespace RishUI
         public void OnBeginDrag(PointerEventData eventData, bool dragStartHandled) => Parent?.OnBeginDrag(eventData, dragStartHandled);
         public void OnEndDrag(PointerEventData eventData, bool dragEndHandled) => Parent?.OnEndDrag(eventData, dragEndHandled);
         public void OnScroll(PointerEventData eventData, bool scrollHandled) => Parent?.OnScroll(eventData, scrollHandled);
+        public void OnKeyDown(KeyboardInfo info, bool keyDownHandled) => Parent?.OnKeyDown(info, keyDownHandled);
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {

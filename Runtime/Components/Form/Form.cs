@@ -1,32 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using RishUI.Input;
+using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Form : RishComponent<FormProps>
+    public class Form : RishComponent<FormProps>, IKeyDownListener, IDestroyListener
     {
-        private Dictionary<string, Func<object>> Fields { get; } = new Dictionary<string, Func<object>>();
-        
-        public void Add(string name, Func<object> getter)
+        private List<IFormElement> Elements { get; } = new List<IFormElement>();
+
+        public void ComponentWillDestroy()
         {
-            if (string.IsNullOrWhiteSpace(name))
+            Elements.Clear();
+        }
+
+        // TODO: Improve performance
+        public void Add(IFormElement element) {
+            if (element == null || Elements.Contains(element))
             {
                 return;
             }
-            Fields[name] = getter;
+            
+            Elements.Add(element);
         }
-        
-        public void Remove(string name) => Fields.Remove(name);
+
+        // TODO: Improve performance
+        public void Remove(IFormElement element)
+        {
+            if (element == null || !Elements.Contains(element))
+            {
+                return;
+            }
+            
+            Elements.Remove(element);
+        }
 
         protected override RishElement Render()
         {
             return Props.content;
         }
+
+        public bool OnKeyDown(KeyboardInfo info)
+        {
+            if (info.keyCode != KeyCode.Return)
+            {
+                return false;
+            }
+            
+            Submit();
+            return true;
+        }
+
+        private void Submit() => Props.action?.Invoke();
     }
 
     public struct FormProps : IRishData<FormProps>
     {
         public RishElement content;
+        public Action action;
         
         public void Default() { }
 

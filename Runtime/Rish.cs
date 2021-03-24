@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using Priority_Queue;
 using RishUI.Components;
+using RishUI.Input;
 using RishUI.Styling;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace RishUI
 {
@@ -17,6 +19,16 @@ namespace RishUI
         #if UNITY_EDITOR
         public event Action<StateNode> OnRender;
         # endif
+
+        [SerializeField]
+        private EventSystem _eventSystem;
+        private EventSystem EventSystem
+        {
+            get => _eventSystem;
+            set => _eventSystem = value;
+        }
+        
+        [Space]
         
         [SerializeField]
         private PrototypesProvider _prototypesProvider;
@@ -32,6 +44,7 @@ namespace RishUI
         private RectTransform _rootTransform;
         public RectTransform RootTransform => _rootTransform;
 
+        private InputSystem Input { get; set; }
         private Pool Pool { get; set; }
 
         private int CurrentDepth { get; set; } = -1;
@@ -58,10 +71,20 @@ namespace RishUI
                 dimensionsTracker = RootTransform.gameObject.AddComponent<DimensionsTracker>();
                 dimensionsTracker.ForceUpdate();
             }
+
+            if (EventSystem == null)
+            {
+                EventSystem = FindObjectOfType<EventSystem>();
+                if (EventSystem == null)
+                {
+                    EventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
+                }
+            }
+            Input = new InputSystem(EventSystem);
             
             var rcss = new RCSS();
             var assets = new AssetsManager(app);
-            Pool = new Pool(dimensionsTracker, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
+            Pool = new Pool(dimensionsTracker, Input, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
 
             Root = AddChild(null, Create<Div, DivProps>(new DivProps
             {
@@ -105,17 +128,9 @@ namespace RishUI
             }
         }
 
-        private void OnGUI()
-        {
-            var e = Event.current;
-            if (!e.isKey || e.keyCode == KeyCode.None)
-            {
-                return;
-            }
-            Debug.Log(e.keyCode);
-        }
+        private void OnGUI() => Input.OnEvent(Event.current);
 
-        public void OnNodeDirty(StateNode node, bool forceThisFrame = false)
+        internal void OnNodeDirty(StateNode node, bool forceThisFrame = false)
         {
             if (forceThisFrame || node.Depth > CurrentDepth)
             {
@@ -144,9 +159,116 @@ namespace RishUI
 
         private void AddNodeToList(StateNode node) => DirtyList.Add(node);
 
-        public void OnNodeUnmounted(StateNode node)
+        internal void OnNodeUnmounted(StateNode node)
         {
             Unmounted.Add(node);
+        }
+        
+        private void Render(StateNode node)
+        {
+            if (!node.Mounted) return;
+
+            switch (node.Component)
+            {
+                case RishComponent rishComponent:
+                {
+                    var child = rishComponent.SetupAndRender();
+
+                    Reconcile(node, child);
+
+                    break;
+                }
+                case UnityComponent unityComponent:
+                {
+                    unityComponent.Render();
+                    break;
+                }
+            }
+            
+            #if UNITY_EDITOR
+            OnRender?.Invoke(node);
+            #endif
+        }
+
+        private void Reconcile(StateNode node, RishElement child)
+        {
+            if (!node.Mounted) return;
+            
+            node.Clear();
+
+            if (child.Valid)
+            {
+                var childNode = AddChild(node, child);
+
+                if (childNode.Component is UnityComponent unityComponent)
+                {
+                    Reconcile(childNode, unityComponent.Children);
+                }
+            }
+
+            node.Clean();
+        }
+
+        private void Reconcile(StateNode node, RishList<RishElement> children)
+        {
+            if (!node.Active) return;
+            
+            node.Clear();
+
+            for (int i = 0, n = children.Count; i < n; i++)
+            {
+                var child = children[i];
+                if (!child.Valid) continue;
+                
+                var childNode = AddChild(node, child);
+
+                if (childNode.Component is UnityComponent unityComponent)
+                {
+                    Reconcile(childNode, unityComponent.Children);
+                }
+            }
+
+            node.Clean();
+        }
+
+        private StateNode AddChild(StateNode node, RishElement child)
+        {
+            var type = child.type;
+            var key = child.key;
+            var style = child.style != 0
+                ? child.style
+                : node?.Style ?? 0;
+
+            var childNode = node?.FindFreeChild(type, key, style);
+            if (childNode == null)
+            {
+                if (node == null || node.Active)
+                {
+                    childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this, Pool);
+                    childNode.Reset();
+                    childNode.Initialize(key, style, Pool.GetFromPool(type), node);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            childNode.UpdateIndex();
+            
+            var component = childNode.Component;
+            switch (component)
+            {
+                case RishComponent rishComponent:
+                    rishComponent.UpdateComponent(child.transform, child.setup);
+                    break;
+                case UnityComponent unityComponent:
+                    unityComponent.UpdateComponent(child.transform, child.setup);
+                    break;
+                default:
+                    throw new UnityException("Component type not supported");
+            }
+
+            return childNode;
         }
         
         // =======================
@@ -353,113 +475,6 @@ namespace RishUI
                     unityComponent.Props = props;
                 }
             });
-        }
-
-        private void Render(StateNode node)
-        {
-            if (!node.Mounted) return;
-
-            switch (node.Component)
-            {
-                case RishComponent rishComponent:
-                {
-                    var child = rishComponent.SetupAndRender();
-
-                    Reconcile(node, child);
-
-                    break;
-                }
-                case UnityComponent unityComponent:
-                {
-                    unityComponent.Render();
-                    break;
-                }
-            }
-            
-            #if UNITY_EDITOR
-            OnRender?.Invoke(node);
-            #endif
-        }
-
-        private void Reconcile(StateNode node, RishElement child)
-        {
-            if (!node.Mounted) return;
-            
-            node.Clear();
-
-            if (child.Valid)
-            {
-                var childNode = AddChild(node, child);
-
-                if (childNode.Component is UnityComponent unityComponent)
-                {
-                    Reconcile(childNode, unityComponent.Children);
-                }
-            }
-
-            node.Clean();
-        }
-
-        private void Reconcile(StateNode node, RishList<RishElement> children)
-        {
-            if (!node.Active) return;
-            
-            node.Clear();
-
-            for (int i = 0, n = children.Count; i < n; i++)
-            {
-                var child = children[i];
-                if (!child.Valid) continue;
-                
-                var childNode = AddChild(node, child);
-
-                if (childNode.Component is UnityComponent unityComponent)
-                {
-                    Reconcile(childNode, unityComponent.Children);
-                }
-            }
-
-            node.Clean();
-        }
-
-        private StateNode AddChild(StateNode node, RishElement child)
-        {
-            var type = child.type;
-            var key = child.key;
-            var style = child.style != 0
-                ? child.style
-                : node?.Style ?? 0;
-
-            var childNode = node?.FindFreeChild(type, key, style);
-            if (childNode == null)
-            {
-                if (node == null || node.Active)
-                {
-                    childNode = NodesPool.Count > 0 ? NodesPool.Pop() : new StateNode(this, Pool);
-                    childNode.Reset();
-                    childNode.Initialize(key, style, Pool.GetFromPool(type), node);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            childNode.UpdateIndex();
-            
-            var component = childNode.Component;
-            switch (component)
-            {
-                case RishComponent rishComponent:
-                    rishComponent.UpdateComponent(child.transform, child.setup);
-                    break;
-                case UnityComponent unityComponent:
-                    unityComponent.UpdateComponent(child.transform, child.setup);
-                    break;
-                default:
-                    throw new UnityException("Component type not supported");
-            }
-
-            return childNode;
         }
     }
 }

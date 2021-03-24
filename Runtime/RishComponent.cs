@@ -132,7 +132,7 @@ namespace RishUI
         }
         
         private DimensionsTracker DimensionsTracker { get; set; }
-        
+        private InputSystem Input { get; set; }
         private RCSS RCSS { get; set; }
         protected AssetsManager Assets { get; private set; }
         
@@ -154,11 +154,12 @@ namespace RishUI
 
         protected void ForceRender() => OnDirty?.Invoke();
 
-        public void Constructor(DimensionsTracker dimensionsTracker, RCSS rcss, AssetsManager assets)
+        public void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, RCSS rcss, AssetsManager assets)
         {
             DimensionsTracker = dimensionsTracker;
             RCSS = rcss;
             Assets = assets;
+            Input = input;
         }
 
         internal void Mount(uint style, IRishComponent parent)
@@ -308,6 +309,8 @@ namespace RishUI
 
             return null;
         }
+
+        protected void GetKeyboardFocus() => Input.KeyboardFocus = this;
         
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -518,6 +521,16 @@ namespace RishUI
             }
             
             Parent?.OnScroll(eventData, scrollHandled);
+        }
+
+        public void OnKeyDown(KeyboardInfo info, bool keyDownHandled)
+        {
+            if (!ReadyToUnmount && !keyDownHandled && this is IKeyDownListener listener)
+            {
+                keyDownHandled = listener.OnKeyDown(info);
+            }
+            
+            Parent?.OnKeyDown(info, keyDownHandled);
         }
     }
 

@@ -1,11 +1,12 @@
 ﻿using System;
+using RishUI.Input;
 using RishUI.UnityComponents;
 using TMPro;
 using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IMountingListener, IPropsListener
+    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IFormElement, IMountingListener, IDerivedState, ITapStartListener
     {
         private Form Form { get; set; }
         
@@ -18,21 +19,22 @@ namespace RishUI.Components
         public void ComponentDidMount()
         {
             Form = GetParent<Form>();
+            Form?.Add(this);
         }
 
         public void ComponentWillUnmount()
         {
+            Form?.Remove(this);
+            
             ImageSpriteAddress = null;
             PlaceholderFontAddress = null;
             PlaceholderMaterialAddress = null;
             TextFontAddress = null;
             TextMaterialAddress = null;
         }
-        
-        public void PropsDidChange()
+
+        public void UpdateStateFromProps()
         {
-            Form?.Add(Props.name, () => "Content");
-            
             if (ImageSpriteAddress != Props.imageSpriteAddress)
             {
                 ImageSpriteAddress = Props.imageSpriteAddress;
@@ -63,11 +65,6 @@ namespace RishUI.Components
                 TextMaterialAddress = textSettings.materialAddress;
                 Assets.Get<Material>(textSettings.materialAddress, OnTextMaterial);
             }
-        }
-
-        public void PropsWillChange()
-        {
-            Form?.Remove(Props.name);
         }
 
         protected override RishElement Render()
@@ -195,13 +192,13 @@ namespace RishUI.Components
                     richText = Props.richText
                 },
                 textMargin = new Vector4(Props.textMargin.left, Props.textMargin.top, Props.textMargin.right, Props.textMargin.bottom),
-                onChange = OnChange,
-                onSubmit = OnSubmit
+                onChange = OnChange
             });
         }
 
+        public void GetFocus() { }
+
         private void OnChange(string text) => Props.onChange?.Invoke(text);
-        private void OnSubmit(string text) => Props.onSubmit?.Invoke(text);
 
         private void OnImageSprite(string address, Sprite sprite)
         {
@@ -287,6 +284,12 @@ namespace RishUI.Components
             state.textMaterial = material;
             State = state;
         }
+
+        public bool OnTapStart(TapInfo info)
+        {
+            GetKeyboardFocus();
+            return true;
+        }
     }
     
     
@@ -294,8 +297,6 @@ namespace RishUI.Components
 
     public struct InputFieldProps : IRishData<InputFieldProps>
     {
-        public string name;
-        
         public string imageSpriteAddress;
         public ImageSettings imageSettings;
         
@@ -321,7 +322,6 @@ namespace RishUI.Components
         public Margins textMargin;
 
         public Action<string> onChange;
-        public Action<string> onSubmit;
 
         public void Default()
         {
@@ -441,11 +441,6 @@ namespace RishUI.Components
                 {
                     return false;
                 }
-            }
-
-            if (name != other.name)
-            {
-                return false;
             }
             
             if (text != other.text)
