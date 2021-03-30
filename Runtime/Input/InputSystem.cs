@@ -1,25 +1,25 @@
-﻿using UnityEngine;
+﻿using RishUI.Components;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace RishUI.Input
 {
     public class InputSystem
     {
-        private EventSystem EventSystem { get; }
+        private Rish Rish { get; }
+        
+        private RishComponent _root;
 
-        public bool IsMouseCaptured => EventSystem.IsPointerOverGameObject();
+        private RishComponent Root => _root ?? (_root = Rish.Root.Component as RishComponent);
+
+        public bool IsMouseCaptured => Root != null && Root.HasPointerOver;
         public bool IsKeyboardCaptured => KeyboardFocus != null;
         
         internal RishComponent KeyboardFocus { private get; set; }
 
-        internal InputSystem(EventSystem eventSystem)
+        internal InputSystem(Rish rish)
         {
-            if (eventSystem == null)
-            {
-                throw new UnityException("InputSystem needs a valid EventSystem");
-            }
-            
-            EventSystem = eventSystem;
+            Rish = rish;
         }
 
         internal void OnEvent(Event e)

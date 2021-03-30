@@ -24,20 +24,11 @@ namespace RishUI.Editor
 
             var canvas = rootGO.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-            var eventSystem = Object.FindObjectOfType<EventSystem>();
-            if (eventSystem == null)
-            {
-                var eventSystemGO = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
-                eventSystem = eventSystemGO.GetComponent<EventSystem>();
-                Undo.RegisterCreatedObjectUndo(eventSystemGO, null);
-            }
             
             var rish = rishGO.GetComponent<Rish>();
             var rootTransform = rootGO.GetComponent<RectTransform>();
             
             var rishSO = new SerializedObject(rish);
-            rishSO.FindProperty("_eventSystem").objectReferenceValue = eventSystem;
             rishSO.FindProperty("_rootTransform").objectReferenceValue = rootTransform;
             rishSO.ApplyModifiedProperties();
             

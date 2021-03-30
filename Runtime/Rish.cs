@@ -15,29 +15,19 @@ namespace RishUI
     public class Rish : MonoBehaviour
     {
         private const int MaxDirtySize = 256;
-        
+
         #if UNITY_EDITOR
         public event Action<StateNode> OnRender;
         # endif
 
         [SerializeField]
-        private EventSystem _eventSystem;
-        private EventSystem EventSystem
-        {
-            get => _eventSystem;
-            set => _eventSystem = value;
-        }
-        
-        [Space]
-        
-        [SerializeField]
         private PrototypesProvider _prototypesProvider;
         private PrototypesProvider PrototypesProvider => _prototypesProvider;
-        
+
         [SerializeField]
         private int _virtualInitialSize = 5;
         private int VirtualInitialSize => Mathf.Max(1, _virtualInitialSize);
-        
+
         [Space]
 
         [SerializeField]
@@ -51,9 +41,9 @@ namespace RishUI
         private List<StateNode> DirtyList { get; } = new List<StateNode>(MaxDirtySize);
         private FastPriorityQueue<StateNode> DirtyQueue { get; } = new FastPriorityQueue<StateNode>(MaxDirtySize);
         private List<StateNode> Unmounted { get; } = new List<StateNode>(MaxDirtySize);
-        
+
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>(MaxDirtySize * 4);
-        
+
         public StateNode Root { get; private set; }
 
         private void Start()
@@ -64,7 +54,7 @@ namespace RishUI
             {
                 throw new UnityException("No app found");
             }
-            
+
             var dimensionsTracker = RootTransform.GetComponent<DimensionsTracker>();
             if (dimensionsTracker == null)
             {
@@ -72,16 +62,8 @@ namespace RishUI
                 dimensionsTracker.ForceUpdate();
             }
 
-            if (EventSystem == null)
-            {
-                EventSystem = FindObjectOfType<EventSystem>();
-                if (EventSystem == null)
-                {
-                    EventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
-                }
-            }
-            Input = new InputSystem(EventSystem);
-            
+            Input = new InputSystem(this);
+
             var rcss = new RCSS();
             var assets = new AssetsManager(app);
             Pool = new Pool(dimensionsTracker, Input, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
@@ -101,9 +83,9 @@ namespace RishUI
                 var node = DirtyList[i];
                 AddNodeToQueue(node);
             }
-            
+
             DirtyList.Clear();
-            
+
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();

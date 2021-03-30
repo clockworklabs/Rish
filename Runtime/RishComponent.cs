@@ -148,6 +148,8 @@ namespace RishUI
         private PointerEventData HoverEventData { get; set; }
         private PointerEventData TapEventData { get; set; }
         private PointerEventData DragEventData { get; set; }
+
+        internal bool HasPointerOver => HoverEventData != null;
         
         private Vector2 DragPoint { get; set; }
         private Vector2 DragStartPoint { get; set; }
