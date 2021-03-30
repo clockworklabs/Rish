@@ -34,7 +34,7 @@ namespace RishUI
         private RectTransform _rootTransform;
         public RectTransform RootTransform => _rootTransform;
 
-        private InputSystem Input { get; set; }
+        public InputSystem Input { get; private set; }
         private Pool Pool { get; set; }
 
         private int CurrentDepth { get; set; } = -1;
