@@ -12,7 +12,8 @@ namespace RishUI.Input
 
         private RishComponent Root => _root ?? (_root = Rish.Root.Component as RishComponent);
 
-        public bool IsMouseCaptured => Root != null && Root.HasPointerOver;
+        public bool IsMouseHoverCaptured => Root != null && Root.HasPointerOver;
+        public bool IsMouseClickCaptured => Root != null && Root.PointerClicked;
         public bool IsKeyboardCaptured => KeyboardFocus != null;
         
         internal RishComponent KeyboardFocus { private get; set; }
