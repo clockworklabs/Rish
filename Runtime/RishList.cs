@@ -167,18 +167,14 @@ namespace RishUI
 
         public struct Enumerator
         {
-            private readonly RishList<T> _children;
-            private readonly bool _collection;
-            private readonly int _count;
+            private readonly RishList<T> _list;
 
             private int _index;
             private T _current;
 
-            public Enumerator(RishList<T> children)
+            public Enumerator(RishList<T> list)
             {
-                _children = children;
-                _collection = _children.Collection;
-                _count = _children.Count;
+                _list = list;
                 _index = 0;
                 _current = default;
             }
@@ -187,15 +183,14 @@ namespace RishUI
 
             public bool MoveNext()
             {
-                if (_collection)
+                if (_index >= _list.Count)
                 {
-                    _current = _children[_index++];
-                    return _index < _count;
+                    return false;
                 }
-
-                _current = _children._child0;
-
-                return false;
+                
+                _current = _list[_index++];
+                
+                return true;
             }
         }
     }
