@@ -5,7 +5,6 @@ using RishUI.Components;
 using RishUI.Input;
 using RishUI.Styling;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace RishUI
 {
@@ -27,6 +26,12 @@ namespace RishUI
         [SerializeField]
         private int _virtualInitialSize = 5;
         private int VirtualInitialSize => Mathf.Max(1, _virtualInitialSize);
+
+        [Space]
+        
+        [SerializeField] 
+        private float longTapTimeout = 0.5f;
+        internal float LongTapTimeout => longTapTimeout;
 
         [Space]
 

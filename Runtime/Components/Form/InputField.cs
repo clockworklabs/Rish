@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IFormElement, IMountingListener, IDerivedState, ITapStartListener
+    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IFormElement, IMountingListener, IDerivedState, ITapListener
     {
         private Form Form { get; set; }
         
@@ -285,11 +285,13 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTapStart(TapInfo info)
+        public bool OnTapStart(PointerInfo info)
         {
             GetKeyboardFocus();
             return true;
         }
+        public void OnTapCancel(PointerInfo info) { }
+        public void OnTap(PointerInfo info) { }
     }
     
     

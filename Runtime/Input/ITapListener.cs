@@ -2,6 +2,8 @@
 {
     public interface ITapListener
     {
-        bool OnTap(TapInfo info);
+        bool OnTapStart(PointerInfo info);
+        void OnTapCancel(PointerInfo info);
+        void OnTap(PointerInfo info);
     }
 }

@@ -1,6 +1,6 @@
-﻿using RishUI.Components;
+﻿using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace RishUI.Input
 {
@@ -15,8 +15,10 @@ namespace RishUI.Input
         public bool IsMouseHoverCaptured => Root != null && Root.HasPointerOver;
         public bool IsMouseClickCaptured => Root != null && Root.PointerClicked;
         public bool IsKeyboardCaptured => KeyboardFocus != null;
+
+        internal float LongTapTimeout => Rish.LongTapTimeout;
         
-        internal RishComponent KeyboardFocus { private get; set; }
+        private RishComponent KeyboardFocus { get; set; }
 
         internal InputSystem(Rish rish)
         {
@@ -29,7 +31,7 @@ namespace RishUI.Input
             {
                 return;
             }
-
+            
             switch (e.type)
             {
                 case EventType.MouseDown:
@@ -48,6 +50,15 @@ namespace RishUI.Input
                     }, false);
                     break;
             }
+        }
+
+        internal void StartLongTap(Action callback) => Rish.StartCoroutine(LongTapRoutine(callback));
+
+        private IEnumerator LongTapRoutine(Action callback)
+        {
+            yield return new WaitForSeconds(LongTapTimeout);
+            
+            callback?.Invoke();
         }
     }
 }

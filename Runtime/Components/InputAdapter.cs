@@ -3,28 +3,25 @@ using RishUI.Input;
 
 namespace RishUI.Components
 {
-    public class InputAdapter : RishComponent<InputAdapterProps>, IHoverStartListener, IHoverEndListener, ITapListener, ITapStartListener, ITapCancelListener, IDragListener, IDragStartListener, IDragEndListener, IScrollListener
+    public class InputAdapter : RishComponent<InputAdapterProps>, IHoverListener, ITapListener, IDragListener, IScrollListener
     {
         protected override RishElement Render()
         {
             return Props.content;
         }
 
-        public void OnHoverStart(HoverInfo info) => Props.onHoverStart?.Invoke(info);
+        public void OnHoverStart(PointerInfo info) => Props.onHoverStart?.Invoke(info);
+        public void OnHoverEnd(PointerInfo info) => Props.onHoverEnd?.Invoke(info);
 
-        public void OnHoverEnd(HoverInfo info) => Props.onHoverEnd?.Invoke(info);
 
-        public bool OnTap(TapInfo info) => Props.onTap?.Invoke(info) ?? false;
+        public bool OnTapStart(PointerInfo info) => Props.onTapStart?.Invoke(info) ?? false;
+        public void OnTapCancel(PointerInfo info) => Props.onTapCancel?.Invoke(info);
+        public void OnTap(PointerInfo info) => Props.onTap?.Invoke(info);
 
-        public bool OnTapStart(TapInfo info) => Props.onTapStart?.Invoke(info) ?? false;
-
-        public bool OnTapCancel(TapInfo info) => Props.onTapCancel?.Invoke(info) ?? false;
-
-        public bool OnDrag(DragInfo info) => Props.onDrag?.Invoke(info) ?? false;
 
         public bool OnDragStart(DragInfo info) => Props.onDragStart?.Invoke(info) ?? false;
-
-        public bool OnDragEnd(DragInfo info) => Props.onDragEnd?.Invoke(info) ?? false;
+        public void OnDrag(DragInfo info) => Props.onDrag?.Invoke(info);
+        public void OnDragEnd(DragInfo info) => Props.onDragEnd?.Invoke(info);
 
         public bool OnScroll(ScrollInfo info) => Props.onScroll?.Invoke(info) ?? false;
     }
@@ -32,14 +29,14 @@ namespace RishUI.Components
     [Serializable]
     public struct InputAdapterProps : IRishData<InputAdapterProps>
     {
-        public Action<HoverInfo> onHoverStart;
-        public Action<HoverInfo> onHoverEnd;
-        public Func<TapInfo, bool> onTap;
-        public Func<TapInfo, bool> onTapStart;
-        public Func<TapInfo, bool> onTapCancel;
-        public Func<DragInfo, bool> onDrag;
+        public Action<PointerInfo> onHoverStart;
+        public Action<PointerInfo> onHoverEnd;
+        public Func<PointerInfo, bool> onTapStart;
+        public Action<PointerInfo> onTapCancel;
+        public Action<PointerInfo> onTap;
         public Func<DragInfo, bool> onDragStart;
-        public Func<DragInfo, bool> onDragEnd;
+        public Action<DragInfo> onDrag;
+        public Action<DragInfo> onDragEnd;
         public Func<ScrollInfo, bool> onScroll;
 
         public RishElement content;

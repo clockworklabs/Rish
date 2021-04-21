@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RishUI.Input;
 using RishUI.Styling;
 using UnityEngine;
@@ -144,17 +145,18 @@ namespace RishUI
 
         protected virtual bool RenderOnResize => false;
         protected virtual bool ManualTransform => false;
-
-        private PointerEventData HoverEventData { get; set; }
-        private PointerEventData TapEventData { get; set; }
-        private PointerEventData DragEventData { get; set; }
-
-        internal bool HasPointerOver => HoverEventData != null;
-
-        internal bool PointerClicked => TapEventData != null;
         
-        private Vector2 DragPoint { get; set; }
-        private Vector2 DragStartPoint { get; set; }
+        private HashSet<int> PointerIds { get; } = new HashSet<int>();
+        private int PointersDownCount { get; set; }
+        
+        internal bool HasPointerOver => PointerIds.Count > 0;
+
+        internal bool PointerClicked => PointersDownCount > 0;
+        
+        private EventsList TapEvents { get; } = new EventsList();
+        private EventsList LeftClickEvents { get; } = new EventsList();
+        private EventsList LongTapEvents { get; } = new EventsList();
+        private HashSet<int> DragEvents { get; } = new HashSet<int>();
 
         protected void ForceRender() => OnDirty?.Invoke();
 
@@ -199,9 +201,12 @@ namespace RishUI
         {
             ReadyToUnmount = false;
 
-            HoverEventData = null;
-            TapEventData = null;
-            DragEventData = null;
+            PointerIds.Clear();
+            PointersDownCount = 0;
+            TapEvents.Clear();
+            LeftClickEvents.Clear();
+            LongTapEvents.Clear();
+            DragEvents.Clear();
         }
 
         internal void WillDestroy()
@@ -314,25 +319,19 @@ namespace RishUI
             return null;
         }
 
-        protected void GetKeyboardFocus() => Input.KeyboardFocus = this;
+        protected void GetKeyboardFocus() => throw new UnityException("IMPLEMENT KEYBOARD FOCUS");
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (HoverEventData != null)
+            PointerIds.Add(eventData.pointerId);
+            
+            if (!ReadyToUnmount)
             {
-                return;
-            }
-
-            HoverEventData = eventData;
-
-            if (!ReadyToUnmount && this is IHoverStartListener listener)
-            {
-                var info = new HoverInfo
+                var info = PointerInfo.FromEvent(eventData, InputRatio);
+                if (info.IsLeftMouse && this is IHoverListener hoverListener)
                 {
-                    position = eventData.position * InputRatio
-                };
-                
-                listener.OnHoverStart(info);
+                    hoverListener.OnHoverStart(info);
+                }
             }
 
             if (Parent is RishComponent rishParent)
@@ -343,20 +342,47 @@ namespace RishUI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (HoverEventData == null || eventData.pointerId != HoverEventData.pointerId)
-            {
-                return;
-            }
-
-            HoverEventData = null;
+            PointerIds.Remove(eventData.pointerId);
             
-            if (!ReadyToUnmount && this is IHoverEndListener listener)
+            if (!ReadyToUnmount)
             {
-                var info = new HoverInfo
+                var info = PointerInfo.FromEvent(eventData, InputRatio);
+
+                if (info.IsTap)
                 {
-                    position = eventData.position * InputRatio
-                };
-                listener.OnHoverEnd(info);
+                    if(TapEvents.Contains(info.id))
+                    {
+                        TapEvents.Remove(eventData);
+                        if (this is ITapListener tapListener)
+                        {
+                            tapListener.OnTapCancel(info);
+                        }
+                    }
+
+                    if (LongTapEvents.Contains(info.id))
+                    {
+                        LongTapEvents.Remove(eventData);
+                        if (this is ILongTapListener longTapListener)
+                        {
+                            var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
+                            longTapListener.OnLongTapCancel(longTapInfo);
+                        }
+                    }
+                } else if (info.IsLeftMouse)
+                {
+                    if (LeftClickEvents.Contains(info.id))
+                    {
+                        LeftClickEvents.Remove(eventData);
+                        if (this is ILeftClickListener leftClickListener)
+                        {
+                            leftClickListener.OnLeftClickCancel(info);
+                        }
+                    }
+                    if (this is IHoverListener hoverListener)
+                    {
+                        hoverListener.OnHoverEnd(info);
+                    }
+                }
             }
 
             if (Parent is RishComponent rishParent)
@@ -365,151 +391,206 @@ namespace RishUI
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData, bool tapStartHandled)
+        public void OnPointerDown(PointerEventData eventData, bool captured)
         {
-            if (TapEventData != null)
-            {
-                return;
-            }
+            PointersDownCount++;
 
-            TapEventData = eventData;
-            
-            if (!ReadyToUnmount && !tapStartHandled && this is ITapStartListener listener)
+            if (!ReadyToUnmount && !captured && DragEvents.Count <= 0)
             {
-                var info = new TapInfo
+                var info = PointerInfo.FromEvent(eventData, InputRatio);
+
+                if (info.IsTap)
                 {
-                    position = eventData.position * InputRatio,
-                    button = (int) eventData.button
-                };
-                tapStartHandled = listener.OnTapStart(info);
-            }
-            
-            Parent?.OnPointerDown(eventData, tapStartHandled);
-        }
-
-        public void OnPointerUp(PointerEventData eventData, bool tapHandled, bool tapCancelHandled)
-        {
-            if (TapEventData == null || eventData.pointerId != TapEventData.pointerId)
-            {
-                return;
-            }
-
-            TapEventData = null;
-
-            if (!ReadyToUnmount)
-            {
-                if (HoverEventData != null)
-                {
-                    if (!tapHandled && this is ITapListener listener)
+                    if (this is ITapListener tapListener && tapListener.OnTapStart(info))
                     {
-                        var info = new TapInfo
+                        TapEvents.Add(eventData);
+                        captured = true;
+                    }
+                    if (this is ILongTapListener longTapListener)
+                    {
+                        var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
+                        if (longTapListener.OnLongTapStart(longTapInfo))
                         {
-                            position = eventData.position * InputRatio,
-                            button = (int) eventData.button
-                        };
-                        tapHandled = listener.OnTap(info);
+                            LongTapEvents.Add(eventData);
+                            Input.StartLongTap(() => OnLongTap(eventData));
+                            captured = true;
+                        }
+                    }
+                } else if (info.IsLeftMouse)
+                {
+                    if (this is ILeftClickListener leftClickListener && leftClickListener.OnLeftClickStart(info))
+                    {
+                        LeftClickEvents.Add(eventData);
+                        captured = true;
+                    }
+                } else if (info.IsRightMouse)
+                {
+                    if (this is IRightClickListener rightClickListener && rightClickListener.OnRightClick(info))
+                    {
+                        if (this is ITapListener tapListener)
+                        {
+                            for (var i = TapEvents.Count - 1; i >= 0; i--)
+                            {
+                                var tapEvent = TapEvents[i];
+                                var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
+                                TapEvents.RemoveAt(i);
+                                tapListener.OnTapCancel(tapInfo);
+                            }
+                        }
+                        if (this is ILeftClickListener leftClickListener)
+                        {
+                            for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
+                            {
+                                var leftClickEvent = LeftClickEvents[i];
+                                var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
+                                LeftClickEvents.RemoveAt(i);
+                                leftClickListener.OnLeftClickCancel(leftClickInfo);
+                            }
+                        }
+                        captured = true;
                     }
                 }
-                else
+            }
+
+            Parent?.OnPointerDown(eventData, captured);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            PointersDownCount--;
+            
+            if (!ReadyToUnmount && PointerIds.Contains(eventData.pointerId))
+            {
+                var info = PointerInfo.FromEvent(eventData, InputRatio);
+
+                if (info.IsTap)
                 {
-                    if (!tapCancelHandled && this is ITapCancelListener listener)
+                    if(TapEvents.Contains(info.id))
                     {
-                        var info = new TapInfo
+                        TapEvents.Remove(eventData);
+                        if (this is ITapListener tapListener)
                         {
-                            position = eventData.position * InputRatio,
-                            button = (int) eventData.button
-                        };
-                        tapCancelHandled = listener.OnTapCancel(info);
+                            tapListener.OnTap(info);
+                        }
+                    }
+
+                    if (LongTapEvents.Contains(info.id))
+                    {
+                        LongTapEvents.Remove(eventData);
+                        if (this is ILongTapListener longTapListener)
+                        {
+                            var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
+                            longTapListener.OnLongTapCancel(longTapInfo);
+                        }
+                    }
+                } else if (info.IsLeftMouse)
+                {
+                    if (LeftClickEvents.Contains(info.id))
+                    {
+                        LeftClickEvents.Remove(eventData);
+                        if (this is ILeftClickListener leftClickListener)
+                        {
+                            leftClickListener.OnLeftClick(info);
+                        }
                     }
                 }
             }
 
-            Parent?.OnPointerUp(eventData, tapHandled, tapCancelHandled);
+            Parent?.OnPointerUp(eventData);
         }
 
-        public void OnBeginDrag(PointerEventData eventData, bool dragStartHandled)
+        private void OnLongTap(PointerEventData eventData)
         {
-            if (DragEventData != null)
+            if (LongTapEvents.Contains(eventData))
             {
-                return;
-            }
-
-            DragEventData = eventData;
-            DragPoint = eventData.position * InputRatio;
-            DragStartPoint = DragPoint;
-            
-            if (!ReadyToUnmount && !dragStartHandled && this is IDragStartListener listener)
-            {
-                var info = new DragInfo
-                {
-                    position = DragPoint,
-                    delta = Vector2.zero,
-                    offset = Vector2.zero,
-                    velocity = Vector2.zero
-                };
-
-                dragStartHandled = listener.OnDragStart(info);
-            }
-
-            Parent?.OnBeginDrag(eventData, dragStartHandled);
-        }
-
-        public void OnDrag(PointerEventData eventData, bool dragHandled)
-        {
-            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
-            {
-                return;
-            }
-            
-            var point = eventData.position * InputRatio;
-            
-            if (!ReadyToUnmount && !dragHandled && this is IDragListener listener)
-            {
-                var delta = point - DragPoint;
-                DragPoint = point;
+                LongTapEvents.Remove(eventData);
                 
-                var info = new DragInfo
+                var info = LongTapInfo.FromEvent(eventData, InputRatio, Input.LongTapTimeout);
+                
+                if(TapEvents.Contains(info.pointer.id))
                 {
-                    position = point,
-                    delta = delta,
-                    offset = point - DragStartPoint,
-                    velocity = delta / Time.deltaTime
-                };
+                    TapEvents.Remove(eventData);
+                    if (this is ITapListener tapListener)
+                    {
+                        tapListener.OnTapCancel(info.pointer);
+                    }
+                }
 
-                dragHandled = listener.OnDrag(info);
+                if (this is ILongTapListener longTapListener)
+                {
+                    longTapListener.OnLongTap(info);
+                }
             }
-            
-            DragPoint = point;
-
-            Parent?.OnDrag(eventData, dragHandled);
         }
 
-        public void OnEndDrag(PointerEventData eventData, bool dragEndHandled)
+        public void OnBeginDrag(PointerEventData eventData, bool captured)
         {
-            if (DragEventData == null || eventData.pointerId != DragEventData.pointerId)
+            if (!ReadyToUnmount && !captured && this is IDragListener dragListener)
             {
-                return;
-            }
-
-            DragEventData = null;
-            
-            var point = eventData.position * InputRatio;
-            
-            if (!dragEndHandled && this is IDragEndListener listener)
-            {
-                var delta = point - DragPoint;
-                var info = new DragInfo
+                var info = DragInfo.FromEvent(eventData, InputRatio, Time.deltaTime);
+                
+                if (dragListener.OnDragStart(info))
                 {
-                    position = point,
-                    delta = delta,
-                    offset = point - DragStartPoint,
-                    velocity = delta / Time.deltaTime
-                };
+                    for (var i = TapEvents.Count - 1; i >= 0; i--)
+                    {
+                        TapEvents.RemoveAt(i);
+                        if (this is ITapListener tapListener)
+                        {
+                            var tapEvent = TapEvents[i];
+                            var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
+                            tapListener.OnTapCancel(tapInfo);
+                        }
+                    }
+                    for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
+                    {
+                        LeftClickEvents.RemoveAt(i);
+                        if (this is ILeftClickListener leftClickListener)
+                        {
+                            var leftClickEvent = LeftClickEvents[i];
+                            var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
+                            leftClickListener.OnLeftClickCancel(leftClickInfo);
+                        }
+                    }
+                    for (var i = LongTapEvents.Count - 1; i >= 0; i--)
+                    {
+                        LongTapEvents.RemoveAt(i);
+                        if (this is ILongTapListener longTapListener)
+                        {
+                            var longTapEvent = LongTapEvents[i];
+                            var longTapInfo = LongTapInfo.FromEvent(longTapEvent, InputRatio, Input.LongTapTimeout);
+                            longTapListener.OnLongTapCancel(longTapInfo);
+                        }
+                    }
 
-                dragEndHandled = listener.OnDragEnd(info);
+                    DragEvents.Add(info.pointer.id);
+                    captured = true;
+                }
+            }
+
+            Parent?.OnBeginDrag(eventData, captured);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (!ReadyToUnmount && this is IDragListener dragListener && DragEvents.Contains(eventData.pointerId))
+            {
+                var info = DragInfo.FromEvent(eventData, InputRatio, Time.deltaTime);
+                dragListener.OnDrag(info);
+            }
+
+            Parent?.OnDrag(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (!ReadyToUnmount && this is IDragListener dragListener && DragEvents.Contains(eventData.pointerId))
+            {
+                var info = DragInfo.FromEvent(eventData, InputRatio, Time.deltaTime);
+                DragEvents.Remove(info.pointer.id);
+                dragListener.OnDragEnd(info);
             }
             
-            Parent?.OnEndDrag(eventData, dragEndHandled);
+            Parent?.OnEndDrag(eventData);
         }
 
         public void OnScroll(PointerEventData eventData, bool scrollHandled)

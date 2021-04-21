@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Div : RishComponent<DivProps, DivState>, IDerivedState, IDestroyListener, ITapListener, ITapStartListener, ITapCancelListener, IDragListener, IDragStartListener, IDragEndListener, IScrollListener
+    public class Div : RishComponent<DivProps, DivState>, IDerivedState, IDestroyListener, ITapListener, IDragListener, IScrollListener
     {
         private string BackgroundSpriteAddress { get; set; }
 
@@ -72,17 +72,14 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTap(TapInfo info) => Props.stopInputPropagation;
+        public bool OnTapStart(PointerInfo info) => Props.stopInputPropagation;
+        public void OnTapCancel(PointerInfo info) { }
+        public void OnTap(PointerInfo info) { }
 
-        public bool OnTapStart(TapInfo info) => Props.stopInputPropagation;
-
-        public bool OnTapCancel(TapInfo info) => Props.stopInputPropagation;
-
-        public bool OnDrag(DragInfo info) => Props.stopInputPropagation;
 
         public bool OnDragStart(DragInfo info) => Props.stopInputPropagation;
-
-        public bool OnDragEnd(DragInfo info) => Props.stopInputPropagation;
+        public void OnDrag(DragInfo info) { }
+        public void OnDragEnd(DragInfo info) { }
 
         public bool OnScroll(ScrollInfo info) => Props.stopInputPropagation;
     }

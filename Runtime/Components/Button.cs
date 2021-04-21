@@ -4,8 +4,15 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Button : RishComponent<ButtonProps, ButtonState>, IHoverStartListener, IHoverEndListener, ITapListener, ITapStartListener, ITapCancelListener
+    public class Button : RishComponent<ButtonProps, ButtonState>, IDestroyListener, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
     {
+        private int PrimaryCount { get; set; }
+
+        public void ComponentWillDestroy()
+        {
+            PrimaryCount = 0;
+        }
+        
         protected override RishElement Render()
         {
             RishElement child;
@@ -38,36 +45,38 @@ namespace RishUI.Components
             });
         }
 
-        public void OnHoverStart(HoverInfo info)
+        public void OnHoverStart(PointerInfo info)
         {
             var state = State;
             state.hovered = true;
             State = state;
         }
 
-        public void OnHoverEnd(HoverInfo info)
+        public void OnHoverEnd(PointerInfo info)
         {
             var state = State;
             state.hovered = false;
             State = state;
         }
 
-        public bool OnTap(TapInfo info)
-        {
-            if (Props.interactable)
-            {
-                Props.action?.Invoke();
-            }
+        public bool OnTapStart(PointerInfo info) => OnPrimaryStart();
+        public void OnTapCancel(PointerInfo info) => OnPrimaryCancel();
+        public void OnTap(PointerInfo info) => OnPrimary();
 
-            var state = State;
-            state.pressed = false;
-            State = state;
+        public bool OnLeftClickStart(PointerInfo info) => OnPrimaryStart();
+        public void OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel();
+        public void OnLeftClick(PointerInfo info) => OnPrimary();
+
+        public bool OnLongTapStart(LongTapInfo info) => true;
+        public void OnLongTapCancel(LongTapInfo info) { }
+        public void OnLongTap(LongTapInfo info) => OnSecondary();
+        
+        public bool OnRightClick(PointerInfo info) => OnSecondary();
+
+        private bool OnPrimaryStart()
+        {
+            PrimaryCount++;
             
-            return true;
-        }
-
-        public bool OnTapStart(TapInfo info)
-        {
             var state = State;
             state.pressed = true;
             State = state;
@@ -75,11 +84,41 @@ namespace RishUI.Components
             return true;
         }
 
-        public bool OnTapCancel(TapInfo info)
+        private void OnPrimaryCancel()
         {
-            var state = State;
-            state.pressed = false;
-            State = state;
+            PrimaryCount--;
+
+            if (PrimaryCount <= 0)
+            {
+                var state = State;
+                state.pressed = false;
+                State = state;
+            }
+        }
+
+        private void OnPrimary()
+        {
+            PrimaryCount--;
+
+            if (PrimaryCount <= 0)
+            {
+                var state = State;
+                state.pressed = false;
+                State = state;
+            }
+            
+            if (Props.interactable)
+            {
+                Props.primaryAction?.Invoke();
+            }
+        }
+
+        private bool OnSecondary()
+        {
+            if (Props.interactable)
+            {
+                Props.secondaryAction?.Invoke();
+            }
 
             return true;
         }
@@ -91,7 +130,8 @@ namespace RishUI.Components
 
         public bool interactable;
         
-        public Action action;
+        public Action primaryAction;
+        public Action secondaryAction;
         
         public RishElement normal;
         public RishElement hovered;

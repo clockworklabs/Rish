@@ -2,6 +2,8 @@
 {
     public interface IDragListener
     {
-        bool OnDrag(DragInfo info);
+        bool OnDragStart(DragInfo info);
+        void OnDrag(DragInfo info);
+        void OnDragEnd(DragInfo info);
     }
 }
