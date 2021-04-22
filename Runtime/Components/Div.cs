@@ -72,25 +72,25 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTapStart(PointerInfo info) => Props.stopInputPropagation;
+        public InputResult OnTapStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
         public void OnTapCancel(PointerInfo info) { }
         public void OnTap(PointerInfo info) { }
 
-        public bool OnLongTapStart(LongTapInfo info) => Props.stopInputPropagation;
+        public InputResult OnLongTapStart(LongTapInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
         public void OnLongTapCancel(LongTapInfo info) { }
         public void OnLongTap(LongTapInfo info) { }
 
-        public bool OnLeftClickStart(PointerInfo info) => Props.stopInputPropagation;
+        public InputResult OnLeftClickStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
         public void OnLeftClick(PointerInfo info) { }
         public void OnLeftClickCancel(PointerInfo info) { }
 
-        public bool OnRightClick(PointerInfo info) => Props.stopInputPropagation;
+        public bool OnRightClick(PointerInfo info) => Props.captureInput;
 
-        public bool OnDragStart(DragInfo info) => Props.stopInputPropagation;
+        public InputResult OnDragStart(DragInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
         public void OnDrag(DragInfo info) { }
         public void OnDragEnd(DragInfo info) { }
 
-        public bool OnScroll(ScrollInfo info) => Props.stopInputPropagation;
+        public bool OnScroll(ScrollInfo info) => Props.captureInput;
     }
 
     public struct DivProps : IRishData<DivProps>
@@ -102,7 +102,7 @@ namespace RishUI.Components
         public bool maskContent;
         public Vector2Int maskSoftness;
 
-        public bool stopInputPropagation;
+        public bool captureInput;
         
         public RishList<RishElement> children;
 

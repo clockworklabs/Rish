@@ -2,7 +2,7 @@
 {
     public interface IDragListener
     {
-        bool OnDragStart(DragInfo info);
+        InputResult OnDragStart(DragInfo info);
         void OnDrag(DragInfo info);
         void OnDragEnd(DragInfo info);
     }

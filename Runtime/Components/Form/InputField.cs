@@ -285,18 +285,18 @@ namespace RishUI.Components
 
         public void GetFocus() { }
 
-        public bool OnTapStart(PointerInfo info)
+        public InputResult OnTapStart(PointerInfo info)
         {
             ClaimKeyboardFocus();
-            return true;
+            return InputResult.JustCapture;
         }
         public void OnTapCancel(PointerInfo info) { }
         public void OnTap(PointerInfo info) { }
 
-        public bool OnLeftClickStart(PointerInfo info)
+        public InputResult OnLeftClickStart(PointerInfo info)
         {
             ClaimKeyboardFocus();
-            return true;
+            return InputResult.JustCapture;
         }
         public void OnLeftClickCancel(PointerInfo info) { }
         public void OnLeftClick(PointerInfo info) { }

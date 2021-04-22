@@ -430,51 +430,63 @@ namespace RishUI
 
                 if (info.IsTap)
                 {
-                    if (this is ITapListener tapListener && tapListener.OnTapStart(info))
+                    if (this is ITapListener tapListener)
                     {
-                        TapEvents.Add(eventData);
-                        captured = true;
+                        var (listen, capture) = tapListener.OnTapStart(info);
+                        if (listen)
+                        {
+                            TapEvents.Add(eventData);
+                        }
+
+                        captured = capture;
                     }
                     if (this is ILongTapListener longTapListener)
                     {
                         var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
-                        if (longTapListener.OnLongTapStart(longTapInfo))
+                        var (listen, capture) = longTapListener.OnLongTapStart(longTapInfo);
+                        if (listen)
                         {
                             LongTapEvents.Add(eventData);
                             Input.StartLongTap(() => OnLongTap(eventData));
-                            captured = true;
                         }
+                        
+                        captured = capture;
                     }
                 } else if (info.IsLeftMouse)
                 {
-                    if (this is ILeftClickListener leftClickListener && leftClickListener.OnLeftClickStart(info))
+                    if (this is ILeftClickListener leftClickListener)
                     {
-                        LeftClickEvents.Add(eventData);
-                        captured = true;
+                        var (listen, capture) = leftClickListener.OnLeftClickStart(info);
+                        if (listen)
+                        {
+                            LeftClickEvents.Add(eventData);
+                        }
+
+                        captured = capture;
                     }
                 } else if (info.IsRightMouse)
                 {
                     if (this is IRightClickListener rightClickListener && rightClickListener.OnRightClick(info))
                     {
-                        if (this is ITapListener tapListener)
+                        for (var i = TapEvents.Count - 1; i >= 0; i--)
                         {
-                            for (var i = TapEvents.Count - 1; i >= 0; i--)
+                            if (this is ITapListener tapListener)
                             {
                                 var tapEvent = TapEvents[i];
                                 var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
-                                TapEvents.RemoveAt(i);
                                 tapListener.OnTapCancel(tapInfo);
                             }
+                            TapEvents.RemoveAt(i);
                         }
-                        if (this is ILeftClickListener leftClickListener)
+                        for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
                         {
-                            for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
+                            if (this is ILeftClickListener leftClickListener)
                             {
                                 var leftClickEvent = LeftClickEvents[i];
                                 var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
-                                LeftClickEvents.RemoveAt(i);
                                 leftClickListener.OnLeftClickCancel(leftClickInfo);
                             }
+                            LeftClickEvents.RemoveAt(i);
                         }
                         captured = true;
                     }
@@ -557,43 +569,44 @@ namespace RishUI
             if (!ReadyToUnmount && !captured && this is IDragListener dragListener)
             {
                 var info = DragInfo.FromEvent(eventData, InputRatio, Time.deltaTime);
+                var (listen, capture) = dragListener.OnDragStart(info);
                 
-                if (dragListener.OnDragStart(info))
+                if (listen)
                 {
                     for (var i = TapEvents.Count - 1; i >= 0; i--)
                     {
-                        TapEvents.RemoveAt(i);
                         if (this is ITapListener tapListener)
                         {
                             var tapEvent = TapEvents[i];
                             var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
                             tapListener.OnTapCancel(tapInfo);
                         }
+                        TapEvents.RemoveAt(i);
                     }
                     for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
                     {
-                        LeftClickEvents.RemoveAt(i);
                         if (this is ILeftClickListener leftClickListener)
                         {
                             var leftClickEvent = LeftClickEvents[i];
                             var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
                             leftClickListener.OnLeftClickCancel(leftClickInfo);
                         }
+                        LeftClickEvents.RemoveAt(i);
                     }
                     for (var i = LongTapEvents.Count - 1; i >= 0; i--)
                     {
-                        LongTapEvents.RemoveAt(i);
                         if (this is ILongTapListener longTapListener)
                         {
                             var longTapEvent = LongTapEvents[i];
                             var longTapInfo = LongTapInfo.FromEvent(longTapEvent, InputRatio, Input.LongTapTimeout);
                             longTapListener.OnLongTapCancel(longTapInfo);
                         }
+                        LongTapEvents.RemoveAt(i);
                     }
 
                     DragEvents.Add(info.pointer.id);
-                    captured = true;
                 }
+                captured = capture;
             }
 
             Parent?.OnBeginDrag(eventData, captured);

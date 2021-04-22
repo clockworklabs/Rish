@@ -54,15 +54,16 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTapStart(PointerInfo info) => OnPrimaryStart(info);
+        public InputResult OnTapStart(PointerInfo info) => OnPrimaryStart(info);
         public void OnTapCancel(PointerInfo info) => OnPrimaryCancel(info);
         public void OnTap(PointerInfo info) => OnPrimary(info);
 
-        public bool OnLeftClickStart(PointerInfo info) => OnPrimaryStart(info);
+        public InputResult OnLeftClickStart(PointerInfo info) => OnPrimaryStart(info);
         public void OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel(info);
         public void OnLeftClick(PointerInfo info) => OnPrimary(info);
 
-        public bool OnLongTapStart(LongTapInfo info) => true;
+        public InputResult OnLongTapStart(LongTapInfo info) =>
+            info.pointer.id == PrimaryId ? InputResult.Capture : InputResult.JustCapture;
         public void OnLongTapCancel(LongTapInfo info) { }
         public void OnLongTap(LongTapInfo info)
         {
@@ -76,11 +77,11 @@ namespace RishUI.Components
         
         public bool OnRightClick(PointerInfo info) => OnSecondary();
 
-        private bool OnPrimaryStart(PointerInfo info)
+        private InputResult OnPrimaryStart(PointerInfo info)
         {
             if (State.pressed)
             {
-                return true;
+                return InputResult.JustCapture;
             }
             
             PrimaryId = info.id;
@@ -89,7 +90,7 @@ namespace RishUI.Components
             state.pressed = true;
             State = state;
         
-            return true;
+            return InputResult.Capture;
         }
 
         private void OnPrimaryCancel(PointerInfo info)
