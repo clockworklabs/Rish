@@ -9,12 +9,11 @@ namespace RishUI.Input
         private Rish Rish { get; }
         
         private RishComponent _root;
+        private RishComponent Root => _root ?? (_root = Rish.RootNode.Component as RishComponent);
 
-        private RishComponent Root => _root ?? (_root = Rish.Root.Component as RishComponent);
-
-        public bool IsMouseHoverCaptured => Root != null && Root.HasPointerOver;
-        public bool IsMouseClickCaptured => Root != null && Root.PointerClicked;
-        public bool IsKeyboardCaptured => KeyboardFocus != null;
+        public bool HasPointerOver => Root != null && Root.HasPointerOver;
+        public bool HasPointerDown => Root != null && Root.HasPointerDown;
+        public bool HasKeyboardFocus => KeyboardFocus != null;
 
         internal float LongTapTimeout => Rish.LongTapTimeout;
         

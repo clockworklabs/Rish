@@ -94,7 +94,7 @@ namespace RishUI.Editor
 			var rows = GetRows () ?? new List<TreeViewItem> (200);
 			rows.Clear ();
 
-			var dom = Rish.Root;
+			var dom = Rish.RootNode;
 			if (dom != null)
 			{
 				var item = CreateItemForDOM(dom);
@@ -169,7 +169,7 @@ namespace RishUI.Editor
 			}
 
 			var id = selectedIds[0];
-			var selected = Rish.Root.Find(id);
+			var selected = Rish.RootNode.Find(id);
 			
 			OnSelection?.Invoke(selected);
 		}

@@ -151,7 +151,7 @@ namespace RishUI
         
         internal bool HasPointerOver => PointerIds.Count > 0;
 
-        internal bool PointerClicked => PointersDownCount > 0;
+        internal bool HasPointerDown => PointersDownCount > 0;
         
         private EventsList TapEvents { get; } = new EventsList();
         private EventsList LeftClickEvents { get; } = new EventsList();

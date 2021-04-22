@@ -37,7 +37,7 @@ namespace RishUI
 
         [SerializeField]
         private RectTransform _rootTransform;
-        public RectTransform RootTransform => _rootTransform;
+        internal RectTransform RootTransform => _rootTransform;
 
         public InputSystem Input { get; private set; }
         private Pool Pool { get; set; }
@@ -49,7 +49,11 @@ namespace RishUI
 
         private Stack<StateNode> NodesPool { get; } = new Stack<StateNode>(MaxDirtySize * 4);
 
-        public StateNode Root { get; private set; }
+        #if UNITY_EDITOR
+        public StateNode RootNode { get; private set; }
+        #else
+        internal StateNode RootNode { get; private set; }
+        #endif
 
         private void Start()
         {
@@ -73,12 +77,12 @@ namespace RishUI
             var assets = new AssetsManager(app);
             Pool = new Pool(dimensionsTracker, Input, rcss, assets, PrototypesProvider, transform, VirtualInitialSize);
 
-            Root = AddChild(null, Create<Div, DivProps>(new DivProps
+            RootNode = AddChild(null, Create<Div, DivProps>(new DivProps
             {
                children = app.Run(rcss)
             }));
 
-            OnNodeDirty(Root);
+            OnNodeDirty(RootNode);
         }
 
         private void LateUpdate()
