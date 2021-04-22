@@ -1,4 +1,6 @@
-﻿namespace RishUI.Components
+﻿using RishUI.Input;
+
+namespace RishUI.Components
 {
     public interface IFormElement
     {

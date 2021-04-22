@@ -35,7 +35,7 @@ namespace RishUI.Input
             switch (e.type)
             {
                 case EventType.MouseDown:
-                    KeyboardFocus = null;
+                    ClaimKeyboardFocus(null);
                     break;
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.None)
@@ -50,6 +50,12 @@ namespace RishUI.Input
                     }, false);
                     break;
             }
+        }
+
+        internal void ClaimKeyboardFocus(RishComponent component)
+        {
+            KeyboardFocus?.LoseKeyboardFocus();
+            KeyboardFocus = component;
         }
 
         internal void StartLongTap(Action callback) => Rish.StartCoroutine(LongTapRoutine(callback));

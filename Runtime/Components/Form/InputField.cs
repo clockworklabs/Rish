@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IFormElement, IMountingListener, IDerivedState, ITapListener
+    public class InputField : RishComponent<InputFieldProps, InputFieldState>, IFormElement, IMountingListener, IDerivedState, ITapListener, ILeftClickListener
     {
         private Form Form { get; set; }
         
@@ -196,8 +196,6 @@ namespace RishUI.Components
             });
         }
 
-        public void GetFocus() { }
-
         private void OnChange(string text) => Props.onChange?.Invoke(text);
 
         private void OnImageSprite(string address, Sprite sprite)
@@ -285,13 +283,23 @@ namespace RishUI.Components
             State = state;
         }
 
+        public void GetFocus() { }
+
         public bool OnTapStart(PointerInfo info)
         {
-            GetKeyboardFocus();
+            ClaimKeyboardFocus();
             return true;
         }
         public void OnTapCancel(PointerInfo info) { }
         public void OnTap(PointerInfo info) { }
+
+        public bool OnLeftClickStart(PointerInfo info)
+        {
+            ClaimKeyboardFocus();
+            return true;
+        }
+        public void OnLeftClickCancel(PointerInfo info) { }
+        public void OnLeftClick(PointerInfo info) { }
     }
     
     

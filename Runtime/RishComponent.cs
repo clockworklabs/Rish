@@ -157,6 +157,7 @@ namespace RishUI
         private EventsList LeftClickEvents { get; } = new EventsList();
         private EventsList LongTapEvents { get; } = new EventsList();
         private HashSet<int> DragEvents { get; } = new HashSet<int>();
+        private bool KeyboardFocus { get; set; }
 
         protected void ForceRender() => OnDirty?.Invoke();
 
@@ -207,6 +208,7 @@ namespace RishUI
             LeftClickEvents.Clear();
             LongTapEvents.Clear();
             DragEvents.Clear();
+            KeyboardFocus = false;
         }
 
         internal void WillDestroy()
@@ -319,7 +321,34 @@ namespace RishUI
             return null;
         }
 
-        protected void GetKeyboardFocus() => throw new UnityException("IMPLEMENT KEYBOARD FOCUS");
+        protected void ClaimKeyboardFocus()
+        {
+            if (KeyboardFocus)
+            {
+                return;
+            }
+            
+            KeyboardFocus = true;
+            Input.ClaimKeyboardFocus(this);
+            if (this is IKeyboardListener keyboardListener)
+            {
+                keyboardListener.OnKeyboardFocus(true);
+            }
+        }
+
+        internal void LoseKeyboardFocus()
+        {
+            if (!KeyboardFocus)
+            {
+                return;
+            }
+            
+            KeyboardFocus = false;
+            if (this is IKeyboardListener keyboardListener)
+            {
+                keyboardListener.OnKeyboardFocus(false);
+            }
+        }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -593,29 +622,29 @@ namespace RishUI
             Parent?.OnEndDrag(eventData);
         }
 
-        public void OnScroll(PointerEventData eventData, bool scrollHandled)
+        public void OnScroll(PointerEventData eventData, bool captured)
         {
-            if (!ReadyToUnmount && !scrollHandled && this is IScrollListener listener)
+            if (!ReadyToUnmount && !captured && this is IScrollListener listener)
             {
                 var info = new ScrollInfo
                 {
                     delta = eventData.scrollDelta
                 };
 
-                scrollHandled = listener.OnScroll(info);
+                captured = listener.OnScroll(info);
             }
             
-            Parent?.OnScroll(eventData, scrollHandled);
+            Parent?.OnScroll(eventData, captured);
         }
 
-        public void OnKeyDown(KeyboardInfo info, bool keyDownHandled)
+        public void OnKeyDown(KeyboardInfo info, bool captured)
         {
-            if (!ReadyToUnmount && !keyDownHandled && this is IKeyDownListener listener)
+            if (!ReadyToUnmount && !captured && this is IKeyboardListener listener)
             {
-                keyDownHandled = listener.OnKeyDown(info);
+                captured = listener.OnKeyDown(info);
             }
             
-            Parent?.OnKeyDown(info, keyDownHandled);
+            Parent?.OnKeyDown(info, captured);
         }
     }
 
