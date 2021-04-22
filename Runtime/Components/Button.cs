@@ -118,7 +118,7 @@ namespace RishUI.Components
             
             if (Props.interactable)
             {
-                Props.primaryAction?.Invoke();
+                Props.action?.Invoke();
             }
         }
 
@@ -139,7 +139,7 @@ namespace RishUI.Components
 
         public bool interactable;
         
-        public Action primaryAction;
+        public Action action;
         public Action secondaryAction;
         
         public RishElement normal;
