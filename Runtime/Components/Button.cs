@@ -4,14 +4,9 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Button : RishComponent<ButtonProps, ButtonState>, IDestroyListener, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
+    public class Button : RishComponent<ButtonProps, ButtonState>, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
     {
-        private int PrimaryCount { get; set; }
-
-        public void ComponentWillDestroy()
-        {
-            PrimaryCount = 0;
-        }
+        private int PrimaryId { get; set; }
         
         protected override RishElement Render()
         {
@@ -59,53 +54,66 @@ namespace RishUI.Components
             State = state;
         }
 
-        public bool OnTapStart(PointerInfo info) => OnPrimaryStart();
-        public void OnTapCancel(PointerInfo info) => OnPrimaryCancel();
-        public void OnTap(PointerInfo info) => OnPrimary();
+        public bool OnTapStart(PointerInfo info) => OnPrimaryStart(info);
+        public void OnTapCancel(PointerInfo info) => OnPrimaryCancel(info);
+        public void OnTap(PointerInfo info) => OnPrimary(info);
 
-        public bool OnLeftClickStart(PointerInfo info) => OnPrimaryStart();
-        public void OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel();
-        public void OnLeftClick(PointerInfo info) => OnPrimary();
+        public bool OnLeftClickStart(PointerInfo info) => OnPrimaryStart(info);
+        public void OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel(info);
+        public void OnLeftClick(PointerInfo info) => OnPrimary(info);
 
         public bool OnLongTapStart(LongTapInfo info) => true;
         public void OnLongTapCancel(LongTapInfo info) { }
-        public void OnLongTap(LongTapInfo info) => OnSecondary();
+        public void OnLongTap(LongTapInfo info)
+        {
+            if (info.pointer.id != PrimaryId)
+            {
+                return;
+            }
+            
+            OnSecondary();
+        }
         
         public bool OnRightClick(PointerInfo info) => OnSecondary();
 
-        private bool OnPrimaryStart()
+        private bool OnPrimaryStart(PointerInfo info)
         {
-            PrimaryCount++;
+            if (State.pressed)
+            {
+                return true;
+            }
             
+            PrimaryId = info.id;
+                
             var state = State;
             state.pressed = true;
             State = state;
-
+        
             return true;
         }
 
-        private void OnPrimaryCancel()
+        private void OnPrimaryCancel(PointerInfo info)
         {
-            PrimaryCount--;
-
-            if (PrimaryCount <= 0)
+            if (info.id != PrimaryId)
             {
-                var state = State;
-                state.pressed = false;
-                State = state;
+                return;
             }
+            
+            var state = State;
+            state.pressed = false;
+            State = state;
         }
 
-        private void OnPrimary()
+        private void OnPrimary(PointerInfo info)
         {
-            PrimaryCount--;
-
-            if (PrimaryCount <= 0)
+            if (info.id != PrimaryId)
             {
-                var state = State;
-                state.pressed = false;
-                State = state;
+                return;
             }
+            
+            var state = State;
+            state.pressed = false;
+            State = state;
             
             if (Props.interactable)
             {
