@@ -14,7 +14,7 @@ namespace RishUI
         public event OnSize OnSize;
         public event OnReadyToUnmount OnReadyToUnmount;
 
-        public bool CustomUnmount { get; protected set; } = false;
+        public bool CustomUnmount { get; protected set; }
 
         private bool _readyToUnmount;
         public bool ReadyToUnmount
@@ -363,9 +363,9 @@ namespace RishUI
                 }
             }
 
-            if (Parent is RishComponent rishParent)
+            if (Parent is RishComponent)
             {
-                rishParent.OnPointerEnter(eventData);
+                Parent.OnPointerEnter(eventData);
             }
         }
 
@@ -414,9 +414,9 @@ namespace RishUI
                 }
             }
 
-            if (Parent is RishComponent rishParent)
+            if (Parent is RishComponent)
             {
-                rishParent.OnPointerExit(eventData);
+                Parent.OnPointerExit(eventData);
             }
         }
 

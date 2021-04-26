@@ -16,17 +16,12 @@ namespace RishUI.Components
                 child = Props.disabled.Valid 
                     ? Props.disabled 
                     : Props.normal;
-            } else if(State.hovered)
+            } else if(State.pressed && Props.pressed.Valid)
             {
-                child = State.pressed 
-                    ? Props.pressed.Valid 
-                        ? Props.pressed 
-                        : Props.hovered.Valid 
-                            ? Props.hovered
-                            : Props.normal
-                    : Props.hovered.Valid 
-                        ? Props.hovered
-                        : Props.normal;
+                child = Props.pressed;
+            } else if(State.hovered && Props.hovered.Valid)
+            {
+                child = Props.hovered;
             }
             else
             {

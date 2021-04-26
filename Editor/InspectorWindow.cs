@@ -218,7 +218,7 @@ namespace RishUI.Editor
 			{
 				InspectorScroll = GUILayout.BeginScrollView(InspectorScroll);
 
-				if (DebugTransform && !(Selected.Component is AppComponent))
+				if (DebugTransform)
 				{
 					TransformDebug.Draw(rect.width, Selected, AbstractTransform, GlobalTransform);
 					EditorGUILayout.Space();
@@ -227,10 +227,9 @@ namespace RishUI.Editor
 				if (DebugID)
 				{
 					GUILayout.Label($"ID: {Selected.ID}");
+					GUILayout.Label($"Style: {Selected.Style}");
 				}
 				
-				GUILayout.Label($"Style: {Selected.Style}");
-
 				if (DebugExtras && Selected.Component is IExtraInspection extra)
 				{
 					GUILayout.Label($"{extra.GetExtraDescription()}");

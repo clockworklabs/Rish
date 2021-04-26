@@ -204,41 +204,20 @@ namespace RishUI
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (Parent is RishComponent rishParent)
+            var index = PointerEnterEvents.FindIndex(data => data.pointerId == eventData.pointerId);
+            if (index >= 0)
             {
-                rishParent.OnPointerEnter(eventData);
-            }
-        }
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (Parent is RishComponent rishParent)
-            {
-                rishParent.OnPointerExit(eventData);
-            }
-        }
-        public void OnPointerDown(PointerEventData eventData, bool captured) => Parent?.OnPointerDown(eventData, captured);
-        public void OnPointerUp(PointerEventData eventData) => Parent?.OnPointerUp(eventData);
-        public void OnBeginDrag(PointerEventData eventData, bool captured) => Parent?.OnBeginDrag(eventData, captured);
-        public void OnDrag(PointerEventData eventData) => Parent?.OnDrag(eventData);
-        public void OnEndDrag(PointerEventData eventData) => Parent?.OnEndDrag(eventData);
-        public void OnScroll(PointerEventData eventData, bool captured) => Parent?.OnScroll(eventData, captured);
-        public void OnKeyDown(KeyboardInfo info, bool captured) => Parent?.OnKeyDown(info, captured);
-
-        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
-        {
-            foreach (var data in PointerEnterEvents)
-            {
-                if (data.pointerId == eventData.pointerId)
-                {
-                    return;
-                }
+                return;
             }
         
             PointerEnterEvents.Add(eventData);
             
-            OnPointerEnter(eventData);
+            if (Parent is RishComponent)
+            {
+                Parent.OnPointerEnter(eventData);
+            }
         }
-        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+        public void OnPointerExit(PointerEventData eventData)
         {
             var index = PointerEnterEvents.FindIndex(data => data.pointerId == eventData.pointerId);
             if (index < 0)
@@ -248,24 +227,37 @@ namespace RishUI
 
             PointerEnterEvents.RemoveAt(index);
             
-            OnPointerExit(eventData);
-        }
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
-        {
-            foreach (var data in PointerDownEvents)
+            if (Parent is RishComponent)
             {
-                if (data.pointerId == eventData.pointerId)
-                {
-                    return;
-                }
+                Parent.OnPointerExit(eventData);
+            }
+        }
+
+        public void OnPointerDown(PointerEventData eventData, bool captured)
+        {
+            if (eventData.pointerId >= 0)
+            {
+                OnPointerEnter(eventData);
+            }
+            
+            var index = PointerDownEvents.FindIndex(data => data.pointerId == eventData.pointerId);
+            if (index >= 0)
+            {
+                return;
             }
         
             PointerDownEvents.Add(eventData);
             
-            OnPointerDown(eventData, false);
+            Parent?.OnPointerDown(eventData, captured);
         }
-        void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+
+        public void OnPointerUp(PointerEventData eventData)
         {
+            if (eventData.pointerId >= 0)
+            {
+                OnPointerExit(eventData);
+            }
+            
             var index = PointerDownEvents.FindIndex(data => data.pointerId == eventData.pointerId);
             if (index < 0)
             {
@@ -274,29 +266,22 @@ namespace RishUI
 
             PointerDownEvents.RemoveAt(index);
             
-            OnPointerUp(eventData);
+            Parent?.OnPointerUp(eventData);
         }
-
-        void IDragHandler.OnDrag(PointerEventData eventData)
+        public void OnBeginDrag(PointerEventData eventData, bool captured)
         {
-            OnDrag(eventData);
-        }
-
-        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
-        {
-            foreach (var data in PointerDragEvents)
+            var index = PointerDragEvents.FindIndex(data => data.pointerId == eventData.pointerId);
+            if (index >= 0)
             {
-                if (data.pointerId == eventData.pointerId)
-                {
-                    return;
-                }
+                return;
             }
 
             PointerDragEvents.Add(eventData);
             
-            OnBeginDrag(eventData, false);
+            Parent?.OnBeginDrag(eventData, captured);
         }
-        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
+        public void OnDrag(PointerEventData eventData) => Parent?.OnDrag(eventData);
+        public void OnEndDrag(PointerEventData eventData)
         {
             var index = PointerDragEvents.FindIndex(data => data.pointerId == eventData.pointerId);
             if (index < 0)
@@ -306,8 +291,29 @@ namespace RishUI
 
             PointerDragEvents.RemoveAt(index);
             
-            OnEndDrag(eventData);
+            Parent?.OnEndDrag(eventData);
         }
+        public void OnScroll(PointerEventData eventData, bool captured) => Parent?.OnScroll(eventData, captured);
+        public void OnKeyDown(KeyboardInfo info, bool captured) => Parent?.OnKeyDown(info, captured);
+
+        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+        {
+            if (eventData.pointerId >= 0)
+            {
+                return;
+            }
+
+            OnPointerEnter(eventData);
+        }
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData) => OnPointerExit(eventData);
+        
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) => OnPointerDown(eventData, false);
+        void IPointerUpHandler.OnPointerUp(PointerEventData eventData) => OnPointerUp(eventData);
+
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) => OnBeginDrag(eventData, false);
+        void IDragHandler.OnDrag(PointerEventData eventData) => OnDrag(eventData);
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData) => OnEndDrag(eventData);
+        
         void IScrollHandler.OnScroll(PointerEventData eventData) => OnScroll(eventData, false);
     }
 
