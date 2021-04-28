@@ -226,7 +226,14 @@ namespace RishUI.Editor
 
 				if (DebugID)
 				{
-					GUILayout.Label($"ID: {Selected.ID}");
+					if (Selected.Component is UnityComponent unityComponent)
+					{
+						GUILayout.Label($"ID: {Selected.ID} ({unityComponent.GetInstanceID()})");
+					}
+					else
+					{
+						GUILayout.Label($"ID: {Selected.ID}");
+					}
 					GUILayout.Label($"Style: {Selected.Style}");
 				}
 				

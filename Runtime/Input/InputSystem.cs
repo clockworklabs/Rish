@@ -29,7 +29,6 @@ namespace RishUI.Input
 
         internal void OnLateUpdate()
         {
-            //Debug.Log(HasPointerOver);
             if (OnInternalDrag != null)
             {
                 if (UnityEngine.Input.GetMouseButton(0))

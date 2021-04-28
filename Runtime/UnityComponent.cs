@@ -131,7 +131,7 @@ namespace RishUI
             } while(!realParentFound && parent != null);
 
             ParentWorld = Parent?.World ?? RishTransform.Default;
-            
+
             UpdateWorldTransform();
 
             ForceRender();
@@ -160,7 +160,7 @@ namespace RishUI
                 for(var i = PointerEnterEvents.Count - 1; i >= 0; i--)
                 {
                     var data = PointerEnterEvents[i];
-                    ((IPointerExitHandler) this).OnPointerExit(data);
+                    OnPointerExit(data);
                 }
             }
             
@@ -347,11 +347,11 @@ namespace RishUI
 
             if (eventData.pointerId >= 0)
             {
-                OnPointerExit(eventData);
+                OnPointerExit(eventData); 
                 var parent = UnityParent;
                 while (parent != null)
                 {
-                    OnPointerExit(eventData);
+                    parent.OnPointerExit(eventData);
                     parent = parent.UnityParent;
                 }
             }
