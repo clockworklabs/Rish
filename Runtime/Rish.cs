@@ -57,6 +57,8 @@ namespace RishUI
 
         private void Start()
         {
+            UnityEngine.Input.simulateMouseWithTouches = false;
+            
             var app = GetComponent<AppComponent>();
 
             if (app == null)
@@ -87,6 +89,8 @@ namespace RishUI
 
         private void LateUpdate()
         {
+            Input.OnLateUpdate();
+            
             for (int i = 0, n = DirtyList.Count; i < n; i++)
             {
                 var node = DirtyList[i];
@@ -119,7 +123,10 @@ namespace RishUI
             }
         }
 
-        private void OnGUI() => Input.OnEvent(Event.current);
+        private void OnGUI()
+        {
+            Input.OnEvent(Event.current);
+        }
 
         internal void OnNodeDirty(StateNode node, bool forceThisFrame = false)
         {

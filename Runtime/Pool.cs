@@ -184,6 +184,7 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = Object.Instantiate(prototype, Transform, false);
+                instance.Constructor(Input);
                 pool.Push(instance);
             }
         }

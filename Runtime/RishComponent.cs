@@ -32,7 +32,7 @@ namespace RishUI
             }
         }
 
-        private IRishComponent Parent { get; set; }
+        internal IRishComponent Parent { get; private set; }
         
         private RishTransform _parentWorld;
         private RishTransform ParentWorld
@@ -349,11 +349,12 @@ namespace RishUI
                 keyboardListener.OnKeyboardFocus(false);
             }
         }
-        
-        public void OnPointerEnter(PointerEventData eventData)
+
+        void IRishInputListener.OnPointerEnter(PointerEventData eventData)
         {
+            //Debug.Log($"RishEnter: {eventData.pointerId}");
             PointerIds.Add(eventData.pointerId);
-            
+
             if (!ReadyToUnmount)
             {
                 var info = PointerInfo.FromEvent(eventData, InputRatio);
@@ -369,8 +370,9 @@ namespace RishUI
             }
         }
 
-        public void OnPointerExit(PointerEventData eventData)
+        void IRishInputListener.OnPointerExit(PointerEventData eventData)
         {
+            //Debug.Log($"RishExit: {eventData.pointerId}");
             PointerIds.Remove(eventData.pointerId);
             
             if (!ReadyToUnmount)
@@ -420,8 +422,9 @@ namespace RishUI
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData, bool captured)
+        void IRishInputListener.OnPointerDown(PointerEventData eventData, bool captured)
         {
+            //Debug.Log($"RishDown: {eventData.pointerId}");
             PointersDownCount++;
 
             if (!ReadyToUnmount && !captured && DragEvents.Count <= 0)
@@ -496,8 +499,9 @@ namespace RishUI
             Parent?.OnPointerDown(eventData, captured);
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        void IRishInputListener.OnPointerUp(PointerEventData eventData)
         {
+            //Debug.Log($"RishUp: {eventData.pointerId}");
             PointersDownCount--;
             
             if (!ReadyToUnmount && PointerIds.Contains(eventData.pointerId))
@@ -564,7 +568,7 @@ namespace RishUI
             }
         }
 
-        public void OnBeginDrag(PointerEventData eventData, bool captured)
+        void IRishInputListener.OnBeginDrag(PointerEventData eventData, bool captured)
         {
             if (!ReadyToUnmount && !captured && this is IDragListener dragListener)
             {
@@ -612,7 +616,7 @@ namespace RishUI
             Parent?.OnBeginDrag(eventData, captured);
         }
 
-        public void OnDrag(PointerEventData eventData)
+        void IRishInputListener.OnDrag(PointerEventData eventData)
         {
             if (!ReadyToUnmount && this is IDragListener dragListener && DragEvents.Contains(eventData.pointerId))
             {
@@ -623,7 +627,7 @@ namespace RishUI
             Parent?.OnDrag(eventData);
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        void IRishInputListener.OnEndDrag(PointerEventData eventData)
         {
             if (!ReadyToUnmount && this is IDragListener dragListener && DragEvents.Contains(eventData.pointerId))
             {
@@ -635,7 +639,7 @@ namespace RishUI
             Parent?.OnEndDrag(eventData);
         }
 
-        public void OnScroll(PointerEventData eventData, bool captured)
+        void IRishInputListener.OnScroll(PointerEventData eventData, bool captured)
         {
             if (!ReadyToUnmount && !captured && this is IScrollListener listener)
             {
@@ -650,7 +654,7 @@ namespace RishUI
             Parent?.OnScroll(eventData, captured);
         }
 
-        public void OnKeyDown(KeyboardInfo info, bool captured)
+        void IRishInputListener.OnKeyDown(KeyboardInfo info, bool captured)
         {
             if (!ReadyToUnmount && !captured && this is IKeyboardListener listener)
             {

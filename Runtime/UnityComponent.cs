@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 namespace RishUI
 {
@@ -17,6 +18,7 @@ namespace RishUI
         public bool ReadyToUnmount => true;
 
         internal IRishComponent Parent { get; private set; }
+        private UnityComponent UnityParent { get; set; }
         
         private RishTransform _parentWorld;
         private RishTransform ParentWorld
@@ -54,6 +56,8 @@ namespace RishUI
         
         public RishList<RishElement> Children { get; internal set; }
         
+        private InputSystem Input { get; set; }
+        
         public RishTransform World => RishTransform.Default;
 
         private Vector2 _size;
@@ -88,23 +92,43 @@ namespace RishUI
 
         private RectTransform RectTransform => (RectTransform) transform;
         
-        private List<PointerEventData> PointerEnterEvents { get; } = new List<PointerEventData>();
-        private List<PointerEventData> PointerDownEvents { get; } = new List<PointerEventData>();
-        private List<PointerEventData> PointerDragEvents { get; } = new List<PointerEventData>();
+        private HashSet<int> InheritedPointerDownEvents { get; } = new HashSet<int>();
+        private HashSet<int> InheritedDragEvents { get; } = new HashSet<int>();
+        private EventsList PointerEnterEvents { get; } = new EventsList();
+        private EventsList PointerDownEvents { get; } = new EventsList();
+        private EventsList PointerDragEvents { get; } = new EventsList();
 
         protected void ForceRender() => OnDirty?.Invoke();
+        
+        public void Constructor(InputSystem input)
+        {
+            Input = input;
+        }
 
         internal virtual void Mount(IRishComponent parent)
         {
-            PointerEnterEvents.Clear();
-            PointerDownEvents.Clear();
-            PointerDragEvents.Clear();
-            
             Parent = parent;
             if (Parent != null)
             {
                 Parent.OnWorld += SetParentWorld;
             }
+
+            var realParentFound = false;
+            do
+            {
+                switch (parent)
+                {
+                    case RishComponent rishComponent:
+                        parent = rishComponent.Parent;
+                        break;
+                    case UnityComponent unityComponent:
+                        realParentFound = true;
+                        UnityParent = unityComponent;
+                        break;
+                    default:
+                        throw new UnityException("Component type not supported");
+                }
+            } while(!realParentFound && parent != null);
 
             ParentWorld = Parent?.World ?? RishTransform.Default;
             
@@ -117,20 +141,27 @@ namespace RishUI
 
         internal void Unmount()
         {
-            for(var i = PointerDownEvents.Count - 1; i >= 0; i--)
+            if (UnityParent != null)
             {
-                var data = PointerDownEvents[i];
-                ((IPointerUpHandler) this).OnPointerUp(data);
+                UnityParent.GetEventsOwnership(PointerDownEvents, PointerDragEvents);
             }
-            for(var i = PointerDragEvents.Count - 1; i >= 0; i--)
+            else
             {
-                var data = PointerDragEvents[i];
-                ((IEndDragHandler) this).OnEndDrag(data);
-            }
-            for(var i = PointerEnterEvents.Count - 1; i >= 0; i--)
-            {
-                var data = PointerEnterEvents[i];
-                ((IPointerExitHandler) this).OnPointerExit(data);
+                for(var i = PointerDownEvents.Count - 1; i >= 0; i--)
+                {
+                    var data = PointerDownEvents[i];
+                    ((IPointerUpHandler) this).OnPointerUp(data);
+                }
+                for(var i = PointerDragEvents.Count - 1; i >= 0; i--)
+                {
+                    var data = PointerDragEvents[i];
+                    ((IEndDragHandler) this).OnEndDrag(data);
+                }
+                for(var i = PointerEnterEvents.Count - 1; i >= 0; i--)
+                {
+                    var data = PointerEnterEvents[i];
+                    ((IPointerExitHandler) this).OnPointerExit(data);
+                }
             }
             
             if (Parent != null)
@@ -140,6 +171,15 @@ namespace RishUI
 
             Parent = null;
             Children = default;
+            
+            InheritedPointerDownEvents.Clear();
+            InheritedDragEvents.Clear();
+            PointerEnterEvents.Clear();
+            PointerDownEvents.Clear();
+            PointerDragEvents.Clear();
+            
+            Input.OnInternalDrag -= OnInternalDrag;
+            Input.OnInternalPointerUp -= OnInternalPointerUp;
             
             gameObject.SetActive(false);
         }
@@ -201,120 +241,180 @@ namespace RishUI
             RectTransform.localScale = new Vector3(world.scale.x, world.scale.y, 1f);
             RectTransform.localEulerAngles = new Vector3(0, 0, world.rotation);
         }
-        
-        public void OnPointerEnter(PointerEventData eventData)
+
+        // FIXME: If parent inherits a pointer down but not a drag, drag events will be ignored with that pointer (because the event never starts)
+        private void GetEventsOwnership(EventsList pointerDownEvents, EventsList pointerDragEvents)
         {
-            var index = PointerEnterEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index >= 0)
+            if (pointerDownEvents.Count > 0)
             {
-                return;
+                Input.OnInternalPointerUp += OnInternalPointerUp;
+                for (int i = 0, n = pointerDownEvents.Count; i < n; i++)
+                {
+                    var eventData = pointerDownEvents[i];
+                    PointerDownEvents.Add(eventData);
+
+                    InheritedPointerDownEvents.Add(eventData.pointerId);
+                }
             }
+            if (pointerDragEvents.Count > 0)
+            {
+                Input.OnInternalDrag += OnInternalDrag;
+                for (int i = 0, n = pointerDownEvents.Count; i < n; i++)
+                {
+                    var eventData = pointerDownEvents[i];
+                    PointerDragEvents.Add(eventData);
+
+                    InheritedDragEvents.Add(eventData.pointerId);
+                }
+            }
+        }
         
-            PointerEnterEvents.Add(eventData);
-            
+        void IRishInputListener.OnPointerEnter(PointerEventData eventData)
+        {
             if (Parent is RishComponent)
             {
                 Parent.OnPointerEnter(eventData);
             }
         }
-        public void OnPointerExit(PointerEventData eventData)
+        void IRishInputListener.OnPointerExit(PointerEventData eventData)
         {
-            var index = PointerEnterEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index < 0)
-            {
-                return;
-            }
-
-            PointerEnterEvents.RemoveAt(index);
-            
             if (Parent is RishComponent)
             {
                 Parent.OnPointerExit(eventData);
             }
         }
-
-        public void OnPointerDown(PointerEventData eventData, bool captured)
-        {
-            if (eventData.pointerId >= 0)
-            {
-                OnPointerEnter(eventData);
-            }
-            
-            var index = PointerDownEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index >= 0)
-            {
-                return;
-            }
-        
-            PointerDownEvents.Add(eventData);
-            
-            Parent?.OnPointerDown(eventData, captured);
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (eventData.pointerId >= 0)
-            {
-                OnPointerExit(eventData);
-            }
-            
-            var index = PointerDownEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index < 0)
-            {
-                return;
-            }
-
-            PointerDownEvents.RemoveAt(index);
-            
-            Parent?.OnPointerUp(eventData);
-        }
-        public void OnBeginDrag(PointerEventData eventData, bool captured)
-        {
-            var index = PointerDragEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index >= 0)
-            {
-                return;
-            }
-
-            PointerDragEvents.Add(eventData);
-            
-            Parent?.OnBeginDrag(eventData, captured);
-        }
-        public void OnDrag(PointerEventData eventData) => Parent?.OnDrag(eventData);
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            var index = PointerDragEvents.FindIndex(data => data.pointerId == eventData.pointerId);
-            if (index < 0)
-            {
-                return;
-            }
-
-            PointerDragEvents.RemoveAt(index);
-            
-            Parent?.OnEndDrag(eventData);
-        }
-        public void OnScroll(PointerEventData eventData, bool captured) => Parent?.OnScroll(eventData, captured);
-        public void OnKeyDown(KeyboardInfo info, bool captured) => Parent?.OnKeyDown(info, captured);
+        void IRishInputListener.OnPointerDown(PointerEventData eventData, bool captured) => Parent?.OnPointerDown(eventData, captured);
+        void IRishInputListener.OnPointerUp(PointerEventData eventData) => Parent?.OnPointerUp(eventData);
+        void IRishInputListener.OnBeginDrag(PointerEventData eventData, bool captured) => Parent?.OnBeginDrag(eventData, captured);
+        void IRishInputListener.OnDrag(PointerEventData eventData) => Parent?.OnDrag(eventData);
+        void IRishInputListener.OnEndDrag(PointerEventData eventData) => Parent?.OnEndDrag(eventData);
+        void IRishInputListener.OnScroll(PointerEventData eventData, bool captured) => Parent?.OnScroll(eventData, captured);
+        void IRishInputListener.OnKeyDown(KeyboardInfo info, bool captured) => Parent?.OnKeyDown(info, captured);
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {
-            if (eventData.pointerId >= 0)
+            if(PointerEnterEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerEnterEvents.Add(eventData);
+
+            ((IRishInputListener) this).OnPointerEnter(eventData);
+        }
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+        {
+            if (eventData.pointerId >= 0 && PointerDownEvents.Contains(eventData.pointerId) && !eventData.dragging)
             {
                 return;
             }
 
-            OnPointerEnter(eventData);
+            OnPointerExit(eventData);
         }
-        void IPointerExitHandler.OnPointerExit(PointerEventData eventData) => OnPointerExit(eventData);
+        private void OnPointerExit(PointerEventData eventData)
+        {
+            if (!PointerEnterEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerEnterEvents.Remove(eventData);
+            
+            ((IRishInputListener) this).OnPointerExit(eventData);
+        }
         
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) => OnPointerDown(eventData, false);
-        void IPointerUpHandler.OnPointerUp(PointerEventData eventData) => OnPointerUp(eventData);
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+        {
+            if (PointerDownEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerDownEvents.Add(eventData);
+            
+            ((IRishInputListener) this).OnPointerDown(eventData, false);
+        }
+        void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+        {
+            if (!PointerDownEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerDownEvents.Remove(eventData);
+            
+            ((IRishInputListener) this).OnPointerUp(eventData);
 
-        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) => OnBeginDrag(eventData, false);
-        void IDragHandler.OnDrag(PointerEventData eventData) => OnDrag(eventData);
-        void IEndDragHandler.OnEndDrag(PointerEventData eventData) => OnEndDrag(eventData);
+            if (eventData.pointerId >= 0)
+            {
+                OnPointerExit(eventData);
+                var parent = UnityParent;
+                while (parent != null)
+                {
+                    OnPointerExit(eventData);
+                    parent = parent.UnityParent;
+                }
+            }
+        }
+
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
+        {
+            if (PointerDragEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerDragEvents.Add(eventData);
+            
+            ((IRishInputListener) this).OnBeginDrag(eventData, false);
+        }
+        void IDragHandler.OnDrag(PointerEventData eventData) => ((IRishInputListener) this).OnDrag(eventData);
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
+        {
+            if (!PointerDragEvents.Contains(eventData))
+            {
+                return;
+            }
+            
+            PointerDragEvents.Remove(eventData);
+            
+            ((IRishInputListener) this).OnEndDrag(eventData);
+        }
+        void IScrollHandler.OnScroll(PointerEventData eventData) => ((IRishInputListener) this).OnScroll(eventData, false);
+
+        private void OnInternalDrag(int pointerId)
+        {
+            if (!InheritedDragEvents.Contains(pointerId))
+            {
+                return;
+            }
+
+            var eventData = PointerDragEvents.GetById(pointerId);
+            if (eventData != null)
+            {
+                ((IDragHandler) this).OnDrag(eventData);
+            }
+        }
         
-        void IScrollHandler.OnScroll(PointerEventData eventData) => OnScroll(eventData, false);
+        private void OnInternalPointerUp(int pointerId)
+        {
+            if (!InheritedPointerDownEvents.Contains(pointerId))
+            {
+                return;
+            }
+
+            var pointerDownEvent = PointerDownEvents.GetById(pointerId);
+            if (pointerDownEvent != null)
+            {
+                ((IPointerUpHandler) this).OnPointerUp(pointerDownEvent);
+            }
+            
+            var pointerDragEvent = PointerDragEvents.GetById(pointerId);
+            if (pointerDragEvent != null)
+            {
+                ((IEndDragHandler) this).OnEndDrag(pointerDragEvent);
+            }
+        }
     }
 
     public abstract class UnityComponent<P> : UnityComponent, IRishComponent<P> where P : struct

@@ -31,6 +31,12 @@ namespace RishUI.Input
             return true;
         }
 
+        public PointerEventData GetById(int id)
+        {
+            var index = FindIndex(id);
+            return index < 0 ? null : List[index];
+        }
+
         public bool Remove(PointerEventData eventData) => Remove(eventData.pointerId);
 
         public bool Remove(int id)
@@ -54,7 +60,7 @@ namespace RishUI.Input
             return true;
         }
         
-        public int FindIndex(int id) => List.FindIndex(data => data.pointerId == id);
+        public int FindIndex(int id) => !Contains(id) ? -1 : List.FindIndex(data => data.pointerId == id);
 
         public void Clear()
         {

@@ -6,6 +6,9 @@ namespace RishUI.Input
 {
     public class InputSystem
     {
+        internal event Action<int> OnInternalDrag;
+        internal event Action<int> OnInternalPointerUp;
+        
         private Rish Rish { get; }
         
         private RishComponent _root;
@@ -22,6 +25,63 @@ namespace RishUI.Input
         internal InputSystem(Rish rish)
         {
             Rish = rish;
+        }
+
+        internal void OnLateUpdate()
+        {
+            //Debug.Log(HasPointerOver);
+            if (OnInternalDrag != null)
+            {
+                if (UnityEngine.Input.GetMouseButton(0))
+                {
+                    OnInternalDrag.Invoke(-1);
+                }
+
+                if (UnityEngine.Input.GetMouseButton(1))
+                {
+                    OnInternalDrag.Invoke(-2);
+                }
+
+                if (UnityEngine.Input.GetMouseButton(2))
+                {
+                    OnInternalDrag.Invoke(-3);
+                }
+            }
+
+            if (OnInternalPointerUp != null)
+            {
+                if (UnityEngine.Input.GetMouseButtonUp(0))
+                {
+                    OnInternalPointerUp.Invoke(-1);
+                }
+
+                if (UnityEngine.Input.GetMouseButtonUp(1))
+                {
+                    OnInternalPointerUp.Invoke(-2);
+                }
+
+                if (UnityEngine.Input.GetMouseButtonUp(2))
+                {
+                    OnInternalPointerUp.Invoke(-3);
+                }
+            }
+
+            if (OnInternalDrag != null || OnInternalPointerUp != null)
+            {
+                for (int i = 0, n = UnityEngine.Input.touchCount; i < n; i++)
+                {
+                    var touch = UnityEngine.Input.GetTouch(i);
+                    switch (touch.phase)
+                    {
+                        case TouchPhase.Moved:
+                            OnInternalDrag?.Invoke(touch.fingerId);
+                            break;
+                        case TouchPhase.Ended:
+                            OnInternalPointerUp?.Invoke(touch.fingerId);
+                            break;
+                    }
+                }
+            }
         }
 
         internal void OnEvent(Event e)
@@ -42,7 +102,7 @@ namespace RishUI.Input
                         return;
                     }
                     
-                    KeyboardFocus.OnKeyDown(new KeyboardInfo
+                    ((IRishComponent) KeyboardFocus).OnKeyDown(new KeyboardInfo
                     {
                         keyCode = e.keyCode,
                         modifiers = e.modifiers

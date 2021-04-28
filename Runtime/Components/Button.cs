@@ -22,7 +22,7 @@ namespace RishUI.Components
             } else if(State.hovered && Props.hovered.Valid)
             {
                 child = Props.hovered;
-            }
+            } 
             else
             {
                 child = Props.normal;
