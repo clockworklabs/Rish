@@ -143,7 +143,7 @@ namespace RishUI
         {
             if (UnityParent != null)
             {
-                UnityParent.GetEventsOwnership(PointerDownEvents, PointerDragEvents);
+                UnityParent.InheritEvents(PointerDownEvents, PointerDragEvents);
             }
             else
             {
@@ -243,7 +243,7 @@ namespace RishUI
         }
 
         // FIXME: If parent inherits a pointer down but not a drag, drag events will be ignored with that pointer (because the event never starts)
-        private void GetEventsOwnership(EventsList pointerDownEvents, EventsList pointerDragEvents)
+        private void InheritEvents(EventsList pointerDownEvents, EventsList pointerDragEvents)
         {
             if (pointerDownEvents.Count > 0)
             {
@@ -259,9 +259,9 @@ namespace RishUI
             if (pointerDragEvents.Count > 0)
             {
                 Input.OnInternalDrag += OnInternalDrag;
-                for (int i = 0, n = pointerDownEvents.Count; i < n; i++)
+                for (int i = 0, n = pointerDragEvents.Count; i < n; i++)
                 {
-                    var eventData = pointerDownEvents[i];
+                    var eventData = pointerDragEvents[i];
                     PointerDragEvents.Add(eventData);
 
                     InheritedDragEvents.Add(eventData.pointerId);

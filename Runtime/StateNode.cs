@@ -273,7 +273,7 @@ namespace RishUI
             RemainingChildren = Children?.Count ?? 0;
             if (Component.CustomUnmount)
             {
-                Component.OnReadyToUnmount += OnReady;
+                Component.OnReadyToUnmount += OnReadyToUnmount;
             }
 
             if (Children != null)
@@ -290,13 +290,13 @@ namespace RishUI
             }
         }
 
-        private void OnReady()
+        private void OnReadyToUnmount()
         {
             if (Children != null)
             {
                 for (var i = Children.Count - 1; i >= 0; i--)
                 {
-                    Children[i].OnReady();
+                    Children[i].OnReadyToUnmount();
                 }
             }
 
@@ -314,22 +314,11 @@ namespace RishUI
             if (!CanUnmount()) return;
 
             Mounted = false;
-            
-            if (RealParent != null && RealParent.Active && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
-            {
-                Rish.OnNodeDirty(RealParent, true);
-            }
-
-            if (Parent != null && Parent.RemainingChildren > 0)
-            {
-                Parent.RemainingChildren--;
-                Parent.OnReady();
-            }
 
             Component.OnDirty -= NotifyDirty;            
             if (Component.CustomUnmount)
             {
-                Component.OnReadyToUnmount -= OnReady;
+                Component.OnReadyToUnmount -= OnReadyToUnmount;
             }
 
             switch (Component)
@@ -343,13 +332,26 @@ namespace RishUI
                 default:
                     throw new UnityException("Component type not supported");
             }
+            
+            if (RealParent != null && RealParent.Active && RealParent.Component is UnityComponent parentComponent && parentComponent.RenderOnChildrenChange)
+            {
+                Rish.OnNodeDirty(RealParent, true);
+            }
+
+            if (Parent != null && Parent.RemainingChildren > 0)
+            {
+                Parent.RemainingChildren--;
+                Parent.OnReadyToUnmount();
+            }
 
             Pool.ReturnToPool(Component);
 
             NotifyUnmount();
         }
 
-        private bool ReadyToUnmount()
+        private bool CanUnmount() => RemainingChildren <= 0 && IsReadyToUnmount();
+
+        private bool IsReadyToUnmount()
         {
             if (Active) return true;
             
@@ -357,10 +359,8 @@ namespace RishUI
 
             if (Component.CustomUnmount) return true;
             
-            return Parent == null || Parent.ReadyToUnmount();
+            return Parent == null || Parent.IsReadyToUnmount();
         }
-
-        private bool CanUnmount() => RemainingChildren <= 0 && ReadyToUnmount();
         
         #if UNITY_EDITOR
         public StateNode GetChild(int index)
