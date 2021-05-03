@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using RishUI.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
 namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public event OnDirty OnDirty;
+        public event OnTransform OnTransform;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         public event OnReadyToUnmount OnReadyToUnmount;
@@ -49,6 +49,8 @@ namespace RishUI
                 }
                 
                 _local = value;
+                
+                OnTransform?.Invoke();
 
                 UpdateWorldTransform();
             }

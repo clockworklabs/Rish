@@ -4,10 +4,16 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Button : RishComponent<ButtonProps, ButtonState>, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
+    public class Button : RishComponent<ButtonProps, ButtonState>, IRectListener, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
     {
         private int PrimaryId { get; set; }
-        
+        private bool Listening { get; set; }
+
+        public void ComponentRectDidChange()
+        {
+            Listening = false;
+        }
+
         protected override RishElement Render()
         {
             RishElement child;
@@ -66,8 +72,11 @@ namespace RishUI.Components
             {
                 return;
             }
-            
-            OnSecondary();
+
+            if (Listening)
+            {
+                OnSecondary();
+            }
         }
         
         public bool OnRightClick(PointerInfo info) => OnSecondary();
@@ -80,7 +89,8 @@ namespace RishUI.Components
             }
             
             PrimaryId = info.id;
-                
+            Listening = true;
+
             var state = State;
             state.pressed = true;
             State = state;
@@ -111,7 +121,7 @@ namespace RishUI.Components
             state.pressed = false;
             State = state;
             
-            if (Props.interactable)
+            if (Listening && Props.interactable)
             {
                 Props.action?.Invoke();
             }

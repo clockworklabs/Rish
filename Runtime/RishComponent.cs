@@ -10,6 +10,7 @@ namespace RishUI
     public abstract class RishComponent : IRishComponent
     {
         public event OnDirty OnDirty;
+        public event OnTransform OnTransform;
         public event OnWorld OnWorld;
         public event OnSize OnSize;
         public event OnReadyToUnmount OnReadyToUnmount;
@@ -70,6 +71,8 @@ namespace RishUI
                 }
 
                 _local = value;
+                
+                OnTransform?.Invoke();
                 
                 World = ParentWorld * _local;
                 Size = _local.GetSize(ParentSize);
@@ -352,7 +355,6 @@ namespace RishUI
 
         void IRishInputListener.OnPointerEnter(PointerEventData eventData)
         {
-            //Debug.Log($"RishEnter: {eventData.pointerId}");
             PointerIds.Add(eventData.pointerId);
 
             if (!ReadyToUnmount)
@@ -372,7 +374,6 @@ namespace RishUI
 
         void IRishInputListener.OnPointerExit(PointerEventData eventData)
         {
-            //Debug.Log($"RishExit: {eventData.pointerId}");
             PointerIds.Remove(eventData.pointerId);
             
             if (!ReadyToUnmount)
@@ -424,7 +425,6 @@ namespace RishUI
 
         void IRishInputListener.OnPointerDown(PointerEventData eventData, bool captured)
         {
-            //Debug.Log($"RishDown: {eventData.pointerId}");
             PointersDownCount++;
 
             if (!ReadyToUnmount && !captured && DragEvents.Count <= 0)
@@ -501,7 +501,6 @@ namespace RishUI
 
         void IRishInputListener.OnPointerUp(PointerEventData eventData)
         {
-            //Debug.Log($"RishUp: {eventData.pointerId}");
             PointersDownCount--;
             
             if (!ReadyToUnmount && PointerIds.Contains(eventData.pointerId))

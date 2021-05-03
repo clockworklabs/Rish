@@ -17,12 +17,14 @@ namespace RishUI
     }
 
     public delegate void OnDirty();
+    public delegate void OnTransform();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
     public delegate void OnReadyToUnmount();
     
     public interface IRishComponent : IRishInputListener {
         event OnDirty OnDirty;
+        event OnTransform OnTransform;
         event OnWorld OnWorld;
         event OnSize OnSize;
         event OnReadyToUnmount OnReadyToUnmount;

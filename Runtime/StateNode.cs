@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Priority_Queue;
-using RishUI.Input;
 using Unity.Collections;
 using UnityEngine;
 
@@ -59,7 +58,7 @@ namespace RishUI
                 return false;
             }
 
-            for (var i = 0; i < Children.Count; i++)
+            for (int i = 0, n = Children.Count; i < n; i++)
             {
                 var child = Children[i];
                 if (child.IsRealTree()) {
@@ -141,17 +140,42 @@ namespace RishUI
             }
 
             Component.OnDirty += NotifyDirty;
-            if (Component is RishComponent rishComponent)
+            Component.OnTransform += OnRectChange;
+            switch (Component)
             {
-                rishComponent.Mount(style, Parent?.Component);
-            } else if (Component is UnityComponent unityComponent)
-            {
-                unityComponent.Mount(Parent?.Component);
+                case RishComponent rishComponent:
+                    rishComponent.Mount(style, Parent?.Component);
+                    break;
+                case UnityComponent unityComponent:
+                    unityComponent.Mount(Parent?.Component);
+                    break;
+                default:
+                    throw new UnityException("Component type not supported.");
             }
         }
 
         private void NotifyDirty() => Rish.OnNodeDirty(this);
         private void NotifyUnmount() => Rish.OnNodeUnmounted(this);
+
+        private void OnRectChange()
+        {
+            if (!Active)
+            {
+                return;
+            }
+            
+            if (Component is IRectListener rectListener)
+            {
+                rectListener.ComponentRectDidChange();
+            }
+
+            if (Children == null || ChildCount <= 0) return;
+            
+            for (int i = 0, n = ChildCount; i < n; i++)
+            {
+                Children[i].OnRectChange();
+            }
+        }
 
         internal void UpdateIndex()
         {
@@ -217,8 +241,8 @@ namespace RishUI
                 return null;
             }
 
-            int index = -1;
-            for (int i = ChildCount; i < Children.Count; i++)
+            var index = -1;
+            for (var i = ChildCount; i < Children.Count; i++)
             {
                 var other = Children[i];
                 if (other.Key == key && other.Type == type && other.Style == style)
@@ -315,7 +339,8 @@ namespace RishUI
 
             Mounted = false;
 
-            Component.OnDirty -= NotifyDirty;            
+            Component.OnTransform -= OnRectChange;
+            Component.OnDirty -= NotifyDirty;
             if (Component.CustomUnmount)
             {
                 Component.OnReadyToUnmount -= OnReadyToUnmount;
