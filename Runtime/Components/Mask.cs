@@ -7,7 +7,7 @@ namespace RishUI.Components
     {
         private string SpriteAddress { get; set; }
         
-        public void UpdateStateFromProps()
+        void IDerivedState.UpdateStateFromProps()
         {
             if (SpriteAddress == Props.spriteAddress)
             {

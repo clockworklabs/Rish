@@ -8,12 +8,12 @@ namespace RishUI.Components
     {
         private string BackgroundSpriteAddress { get; set; }
 
-        public void ComponentWillDestroy()
+        void IDestroyListener.ComponentWillDestroy()
         {
             BackgroundSpriteAddress = null;
         }
 
-        public void UpdateStateFromProps()
+        void IDerivedState.UpdateStateFromProps()
         {
             if (BackgroundSpriteAddress == Props.backgroundSpriteAddress)
             {
@@ -72,25 +72,25 @@ namespace RishUI.Components
             State = state;
         }
 
-        public InputResult OnTapStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
-        public void OnTapCancel(PointerInfo info) { }
-        public void OnTap(PointerInfo info) { }
+        InputResult ITapListener.OnTapStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
+        void ITapListener.OnTapCancel(PointerInfo info) { }
+        void ITapListener.OnTap(PointerInfo info) { }
 
-        public InputResult OnLongTapStart(LongTapInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
-        public void OnLongTapCancel(LongTapInfo info) { }
-        public void OnLongTap(LongTapInfo info) { }
+        InputResult ILongTapListener.OnLongTapStart(LongTapInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
+        void ILongTapListener.OnLongTapCancel(LongTapInfo info) { }
+        void ILongTapListener.OnLongTap(LongTapInfo info) { }
 
-        public InputResult OnLeftClickStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
-        public void OnLeftClick(PointerInfo info) { }
-        public void OnLeftClickCancel(PointerInfo info) { }
+        InputResult ILeftClickListener.OnLeftClickStart(PointerInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
+        void ILeftClickListener.OnLeftClick(PointerInfo info) { }
+        void ILeftClickListener.OnLeftClickCancel(PointerInfo info) { }
 
-        public bool OnRightClick(PointerInfo info) => Props.captureInput;
+        bool IRightClickListener.OnRightClick(PointerInfo info) => Props.captureInput;
 
-        public InputResult OnDragStart(DragInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
-        public void OnDrag(DragInfo info) { }
-        public void OnDragEnd(DragInfo info) { }
+        InputResult IDragListener.OnDragStart(DragInfo info) => Props.captureInput ? InputResult.JustCapture : InputResult.Ignore;
+        void IDragListener.OnDrag(DragInfo info) { }
+        void IDragListener.OnDragEnd(DragInfo info) { }
 
-        public bool OnScroll(ScrollInfo info) => Props.captureInput;
+        bool IScrollListener.OnScroll(ScrollInfo info) => Props.captureInput;
     }
 
     public struct DivProps : IRishData<DivProps>

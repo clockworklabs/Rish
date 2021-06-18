@@ -8,12 +8,12 @@ namespace RishUI.Components
     {
         private string SpriteAddress { get; set; }
         
-        public void ComponentWillDestroy()
+        void IDestroyListener.ComponentWillDestroy()
         {
             SpriteAddress = null;
         }
         
-        public void UpdateStateFromProps()
+        void IDerivedState.UpdateStateFromProps()
         {
             if (SpriteAddress == Props.spriteAddress)
             {

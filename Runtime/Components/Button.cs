@@ -9,8 +9,13 @@ namespace RishUI.Components
         private int PrimaryId { get; set; }
         private bool Listening { get; set; }
 
-        public void ComponentRectDidChange()
+        void IRectListener.ComponentRectDidChange()
         {
+            if (Props.listenWhileTransforming)
+            {
+                return;
+            }
+            
             Listening = false;
         }
 
@@ -41,32 +46,32 @@ namespace RishUI.Components
             });
         }
 
-        public void OnHoverStart(PointerInfo info)
+        void IHoverListener.OnHoverStart(PointerInfo info)
         {
             var state = State;
             state.hovered = true;
             State = state;
         }
 
-        public void OnHoverEnd(PointerInfo info)
+        void IHoverListener.OnHoverEnd(PointerInfo info)
         {
             var state = State;
             state.hovered = false;
             State = state;
         }
 
-        public InputResult OnTapStart(PointerInfo info) => OnPrimaryStart(info);
-        public void OnTapCancel(PointerInfo info) => OnPrimaryCancel(info);
-        public void OnTap(PointerInfo info) => OnPrimary(info);
+        InputResult ITapListener.OnTapStart(PointerInfo info) => OnPrimaryStart(info);
+        void ITapListener.OnTapCancel(PointerInfo info) => OnPrimaryCancel(info);
+        void ITapListener.OnTap(PointerInfo info) => OnPrimary(info);
 
-        public InputResult OnLeftClickStart(PointerInfo info) => OnPrimaryStart(info);
-        public void OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel(info);
-        public void OnLeftClick(PointerInfo info) => OnPrimary(info);
+        InputResult ILeftClickListener.OnLeftClickStart(PointerInfo info) => OnPrimaryStart(info);
+        void ILeftClickListener.OnLeftClickCancel(PointerInfo info) => OnPrimaryCancel(info);
+        void ILeftClickListener.OnLeftClick(PointerInfo info) => OnPrimary(info);
 
-        public InputResult OnLongTapStart(LongTapInfo info) =>
+        InputResult ILongTapListener.OnLongTapStart(LongTapInfo info) =>
             info.pointer.id == PrimaryId ? InputResult.Capture : InputResult.JustCapture;
-        public void OnLongTapCancel(LongTapInfo info) { }
-        public void OnLongTap(LongTapInfo info)
+        void ILongTapListener.OnLongTapCancel(LongTapInfo info) { }
+        void ILongTapListener.OnLongTap(LongTapInfo info)
         {
             if (info.pointer.id != PrimaryId)
             {
@@ -79,7 +84,7 @@ namespace RishUI.Components
             }
         }
         
-        public bool OnRightClick(PointerInfo info) => OnSecondary();
+        bool IRightClickListener.OnRightClick(PointerInfo info) => OnSecondary();
 
         private InputResult OnPrimaryStart(PointerInfo info)
         {
@@ -143,6 +148,7 @@ namespace RishUI.Components
         public float extraMargin;
 
         public bool interactable;
+        public bool listenWhileTransforming;
         
         public Action action;
         public Action secondaryAction;
@@ -160,6 +166,11 @@ namespace RishUI.Components
         public bool Equals(ButtonProps other)
         {
             if (interactable != other.interactable)
+            {
+                return false;
+            }
+
+            if (listenWhileTransforming != other.listenWhileTransforming)
             {
                 return false;
             }

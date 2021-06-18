@@ -16,13 +16,13 @@ namespace RishUI.Components
         private string TextFontAddress { get; set; }
         private string TextMaterialAddress { get; set; }
 
-        public void ComponentDidMount()
+        void IMountingListener.ComponentDidMount()
         {
             Form = GetParent<Form>();
             Form?.Add(this);
         }
 
-        public void ComponentWillUnmount()
+        void IMountingListener.ComponentWillUnmount()
         {
             Form?.Remove(this);
             
@@ -33,7 +33,7 @@ namespace RishUI.Components
             TextMaterialAddress = null;
         }
 
-        public void UpdateStateFromProps()
+        void IDerivedState.UpdateStateFromProps()
         {
             if (ImageSpriteAddress != Props.imageSpriteAddress)
             {
@@ -283,23 +283,23 @@ namespace RishUI.Components
             State = state;
         }
 
-        public void GetFocus() { }
+        void IFormElement.GetFocus() { }
 
-        public InputResult OnTapStart(PointerInfo info)
+        InputResult ITapListener.OnTapStart(PointerInfo info)
         {
             ClaimKeyboardFocus();
             return InputResult.JustCapture;
         }
-        public void OnTapCancel(PointerInfo info) { }
-        public void OnTap(PointerInfo info) { }
+        void ITapListener.OnTapCancel(PointerInfo info) { }
+        void ITapListener.OnTap(PointerInfo info) { }
 
-        public InputResult OnLeftClickStart(PointerInfo info)
+        InputResult ILeftClickListener.OnLeftClickStart(PointerInfo info)
         {
             ClaimKeyboardFocus();
             return InputResult.JustCapture;
         }
-        public void OnLeftClickCancel(PointerInfo info) { }
-        public void OnLeftClick(PointerInfo info) { }
+        void ILeftClickListener.OnLeftClickCancel(PointerInfo info) { }
+        void ILeftClickListener.OnLeftClick(PointerInfo info) { }
     }
     
     

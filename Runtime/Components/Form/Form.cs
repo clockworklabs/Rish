@@ -9,7 +9,7 @@ namespace RishUI.Components
     {
         private List<IFormElement> Elements { get; } = new List<IFormElement>();
 
-        public void ComponentWillDestroy()
+        void IDestroyListener.ComponentWillDestroy()
         {
             Elements.Clear();
         }
@@ -40,8 +40,8 @@ namespace RishUI.Components
             return Props.content;
         }
 
-        public void OnKeyboardFocus(bool focus) { }
-        public bool OnKeyDown(KeyboardInfo info)
+        void IKeyboardListener.OnKeyboardFocus(bool focus) { }
+        bool IKeyboardListener.OnKeyDown(KeyboardInfo info)
         {
             if (info.keyCode != KeyCode.Return)
             {

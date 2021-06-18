@@ -12,7 +12,7 @@ namespace RishUI.Components
         
         private Vector2 PreferredSize { get; set; } = Vector2.negativeInfinity;
 
-        public void UpdateStateFromProps()
+        void IDerivedState.UpdateStateFromProps()
         {
             var settings = Props.settings;
             if (FontAddress != settings.fontAddress)
@@ -27,7 +27,7 @@ namespace RishUI.Components
             }
         }
 
-        public void ComponentWillDestroy()
+        void IDestroyListener.ComponentWillDestroy()
         {
             PreferredSize = Vector2.negativeInfinity;
             FontAddress = null;
