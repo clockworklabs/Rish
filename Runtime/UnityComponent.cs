@@ -100,6 +100,9 @@ namespace RishUI
         private EventsList PointerDownEvents { get; } = new EventsList();
         private EventsList PointerDragEvents { get; } = new EventsList();
 
+        internal bool HasPointerOver => PointerEnterEvents.Count > 0;
+        internal bool HasPointerDown => PointerDownEvents.Count > 0;
+
         protected void ForceRender() => OnDirty?.Invoke();
         
         public void Constructor(InputSystem input)

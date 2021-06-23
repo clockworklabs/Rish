@@ -34,6 +34,9 @@ namespace RishUI.Editor
 		private bool AbstractTransform { get; set; }
 		private bool GlobalTransform { get; set; }
 		
+		private bool PrevPointerOver { get; set; }
+		private bool PrevPointerDown { get; set; }
+		
 		private Vector2 InspectorScroll { get; set; }
 		
 		private Texture2D ExpandIcon { get; set; }
@@ -139,6 +142,21 @@ namespace RishUI.Editor
 			
 			UpdateInspector();
 		}
+		
+		void Update()
+		{
+			if (Selected == null) return;
+			
+			var pointerOver = RishUtils.HasPointerOver(Selected.Component);
+			var pointerDown = RishUtils.HasPointerDown(Selected.Component);
+			if (pointerOver != PrevPointerOver || pointerDown != PrevPointerDown)
+			{
+				Repaint();
+			}
+
+			PrevPointerOver = pointerOver;
+			PrevPointerDown = pointerDown;
+		}
 
 		private void OnGUI ()
 		{
@@ -236,6 +254,9 @@ namespace RishUI.Editor
 					}
 					GUILayout.Label($"Style: {Selected.Style}");
 				}
+
+				GUILayout.Label($"Pointer Over: {RishUtils.HasPointerOver(Selected.Component)}");
+				GUILayout.Label($"Pointer Down: {RishUtils.HasPointerDown(Selected.Component)}");
 				
 				if (DebugExtras && Selected.Component is IExtraInspection extra)
 				{
