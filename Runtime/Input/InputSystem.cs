@@ -21,7 +21,7 @@ namespace RishUI.Input
 
         internal float LongTapTimeout => Rish.LongTapTimeout;
         
-        private List<IKeyboardListener> KeyboardListeners { get; set; }
+        private List<IKeyboardListener> KeyboardListeners { get; } = new List<IKeyboardListener>();
         internal IFocusedKeyboardListener KeyboardFocus { get; private set; }
 
         internal InputSystem(Rish rish)
