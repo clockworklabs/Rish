@@ -2,9 +2,9 @@
 
 namespace RishUI.Components
 {
-    public interface IFormElement
+    public interface IFormElement : IFocusedKeyboardListener
     {
-        void GetFocus();
+
     }
 }
 

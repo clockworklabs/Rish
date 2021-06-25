@@ -282,8 +282,12 @@ namespace RishUI.Components
             state.textMaterial = material;
             State = state;
         }
-
-        void IFormElement.GetFocus() { }
+        
+        void IFocusedKeyboardListener.OnKeyboardFocus(bool focus) { }
+        bool IFocusedKeyboardListener.OnKeyDown(KeyboardInfo info)
+        {
+            return false;
+        }
 
         InputResult ITapListener.OnTapStart(PointerInfo info)
         {
