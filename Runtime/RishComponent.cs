@@ -229,6 +229,11 @@ namespace RishUI
 
         internal virtual void Unmount()
         {
+            if (this is IFocusedKeyboardListener focusedKeyboardListener && Input.KeyboardFocus == focusedKeyboardListener)
+            {
+                Input.SetKeyboardFocus(null);
+            }
+            
             if (this is IMountingListener mountingListener)
             {
                 mountingListener.ComponentWillUnmount();
@@ -334,12 +339,12 @@ namespace RishUI
 
         protected void GetKeyboardFocus()
         {
-            if (!(this is IFocusedKeyboardListener keyboardListener))
+            if (!(this is IFocusedKeyboardListener focusedKeyboardListener))
             {
                 return;
             }
             
-            Input.SetKeyboardFocus(keyboardListener);
+            Input.SetKeyboardFocus(focusedKeyboardListener);
         }
 
         void IRishInputListener.OnPointerEnter(PointerEventData eventData)
