@@ -20,6 +20,11 @@ namespace RishUI.Components
         {
             Form = GetParent<Form>();
             Form?.Add(this);
+
+            if (Props.autoFocus)
+            {
+                GetKeyboardFocus();
+            }
         }
 
         void IMountingListener.ComponentWillUnmount()
@@ -191,6 +196,7 @@ namespace RishUI.Components
                     readOnly = Props.readOnly,
                     richText = Props.richText
                 },
+                autoFocus = Props.autoFocus,
                 textMargin = new Vector4(Props.textMargin.left, Props.textMargin.top, Props.textMargin.right, Props.textMargin.bottom),
                 onChange = OnChange
             });
@@ -319,6 +325,8 @@ namespace RishUI.Components
 
         public string text;
         public TextSettings textSettings;
+
+        public bool autoFocus;
         
         public int characterLimit;
         public InputFieldType type;
@@ -367,6 +375,10 @@ namespace RishUI.Components
 
         public bool Equals(InputFieldProps other)
         {
+            if (autoFocus != other.autoFocus)
+            {
+                return false;
+            }
             if(selectAllOnFocus != other.selectAllOnFocus) {
                 return false;
             }
