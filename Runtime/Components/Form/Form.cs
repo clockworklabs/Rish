@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Form : RishComponent<FormProps>, IDestroyListener, IKeyboardListener
+    public class Form : RishComponent<FormProps>, IDestroyListener, IFocusedKeyboardListener
     {
         private List<IFormElement> Elements { get; } = new List<IFormElement>();
 
@@ -40,8 +40,8 @@ namespace RishUI.Components
             return Props.content;
         }
 
-        void IKeyboardListener.OnKeyboardFocus(bool focus) { }
-        bool IKeyboardListener.OnKeyDown(KeyboardInfo info)
+        void IFocusedKeyboardListener.OnKeyboardFocus(bool focus) { }
+        bool IFocusedKeyboardListener.OnKeyDown(KeyboardInfo info)
         {
             if (info.keyCode != KeyCode.Return)
             {

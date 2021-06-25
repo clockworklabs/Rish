@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RishUI.Input
@@ -20,7 +21,8 @@ namespace RishUI.Input
 
         internal float LongTapTimeout => Rish.LongTapTimeout;
         
-        private RishComponent KeyboardFocus { get; set; }
+        private List<IKeyboardListener> KeyboardListeners { get; set; }
+        private IFocusedKeyboardListener KeyboardFocus { get; set; }
 
         internal InputSystem(Rish rish)
         {
@@ -85,35 +87,71 @@ namespace RishUI.Input
 
         internal void OnEvent(Event e)
         {
-            if (KeyboardFocus == null)
-            {
-                return;
-            }
-            
             switch (e.type)
             {
                 case EventType.MouseDown:
-                    ClaimKeyboardFocus(null);
+                    if (KeyboardFocus == null)
+                    {
+                        return;
+                    }
+                    
+                    SetKeyboardFocus(null);
                     break;
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.None)
                     {
                         return;
                     }
-                    
-                    ((IRishComponent) KeyboardFocus).OnKeyDown(new KeyboardInfo
+
+                    var info = new KeyboardInfo
                     {
                         keyCode = e.keyCode,
                         modifiers = e.modifiers
-                    }, false);
+                    };
+
+                    if (KeyboardFocus == null)
+                    {
+                        for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+                        {
+                            var listener = KeyboardListeners[i];
+                            listener?.OnKeyDown(info);
+                        }
+                    }
+                    else
+                    {
+                        ((IRishComponent) KeyboardFocus).OnKeyDown(info, false);
+                    }
+
                     break;
             }
         }
 
-        internal void ClaimKeyboardFocus(RishComponent component)
+        internal void RegisterKeyboardListener(IKeyboardListener keyboardListener)
         {
-            KeyboardFocus?.LoseKeyboardFocus();
+            if (KeyboardListeners.Contains(keyboardListener))
+            {
+                return;
+            }
+            
+            KeyboardListeners.Add(keyboardListener);
+        }
+
+        internal void UnregisterKeyboardListener(IKeyboardListener keyboardListener)
+        {
+            var index = KeyboardListeners.IndexOf(keyboardListener);
+            if (index < 0)
+            {
+                return;
+            }
+            
+            KeyboardListeners.RemoveAt(index);
+        }
+
+        internal void SetKeyboardFocus(IFocusedKeyboardListener component)
+        {
+            KeyboardFocus?.OnKeyboardFocus(false);
             KeyboardFocus = component;
+            KeyboardFocus?.OnKeyboardFocus(true);
         }
 
         internal void StartLongTap(Action callback) => Rish.StartCoroutine(LongTapRoutine(callback));

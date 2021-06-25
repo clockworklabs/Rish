@@ -160,7 +160,6 @@ namespace RishUI
         private EventsList LeftClickEvents { get; } = new EventsList();
         private EventsList LongTapEvents { get; } = new EventsList();
         private HashSet<int> DragEvents { get; } = new HashSet<int>();
-        private bool KeyboardFocus { get; set; }
 
         protected void ForceRender() => OnDirty?.Invoke();
 
@@ -195,6 +194,11 @@ namespace RishUI
             
             ForceRender();
 
+            if (this is IKeyboardListener keyboardListener)
+            {
+                Input.RegisterKeyboardListener(keyboardListener);
+            }
+
             if (this is IMountingListener mountingListener)
             {
                 mountingListener.ComponentDidMount();
@@ -211,7 +215,6 @@ namespace RishUI
             LeftClickEvents.Clear();
             LongTapEvents.Clear();
             DragEvents.Clear();
-            KeyboardFocus = false;
         }
 
         internal void WillDestroy()
@@ -229,6 +232,11 @@ namespace RishUI
             if (this is IMountingListener mountingListener)
             {
                 mountingListener.ComponentWillUnmount();
+            }
+
+            if (this is IKeyboardListener keyboardListener)
+            {
+                Input.UnregisterKeyboardListener(keyboardListener);
             }
 
             if (Parent != null)
@@ -324,33 +332,14 @@ namespace RishUI
             return null;
         }
 
-        protected void ClaimKeyboardFocus()
+        protected void GetKeyboardFocus()
         {
-            if (KeyboardFocus)
+            if (!(this is IFocusedKeyboardListener keyboardListener))
             {
                 return;
             }
             
-            KeyboardFocus = true;
-            Input.ClaimKeyboardFocus(this);
-            if (this is IKeyboardListener keyboardListener)
-            {
-                keyboardListener.OnKeyboardFocus(true);
-            }
-        }
-
-        internal void LoseKeyboardFocus()
-        {
-            if (!KeyboardFocus)
-            {
-                return;
-            }
-            
-            KeyboardFocus = false;
-            if (this is IKeyboardListener keyboardListener)
-            {
-                keyboardListener.OnKeyboardFocus(false);
-            }
+            Input.SetKeyboardFocus(keyboardListener);
         }
 
         void IRishInputListener.OnPointerEnter(PointerEventData eventData)
@@ -655,7 +644,7 @@ namespace RishUI
 
         void IRishInputListener.OnKeyDown(KeyboardInfo info, bool captured)
         {
-            if (!ReadyToUnmount && !captured && this is IKeyboardListener listener)
+            if (!ReadyToUnmount && !captured && this is IFocusedKeyboardListener listener)
             {
                 captured = listener.OnKeyDown(info);
             }

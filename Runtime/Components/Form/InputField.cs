@@ -287,7 +287,7 @@ namespace RishUI.Components
 
         InputResult ITapListener.OnTapStart(PointerInfo info)
         {
-            ClaimKeyboardFocus();
+            GetKeyboardFocus();
             return InputResult.JustCapture;
         }
         void ITapListener.OnTapCancel(PointerInfo info) { }
@@ -295,7 +295,7 @@ namespace RishUI.Components
 
         InputResult ILeftClickListener.OnLeftClickStart(PointerInfo info)
         {
-            ClaimKeyboardFocus();
+            GetKeyboardFocus();
             return InputResult.JustCapture;
         }
         void ILeftClickListener.OnLeftClickCancel(PointerInfo info) { }
