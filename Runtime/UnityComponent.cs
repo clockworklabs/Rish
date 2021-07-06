@@ -298,6 +298,10 @@ namespace RishUI
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {
+            if (eventData.pointerId != -1)
+            {
+                return;
+            }
             if(PointerEnterEvents.Contains(eventData))
             {
                 return;
@@ -309,11 +313,15 @@ namespace RishUI
         }
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
+            if (eventData.pointerId != -1)
+            {
+                return;
+            }
             if (eventData.pointerId >= 0 && PointerDownEvents.Contains(eventData.pointerId) && !eventData.dragging)
             {
                 return;
             }
-
+            
             OnPointerExit(eventData);
         }
         private void OnPointerExit(PointerEventData eventData)
