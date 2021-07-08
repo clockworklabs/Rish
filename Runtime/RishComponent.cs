@@ -758,7 +758,7 @@ namespace RishUI
             get => _state;
             set
             {
-                var changed = !value.Equals(null);
+                var changed = !value.Equals(_state);
 
                 if (changed)
                 {

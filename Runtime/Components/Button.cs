@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Button : RishComponent<ButtonProps, ButtonState>, IRectListener, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
+    public class Button : RishComponent<ButtonProps, ButtonState>, IRectListener, IDerivedState, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
     {
         private int PrimaryId { get; set; }
         private bool Listening { get; set; }
@@ -17,6 +17,14 @@ namespace RishUI.Components
             }
             
             Listening = false;
+        }
+
+        void IDerivedState.UpdateStateFromProps()
+        {
+            var state = State;
+            state.hasHovered = Props.hovered.Valid;
+            state.hasPressed = Props.pressed.Valid;
+            State = state;
         }
 
         protected override RishElement Render()
@@ -203,18 +211,29 @@ namespace RishUI.Components
 
     public struct ButtonState : IRishData<ButtonState>
     {
+        public bool hasHovered;
         public bool hovered;
+        public bool hasPressed;
         public bool pressed;
         
         public void Default() { }
 
         public bool Equals(ButtonState other)
         {
-            if (hovered != other.hovered)
+            if (hasHovered != other.hasHovered)
             {
                 return false;
             }
-            if (pressed != other.pressed)
+            if (hasPressed != other.hasPressed)
+            {
+                return false;
+            }
+            
+            if (hasHovered && hovered != other.hovered)
+            {
+                return false;
+            }
+            if (hasPressed && pressed != other.pressed)
             {
                 return false;
             }
