@@ -22,6 +22,13 @@ namespace RishUI.UnityComponents
         {
             Props.imageDefinition.SetComponent(Image);
             Props.maskDefinition.SetComponents(Mask, RectMask);
+            
+            // TODO: This is because a bug on Unity's side
+            if (Props.imageDefinition.maskable)
+            {
+                gameObject.SetActive(false);
+                gameObject.SetActive(true);
+            }
         }
     }
 
