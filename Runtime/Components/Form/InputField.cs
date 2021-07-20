@@ -366,7 +366,7 @@ namespace RishUI.Components
             };
             
             caretBlinkRate = 0.85f;
-            caretWidth = 1;
+            caretWidth = 2;
             showCaret = true;
             selectionColor = new Color(0.66f, 0.81f, 1f, 0.75f);
             selectAllOnFocus = true;
