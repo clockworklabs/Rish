@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace RishUI.UnityComponents
 {
     [RequireComponent(typeof(RawImage))]
-    public class UnityTexture : UnityComponent<UnityTextureProps>
+    public class UnityRawImage : UnityComponent<UnityTextureProps>
     {
         [SerializeField] 
         private RawImage _image;

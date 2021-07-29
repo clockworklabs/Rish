@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Texture : RishComponent<TextureProps, TextureState>, IDerivedState, IDestroyListener
+    public class RawImage : RishComponent<RawImageProps, RawImageState>, IDerivedState, IDestroyListener
     {
         private string TextureAddress { get; set; }
         
@@ -23,7 +23,7 @@ namespace RishUI.Components
             TextureAddress = Props.textureAddress;
             
             SetTexture(null);
-            Assets.Get<UnityEngine.Texture>(Props.textureAddress, OnTexture);
+            Assets.Get<Texture>(Props.textureAddress, OnTexture);
         }
 
         protected override RishElement Render()
@@ -31,19 +31,20 @@ namespace RishUI.Components
             var settings = Props.settings;
             
             var color = State.texture != null || string.IsNullOrWhiteSpace(Props.textureAddress) ? settings.color : Color.clear;
-            return Rish.CreateUnity<UnityTexture, UnityTextureProps>(new UnityTextureProps
+            return Rish.CreateUnity<UnityRawImage, UnityTextureProps>(new UnityTextureProps
             {
                 imageDefinition = new UnityRawImageDefinition
                 {
                     texture = State.texture,
                     color = color,
                     maskable = settings.maskable,
-                    raycastTarget = settings.raycastTarget
+                    raycastTarget = settings.raycastTarget,
+                    uvRect = settings.uvRect
                 }
             });
         }
 
-        private void OnTexture(string address, UnityEngine.Texture texture)
+        private void OnTexture(string address, Texture texture)
         {                
             if (address != TextureAddress)
             {
@@ -53,7 +54,7 @@ namespace RishUI.Components
             SetTexture(texture);
         }
 
-        private void SetTexture(UnityEngine.Texture texture)
+        private void SetTexture(Texture texture)
         {
             var state = State;
             state.texture = texture;
@@ -67,18 +68,21 @@ namespace RishUI.Components
         {
             color = Color.white,
             maskable = true,
-            raycastTarget = true
+            raycastTarget = true,
+            uvRect = new Rect(0, 0, 1, 1)
         };
         
         public Color color;
         public bool maskable;
         public bool raycastTarget;
+        public Rect uvRect;
 
         public RawImageSettings(RawImageSettings other)
         {
             color = other.color;
             maskable = other.maskable;
             raycastTarget = other.raycastTarget;
+            uvRect = other.uvRect;
         }
         
         public bool Equals(RawImageSettings other)
@@ -109,12 +113,12 @@ namespace RishUI.Components
         }
     }
     
-    public struct TextureProps : IRishData<TextureProps>
+    public struct RawImageProps : IRishData<RawImageProps>
     {
         public string textureAddress;
         public RawImageSettings settings;
 
-        public TextureProps(RawImageSettings settings)
+        public RawImageProps(RawImageSettings settings)
         {
             textureAddress = null;
             this.settings = settings;
@@ -125,7 +129,7 @@ namespace RishUI.Components
             settings = RawImageSettings.Default;
         }
         
-        public bool Equals(TextureProps other)
+        public bool Equals(RawImageProps other)
         {
             if (!settings.Equals(other.settings))
             {
@@ -147,12 +151,12 @@ namespace RishUI.Components
         }
     }
 
-    public struct TextureState : IRishData<TextureState>
+    public struct RawImageState : IRishData<RawImageState>
     {
-        public UnityEngine.Texture texture;
+        public Texture texture;
         
         public void Default() { }
 
-        public bool Equals(TextureState other) => texture == other.texture;
+        public bool Equals(RawImageState other) => texture == other.texture;
     }
 }
