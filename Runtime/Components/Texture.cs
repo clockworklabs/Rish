@@ -1,0 +1,158 @@
+﻿using System;
+using RishUI.UnityComponents;
+using UnityEngine;
+
+namespace RishUI.Components
+{
+    public class Texture : RishComponent<TextureProps, TextureState>, IDerivedState, IDestroyListener
+    {
+        private string TextureAddress { get; set; }
+        
+        void IDestroyListener.ComponentWillDestroy()
+        {
+            TextureAddress = null;
+        }
+        
+        void IDerivedState.UpdateStateFromProps()
+        {
+            if (TextureAddress == Props.textureAddress)
+            {
+                return;
+            }
+
+            TextureAddress = Props.textureAddress;
+            
+            SetTexture(null);
+            Assets.Get<UnityEngine.Texture>(Props.textureAddress, OnTexture);
+        }
+
+        protected override RishElement Render()
+        {
+            var settings = Props.settings;
+            
+            var color = State.texture != null || string.IsNullOrWhiteSpace(Props.textureAddress) ? settings.color : Color.clear;
+            return Rish.CreateUnity<UnityTexture, UnityTextureProps>(new UnityTextureProps
+            {
+                imageDefinition = new UnityRawImageDefinition
+                {
+                    texture = State.texture,
+                    color = color,
+                    maskable = settings.maskable,
+                    raycastTarget = settings.raycastTarget
+                }
+            });
+        }
+
+        private void OnTexture(string address, UnityEngine.Texture texture)
+        {                
+            if (address != TextureAddress)
+            {
+                return;
+            }
+            
+            SetTexture(texture);
+        }
+
+        private void SetTexture(UnityEngine.Texture texture)
+        {
+            var state = State;
+            state.texture = texture;
+            State = state;
+        }
+    }
+
+    public struct RawImageSettings : IEquatable<RawImageSettings>
+    {
+        public static readonly RawImageSettings Default = new RawImageSettings
+        {
+            color = Color.white,
+            maskable = true,
+            raycastTarget = true
+        };
+        
+        public Color color;
+        public bool maskable;
+        public bool raycastTarget;
+
+        public RawImageSettings(RawImageSettings other)
+        {
+            color = other.color;
+            maskable = other.maskable;
+            raycastTarget = other.raycastTarget;
+        }
+        
+        public bool Equals(RawImageSettings other)
+        {            
+            if (raycastTarget != other.raycastTarget)
+            {
+                return false;
+            }
+
+            if (maskable != other.maskable)
+            {
+                return false;
+            }
+
+            var transparent = Mathf.Approximately(color.a, 0);
+            if(transparent != Mathf.Approximately(other.color.a, 0))
+            {
+                return false;
+            }
+
+            if (!transparent && (!Mathf.Approximately(color.r, other.color.r) || !Mathf.Approximately(color.g, other.color.g) ||
+                                 !Mathf.Approximately(color.b, other.color.b) || !Mathf.Approximately(color.a, other.color.a)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+    
+    public struct TextureProps : IRishData<TextureProps>
+    {
+        public string textureAddress;
+        public RawImageSettings settings;
+
+        public TextureProps(RawImageSettings settings)
+        {
+            textureAddress = null;
+            this.settings = settings;
+        }
+        
+        public void Default()
+        {
+            settings = RawImageSettings.Default;
+        }
+        
+        public bool Equals(TextureProps other)
+        {
+            if (!settings.Equals(other.settings))
+            {
+                return false;
+            }
+            
+            var emptyAddress = string.IsNullOrWhiteSpace(textureAddress);
+            if (emptyAddress != string.IsNullOrWhiteSpace(other.textureAddress))
+            {
+                return false;
+            }
+            
+            if (!emptyAddress && textureAddress != other.textureAddress)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public struct TextureState : IRishData<TextureState>
+    {
+        public UnityEngine.Texture texture;
+        
+        public void Default() { }
+
+        public bool Equals(TextureState other) => texture == other.texture;
+    }
+}
