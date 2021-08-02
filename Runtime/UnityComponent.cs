@@ -8,11 +8,40 @@ namespace RishUI
 {
     public abstract class UnityComponent : MonoBehaviour, IRishComponent, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        public event OnDirty OnDirty;
-        public event OnTransform OnTransform;
-        public event OnWorld OnWorld;
-        public event OnSize OnSize;
-        public event OnReadyToUnmount OnReadyToUnmount;
+        private event OnDirty _onDirty;
+        event OnDirty IRishComponent.OnDirty
+        {
+            add => _onDirty += value;
+            remove => _onDirty -= value;
+        }
+
+        private event OnTransform _onTransform;
+        event OnTransform IRishComponent.OnTransform
+        {
+            add => _onTransform += value;
+            remove => _onTransform -= value;
+        }
+        
+        private event OnWorld _onWorld;
+        event OnWorld IRishComponent.OnWorld
+        {
+            add => _onWorld += value;
+            remove => _onWorld -= value;
+        }
+        
+        private event OnSize _onSize;
+        event OnSize IRishComponent.OnSize
+        {
+            add => _onSize += value;
+            remove => _onSize -= value;
+        }
+        
+        private event OnReadyToUnmount _onReadyToUnmount;
+        event OnReadyToUnmount IRishComponent.OnReadyToUnmount
+        {
+            add => _onReadyToUnmount += value;
+            remove => _onReadyToUnmount -= value;
+        }
 
         public bool CustomUnmount => false;
         public bool ReadyToUnmount => true;
@@ -50,7 +79,7 @@ namespace RishUI
                 
                 _local = value;
                 
-                OnTransform?.Invoke();
+                _onTransform?.Invoke();
 
                 UpdateWorldTransform();
             }
@@ -75,7 +104,7 @@ namespace RishUI
                 
                 _size = value;
                 
-                OnSize?.Invoke(_size);
+                _onSize?.Invoke(_size);
                 
                 if (RenderOnResize)
                 {
@@ -103,9 +132,9 @@ namespace RishUI
         internal bool HasPointerOver => PointerEnterEvents.Count > 0;
         internal bool HasPointerDown => PointerDownEvents.Count > 0;
 
-        protected void ForceRender() => OnDirty?.Invoke();
+        protected void ForceRender() => _onDirty?.Invoke();
         
-        public void Constructor(InputSystem input)
+        internal void Constructor(InputSystem input)
         {
             Input = input;
         }

@@ -9,11 +9,40 @@ namespace RishUI
 {
     public abstract class RishComponent : IRishComponent
     {
-        public event OnDirty OnDirty;
-        public event OnTransform OnTransform;
-        public event OnWorld OnWorld;
-        public event OnSize OnSize;
-        public event OnReadyToUnmount OnReadyToUnmount;
+        private event OnDirty _onDirty;
+        event OnDirty IRishComponent.OnDirty
+        {
+            add => _onDirty += value;
+            remove => _onDirty -= value;
+        }
+
+        private event OnTransform _onTransform;
+        event OnTransform IRishComponent.OnTransform
+        {
+            add => _onTransform += value;
+            remove => _onTransform -= value;
+        }
+        
+        private event OnWorld _onWorld;
+        event OnWorld IRishComponent.OnWorld
+        {
+            add => _onWorld += value;
+            remove => _onWorld -= value;
+        }
+        
+        private event OnSize _onSize;
+        event OnSize IRishComponent.OnSize
+        {
+            add => _onSize += value;
+            remove => _onSize -= value;
+        }
+        
+        private event OnReadyToUnmount _onReadyToUnmount;
+        event OnReadyToUnmount IRishComponent.OnReadyToUnmount
+        {
+            add => _onReadyToUnmount += value;
+            remove => _onReadyToUnmount -= value;
+        }
 
         public bool CustomUnmount { get; protected set; }
 
@@ -28,7 +57,7 @@ namespace RishUI
                 _readyToUnmount = value;
                 if (value)
                 {
-                    OnReadyToUnmount?.Invoke();
+                    _onReadyToUnmount?.Invoke();
                 }
             }
         }
@@ -72,7 +101,7 @@ namespace RishUI
 
                 _local = value;
                 
-                OnTransform?.Invoke();
+                _onTransform?.Invoke();
                 
                 World = ParentWorld * _local;
                 Size = _local.GetSize(ParentSize);
@@ -92,7 +121,7 @@ namespace RishUI
                 
                 _world = value;
                 
-                OnWorld?.Invoke(World);
+                _onWorld?.Invoke(World);
             }
         }
         
@@ -126,7 +155,7 @@ namespace RishUI
                 
                 _size = value;
 
-                OnSize?.Invoke(Size);
+                _onSize?.Invoke(Size);
                 
                 if (RenderOnResize)
                 {
@@ -161,9 +190,9 @@ namespace RishUI
         private EventsList LongTapEvents { get; } = new EventsList();
         private HashSet<int> DragEvents { get; } = new HashSet<int>();
 
-        protected void ForceRender() => OnDirty?.Invoke();
+        protected void ForceRender() => _onDirty?.Invoke();
 
-        public void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, RCSS rcss, AssetsManager assets)
+        internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, RCSS rcss, AssetsManager assets)
         {
             DimensionsTracker = dimensionsTracker;
             RCSS = rcss;
@@ -205,7 +234,7 @@ namespace RishUI
             }
         }
 
-        protected virtual void Initialize()
+        private protected virtual void Initialize()
         {
             ReadyToUnmount = false;
 
@@ -683,7 +712,7 @@ namespace RishUI
         
         private bool Enabled { get; set; }
         
-        protected override void Initialize()
+        private protected override void Initialize()
         {
             Dirty = true;
             
@@ -769,7 +798,7 @@ namespace RishUI
             }
         }
         
-        protected override void Initialize()
+        private protected override void Initialize()
         {
             S defaultState = default;
             defaultState.Default();
