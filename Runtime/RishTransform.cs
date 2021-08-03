@@ -56,20 +56,106 @@ namespace RishUI
             rotation = other.rotation;
         }
         
-        public static RishTransform operator *(RishTransform a, RishTransform b)
+        public static RishTransform operator *(RishTransform a, RishTransform b) => new RishTransform
         {
+            min = a.min + b.min * (a.max - a.min),
+            max = a.min - b.max * (a.min - a.max),
+            margins = new Margins {
+                top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
+                right = a.right + b.right - (1 - b.max.x) * (a.left + a.right),
+                bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
+                left = a.left + b.left - b.min.x * (a.left + a.right)
+            },
+            scale = a.scale * b.scale,
+            rotation = a.rotation + b.rotation
+        };
+        
+        public static RishTransform Inverse(RishTransform transform)
+        {
+            if (Mathf.Approximately(transform.min.x, transform.max.x) && Mathf.Approximately(transform.min.y, transform.max.y))
+            {
+                return Null;
+            }
+            
+            Vector2 min, max;
+            if (Mathf.Approximately(transform.min.x, 0) && Mathf.Approximately(transform.min.y, 0))
+            {
+                min = Vector2.zero;
+                max = Vector2.one / transform.max;
+            }
+            else
+            {
+                var d = transform.min - transform.max;
+                min = transform.min / d;
+                max = (transform.min - Vector2.one) / d;
+            }
+
+            float top, bottom;
+            if (Mathf.Approximately(transform.min.y, 0f))
+            {
+                var d = 2 * transform.min.y * transform.max.y - transform.min.y - transform.max.y;
+                if (Mathf.Approximately(d, 0))
+                {
+                    return Null;
+                }
+
+                top = (-transform.top * transform.min.y + transform.top + transform.bottom * transform.max.y - transform.bottom) / d;
+                bottom = (-transform.top * transform.min.y - transform.bottom * transform.max.y) / d;
+            }
+            else
+            {
+                if (Mathf.Approximately(transform.max.y, 0))
+                {
+                    return Null;
+                }
+
+                top = (-transform.top - transform.bottom + transform.bottom * transform.max.y) / transform.max.y;
+                bottom = -transform.bottom;
+            }
+            float right, left;
+            if (Mathf.Approximately(transform.min.y, 0f))
+            {
+                var d = 2 * transform.min.x * transform.max.x - transform.min.x - transform.max.x;
+                if (Mathf.Approximately(d, 0))
+                {
+                    return Null;
+                }
+
+                right = (-transform.right * transform.min.x + transform.right + transform.left * transform.max.x - transform.left) / d;
+                left = (-transform.right * transform.min.x - transform.left * transform.max.x) / d;
+            }
+            else
+            {
+                if (Mathf.Approximately(transform.max.x, 0))
+                {
+                    return Null;
+                }
+
+                right = (-transform.right - transform.left + transform.left * transform.max.x) / transform.max.x;
+                left = -transform.left;
+            }
+            
+            if (Mathf.Approximately(transform.scale.x, 0) || Mathf.Approximately(transform.scale.y, 0))
+            {
+                return Null;
+            }
+            var scale = Vector2.one / transform.scale;
+
+            var rotation = -transform.rotation;
+            
             return new RishTransform
             {
-                min = a.min + b.min * (a.max - a.min),
-                max = a.min - b.max * (a.min - a.max),
-                margins = new Margins {
-                    top = a.top + b.top - (1 - b.max.y) * (a.bottom + a.top),
-                    right = a.right + b.right - (1 - b.max.x) * (a.left + a.right),
-                    bottom = a.bottom + b.bottom - b.min.y * (a.bottom + a.top),
-                    left = a.left + b.left - b.min.x * (a.left + a.right)
+                min = min,
+                max = max,
+                margins = new Margins
+                {
+                    top = top,
+                    right = right,
+                    bottom = bottom,
+                    left = left
                 },
-                scale = a.scale * b.scale,
-                rotation = a.rotation + b.rotation
+                scale = scale,
+                rotation = rotation
             };
         }
 
@@ -118,7 +204,7 @@ namespace RishUI
 
         public override string ToString()
         {
-            return $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale}";
+            return $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale} - {rotation}";
         }
 
         public bool Equals(RishTransform other)
