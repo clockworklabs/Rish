@@ -65,10 +65,10 @@ namespace RishUI
         internal IRishComponent Parent { get; private set; }
         
         private RishTransform _parentWorld;
-        private RishTransform ParentWorld
+        protected RishTransform ParentWorld
         {
             get => _parentWorld;
-            set
+            private set
             {
                 if (value.Equals(_parentWorld))
                 {

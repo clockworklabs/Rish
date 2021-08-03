@@ -164,7 +164,7 @@ namespace RishUI
                 }
             } while(!realParentFound && parent != null);
 
-            ParentWorld = Parent?.World ?? RishTransform.Default;
+            SetParentWorld(Parent?.World ?? RishTransform.Default);
 
             UpdateWorldTransform();
 
