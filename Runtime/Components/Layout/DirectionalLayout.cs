@@ -135,7 +135,7 @@ namespace RishUI.Components
                     switch (Props.direction)
                     {
                         case Direction.TopDown:
-                            parentTransform = new RishTransform(RishTransform.Default)
+                            parentTransform = new RishTransform(RishTransform.Identity)
                             {
                                 min = Anchor.TopLeft,
                                 top = start,
@@ -145,7 +145,7 @@ namespace RishUI.Components
                             };
                             break;
                         case Direction.BottomUp:
-                            parentTransform = new RishTransform(RishTransform.Default)
+                            parentTransform = new RishTransform(RishTransform.Identity)
                             {
                                 max = Anchor.BottomRight,
                                 top = -start - childSize,
@@ -155,7 +155,7 @@ namespace RishUI.Components
                             };
                             break;
                         case Direction.LeftRight:
-                            parentTransform = new RishTransform(RishTransform.Default)
+                            parentTransform = new RishTransform(RishTransform.Identity)
                             {
                                 max = Anchor.TopLeft,
                                 top = 0f,
@@ -165,7 +165,7 @@ namespace RishUI.Components
                             };
                             break;
                         case Direction.RightLeft:
-                            parentTransform = new RishTransform(RishTransform.Default)
+                            parentTransform = new RishTransform(RishTransform.Identity)
                             {
                                 min = Anchor.BottomRight,
                                 top = 0f,

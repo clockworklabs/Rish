@@ -13,8 +13,8 @@ namespace RishUI
         public readonly RishTransform transform;
         public readonly Action<IRishComponent> setup;
 
-        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Default, null) { }
-        public RishElement(Type type, int key, uint style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Default, setup) { }
+        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Identity, null) { }
+        public RishElement(Type type, int key, uint style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Identity, setup) { }
         public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, style, transform, null) { }
 
         public RishElement(Type type, int key, uint style, RishTransform transform, Action<IRishComponent> setup)
@@ -29,8 +29,8 @@ namespace RishUI
             this.setup = setup;
         }
         
-        public RishElement(Type type) : this(type, RishTransform.Default, null) { }
-        public RishElement(Type type, Action<IRishComponent> setup) : this(type, RishTransform.Default, setup) { }
+        public RishElement(Type type) : this(type, RishTransform.Identity, null) { }
+        public RishElement(Type type, Action<IRishComponent> setup) : this(type, RishTransform.Identity, setup) { }
         public RishElement(Type type, RishTransform transform) : this(type, transform, null) { }
         
         public RishElement(Type type, RishTransform transform, Action<IRishComponent> setup)

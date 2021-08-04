@@ -1,4 +1,6 @@
-﻿namespace RishUI
+﻿using UnityEngine;
+
+namespace RishUI
 {
     public static class RishUtils
     {
@@ -26,6 +28,38 @@
                 default:
                     return false;
             }
+        }
+
+        public static IRishComponent GetParent(IRishComponent component)
+        {
+            switch (component)
+            {
+                case RishComponent rishComponent:
+                    return rishComponent.Parent;
+                case UnityComponent unityComponent:
+                    return unityComponent.Parent;
+                default:
+                    throw new UnityException("Component type not supported");
+            }
+        }
+        
+        public static RishTransform GetRishWorld(IRishComponent component)
+        {
+            if (component == null)
+            {
+                return RishTransform.Null;
+            }
+            
+            var world = component.Local;
+            
+            var parent = GetParent(component);
+            while (parent != null)
+            {
+                world = parent.Local * world;
+                parent = GetParent(parent);
+            }
+
+            return world;
         }
     }
 }

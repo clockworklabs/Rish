@@ -92,7 +92,7 @@ namespace RishUI
             }      
             
             var ps = transform.pivot * transform.size;
-            return new RishTransform(RishTransform.Default)
+            return new RishTransform(RishTransform.Identity)
             {
                 min = min,
                 max = max,

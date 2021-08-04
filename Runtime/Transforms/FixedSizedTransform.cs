@@ -32,7 +32,7 @@ namespace RishUI
         public static implicit operator RishTransform(FixedSizedTransform transform)
         {
             var ps = transform.pivot * transform.size;
-            return new RishTransform(RishTransform.Default)
+            return new RishTransform(RishTransform.Identity)
             {
                 min = transform.anchor,
                 max = transform.anchor,

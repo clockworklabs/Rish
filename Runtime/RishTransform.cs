@@ -7,7 +7,7 @@ namespace RishUI
     public struct RishTransform : IEquatable<RishTransform>
     {
         public static readonly RishTransform Zero = default;
-        public static readonly RishTransform Default = new RishTransform
+        public static readonly RishTransform Identity = new RishTransform
         {
             max = Anchor.TopRight,
             scale = Vector2.one
@@ -69,76 +69,155 @@ namespace RishUI
             scale = a.scale * b.scale,
             rotation = a.rotation + b.rotation
         };
-        
-        public static RishTransform Inverse(RishTransform transform)
+
+        public static RishTransform InverseLeftSafe(RishTransform transform, Vector2 parentSize)
         {
-            if (Mathf.Approximately(transform.min.x, transform.max.x) && Mathf.Approximately(transform.min.y, transform.max.y))
+            if (Mathf.Approximately(transform.min.x, transform.max.x))
+            {
+                transform.max.x = transform.min.x + 1;
+                transform.right += parentSize.x;
+            }
+            if (Mathf.Approximately(transform.min.y, transform.max.y))
+            {
+                transform.max.y = transform.min.y + 1;
+                transform.top += parentSize.y;
+            }
+
+            return InverseLeft(transform);
+        }
+        
+        public static RishTransform InverseLeft(RishTransform transform)
+        {
+            if (Mathf.Approximately(transform.min.x, transform.max.x) || Mathf.Approximately(transform.min.y, transform.max.y))
+            {
+                return Null;
+            }
+            if (Mathf.Approximately(transform.scale.x, 0) || Mathf.Approximately(transform.scale.y, 0))
             {
                 return Null;
             }
             
             Vector2 min, max;
-            if (Mathf.Approximately(transform.min.x, 0) && Mathf.Approximately(transform.min.y, 0))
+            if (Mathf.Approximately(transform.min.x, 0))
             {
-                min = Vector2.zero;
-                max = Vector2.one / transform.max;
+                min.x = 0;
+                max.x = 1 / transform.max.x;
             }
             else
             {
-                var d = transform.min - transform.max;
-                min = transform.min / d;
-                max = (transform.min - Vector2.one) / d;
+                var d = transform.min.x - transform.max.x;
+                min.x = transform.min.x / d;
+                max.x = (transform.min.x - 1) / d;
+            }
+            if (Mathf.Approximately(transform.min.y, 0))
+            {
+                min.y = 0;
+                max.y = 1 / transform.max.y;
+            }
+            else
+            {
+                var d = transform.min.y - transform.max.y;
+                min.y = transform.min.y / d;
+                max.y = (transform.min.y - 1) / d;
             }
 
             float top, bottom;
-            if (Mathf.Approximately(transform.min.y, 0f))
+            if (Mathf.Approximately(transform.min.y, 1))
             {
-                var d = 2 * transform.min.y * transform.max.y - transform.min.y - transform.max.y;
-                if (Mathf.Approximately(d, 0))
-                {
-                    return Null;
-                }
-
-                top = (-transform.top * transform.min.y + transform.top + transform.bottom * transform.max.y - transform.bottom) / d;
-                bottom = (-transform.top * transform.min.y - transform.bottom * transform.max.y) / d;
-            }
-            else
-            {
-                if (Mathf.Approximately(transform.max.y, 0))
-                {
-                    return Null;
-                }
-
-                top = (-transform.top - transform.bottom + transform.bottom * transform.max.y) / transform.max.y;
-                bottom = -transform.bottom;
+                top = transform.bottom;
+                bottom = (transform.bottom * transform.max.y + transform.top) / (1 - transform.max.y);
+            } else {
+                var d = transform.min.y - transform.max.y;
+                top = (transform.bottom * -transform.max.y + transform.bottom - transform.min.y * transform.top + transform.top) / d;
+                bottom = (transform.bottom * transform.max.y + transform.min.y * transform.top) / d;
             }
             float right, left;
-            if (Mathf.Approximately(transform.min.y, 0f))
+            if (Mathf.Approximately(transform.min.x, 1))
             {
-                var d = 2 * transform.min.x * transform.max.x - transform.min.x - transform.max.x;
-                if (Mathf.Approximately(d, 0))
-                {
-                    return Null;
-                }
-
-                right = (-transform.right * transform.min.x + transform.right + transform.left * transform.max.x - transform.left) / d;
-                left = (-transform.right * transform.min.x - transform.left * transform.max.x) / d;
+                right = transform.left;
+                left = (transform.left * transform.max.x + transform.right) / (1 - transform.max.x);
+            } else {
+                var d = transform.min.x - transform.max.x;
+                right = (transform.left * -transform.max.x + transform.left - transform.min.x * transform.right + transform.right) / d;
+                left = (transform.left * transform.max.x + transform.min.x * transform.right) / d;
             }
-            else
-            {
-                if (Mathf.Approximately(transform.max.x, 0))
-                {
-                    return Null;
-                }
 
-                right = (-transform.right - transform.left + transform.left * transform.max.x) / transform.max.x;
-                left = -transform.left;
-            }
+            var scale = Vector2.one / transform.scale;
+
+            var rotation = -transform.rotation;
             
+            return new RishTransform
+            {
+                min = min,
+                max = max,
+                margins = new Margins
+                {
+                    top = top,
+                    right = right,
+                    bottom = bottom,
+                    left = left
+                },
+                scale = scale,
+                rotation = rotation
+            };
+        }
+
+        public static RishTransform InverseRightSafe(RishTransform transform, Vector2 parentSize)
+        {
+            if (Mathf.Approximately(transform.min.x, transform.max.x))
+            {
+                transform.max.x = transform.min.x + 1;
+                transform.right += parentSize.x;
+            }
+            if (Mathf.Approximately(transform.min.y, transform.max.y))
+            {
+                transform.max.y = transform.min.y + 1;
+                transform.top += parentSize.y;
+            }
+
+            return InverseRight(transform);
+        }
+        
+        public static RishTransform InverseRight(RishTransform transform)
+        {
+            if (Mathf.Approximately(transform.min.x, transform.max.x) || Mathf.Approximately(transform.min.y, transform.max.y))
+            {
+                return Null;
+            }
             if (Mathf.Approximately(transform.scale.x, 0) || Mathf.Approximately(transform.scale.y, 0))
             {
                 return Null;
             }
+            
+            Vector2 min, max;
+            if (Mathf.Approximately(transform.min.x, 0))
+            {
+                min.x = 0;
+                max.x = 1 / transform.max.x;
+            }
+            else
+            {
+                var d = transform.min.x - transform.max.x;
+                min.x = transform.min.x / d;
+                max.x = (transform.min.x - 1) / d;
+            }
+            if (Mathf.Approximately(transform.min.y, 0))
+            {
+                min.y = 0;
+                max.y = 1 / transform.max.y;
+            }
+            else
+            {
+                var d = transform.min.y - transform.max.y;
+                min.y = transform.min.y / d;
+                max.y = (transform.min.y - 1) / d;
+            }
+
+            var top = -max.y * transform.bottom - max.y * transform.top + transform.bottom;
+            var bottom = (min.y - 1) * transform.bottom + min.y * transform.top;
+            var right = -max.x * transform.left - max.x * transform.right + transform.left;
+            var left = (min.x - 1) * transform.left + min.x * transform.right;
+
             var scale = Vector2.one / transform.scale;
 
             var rotation = -transform.rotation;

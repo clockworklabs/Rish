@@ -37,7 +37,7 @@
 
         public static implicit operator RishTransform(ExpandTransform transform)
         {
-            return new RishTransform(RishTransform.Default)
+            return new RishTransform(RishTransform.Identity)
             {
                 margins = transform.margins
             };

@@ -89,7 +89,7 @@ namespace RishUI
         
         private InputSystem Input { get; set; }
         
-        public RishTransform World => RishTransform.Default;
+        public RishTransform World => RishTransform.Identity;
 
         private Vector2 _size;
         public Vector2 Size
@@ -164,7 +164,7 @@ namespace RishUI
                 }
             } while(!realParentFound && parent != null);
 
-            SetParentWorld(Parent?.World ?? RishTransform.Default);
+            SetParentWorld(Parent?.World ?? RishTransform.Identity);
 
             UpdateWorldTransform();
 

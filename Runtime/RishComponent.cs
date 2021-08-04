@@ -65,10 +65,10 @@ namespace RishUI
         internal IRishComponent Parent { get; private set; }
         
         private RishTransform _parentWorld;
-        protected RishTransform ParentWorld
+        private RishTransform ParentWorld
         {
             get => _parentWorld;
-            private set
+            set
             {
                 if (value.Equals(_parentWorld))
                 {
@@ -213,8 +213,8 @@ namespace RishUI
                 Parent.OnSize += SetParentSize;
             }
             
-            ParentWorld = Parent?.World ?? RishTransform.Default;
-            ParentSize = Parent?.Size ?? Vector2.zero;
+            SetParentWorld(Parent?.World ?? RishTransform.Identity);
+            SetParentSize(Parent?.Size ?? Vector2.zero);
 
             DimensionsTracker.OnNewInputRatio += SetInputRatio;
             SetInputRatio(DimensionsTracker.InputRatio);
