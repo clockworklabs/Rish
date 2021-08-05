@@ -6,23 +6,22 @@ using Object = UnityEngine.Object;
 
 namespace RishUI.Components
 {
-    public class Text : RishComponent<TextProps, TextComponentState>, IDerivedState, IDestroyListener
+    public class Text : RishComponent<TextProps, TextState>, IDerivedState, IDestroyListener
     {
         private string FontAddress { get; set; }
         private string MaterialAddress { get; set; }
-        
-        private Vector2 PreferredSize { get; set; } = Vector2.negativeInfinity;
 
         private static bool PreferredSizeInitialized { get; set; }
         private static TextMeshProUGUI PreferredSizeText { get; set; }
+
         public static float GetPreferredWidth(TextProps props, float height = float.MaxValue)
         {
             CreatePreferredSizeText();
-            
+
             var settings = props.settings;
             var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
             var overflowMode = GetOverflowMode(settings.overflow);
-            var unityTextDefinition = new UnityTextDefinition
+            var unityTextDefinition = new UnityTextProps
             {
                 text = props.text,
                 style = settings.style,
@@ -45,7 +44,7 @@ namespace RishUI.Components
                 raycastTarget = settings.raycastTarget,
                 maskable = settings.maskable
             };
-            
+
             PreferredSizeText.gameObject.SetActive(true);
 
             var width = 0f;
@@ -57,9 +56,10 @@ namespace RishUI.Components
                 set = Mathf.Approximately(width, preferred.x);
                 width = preferred.x;
             } while (!set);
-            
+
             return width;
         }
+
         public static float GetPreferredWidth(string text, float height = float.MaxValue)
         {
             var props = new TextProps
@@ -70,14 +70,15 @@ namespace RishUI.Components
 
             return GetPreferredWidth(props, height);
         }
+
         public static float GetPreferredHeight(TextProps props, float width = float.MaxValue)
         {
             CreatePreferredSizeText();
-            
+
             var settings = props.settings;
             var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
             var overflowMode = GetOverflowMode(settings.overflow);
-            var unityTextDefinition = new UnityTextDefinition
+            var unityTextProps = new UnityTextProps
             {
                 text = props.text,
                 style = settings.style,
@@ -100,19 +101,20 @@ namespace RishUI.Components
                 raycastTarget = settings.raycastTarget,
                 maskable = settings.maskable
             };
-            
+
             var height = 0f;
             bool set;
             do
             {
-                unityTextDefinition.SetComponent(PreferredSizeText);
+                unityTextProps.SetComponent(PreferredSizeText);
                 var preferred = PreferredSizeText.GetPreferredValues(width, height);
                 set = Mathf.Approximately(height, preferred.y);
                 height = preferred.y;
             } while (!set);
-            
+
             return height;
         }
+
         public static float GetPreferredHeight(string text, float width = float.MaxValue)
         {
             var props = new TextProps
@@ -134,7 +136,7 @@ namespace RishUI.Components
             var textGameObject = new GameObject("PreferredSizeText", typeof(RectTransform), typeof(TextMeshProUGUI));
             PreferredSizeText = textGameObject.GetComponent<TextMeshProUGUI>();
             textGameObject.SetActive(false);
-            
+
             Object.DontDestroyOnLoad(textGameObject);
 
             PreferredSizeInitialized = true;
@@ -148,6 +150,7 @@ namespace RishUI.Components
                 FontAddress = settings.fontAddress;
                 Assets.Get<TMP_FontAsset>(settings.fontAddress, OnFont);
             }
+
             if (MaterialAddress != settings.materialAddress)
             {
                 MaterialAddress = settings.materialAddress;
@@ -157,7 +160,6 @@ namespace RishUI.Components
 
         void IDestroyListener.ComponentWillDestroy()
         {
-            PreferredSize = Vector2.negativeInfinity;
             FontAddress = null;
             MaterialAddress = null;
         }
@@ -165,58 +167,54 @@ namespace RishUI.Components
         protected override RishElement Render()
         {
             var settings = Props.settings;
-            
+
             var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
             var overflowMode = GetOverflowMode(settings.overflow);
-            
+
             return Rish.CreateUnity<UnityText, UnityTextProps>(new UnityTextProps
             {
-                definition = new UnityTextDefinition
-                {
-                    text = Props.text,
-                    font = State.font,
-                    material = State.material,
-                    style = settings.style,
-                    color = settings.color,
-                    size = settings.sizing.size,
-                    autoSize = settings.sizing.AutoSize,
-                    minSize = settings.sizing.minSize,
-                    maxSize = settings.sizing.size,
-                    characterWidthAdjustment = settings.sizing.characterWidthAdjustment,
-                    lineSpacingAdjustment = settings.sizing.lineSpacingAdjustment,
-                    characterSpacing = settings.spacing.character,
-                    wordSpacing = settings.spacing.word,
-                    lineSpacing = settings.spacing.line,
-                    paragraphSpacing = settings.spacing.paragraph,
-                    horizontalAlignment = horizontalAlignment,
-                    verticalAlignment = verticalAlignment,
-                    wrapping = settings.wrapping,
-                    overflow = overflowMode,
-                    richText = settings.richText,
-                    raycastTarget = settings.raycastTarget,
-                    maskable = settings.maskable
-                },
-                onPreferredSize = OnPreferredSize
+                text = Props.text,
+                font = State.font,
+                material = State.material,
+                style = settings.style,
+                color = settings.color,
+                size = settings.sizing.size,
+                autoSize = settings.sizing.AutoSize,
+                minSize = settings.sizing.minSize,
+                maxSize = settings.sizing.size,
+                characterWidthAdjustment = settings.sizing.characterWidthAdjustment,
+                lineSpacingAdjustment = settings.sizing.lineSpacingAdjustment,
+                characterSpacing = settings.spacing.character,
+                wordSpacing = settings.spacing.word,
+                lineSpacing = settings.spacing.line,
+                paragraphSpacing = settings.spacing.paragraph,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                wrapping = settings.wrapping,
+                overflow = overflowMode,
+                richText = settings.richText,
+                raycastTarget = settings.raycastTarget,
+                maskable = settings.maskable
             });
         }
 
         private void OnFont(string address, TMP_FontAsset font)
-        {                
+        {
             if (address != FontAddress)
             {
                 return;
             }
-            
+
             SetFont(font);
         }
 
         private void OnMaterial(string address, Material material)
-        {                
+        {
             if (address != MaterialAddress)
             {
                 return;
             }
-            
+
             SetMaterial(material);
         }
 
@@ -260,7 +258,7 @@ namespace RishUI.Components
                 default:
                     throw new UnityException("Horizontal alignment type not supported");
             }
-            
+
             VerticalAlignmentOptions vertical;
             switch (alignment.vertical)
             {
@@ -303,17 +301,6 @@ namespace RishUI.Components
                     throw new UnityException("Overflow mode not supported");
             }
         }
-
-        private void OnPreferredSize(Vector2 preferredSize)
-        {
-            if (Mathf.Approximately(PreferredSize.x, preferredSize.x) &&
-                Mathf.Approximately(PreferredSize.y, preferredSize.y))
-            {
-                return;
-            }
-            
-            PreferredSize = preferredSize;
-        }
     }
 
     public struct TextSizing : IEquatable<TextSizing>
@@ -324,14 +311,14 @@ namespace RishUI.Components
         public float lineSpacingAdjustment;
 
         public bool AutoSize => minSize > 0 && minSize < size;
-        
+
         public bool Equals(TextSizing other)
         {
             if (AutoSize != other.AutoSize)
             {
                 return false;
             }
-            
+
             if (Mathf.Approximately(size, other.size))
             {
                 return false;
@@ -343,10 +330,12 @@ namespace RishUI.Components
                 {
                     return false;
                 }
+
                 if (!Mathf.Approximately(characterWidthAdjustment, other.characterWidthAdjustment))
                 {
                     return false;
                 }
+
                 if (!Mathf.Approximately(lineSpacingAdjustment, other.lineSpacingAdjustment))
                 {
                     return false;
@@ -370,14 +359,17 @@ namespace RishUI.Components
             {
                 return false;
             }
+
             if (!Mathf.Approximately(word, other.word))
             {
                 return false;
             }
+
             if (!Mathf.Approximately(line, other.line))
             {
                 return false;
             }
+
             if (!Mathf.Approximately(paragraph, other.paragraph))
             {
                 return false;
@@ -389,16 +381,38 @@ namespace RishUI.Components
 
     public struct TextAlignment : IEquatable<TextAlignment>
     {
-        public enum Horizontal { Left, Center, Right, Justified, Flush, Geometry }
-        public enum Vertical { Top, Middle, Bottom, Baseline, Geometry, Capline }
-        
+        public enum Horizontal
+        {
+            Left,
+            Center,
+            Right,
+            Justified,
+            Flush,
+            Geometry
+        }
+
+        public enum Vertical
+        {
+            Top,
+            Middle,
+            Bottom,
+            Baseline,
+            Geometry,
+            Capline
+        }
+
         public Horizontal horizontal;
         public Vertical vertical;
 
         public bool Equals(TextAlignment other) => horizontal == other.horizontal && vertical == other.vertical;
     }
-    
-    public enum TextOverflowMode { Overflow, Truncate, Ellipsis }
+
+    public enum TextOverflowMode
+    {
+        Overflow,
+        Truncate,
+        Ellipsis
+    }
 
     public struct TextSettings : IEquatable<TextSettings>
     {
@@ -421,10 +435,10 @@ namespace RishUI.Components
             raycastTarget = true,
             maskable = true
         };
-        
+
         public string fontAddress;
         public string materialAddress;
-        
+
         public FontStyles style;
         public Color color;
 
@@ -434,7 +448,7 @@ namespace RishUI.Components
         public TextAlignment alignment;
         public bool wrapping;
         public TextOverflowMode overflow;
-        
+
         public bool richText;
         public bool raycastTarget;
         public bool maskable;
@@ -443,7 +457,7 @@ namespace RishUI.Components
         {
             fontAddress = other.fontAddress;
             materialAddress = other.materialAddress;
-        
+
             style = other.style;
             color = other.color;
 
@@ -453,26 +467,29 @@ namespace RishUI.Components
             alignment = other.alignment;
             wrapping = other.wrapping;
             overflow = other.overflow;
-        
+
             richText = other.richText;
             raycastTarget = other.raycastTarget;
             maskable = other.maskable;
         }
-        
+
         public bool Equals(TextSettings other)
         {
             if (wrapping != other.wrapping)
             {
                 return false;
             }
+
             if (richText != other.richText)
             {
                 return false;
             }
+
             if (raycastTarget != other.raycastTarget)
             {
                 return false;
             }
+
             if (maskable != other.maskable)
             {
                 return false;
@@ -482,6 +499,7 @@ namespace RishUI.Components
             {
                 return false;
             }
+
             if (overflow != other.overflow)
             {
                 return false;
@@ -491,11 +509,12 @@ namespace RishUI.Components
             {
                 return false;
             }
+
             if (!sizing.Equals(other.sizing))
             {
                 return false;
             }
-            
+
             if (!spacing.Equals(other.spacing))
             {
                 return false;
@@ -506,43 +525,45 @@ namespace RishUI.Components
             {
                 return false;
             }
-            
+
             if (visible && (!Mathf.Approximately(color.r, other.color.r) ||
-                !Mathf.Approximately(color.g, other.color.g) ||
-                !Mathf.Approximately(color.b, other.color.b)))
+                            !Mathf.Approximately(color.g, other.color.g) ||
+                            !Mathf.Approximately(color.b, other.color.b)))
             {
                 return false;
             }
-            
+
             var fontSet = string.IsNullOrWhiteSpace(fontAddress);
             if (fontSet != string.IsNullOrWhiteSpace(other.fontAddress))
             {
                 return false;
             }
+
             if (fontSet && fontAddress != other.fontAddress)
             {
                 return false;
             }
-            
+
             var materialSet = string.IsNullOrWhiteSpace(materialAddress);
             if (materialSet != string.IsNullOrWhiteSpace(other.materialAddress))
             {
                 return false;
             }
+
             if (materialSet && materialAddress != other.materialAddress)
             {
                 return false;
             }
-            
+
             return true;
         }
     }
-    
+
     public struct TextProps : IRishData<TextProps>
     {
         public string text;
         public TextSettings settings;
-        
+
         public void Default()
         {
             settings = TextSettings.Default;
@@ -555,6 +576,7 @@ namespace RishUI.Components
             {
                 return false;
             }
+
             if (textSet && text != other.text)
             {
                 return false;
@@ -564,18 +586,18 @@ namespace RishUI.Components
             {
                 return false;
             }
-            
+
             return true;
         }
     }
 
-    public struct TextComponentState : IRishData<TextComponentState>
+    public struct TextState : IRishData<TextState>
     {
         public TMP_FontAsset font;
         public Material material;
 
         public void Default() { }
 
-        public bool Equals(TextComponentState other) => font == other.font && material == other.material;
+        public bool Equals(TextState other) => font == other.font && material == other.material;
     }
 }

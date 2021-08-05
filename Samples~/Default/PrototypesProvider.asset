@@ -22,3 +22,12 @@ MonoBehaviour:
   - component: {fileID: 6457734504546308217, guid: 9691abac2d0f044c287246c83f602d88,
       type: 3}
     initialCount: 10
+  - component: {fileID: 7128468180552839479, guid: 75212a224709d914d939cd4fe960ee35,
+      type: 3}
+    initialCount: 10
+  - component: {fileID: -5920470874299452162, guid: d3e0d614a74b3a142bbea88b712e1399,
+      type: 3}
+    initialCount: 10
+  - component: {fileID: 1553885232801413321, guid: 92fe5cf4648db504990badf269359513,
+      type: 3}
+    initialCount: 10

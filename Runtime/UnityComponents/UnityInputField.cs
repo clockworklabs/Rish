@@ -62,8 +62,8 @@ namespace RishUI.UnityComponents
     public struct UnityInputFieldProps
     {
         public UnityImageDefinition imageDefinition;
-        public UnityTextDefinition placeholderDefinition;
-        public UnityTextDefinition textDefinition;
+        public UnityTextProps placeholderDefinition;
+        public UnityTextProps textDefinition;
         public UnityInputFieldDefinition inputFieldDefinition;
         public bool autoFocus;
         public Vector4 textMargin;

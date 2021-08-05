@@ -128,7 +128,7 @@ namespace RishUI.Components
                     type = State.imageSprite != null && State.imageSprite.border != Vector4.zero ? UnityImageDefinition.Type.Sliced : UnityImageDefinition.Type.Simple,
                     preserveAspectRatio = imageSettings.preserveAspectRatio
                 },
-                placeholderDefinition = new UnityTextDefinition
+                placeholderDefinition = new UnityTextProps
                 {
                     text = Props.placeholderText,
                     font = State.placeholderFont,
@@ -153,7 +153,7 @@ namespace RishUI.Components
                     raycastTarget = placeholderSettings.raycastTarget,
                     maskable = placeholderSettings.maskable
                 },
-                textDefinition = new UnityTextDefinition
+                textDefinition = new UnityTextProps
                 {
                     text = Props.text,
                     font = State.textFont,
