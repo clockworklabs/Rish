@@ -2,6 +2,7 @@
 using RishUI.UnityComponents;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace RishUI.Components
 {
@@ -11,6 +12,133 @@ namespace RishUI.Components
         private string MaterialAddress { get; set; }
         
         private Vector2 PreferredSize { get; set; } = Vector2.negativeInfinity;
+
+        private static bool PreferredSizeInitialized { get; set; }
+        private static TextMeshProUGUI PreferredSizeText { get; set; }
+        public static float GetPreferredWidth(TextProps props, float height = float.MaxValue)
+        {
+            CreatePreferredSizeText();
+            
+            var settings = props.settings;
+            var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
+            var overflowMode = GetOverflowMode(settings.overflow);
+            var unityTextDefinition = new UnityTextDefinition
+            {
+                text = props.text,
+                style = settings.style,
+                color = settings.color,
+                size = settings.sizing.size,
+                autoSize = settings.sizing.AutoSize,
+                minSize = settings.sizing.minSize,
+                maxSize = settings.sizing.size,
+                characterWidthAdjustment = settings.sizing.characterWidthAdjustment,
+                lineSpacingAdjustment = settings.sizing.lineSpacingAdjustment,
+                characterSpacing = settings.spacing.character,
+                wordSpacing = settings.spacing.word,
+                lineSpacing = settings.spacing.line,
+                paragraphSpacing = settings.spacing.paragraph,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                wrapping = settings.wrapping,
+                overflow = overflowMode,
+                richText = settings.richText,
+                raycastTarget = settings.raycastTarget,
+                maskable = settings.maskable
+            };
+            
+            PreferredSizeText.gameObject.SetActive(true);
+
+            var width = 0f;
+            bool set;
+            do
+            {
+                unityTextDefinition.SetComponent(PreferredSizeText);
+                var preferred = PreferredSizeText.GetPreferredValues(width, height);
+                set = Mathf.Approximately(width, preferred.x);
+                width = preferred.x;
+            } while (!set);
+            
+            return width;
+        }
+        public static float GetPreferredWidth(string text, float height = float.MaxValue)
+        {
+            var props = new TextProps
+            {
+                text = text,
+                settings = TextSettings.Default
+            };
+
+            return GetPreferredWidth(props, height);
+        }
+        public static float GetPreferredHeight(TextProps props, float width = float.MaxValue)
+        {
+            CreatePreferredSizeText();
+            
+            var settings = props.settings;
+            var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
+            var overflowMode = GetOverflowMode(settings.overflow);
+            var unityTextDefinition = new UnityTextDefinition
+            {
+                text = props.text,
+                style = settings.style,
+                color = settings.color,
+                size = settings.sizing.size,
+                autoSize = settings.sizing.AutoSize,
+                minSize = settings.sizing.minSize,
+                maxSize = settings.sizing.size,
+                characterWidthAdjustment = settings.sizing.characterWidthAdjustment,
+                lineSpacingAdjustment = settings.sizing.lineSpacingAdjustment,
+                characterSpacing = settings.spacing.character,
+                wordSpacing = settings.spacing.word,
+                lineSpacing = settings.spacing.line,
+                paragraphSpacing = settings.spacing.paragraph,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                wrapping = settings.wrapping,
+                overflow = overflowMode,
+                richText = settings.richText,
+                raycastTarget = settings.raycastTarget,
+                maskable = settings.maskable
+            };
+            
+            var height = 0f;
+            bool set;
+            do
+            {
+                unityTextDefinition.SetComponent(PreferredSizeText);
+                var preferred = PreferredSizeText.GetPreferredValues(width, height);
+                set = Mathf.Approximately(height, preferred.y);
+                height = preferred.y;
+            } while (!set);
+            
+            return height;
+        }
+        public static float GetPreferredHeight(string text, float width = float.MaxValue)
+        {
+            var props = new TextProps
+            {
+                text = text,
+                settings = TextSettings.Default
+            };
+
+            return GetPreferredHeight(props, width);
+        }
+
+        private static void CreatePreferredSizeText()
+        {
+            if (PreferredSizeInitialized)
+            {
+                return;
+            }
+
+            var textGameObject = new GameObject("PreferredSizeText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            PreferredSizeText = textGameObject.GetComponent<TextMeshProUGUI>();
+            textGameObject.SetActive(false);
+            
+            Object.DontDestroyOnLoad(textGameObject);
+
+            PreferredSizeInitialized = true;
+        }
 
         void IDerivedState.UpdateStateFromProps()
         {
@@ -178,11 +306,6 @@ namespace RishUI.Components
 
         private void OnPreferredSize(Vector2 preferredSize)
         {
-            if (Props.onPreferredSize == null)
-            {
-                return;
-            }
-            
             if (Mathf.Approximately(PreferredSize.x, preferredSize.x) &&
                 Mathf.Approximately(PreferredSize.y, preferredSize.y))
             {
@@ -190,8 +313,6 @@ namespace RishUI.Components
             }
             
             PreferredSize = preferredSize;
-
-            Props.onPreferredSize(PreferredSize);
         }
     }
 
@@ -421,8 +542,6 @@ namespace RishUI.Components
     {
         public string text;
         public TextSettings settings;
-
-        public Action<Vector2> onPreferredSize;
         
         public void Default()
         {
