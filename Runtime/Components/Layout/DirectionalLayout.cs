@@ -53,9 +53,11 @@ namespace RishUI.Components
                 return RishElement.Null;
             }
             
+            var spacing = Props.spacing;
+            
             if (count > 1)
             {
-                fixedSize += (count - 1) * Props.spacing;
+                fixedSize += (count - 1) * spacing;
             }
 
             float containerSize;
@@ -94,11 +96,15 @@ namespace RishUI.Components
             Children.Clear();
 
             var contentSize = fixedSize + flexibleCount * elementSize;
-            Props.onContentSize?.Invoke(contentSize);
             float offset;
             if (contentSize < containerSize)
             {
-                if (Props.center)
+                if (Props.flexibleSpacing && count > 1)
+                {
+                    spacing = (containerSize - contentSize) / (count - 1);
+                    offset = 0f;
+                } 
+                else if (Props.center)
                 {
                     offset = (containerSize - contentSize) * 0.5f;
                 }
@@ -111,6 +117,8 @@ namespace RishUI.Components
             {
                 offset = -(contentSize - containerSize) * Props.scroll;
             }
+            
+            Props.onContentSize?.Invoke(contentSize);
             
             var start = offset;
             for (int i = 0, n = Props.children.Count; i < n; i++)
@@ -185,7 +193,7 @@ namespace RishUI.Components
                     Children.Add(childElement);
                 }
 
-                start += childSize + Props.spacing;
+                start += childSize + spacing;
             }
 
             var maskSoftness = !Props.maskContent
@@ -217,6 +225,7 @@ namespace RishUI.Components
         public float elementSize;
 
         public bool center;
+        public bool flexibleSpacing;
         public bool overflow;
         
         public float scroll;
@@ -249,6 +258,10 @@ namespace RishUI.Components
                 return false;
             }
             if (center != other.center)
+            {
+                return false;
+            }
+            if (flexibleSpacing != other.flexibleSpacing)
             {
                 return false;
             }
