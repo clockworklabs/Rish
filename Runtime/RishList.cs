@@ -550,6 +550,35 @@ namespace RishUI
 
         private RishList(IList<T> children)
         {
+            if (children == null)
+            {
+                _childCount = 0;
+                _child0 = default;
+                _child1 = default;
+                _child2 = default;
+                _child3 = default;
+                _child4 = default;
+                _child5 = default;
+                _child6 = default;
+                _child7 = default;
+                _child8 = default;
+                _child9 = default;
+                _child10 = default;
+                _child11 = default;
+                _child12 = default;
+                _child13 = default;
+                _child14 = default;
+                _child15 = default;
+                _child16 = default;
+                _child17 = default;
+                _child18 = default;
+                _child19 = default;
+
+                _children = default;
+
+                return;
+            }
+            
             var count = children.Count;
             if (count > 20)
             {
@@ -574,7 +603,7 @@ namespace RishUI
                 _child17 = default;
                 _child18 = default;
                 _child19 = default;
-                
+
                 _children = children;
             }
             else
@@ -661,6 +690,19 @@ namespace RishUI
                         throw new IndexOutOfRangeException();
                 }
             }
+        }
+
+        public bool Contains(T item)
+        {
+            for (int i = 0, n = Count; i < n; i++)
+            {
+                if (this[i].Equals(item))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Enumerator GetEnumerator()
