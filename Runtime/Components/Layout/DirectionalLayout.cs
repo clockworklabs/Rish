@@ -48,6 +48,7 @@ namespace RishUI.Components
         public Action<float> onContentSize;
 
         public RishList<LayoutElement> children;
+        public Margins padding;
 
         public DirectionalLayoutProps(Direction direction) : this()
         {
@@ -97,6 +98,11 @@ namespace RishUI.Components
                 return false;
             }
             if (!Mathf.Approximately(scroll, other.scroll))
+            {
+                return false;
+            }
+
+            if (!padding.Equals(other.padding))
             {
                 return false;
             }

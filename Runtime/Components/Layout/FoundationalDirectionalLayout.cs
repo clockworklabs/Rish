@@ -64,16 +64,16 @@ namespace RishUI.Components
             switch (Props.direction)
             {
                 case Direction.TopDown:
-                    containerSize = Size.y;
+                    containerSize = Size.y - Props.padding.top - Props.padding.bottom;
                     break;
                 case Direction.BottomUp:
-                    containerSize = Size.y;
+                    containerSize = Size.y - Props.padding.top - Props.padding.bottom;
                     break;
                 case Direction.LeftRight:
-                    containerSize = Size.x;
+                    containerSize = Size.x - Props.padding.right - Props.padding.left;
                     break;
                 case Direction.RightLeft:
-                    containerSize = Size.x;
+                    containerSize = Size.x - Props.padding.right - Props.padding.left;
                     break;
                 default:
                     throw new UnityException("Direction not supported");
@@ -202,12 +202,17 @@ namespace RishUI.Components
                     ? new Vector2Int(0, Props.maskSoftness)
                     : new Vector2Int(Props.maskSoftness, 0);
 
+            var content = Props.padding.IsZero() ? (RishList<RishElement>) Children : Rish.Create<Div, DivProps>(new ExpandTransform(Props.padding), new DivProps
+            {
+                children = Children
+            });
+            
             return Rish.Create<Div, DivProps>(new DivProps
             {
                 raycastTarget = Props.raycastTarget,
                 maskContent = Props.maskContent,
                 maskSoftness = maskSoftness,
-                children = Children
+                children = content
             });
         }
 
@@ -236,6 +241,7 @@ namespace RishUI.Components
         public Action<float> onContentSize;
 
         public RishList<LayoutElement> children;
+        public Margins padding;
 
         public Func<RishElement, RishTransform, RishElement> elementConstructor;
 
@@ -282,6 +288,11 @@ namespace RishUI.Components
                 return false;
             }
             if (!Mathf.Approximately(scroll, other.scroll))
+            {
+                return false;
+            }
+
+            if (!padding.Equals(other.padding))
             {
                 return false;
             }

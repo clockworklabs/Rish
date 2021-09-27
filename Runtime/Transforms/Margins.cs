@@ -9,50 +9,18 @@ namespace RishUI
         public float right;
         public float bottom;
         public float left;
-        
-        public bool IsValid()
-        {
-            if (float.IsNaN(top) || float.IsInfinity(top))
-            {
-                return false;
-            }
-            if (float.IsNaN(right) || float.IsInfinity(right))
-            {
-                return false;
-            }
-            if (float.IsNaN(bottom) || float.IsInfinity(bottom))
-            {
-                return false;
-            }
-            if (float.IsNaN(left) || float.IsInfinity(left))
-            {
-                return false;
-            }
 
-            return true;
-        }
+        public bool IsZero() => Equals(new Margins());
 
-        public bool Equals(Margins other)
-        {
-            if (!Mathf.Approximately(top, other.top))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(right, other.right))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(bottom, other.bottom))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(left, other.left))
-            {
-                return false;
-            }
+        public bool IsValid() =>
+            !float.IsNaN(top) && !float.IsInfinity(top) &&
+            !float.IsNaN(right) && !float.IsInfinity(right) &&
+            !float.IsNaN(bottom) && !float.IsInfinity(bottom) &&
+            !float.IsNaN(left) && !float.IsInfinity(left);
 
-            return true;
-        }
+        public bool Equals(Margins other) =>
+            Mathf.Approximately(top, other.top) && Mathf.Approximately(right, other.right) &&
+            Mathf.Approximately(bottom, other.bottom) && Mathf.Approximately(left, other.left);
 
         public static implicit operator Margins(Vector4 vector) => new Margins
         {
