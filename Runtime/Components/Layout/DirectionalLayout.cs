@@ -21,6 +21,7 @@ namespace RishUI.Components
                 raycastTarget = Props.raycastTarget,
                 onContentSize = OnContentSize,
                 children = Props.children,
+                padding = Props.padding,
                 elementConstructor = (element, transform) => new RishElement(element, transform)
             });
         }

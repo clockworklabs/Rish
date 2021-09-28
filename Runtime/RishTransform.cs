@@ -281,10 +281,7 @@ namespace RishUI
             return true;
         }
 
-        public override string ToString()
-        {
-            return $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale} - {rotation}";
-        }
+        public override string ToString() => $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale} - {rotation}";
 
         public bool Equals(RishTransform other)
         {

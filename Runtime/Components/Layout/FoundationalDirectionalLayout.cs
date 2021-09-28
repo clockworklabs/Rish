@@ -61,23 +61,30 @@ namespace RishUI.Components
             }
 
             float containerSize;
+            Vector2 padding;
             switch (Props.direction)
             {
                 case Direction.TopDown:
-                    containerSize = Size.y - Props.padding.top - Props.padding.bottom;
+                    containerSize = Size.y;
+                    padding = new Vector2(Props.padding.top, Props.padding.bottom);
                     break;
                 case Direction.BottomUp:
-                    containerSize = Size.y - Props.padding.top - Props.padding.bottom;
+                    containerSize = Size.y;
+                    padding = new Vector2(Props.padding.bottom, Props.padding.top);
                     break;
                 case Direction.LeftRight:
-                    containerSize = Size.x - Props.padding.right - Props.padding.left;
+                    containerSize = Size.x;
+                    padding = new Vector2(Props.padding.left, Props.padding.right);
                     break;
                 case Direction.RightLeft:
-                    containerSize = Size.x - Props.padding.right - Props.padding.left;
+                    containerSize = Size.x;
+                    padding = new Vector2(Props.padding.right, Props.padding.left);
                     break;
                 default:
                     throw new UnityException("Direction not supported");
             }
+
+            containerSize -= (padding.x + padding.y);
             
             var elementSize = Props.elementSize;
             if (elementSize <= 0 && flexibleCount > 0)
@@ -123,7 +130,7 @@ namespace RishUI.Components
             var start = offset;
             for (int i = 0, n = Props.children.Count; i < n; i++)
             {
-                if (!Props.overflow && start > containerSize)
+                if (!Props.overflow && start > containerSize + padding.y)
                 {
                     break;
                 }
@@ -137,7 +144,7 @@ namespace RishUI.Components
                 var childSize = child.size > 0 ? child.size : elementSize;
                 var end = start + childSize;
 
-                if (Props.overflow || end > 0)
+                if (Props.overflow || end > -padding.x)
                 {
                     RishTransform parentTransform;
                     switch (Props.direction)

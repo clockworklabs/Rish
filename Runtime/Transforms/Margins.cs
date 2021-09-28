@@ -17,6 +17,8 @@ namespace RishUI
             !float.IsNaN(right) && !float.IsInfinity(right) &&
             !float.IsNaN(bottom) && !float.IsInfinity(bottom) &&
             !float.IsNaN(left) && !float.IsInfinity(left);
+        
+        public override string ToString() => $"{top} - {right} - {bottom} - {left}";
 
         public bool Equals(Margins other) =>
             Mathf.Approximately(top, other.top) && Mathf.Approximately(right, other.right) &&
