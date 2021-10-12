@@ -22,7 +22,7 @@ namespace RishUI.Components
             var settings = props.settings;
             var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
             var overflowMode = GetOverflowMode(settings.overflow);
-            var unityTextDefinition = new UnityTextProps
+            var unityTextProps = new UnityTextProps
             {
                 text = props.text,
                 style = settings.style,
@@ -46,11 +46,12 @@ namespace RishUI.Components
                 maskable = settings.maskable
             };
 
+            unityTextProps.SetComponent(PreferredSizeText);
+            
             var width = 0f;
             bool set;
             do
             {
-                unityTextDefinition.SetComponent(PreferredSizeText);
                 var preferred = PreferredSizeText.GetPreferredValues(width, height);
                 set = Mathf.Approximately(width, preferred.x);
                 width = preferred.x;
@@ -101,11 +102,12 @@ namespace RishUI.Components
                 maskable = settings.maskable
             };
 
+            unityTextProps.SetComponent(PreferredSizeText);
+            
             var height = 0f;
             bool set;
             do
             {
-                unityTextProps.SetComponent(PreferredSizeText);
                 var preferred = PreferredSizeText.GetPreferredValues(width, height);
                 set = Mathf.Approximately(height, preferred.y);
                 height = preferred.y;
@@ -129,18 +131,72 @@ namespace RishUI.Components
         {
             CreatePreferredSizeText();
 
-            var parent = PreferredSizeText.transform.parent.gameObject;
-            parent.SetActive(true);
-            
             PreferredSizeText.text = text;
             PreferredSizeText.overflowMode = TextOverflowModes.Overflow;
             PreferredSizeText.enableWordWrapping = false;
+            
+            var parent = PreferredSizeText.transform.parent.gameObject;
+            parent.SetActive(true);
             PreferredSizeText.ForceMeshUpdate(true);
             var count = PreferredSizeText.textInfo.characterCount;
-            
             parent.SetActive(false);
 
             return count;
+        }
+        
+        public static Vector2 GetTextBounds(TextProps props, Vector2 rectSize)
+        {
+            CreatePreferredSizeText();
+            
+            var settings = props.settings;
+            var (horizontalAlignment, verticalAlignment) = GetAlignment(settings.alignment);
+            var overflowMode = GetOverflowMode(settings.overflow);
+            var unityTextProps = new UnityTextProps
+            {
+                text = props.text,
+                style = settings.style,
+                color = settings.color,
+                size = settings.sizing.size,
+                autoSize = settings.sizing.AutoSize,
+                minSize = settings.sizing.minSize,
+                maxSize = settings.sizing.size,
+                characterWidthAdjustment = settings.sizing.characterWidthAdjustment,
+                lineSpacingAdjustment = settings.sizing.lineSpacingAdjustment,
+                characterSpacing = settings.spacing.character,
+                wordSpacing = settings.spacing.word,
+                lineSpacing = settings.spacing.line,
+                paragraphSpacing = settings.spacing.paragraph,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                wrapping = settings.wrapping,
+                overflow = overflowMode,
+                richText = settings.richText,
+                raycastTarget = settings.raycastTarget,
+                maskable = settings.maskable,
+                maxCharactersCount = props.maxCharactersCount
+            };
+
+            PreferredSizeText.rectTransform.sizeDelta = rectSize;
+            unityTextProps.SetComponent(PreferredSizeText);
+
+            var parent = PreferredSizeText.transform.parent.gameObject;
+            parent.SetActive(true);
+            PreferredSizeText.ForceMeshUpdate(true);
+            var bounds = PreferredSizeText.textBounds.size;
+            parent.SetActive(false);
+
+            return bounds;
+        }
+        
+        public static Vector2 GetTextBounds(string text, Vector2 rectSize)
+        {
+            var props = new TextProps
+            {
+                text = text,
+                settings = TextSettings.Default
+            };
+
+            return GetTextBounds(props, rectSize);
         }
 
         private static void CreatePreferredSizeText()
