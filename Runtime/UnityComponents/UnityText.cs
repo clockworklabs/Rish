@@ -33,6 +33,8 @@ namespace RishUI.UnityComponents
         public float maxSize;
         public float characterWidthAdjustment;
         public float lineSpacingAdjustment;
+
+        public int? maxCharactersCount;
         
         public float characterSpacing;
         public float wordSpacing;
@@ -83,6 +85,15 @@ namespace RishUI.UnityComponents
             textComponent.richText = richText;
             textComponent.raycastTarget = raycastTarget;
             textComponent.maskable = maskable;
+
+            if (maxCharactersCount.HasValue && maxCharactersCount.Value >= 0)
+            {
+                textComponent.maxVisibleCharacters = maxCharactersCount.Value;
+            }
+            else
+            {
+                textComponent.maxVisibleCharacters = int.MaxValue;
+            }
         }
     }
 }

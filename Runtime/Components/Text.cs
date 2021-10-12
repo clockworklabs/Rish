@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using RishUI.UnityComponents;
 using TMPro;
 using UnityEngine;
@@ -44,8 +45,6 @@ namespace RishUI.Components
                 raycastTarget = settings.raycastTarget,
                 maskable = settings.maskable
             };
-
-            PreferredSizeText.gameObject.SetActive(true);
 
             var width = 0f;
             bool set;
@@ -125,6 +124,24 @@ namespace RishUI.Components
 
             return GetPreferredHeight(props, width);
         }
+        
+        public static int GetCharactersCount(string text)
+        {
+            CreatePreferredSizeText();
+
+            var parent = PreferredSizeText.transform.parent.gameObject;
+            parent.SetActive(true);
+            
+            PreferredSizeText.text = text;
+            PreferredSizeText.overflowMode = TextOverflowModes.Overflow;
+            PreferredSizeText.enableWordWrapping = false;
+            PreferredSizeText.ForceMeshUpdate(true);
+            var count = PreferredSizeText.textInfo.characterCount;
+            
+            parent.SetActive(false);
+
+            return count;
+        }
 
         private static void CreatePreferredSizeText()
         {
@@ -133,11 +150,16 @@ namespace RishUI.Components
                 return;
             }
 
-            var textGameObject = new GameObject("PreferredSizeText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            var canvas = new GameObject("Rish Text Utility", typeof(Canvas));
+            canvas.SetActive(false);
+            
+            var textGameObject = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             PreferredSizeText = textGameObject.GetComponent<TextMeshProUGUI>();
             textGameObject.SetActive(false);
+            
+            textGameObject.transform.SetParent(canvas.transform);
 
-            Object.DontDestroyOnLoad(textGameObject);
+            Object.DontDestroyOnLoad(canvas);
 
             PreferredSizeInitialized = true;
         }
@@ -194,7 +216,8 @@ namespace RishUI.Components
                 overflow = overflowMode,
                 richText = settings.richText,
                 raycastTarget = settings.raycastTarget,
-                maskable = settings.maskable
+                maskable = settings.maskable,
+                maxCharactersCount = Props.maxCharactersCount
             });
         }
 
@@ -562,6 +585,7 @@ namespace RishUI.Components
     public struct TextProps : IRishData<TextProps>
     {
         public string text;
+        public int? maxCharactersCount;
         public TextSettings settings;
 
         public void Default()
@@ -576,8 +600,17 @@ namespace RishUI.Components
             {
                 return false;
             }
-
             if (textSet && text != other.text)
+            {
+                return false;
+            }
+
+            var maxCharactersCountSet = maxCharactersCount.HasValue && maxCharactersCount.Value >= 0;
+            if (maxCharactersCountSet != (other.maxCharactersCount.HasValue && other.maxCharactersCount.Value >= 0))
+            {
+                return false;
+            }
+            if (maxCharactersCountSet && maxCharactersCount.Value != other.maxCharactersCount.Value)
             {
                 return false;
             }
