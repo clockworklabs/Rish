@@ -211,7 +211,6 @@ namespace RishUI.Components
             
             var textGameObject = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             PreferredSizeText = textGameObject.GetComponent<TextMeshProUGUI>();
-            textGameObject.SetActive(false);
             
             textGameObject.transform.SetParent(canvas.transform);
 
