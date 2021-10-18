@@ -23,6 +23,7 @@ namespace RishUI.UnityComponents
         private TMP_InputField InputField => _inputField;
         
         private bool JustMounted { get; set; }
+        private string Value { get; set; }
 
         private void Awake()
         {
@@ -34,6 +35,7 @@ namespace RishUI.UnityComponents
         {
             InputField.text = null;
             JustMounted = true;
+            Value = null;
         }
 
         public override void Render()
@@ -56,7 +58,16 @@ namespace RishUI.UnityComponents
             JustMounted = false;
         }
 
-        private void OnChange(string value) => Props.onChange?.Invoke(value);
+        private void OnChange(string value)
+        {
+            if (Value == value)
+            {
+                return;
+            }
+
+            Value = value;
+            Props.onChange?.Invoke(value);
+        }
     }
 
     public struct UnityInputFieldProps
