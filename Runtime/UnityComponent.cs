@@ -171,6 +171,16 @@ namespace RishUI
             ForceRender();
             
             gameObject.SetActive(true);
+            
+            var localMousePosition = RectTransform.InverseTransformPoint(UnityEngine.Input.mousePosition);
+            if (RectTransform.rect.Contains(localMousePosition))
+            {
+                var pointerData = new PointerEventData(EventSystem.current)
+                {
+                    pointerId = -1
+                };
+                ExecuteEvents.Execute(gameObject, pointerData, ExecuteEvents.pointerEnterHandler);
+            }
         }
 
         internal void Unmount()
