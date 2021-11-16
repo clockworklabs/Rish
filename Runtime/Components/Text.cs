@@ -198,6 +198,21 @@ namespace RishUI.Components
 
             return GetTextBounds(props, rectSize);
         }
+        
+        public static string GetParsedText(string text)
+        {
+            CreatePreferredSizeText();
+
+            PreferredSizeText.text = text;
+            
+            var parent = PreferredSizeText.transform.parent.gameObject;
+            parent.SetActive(true);
+            PreferredSizeText.ForceMeshUpdate(true);
+            var parsedText = PreferredSizeText.GetParsedText();
+            parent.SetActive(false);
+            
+            return parsedText;
+        }
 
         private static void CreatePreferredSizeText()
         {
