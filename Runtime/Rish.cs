@@ -189,7 +189,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement child)
         {
-            if (!node.Active) return;
+            if (!node.Mounted) return;
             
             node.Clear();
 
