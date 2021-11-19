@@ -9,18 +9,24 @@ namespace RishUI
 
         public readonly Type type;
         public readonly int key;
+        public readonly string name;
         public readonly uint style;
         public readonly RishTransform transform;
         public readonly Action<IRishComponent> setup;
 
-        public RishElement(Type type, int key, uint style) : this(type, key, style, RishTransform.Identity, null) { }
-        public RishElement(Type type, int key, uint style, Action<IRishComponent> setup) : this(type, key, style, RishTransform.Identity, setup) { }
-        public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, style, transform, null) { }
-
-        public RishElement(Type type, int key, uint style, RishTransform transform, Action<IRishComponent> setup)
+        public RishElement(Type type, int key, uint style) : this(type, key, null, style) { }
+        public RishElement(Type type, int key, string name, uint style) : this(type, key, name, style, RishTransform.Identity, null) { }
+        public RishElement(Type type, int key, uint style, Action<IRishComponent> setup) : this(type, key, null, style, setup) { }
+        public RishElement(Type type, int key, string name, uint style, Action<IRishComponent> setup) : this(type, key, name, style, RishTransform.Identity, setup) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform) : this(type, key, null, style, transform, null) { }
+        public RishElement(Type type, int key, string name, uint style, RishTransform transform) : this(type, key, name, style, transform, null) { }
+        public RishElement(Type type, int key, uint style, RishTransform transform, Action<IRishComponent> setup) : this(type, key, null, style, transform, setup) { }
+            
+        public RishElement(Type type, int key, string name, uint style, RishTransform transform, Action<IRishComponent> setup)
         {
             this.type = type;
             this.key = key;
+            this.name = name;
             
             this.style = style;
 
@@ -37,7 +43,7 @@ namespace RishUI
         {
             this.type = type;
             key = 0;
-            
+            name = null;
             style = 0;
 
             this.transform = transform;
@@ -52,6 +58,7 @@ namespace RishUI
         {
             type = other.type;
             key = other.key;
+            name = other.name;
             
             style = other.style;
 

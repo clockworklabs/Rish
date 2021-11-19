@@ -15,6 +15,7 @@ namespace RishUI
 
         public int ID { get; }
         public int Key { get; private set; }
+        public string Name { get; private set; }
         public uint Style { get; private set; }
         public IRishComponent Component { get; private set; }
 
@@ -109,12 +110,13 @@ namespace RishUI
             RemainingChildren = 0;
         }
 
-        internal void Initialize(int key, uint style, IRishComponent component, StateNode parent)
+        internal void Initialize(int key, string name, uint style, IRishComponent component, StateNode parent)
         {
             Active = true;
             Mounted = true;
 
             Key = key;
+            Name = name;
             Component = component;
             Style = style;
 

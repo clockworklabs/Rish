@@ -145,7 +145,7 @@ namespace RishUI.Editor
 
 		private TreeViewItem CreateItemForDOM(StateNode stateNode)
 		{
-			var item = new TreeViewItem(stateNode.ID, -1, $"{stateNode.Type.Name}: {{{stateNode.Key}}}");
+			var item = new TreeViewItem(stateNode.ID, -1, $"{stateNode.Type.Name}{(!string.IsNullOrWhiteSpace(stateNode.Name) ? $" (\"{stateNode.Name}\")" : null)}: {{{stateNode.Key}}}");
 
 			if (stateNode.Type.IsSubclassOf(typeof(UnityComponent)))
 			{
