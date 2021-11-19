@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Image : RishComponent<ImageProps, ImageState>, IDerivedState, IDestroyListener
+    public class Image : RishComponent<ImageProps, ImageState>, IDerivedState, ICustomComponent
     {
         private string SpriteAddress { get; set; }
         
-        void IDestroyListener.ComponentWillDestroy()
+        void ICustomComponent.Restart()
         {
             SpriteAddress = null;
         }

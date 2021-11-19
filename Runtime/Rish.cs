@@ -112,15 +112,14 @@ namespace RishUI
 
             CurrentDepth = -1;
 
-            if (Unmounted.Count > 0)
+            if (Unmounted.Count <= 0) return;
+            
+            for (int i = 0, n = Unmounted.Count; i < n; i++)
             {
-                for (int i = 0, n = Unmounted.Count; i < n; i++)
-                {
-                    NodesPool.Push(Unmounted[i]);
-                }
-                
-                Unmounted.Clear();
+                NodesPool.Push(Unmounted[i]);
             }
+            
+            Unmounted.Clear();
         }
 
         private void OnGUI()
@@ -170,7 +169,7 @@ namespace RishUI
             {
                 case RishComponent rishComponent:
                 {
-                    var child = rishComponent.SetupAndRender();
+                    var child = rishComponent.InternalRender();
 
                     Reconcile(node, child);
 
@@ -190,7 +189,7 @@ namespace RishUI
 
         private void Reconcile(StateNode node, RishElement child)
         {
-            if (!node.Mounted) return;
+            if (!node.Active) return;
             
             node.Clear();
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using RishUI.UnityComponents;
 using TMPro;
 using UnityEngine;
@@ -7,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace RishUI.Components
 {
-    public class Text : RishComponent<TextProps, TextState>, IDerivedState, IDestroyListener
+    public class Text : RishComponent<TextProps, TextState>, IDerivedState, ICustomComponent
     {
         private string FontAddress { get; set; }
         private string MaterialAddress { get; set; }
@@ -234,6 +233,12 @@ namespace RishUI.Components
             PreferredSizeInitialized = true;
         }
 
+        void ICustomComponent.Restart()
+        {
+            FontAddress = null;
+            MaterialAddress = null;
+        }
+
         void IDerivedState.UpdateStateFromProps()
         {
             var settings = Props.settings;
@@ -248,12 +253,6 @@ namespace RishUI.Components
                 MaterialAddress = settings.materialAddress;
                 Assets.Get<Material>(settings.materialAddress, OnMaterial);
             }
-        }
-
-        void IDestroyListener.ComponentWillDestroy()
-        {
-            FontAddress = null;
-            MaterialAddress = null;
         }
 
         protected override RishElement Render()

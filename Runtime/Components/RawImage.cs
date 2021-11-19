@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class RawImage : RishComponent<RawImageProps, RawImageState>, IDerivedState, IDestroyListener
+    public class RawImage : RishComponent<RawImageProps, RawImageState>, IDerivedState, ICustomComponent
     {
         private string TextureAddress { get; set; }
         
-        void IDestroyListener.ComponentWillDestroy()
+        void ICustomComponent.Restart()
         {
             TextureAddress = null;
         }

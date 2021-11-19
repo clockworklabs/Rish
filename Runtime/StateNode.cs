@@ -291,7 +291,8 @@ namespace RishUI
             if (!Active) return;
             if (!Mounted) return;
 
-            if(Component is RishComponent rishComponent) {
+            if (Component is RishComponent rishComponent)
+            {
                 rishComponent.WillDestroy();
             }
 
@@ -299,7 +300,7 @@ namespace RishUI
             RemainingChildren = Children?.Count ?? 0;
             if (Component.CustomUnmount)
             {
-                Component.OnReadyToUnmount += OnReadyToUnmount;
+                Component.OnReadyToUnmount += TryUnmount;
             }
 
             if (Children != null)
@@ -316,13 +317,13 @@ namespace RishUI
             }
         }
 
-        private void OnReadyToUnmount()
+        private void TryUnmount()
         {
             if (Children != null)
             {
                 for (var i = Children.Count - 1; i >= 0; i--)
                 {
-                    Children[i].OnReadyToUnmount();
+                    Children[i].TryUnmount();
                 }
             }
 
@@ -343,10 +344,7 @@ namespace RishUI
 
             Component.OnTransform -= OnRectChange;
             Component.OnDirty -= NotifyDirty;
-            if (Component.CustomUnmount)
-            {
-                Component.OnReadyToUnmount -= OnReadyToUnmount;
-            }
+            Component.OnReadyToUnmount -= TryUnmount;
 
             switch (Component)
             {
@@ -368,7 +366,7 @@ namespace RishUI
             if (Parent != null && Parent.RemainingChildren > 0)
             {
                 Parent.RemainingChildren--;
-                Parent.OnReadyToUnmount();
+                Parent.TryUnmount();
             }
 
             Pool.ReturnToPool(Component);

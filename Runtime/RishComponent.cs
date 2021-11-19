@@ -202,6 +202,11 @@ namespace RishUI
 
         internal void Mount(uint style, IRishComponent parent)
         {
+            if (this is ICustomComponent customComponent)
+            {
+                customComponent.Restart();
+            }
+            
             Style = style;
 
             Initialize();
@@ -309,7 +314,7 @@ namespace RishUI
 
         private protected virtual void Default() { }
 
-        internal virtual RishElement SetupAndRender()
+        internal virtual RishElement InternalRender()
         {
             var result = Render();
             JustMounted = false;
@@ -766,7 +771,7 @@ namespace RishUI
             }
         }
         
-        internal override RishElement SetupAndRender()
+        internal override RishElement InternalRender()
         {
             if (Dirty)
             {
@@ -775,7 +780,7 @@ namespace RishUI
                 Dirty = false;
             }
 
-            return base.SetupAndRender();
+            return base.InternalRender();
         }
     }
     

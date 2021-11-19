@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Div : RishComponent<DivProps, DivState>, IDerivedState, IDestroyListener, ITapListener, ILongTapListener, ILeftClickListener, IRightClickListener, IDragListener, IScrollListener
+    public class Div : RishComponent<DivProps, DivState>, IDerivedState, ICustomComponent, ITapListener, ILongTapListener, ILeftClickListener, IRightClickListener, IDragListener, IScrollListener
     {
         private string BackgroundSpriteAddress { get; set; }
 
-        void IDestroyListener.ComponentWillDestroy()
+        void ICustomComponent.Restart()
         {
             BackgroundSpriteAddress = null;
         }

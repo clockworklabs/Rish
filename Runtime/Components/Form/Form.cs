@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Form : RishComponent<FormProps>, IDestroyListener, IFocusedKeyboardListener
+    public class Form : RishComponent<FormProps>, ICustomComponent, IFocusedKeyboardListener
     {
         private List<IFormElement> Elements { get; } = new List<IFormElement>();
 
-        void IDestroyListener.ComponentWillDestroy()
+        void ICustomComponent.Restart()
         {
             Elements.Clear();
         }
