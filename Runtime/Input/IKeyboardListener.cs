@@ -1,7 +1,10 @@
-﻿namespace RishUI.Input
+﻿using UnityEngine;
+
+namespace RishUI.Input
 {
     public interface IKeyboardListener
     {
-        void OnKeyDown(KeyboardInfo info);
+        void OnKeyDown(KeyCode info);
+        void OnKeyUp(KeyCode info);
     }
 }

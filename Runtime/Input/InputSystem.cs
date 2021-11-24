@@ -23,6 +23,8 @@ namespace RishUI.Input
         
         private List<IKeyboardListener> KeyboardListeners { get; } = new List<IKeyboardListener>();
         internal IFocusedKeyboardListener KeyboardFocus { get; private set; }
+        
+        private HashSet<KeyCode> DownKeys { get; } = new HashSet<KeyCode>();
 
         internal InputSystem(Rish rish)
         {
@@ -87,6 +89,7 @@ namespace RishUI.Input
 
         internal void OnEvent(Event e)
         {
+            var keyCode = e.keyCode;
             switch (e.type)
             {
                 case EventType.MouseDown:
@@ -96,33 +99,54 @@ namespace RishUI.Input
                     }
                     
                     SetKeyboardFocus(null);
-                    break;
+                    return;
                 case EventType.KeyDown:
-                    if (e.keyCode == KeyCode.None)
+                    if (keyCode == KeyCode.None)
                     {
                         return;
                     }
 
-                    var info = new KeyboardInfo
-                    {
-                        keyCode = e.keyCode,
-                        modifiers = e.modifiers
-                    };
-
                     if (KeyboardFocus == null)
                     {
+                        if (DownKeys.Contains(keyCode))
+                        {
+                            return;
+                        }
+                        
                         for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
                         {
                             var listener = KeyboardListeners[i];
-                            listener?.OnKeyDown(info);
+                            listener?.OnKeyDown(keyCode);
                         }
+                        
+                        DownKeys.Add(keyCode);
                     }
                     else
                     {
-                        ((IRishComponent) KeyboardFocus).OnKeyDown(info, false);
+                        var info = new KeyboardInfo
+                        {
+                            keyCode = keyCode,
+                            modifiers = e.modifiers
+                        };
+                        ((IRishComponent) KeyboardFocus).OnKeyTyped(info, false);
                     }
 
-                    break;
+                    return;
+                case EventType.KeyUp:
+                    if (keyCode == KeyCode.None || KeyboardFocus != null || !DownKeys.Contains(keyCode))
+                    {
+                        return;
+                    }
+                    
+                    for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+                    {
+                        var listener = KeyboardListeners[i];
+                        listener?.OnKeyUp(keyCode);
+                    }
+                    
+                    DownKeys.Remove(keyCode);
+
+                    return;
             }
         }
 
@@ -149,6 +173,25 @@ namespace RishUI.Input
 
         internal void SetKeyboardFocus(IFocusedKeyboardListener component)
         {
+            if (KeyboardFocus == component)
+            {
+                return;
+            }
+
+            if (KeyboardFocus == null && DownKeys.Count > 0)
+            {
+                foreach (var keyCode in DownKeys)
+                {
+                    for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+                    {
+                        var listener = KeyboardListeners[i];
+                        listener?.OnKeyUp(keyCode);
+                    }
+                }
+                
+                DownKeys.Clear();
+            }
+            
             KeyboardFocus?.OnKeyboardFocus(false);
             KeyboardFocus = component;
             KeyboardFocus?.OnKeyboardFocus(true);

@@ -41,7 +41,7 @@ namespace RishUI.Components
         }
 
         void IFocusedKeyboardListener.OnKeyboardFocus(bool focus) { }
-        bool IFocusedKeyboardListener.OnKeyDown(KeyboardInfo info)
+        bool IFocusedKeyboardListener.OnKeyTyped(KeyboardInfo info)
         {
             if (info.keyCode != KeyCode.Return)
             {

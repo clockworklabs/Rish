@@ -290,10 +290,7 @@ namespace RishUI.Components
         }
         
         void IFocusedKeyboardListener.OnKeyboardFocus(bool focus) { }
-        bool IFocusedKeyboardListener.OnKeyDown(KeyboardInfo info)
-        {
-            return false;
-        }
+        bool IFocusedKeyboardListener.OnKeyTyped(KeyboardInfo info) => false;
 
         InputResult ITapListener.OnTapStart(PointerInfo info)
         {

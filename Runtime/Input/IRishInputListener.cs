@@ -12,6 +12,6 @@ namespace RishUI.Input
         void OnDrag(PointerEventData eventData);
         void OnEndDrag(PointerEventData eventData);
         void OnScroll(PointerEventData eventData, bool captured);
-        void OnKeyDown(KeyboardInfo info, bool captured);
+        void OnKeyTyped(KeyboardInfo info, bool captured);
     }
 }

@@ -3,6 +3,11 @@
     public interface IFocusedKeyboardListener
     {
         void OnKeyboardFocus(bool focus);
-        bool OnKeyDown(KeyboardInfo info);
+        bool OnKeyTyped(KeyboardInfo info);
+        
+        // TODO: Add advanced controls
+        // bool OnCopy()
+        // bool OnPaste()
+        // ...
     }
 }

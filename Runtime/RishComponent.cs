@@ -681,14 +681,14 @@ namespace RishUI
             Parent?.OnScroll(eventData, captured);
         }
 
-        void IRishInputListener.OnKeyDown(KeyboardInfo info, bool captured)
+        void IRishInputListener.OnKeyTyped(KeyboardInfo info, bool captured)
         {
             if (!ReadyToUnmount && !captured && this is IFocusedKeyboardListener listener)
             {
-                captured = listener.OnKeyDown(info);
+                captured = listener.OnKeyTyped(info);
             }
             
-            Parent?.OnKeyDown(info, captured);
+            Parent?.OnKeyTyped(info, captured);
         }
     }
 

@@ -333,7 +333,7 @@ namespace RishUI
         void IRishInputListener.OnDrag(PointerEventData eventData) => Parent?.OnDrag(eventData);
         void IRishInputListener.OnEndDrag(PointerEventData eventData) => Parent?.OnEndDrag(eventData);
         void IRishInputListener.OnScroll(PointerEventData eventData, bool captured) => Parent?.OnScroll(eventData, captured);
-        void IRishInputListener.OnKeyDown(KeyboardInfo info, bool captured) => Parent?.OnKeyDown(info, captured);
+        void IRishInputListener.OnKeyTyped(KeyboardInfo info, bool captured) => Parent?.OnKeyTyped(info, captured);
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {
