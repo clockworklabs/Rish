@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public class StateNode : FastPriorityQueueNode
+    public class RishNode : FastPriorityQueueNode
     {
         private static int nextID;
 
@@ -16,14 +16,13 @@ namespace RishUI
         public int ID { get; }
         public int Key { get; private set; }
         public string Name { get; private set; }
-        public uint Style { get; private set; }
         public IRishComponent Component { get; private set; }
 
         public Type Type { get; private set; }
 
         private bool IsReal => Component is UnityComponent;
 
-        public StateNode Parent { get; private set; }
+        public RishNode Parent { get; private set; }
 
         private Transform TopLevelTransform =>
             Component is UnityComponent unityComponent ? unityComponent.TopLevelTransform : null;
@@ -31,17 +30,17 @@ namespace RishUI
         private Transform BottomLevelTransform =>
             Component is UnityComponent unityComponent ? unityComponent.BottomLevelTransform : null;
 
-        private StateNode RealParent { get; set; }
+        private RishNode RealParent { get; set; }
         private Transform RealParentTransform { get; set; }
 
         internal int Depth { get; private set; }
 
         public int ChildCount { get; private set; }
-        private List<StateNode> Children { get; set; }
+        private List<RishNode> Children { get; set; }
 
         private int VirtualIndex { get; set; } = -1;
 
-        private StateNode PrevSibling => VirtualIndex <= 0 ? null : Parent.Children[VirtualIndex - 1];
+        private RishNode PrevSibling => VirtualIndex <= 0 ? null : Parent.Children[VirtualIndex - 1];
 
         private int RemainingChildren { get; set; }
         public bool Active { get; private set; }
@@ -86,7 +85,7 @@ namespace RishUI
             return IsRealTree() ? prev + 1 : prev;
         }
 
-        internal StateNode(Rish rish, Pool pool)
+        internal RishNode(Rish rish, Pool pool)
         {
             ID = nextID++;
             Rish = rish;
@@ -110,7 +109,7 @@ namespace RishUI
             RemainingChildren = 0;
         }
 
-        internal void Initialize(int key, string name, uint style, IRishComponent component, StateNode parent)
+        internal void Initialize(int key, string name, IRishComponent component, RishNode parent)
         {
             Active = true;
             Mounted = true;
@@ -118,7 +117,6 @@ namespace RishUI
             Key = key;
             Name = name;
             Component = component;
-            Style = style;
 
             Type = component.GetType();
             Parent = parent;
@@ -146,7 +144,7 @@ namespace RishUI
             switch (Component)
             {
                 case RishComponent rishComponent:
-                    rishComponent.Mount(style, Parent?.Component);
+                    rishComponent.Mount(Parent?.Component);
                     break;
                 case UnityComponent unityComponent:
                     unityComponent.Mount(Parent?.Component);
@@ -221,11 +219,11 @@ namespace RishUI
             Children.RemoveRange(ChildCount, count);
         }
 
-        private void AddChild(StateNode child)
+        private void AddChild(RishNode child)
         {
             if (Children == null)
             {
-                Children = new List<StateNode>();
+                Children = new List<RishNode>();
             }
 
             Children.Add(child);
@@ -236,7 +234,7 @@ namespace RishUI
             ChildCount++;
         }
 
-        internal StateNode FindFreeChild(Type type, int key, uint style)
+        internal RishNode FindFreeChild(Type type, int key)
         {
             if (Children == null || Children.Count == 0)
             {
@@ -247,7 +245,7 @@ namespace RishUI
             for (var i = ChildCount; i < Children.Count; i++)
             {
                 var other = Children[i];
-                if (other.Key == key && other.Type == type && other.Style == style)
+                if (other.Key == key && other.Type == type)
                 {
                     index = i;
                     break;
@@ -388,7 +386,7 @@ namespace RishUI
         }
         
         #if UNITY_EDITOR
-        public StateNode GetChild(int index)
+        public RishNode GetChild(int index)
         {
             if (index < 0 || index >= ChildCount)
             {
@@ -398,7 +396,7 @@ namespace RishUI
             return Children[index];
         }
         
-        public StateNode Find(int id)
+        public RishNode Find(int id)
         {
             if (ID == id)
             {

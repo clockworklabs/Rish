@@ -11,7 +11,7 @@ namespace RishUI.Editor
 {
 	public class DOMTreeView : TreeView
 	{
-		public event Action<StateNode> OnSelection;
+		public event Action<RishNode> OnSelection;
 		private Rish Rish { get; }
 
 		private Texture2D VirtualIcon { get; }
@@ -28,7 +28,7 @@ namespace RishUI.Editor
 			Reload();
 		}
 
-		public void OnRender(StateNode node)
+		public void OnRender(RishNode node)
 		{
 			Reload();
 
@@ -43,7 +43,7 @@ namespace RishUI.Editor
 			recentlyRendered[id] = EditorCoroutineUtility.StartCoroutine(Highlight(id), this);
 		}
 		
-		private void ExpandUp(StateNode node)
+		private void ExpandUp(RishNode node)
 		{
 			if (node == null)
 			{
@@ -55,24 +55,24 @@ namespace RishUI.Editor
 			SetExpanded(node.ID, true);
 		}
 
-		public void ExpandDown(StateNode stateNode)
+		public void ExpandDown(RishNode node)
 		{
-			SetExpanded(stateNode.ID, true);
+			SetExpanded(node.ID, true);
 
-			for (int i = 0, n = stateNode.ChildCount; i < n; i++)
+			for (int i = 0, n = node.ChildCount; i < n; i++)
 			{
-				ExpandDown(stateNode.GetChild(i));
+				ExpandDown(node.GetChild(i));
 			}
 		}
 
-		public void CollapseDown(StateNode stateNode)
+		public void CollapseDown(RishNode node)
 		{
-			for (int i = 0, n = stateNode.ChildCount; i < n; i++)
+			for (int i = 0, n = node.ChildCount; i < n; i++)
 			{
-				CollapseDown(stateNode.GetChild(i));
+				CollapseDown(node.GetChild(i));
 			}
 			
-			SetExpanded(stateNode.ID, false);
+			SetExpanded(node.ID, false);
 		}
 
 		private IEnumerator Highlight(int id)
@@ -119,14 +119,14 @@ namespace RishUI.Editor
 			return rows;
 		}
 
-		private void AddChildrenRecursive(StateNode stateNode, TreeViewItem item, ICollection<TreeViewItem> rows)
+		private void AddChildrenRecursive(RishNode node, TreeViewItem item, ICollection<TreeViewItem> rows)
 		{
-			var childCount = stateNode.ChildCount;
+			var childCount = node.ChildCount;
 
 			item.children = new List<TreeViewItem> (childCount);
 			for (var i = 0; i < childCount; ++i)
 			{
-				var child = stateNode.GetChild (i);
+				var child = node.GetChild (i);
 				var childItem = CreateItemForDOM(child);
 				item.AddChild (childItem);
 				rows.Add (childItem);
@@ -143,11 +143,11 @@ namespace RishUI.Editor
 			}
 		}
 
-		private TreeViewItem CreateItemForDOM(StateNode stateNode)
+		private TreeViewItem CreateItemForDOM(RishNode node)
 		{
-			var item = new TreeViewItem(stateNode.ID, -1, $"{stateNode.Type.Name}{(!string.IsNullOrWhiteSpace(stateNode.Name) ? $" (\"{stateNode.Name}\")" : null)}: {{{stateNode.Key}}}");
+			var item = new TreeViewItem(node.ID, -1, $"{node.Type.Name}{(!string.IsNullOrWhiteSpace(node.Name) ? $" (\"{node.Name}\")" : null)}: {{{node.Key}}}");
 
-			if (stateNode.Type.IsSubclassOf(typeof(UnityComponent)))
+			if (node.Type.IsSubclassOf(typeof(UnityComponent)))
 			{
 				item.icon = RealIcon;
 			}

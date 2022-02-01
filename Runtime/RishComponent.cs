@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using RishUI.Input;
-using RishUI.Styling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -166,12 +165,9 @@ namespace RishUI
         
         private DimensionsTracker DimensionsTracker { get; set; }
         private InputSystem Input { get; set; }
-        private RCSS RCSS { get; set; }
         protected AssetsManager Assets { get; private set; }
         
         private Vector2 InputRatio { get; set; }
-
-        private uint Style { get; set; }
 
         protected bool JustMounted { get; private set; }
 
@@ -192,22 +188,19 @@ namespace RishUI
 
         protected void ForceRender() => OnDirty?.Invoke();
 
-        internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, RCSS rcss, AssetsManager assets)
+        internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, AssetsManager assets)
         {
             DimensionsTracker = dimensionsTracker;
-            RCSS = rcss;
             Assets = assets;
             Input = input;
         }
 
-        internal void Mount(uint style, IRishComponent parent)
+        internal void Mount(IRishComponent parent)
         {
             if (this is ICustomComponent customComponent)
             {
                 customComponent.Restart();
             }
-            
-            Style = style;
 
             Initialize();
 
@@ -339,12 +332,6 @@ namespace RishUI
             {
                 result = default;
                 result.Default();
-                RCSS.Override(0, ref result);
-            }
-
-            if (Style > 0)
-            {
-                RCSS.Override(Style, ref result);
             }
         }
 

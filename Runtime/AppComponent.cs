@@ -1,5 +1,4 @@
-﻿using RishUI.Styling;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RishUI
 {
@@ -9,6 +8,6 @@ namespace RishUI
     {
         public abstract void GetAsset<T>(string address, AssetResult<T> callback);
 
-        public abstract RishElement Run(RCSS rcss);
+        public abstract RishElement Run();
     }
 }

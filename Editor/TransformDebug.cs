@@ -41,7 +41,7 @@ namespace RishUI.Editor
             }
         };
         
-        public static void Draw(float width, StateNode node, bool clean = false, bool world = false)
+        public static void Draw(float width, RishNode node, bool clean = false, bool world = false)
         {
             var area = new Rect(0, 0, width, Height + Border * 2);
 

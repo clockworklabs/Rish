@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using RishUI.Input;
-using RishUI.Styling;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,14 +14,13 @@ namespace RishUI
         
         private DimensionsTracker DimensionsTracker { get; }
         private InputSystem Input { get; }
-        private RCSS RCSS { get; }
         private AssetsManager Assets { get; }
         
         private PrototypesProvider Provider { get; }
         private Transform Transform { get; }
         private int VirtualInitialSize { get; }
 
-        internal Pool(DimensionsTracker dimensionsTracker, InputSystem input, RCSS rcss, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
+        internal Pool(DimensionsTracker dimensionsTracker, InputSystem input, AssetsManager assets, PrototypesProvider provider, Transform transform, int virtualInitialSize)
         {
             if (provider == null)
             {
@@ -31,7 +29,6 @@ namespace RishUI
 
             DimensionsTracker = dimensionsTracker;
             Input = input ?? throw new UnityException("The pool needs a valid InputSystem");
-            RCSS = rcss ?? throw new UnityException("The pool needs a valid RCSS");
             Assets = assets ?? throw new UnityException("The pool needs a valid AssetsManager");
             
             Provider = provider;
@@ -194,7 +191,7 @@ namespace RishUI
             for (var j = 0; j < count; j++)
             {
                 var instance = activator();
-                instance.Constructor(DimensionsTracker, Input, RCSS, Assets);
+                instance.Constructor(DimensionsTracker, Input, Assets);
                 pool.Push(instance);
             }
         }

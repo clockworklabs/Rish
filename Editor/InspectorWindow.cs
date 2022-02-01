@@ -22,7 +22,7 @@ namespace RishUI.Editor
  
 		private GUIStyle ResizerStyle { get; set; }
 		
-		private StateNode Selected { get; set; }
+		private RishNode Selected { get; set; }
 		private PropertyInfo Props { get; set; }
 		private PropertyInfo State { get; set; }
 		private string SelectedPropsJson { get; set; }
@@ -111,9 +111,9 @@ namespace RishUI.Editor
 			}
 		}
 
-		private void OnRender(StateNode stateNode)
+		private void OnRender(RishNode node)
 		{
-			TreeView.OnRender(stateNode);
+			TreeView.OnRender(node);
 
 			if (Selected != null)
 			{
@@ -130,7 +130,7 @@ namespace RishUI.Editor
 			Repaint();
 		}
 
-		private void OnSelection(StateNode selected)
+		private void OnSelection(RishNode selected)
 		{
 			Selected = selected;
 
@@ -252,7 +252,6 @@ namespace RishUI.Editor
 					{
 						GUILayout.Label($"ID: {Selected.ID}");
 					}
-					GUILayout.Label($"Style: {Selected.Style}");
 				}
 
 				GUILayout.Label($"Pointer Over: {RishUtils.HasPointerOver(Selected.Component)}");
