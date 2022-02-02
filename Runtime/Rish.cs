@@ -53,7 +53,7 @@ namespace RishUI
         #if UNITY_EDITOR
         public RishNode RootNode { get; private set; }
         #else
-        internal StateNode RootNode { get; private set; }
+        internal RishNode RootNode { get; private set; }
         #endif
 
         private void Start()
