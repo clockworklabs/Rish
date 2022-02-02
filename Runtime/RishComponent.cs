@@ -286,7 +286,7 @@ namespace RishUI
 
         private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
-        internal void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        void IRishComponent.UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             if (JustMounted || !ManualTransform)
             {
@@ -316,25 +316,6 @@ namespace RishUI
 
         protected abstract RishElement Render();
         
-        protected internal void StyleData<T>(out T result) where T : struct, IRishData<T>
-        {
-            var parent = Parent;
-            while (parent is UnityComponent unityParent)
-            {
-                parent = unityParent.Parent;
-            }
-            
-            if(parent is RishComponent rishParent)
-            {
-                rishParent.StyleData(out result);
-            }
-            else
-            {
-                result = default;
-                result.Default();
-            }
-        }
-
         protected T GetParent<T>() where T : RishComponent
         {
             var parent = Parent;
@@ -679,7 +660,7 @@ namespace RishUI
         }
     }
 
-    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct, IRishData<P>
+    public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct
     {
         private bool Dirty { get; set; }
 
@@ -689,7 +670,7 @@ namespace RishUI
             get => _props;
             set
             {
-                var changed = !value.Equals(_props);
+                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(_props);
 
                 if (changed)
                 {
@@ -719,8 +700,7 @@ namespace RishUI
 
         private protected override void Default()
         {
-            StyleData<P>(out var defaultProps);
-            Props = defaultProps;
+            Props = Rish.Defaults.GetValue<P>();
         }
 
         private void Enable()
@@ -771,7 +751,7 @@ namespace RishUI
         }
     }
     
-    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct, IRishData<P> where S : struct, IRishData<S>
+    public abstract class RishComponent<P, S> : RishComponent<P> where P : struct where S : struct
     {
         private S _state;
         protected S State
@@ -779,7 +759,7 @@ namespace RishUI
             get => _state;
             set
             {
-                var changed = !value.Equals(_state);
+                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(_state);
 
                 if (changed)
                 {
@@ -792,10 +772,7 @@ namespace RishUI
         
         private protected override void Initialize()
         {
-            S defaultState = default;
-            defaultState.Default();
-            
-            State = defaultState;
+            State = Rish.Defaults.GetValue<S>();
             
             base.Initialize();
         }

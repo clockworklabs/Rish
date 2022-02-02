@@ -1,4 +1,5 @@
-﻿using RishUI.UnityComponents;
+﻿using System;
+using RishUI.UnityComponents;
 using UnityEngine;
 
 namespace RishUI.Components
@@ -67,14 +68,12 @@ namespace RishUI.Components
         }
     }
     
-    public struct MaskProps : IRishData<MaskProps>
+    public struct MaskProps : IEquatable<MaskProps>
     {
         public string spriteAddress;
         public bool rect;
 
         public RishList<RishElement> children;
-
-        public void Default() { }
         
         public bool Equals(MaskProps other)
         {
@@ -98,11 +97,9 @@ namespace RishUI.Components
         }
     }
 
-    public struct MaskState : IRishData<MaskState>
+    public struct MaskState : IEquatable<MaskState>
     {
         public Sprite sprite;
-        
-        public void Default() { }
 
         public bool Equals(MaskState other) => sprite == other.sprite;
     }

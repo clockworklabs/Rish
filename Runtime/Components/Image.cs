@@ -69,20 +69,25 @@ namespace RishUI.Components
         }
     }
     
-    public struct ImageProps : IRishData<ImageProps>
+    public struct ImageProps : IEquatable<ImageProps>
     {
         public string spriteAddress;
         public ImageSettings settings;
 
-        public ImageProps(ImageSettings settings)
+        public static ImageProps Default => new ImageProps
         {
-            spriteAddress = null;
+            settings = ImageSettings.Default
+        };
+
+        public ImageProps(ImageSettings settings) : this()
+        {
             this.settings = settings;
         }
-        
-        public void Default()
+
+        public ImageProps(ImageProps other)
         {
-            settings = ImageSettings.Default;
+            spriteAddress = other.spriteAddress;
+            settings = other.settings;
         }
         
         public bool Equals(ImageProps other)
@@ -107,11 +112,9 @@ namespace RishUI.Components
         }
     }
 
-    public struct ImageState : IRishData<ImageState>
+    public struct ImageState : IEquatable<ImageState>
     {
         public Sprite sprite;
-        
-        public void Default() { }
 
         public bool Equals(ImageState other) => sprite == other.sprite;
     }

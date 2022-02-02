@@ -35,7 +35,7 @@ namespace RishUI.Components
     }
     
     [Serializable]
-    public struct InputAdapterProps : IRishData<InputAdapterProps>
+    public struct InputAdapterProps : IEquatable<InputAdapterProps>
     {
         public Action<PointerInfo> onHoverStart;
         public Action<PointerInfo> onHoverEnd;
@@ -55,8 +55,6 @@ namespace RishUI.Components
         public Func<ScrollInfo, bool> onScroll;
 
         public RishElement content;
-
-        public void Default() { }
 
         public bool Equals(InputAdapterProps other) => content.Equals(other.content);
     }

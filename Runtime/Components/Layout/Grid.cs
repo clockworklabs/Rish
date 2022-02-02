@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace RishUI.Components
 {
@@ -295,7 +296,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct GridProps : IRishData<GridProps>
+    public struct GridProps : IEquatable<GridProps>
     {
         public Vector2 spacing;
         public Vector2 elementSize;
@@ -310,12 +311,26 @@ namespace RishUI.Components
         public bool centerHorizontal;
 
         public RishList<RishElement> children;
-        
-        public void Default()
+
+        public static GridProps Default => new GridProps
         {
-            centerVertical = true;
+            centerVertical = true
+        };
+
+        public GridProps(GridProps other)
+        {
+            spacing = other.spacing;
+            elementSize = other.elementSize;
+            topPadding = other.topPadding;
+            leftPadding = other.leftPadding;
+            bottomPadding = other.bottomPadding;
+            rightPadding = other.rightPadding;
+            overflow = other.overflow;
+            centerVertical = other.centerVertical;
+            centerHorizontal = other.centerHorizontal;
+            children = other.children;
         }
-        
+
         public bool Equals(GridProps other)
         {
             if (overflow != other.overflow)

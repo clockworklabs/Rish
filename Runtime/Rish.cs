@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Priority_Queue;
 using RishUI.Components;
 using RishUI.Input;
@@ -249,17 +251,7 @@ namespace RishUI
             childNode.UpdateIndex();
             
             var component = childNode.Component;
-            switch (component)
-            {
-                case RishComponent rishComponent:
-                    rishComponent.UpdateComponent(child.transform, child.setup);
-                    break;
-                case UnityComponent unityComponent:
-                    unityComponent.UpdateComponent(child.transform, child.setup);
-                    break;
-                default:
-                    throw new UnityException("Component type not supported");
-            }
+            component.UpdateComponent(child.transform, child.setup);
 
             return childNode;
         }
@@ -281,9 +273,10 @@ namespace RishUI
 
         // === KEY, PROPS ===
         
-        public static RishElement Create<T, P>(P props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, props);
-
-        public static RishElement Create<T, P>(int key, P props) where P : struct, IRishData<P> where T : RishComponent<P> => new RishElement(typeof(T), key, component =>
+        public static RishElement Create<T, P>(RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(RefProps(props));
+        public static RishElement Create<T, P>(P props) where P : struct where T : RishComponent<P> => Create<T, P>(0, props);
+        public static RishElement Create<T, P>(int key, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(key, RefProps(props));
+        public static RishElement Create<T, P>(int key, P props) where P : struct where T : RishComponent<P> => new RishElement(typeof(T), key, component =>
         {
             if (component is T rishComponent)
             {
@@ -293,57 +286,16 @@ namespace RishUI
 
         // === KEY, NAME, PROPS ===
         
-        public static RishElement Create<T, P>(string name, P props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, name, props);
-
-        public static RishElement Create<T, P>(int key, string name, P props) where P : struct, IRishData<P> where T : RishComponent<P> => new RishElement(typeof(T), key, name, component =>
+        public static RishElement Create<T, P>(string name, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(name, RefProps(props));
+        public static RishElement Create<T, P>(string name, P props) where P : struct where T : RishComponent<P> => Create<T, P>(0, name, props);
+        public static RishElement Create<T, P>(int key, string name, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(key, name, RefProps(props));
+        public static RishElement Create<T, P>(int key, string name, P props) where P : struct where T : RishComponent<P> => new RishElement(typeof(T), key, name, component =>
         {
             if (component is T rishComponent)
             {
                 rishComponent.Props = props;
             }
         });
-        
-        // === KEY, PROPS ACTION ===
-
-        public static RishElement Create<T, P>(RefAction<P> props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, props);
-        public static RishElement Create<T, P>(int key, RefAction<P> propsAction) where P : struct, IRishData<P> where T : RishComponent<P>
-        {
-            if (propsAction != null)
-            {
-                return new RishElement(typeof(T), key, component =>
-                {
-                    if (component is T rishComponent)
-                    {
-                        rishComponent.StyleData(out P props);
-                        propsAction(ref props);
-                        rishComponent.Props = props;
-                    }
-                });
-            }
-            
-            return new RishElement(typeof(T), key);
-        }
-        
-        // === KEY, NAME, PROPS ACTION ===
-
-        public static RishElement Create<T, P>(string name, RefAction<P> props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, name, props);
-        public static RishElement Create<T, P>(int key, string name, RefAction<P> propsAction) where P : struct, IRishData<P> where T : RishComponent<P>
-        {
-            if (propsAction != null)
-            {
-                return new RishElement(typeof(T), key, name, component =>
-                {
-                    if (component is T rishComponent)
-                    {
-                        rishComponent.StyleData(out P props);
-                        propsAction(ref props);
-                        rishComponent.Props = props;
-                    }
-                });
-            }
-            
-            return new RishElement(typeof(T), key, name);
-        }
         
         // === KEY, TRANSFORM ===
         
@@ -358,8 +310,10 @@ namespace RishUI
 
         // === KEY, TRANSFORM, PROPS ===
 
-        public static RishElement Create<T, P>(RishTransform transform, P props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, transform, props);
-        public static RishElement Create<T, P>(int key, RishTransform transform, P props) where P : struct, IRishData<P> where T : RishComponent<P> => new RishElement(typeof(T), key, transform, component =>
+        public static RishElement Create<T, P>(RishTransform transform, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(transform, RefProps(props));
+        public static RishElement Create<T, P>(RishTransform transform, P props) where P : struct where T : RishComponent<P> => Create<T, P>(0, transform, props);
+        public static RishElement Create<T, P>(int key, RishTransform transform, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(key, transform, RefProps(props));
+        public static RishElement Create<T, P>(int key, RishTransform transform, P props) where P : struct where T : RishComponent<P> => new RishElement(typeof(T), key, transform, component =>
         {
             if (component is T rishComponent)
             {
@@ -369,56 +323,16 @@ namespace RishUI
         
         // === KEY, NAME, TRANSFORM, PROPS ===
 
-        public static RishElement Create<T, P>(string name, RishTransform transform, P props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, name, transform, props);
-        public static RishElement Create<T, P>(int key, string name, RishTransform transform, P props) where P : struct, IRishData<P> where T : RishComponent<P> => new RishElement(typeof(T), key, name, transform, component =>
+        public static RishElement Create<T, P>(string name, RishTransform transform, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(name, transform, RefProps(props));
+        public static RishElement Create<T, P>(string name, RishTransform transform, P props) where P : struct where T : RishComponent<P> => Create<T, P>(0, name, transform, props);
+        public static RishElement Create<T, P>(int key, string name, RishTransform transform, RefAction<P> props) where P : struct where T : RishComponent<P> => Create<T, P>(key, name, transform, RefProps(props));
+        public static RishElement Create<T, P>(int key, string name, RishTransform transform, P props) where P : struct where T : RishComponent<P> => new RishElement(typeof(T), key, name, transform, component =>
         {
             if (component is T rishComponent)
             {
                 rishComponent.Props = props;
             }
         });
-
-        // === KEY, TRANSFORM, PROPS ACTION ===
-        
-        public static RishElement Create<T, P>(RishTransform transform, RefAction<P> props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, transform, props);
-        public static RishElement Create<T, P>(int key, RishTransform transform, RefAction<P> propsAction) where P : struct, IRishData<P> where T : RishComponent<P>
-        {
-            if (propsAction != null)
-            {
-                return new RishElement(typeof(T), key, transform, component =>
-                {
-                    if (component is T rishComponent)
-                    {
-                        rishComponent.StyleData(out P props);
-                        propsAction(ref props);
-                        rishComponent.Props = props;
-                    }
-                });
-            }
-            
-            return new RishElement(typeof(T), key, transform);
-        }
-
-        // === KEY, NAME, TRANSFORM, PROPS ACTION ===
-        
-        public static RishElement Create<T, P>(string name, RishTransform transform, RefAction<P> props) where P : struct, IRishData<P> where T : RishComponent<P> => Create<T, P>(0, name, transform, props);
-        public static RishElement Create<T, P>(int key, string name, RishTransform transform, RefAction<P> propsAction) where P : struct, IRishData<P> where T : RishComponent<P>
-        {
-            if (propsAction != null)
-            {
-                return new RishElement(typeof(T), key, name, transform, component =>
-                {
-                    if (component is T rishComponent)
-                    {
-                        rishComponent.StyleData(out P props);
-                        propsAction(ref props);
-                        rishComponent.Props = props;
-                    }
-                });
-            }
-            
-            return new RishElement(typeof(T), key, name, transform);
-        }
         
         // ========================
         // === UNITY COMPONENTS ===
@@ -516,6 +430,71 @@ namespace RishUI
                     unityComponent.Props = props;
                 }
             });
+        }
+        
+        public static T RefProps<T>(RefAction<T> func) where T : struct => RefProps(Defaults.GetValue<T>(), func);
+        public static T RefProps<T>(T d, RefAction<T> func) where T : struct
+        {
+            func?.Invoke(ref d);
+                
+            return d;
+        }
+        
+        public static class Defaults
+        {
+            private static Dictionary<Type, object> Values { get; }
+            public static HashSet<Type> GenericTypes { get; }
+        
+            static Defaults()
+            {
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
+                
+                Values = types
+                    .Where(type => !type.IsGenericType)
+                    .Select(type =>
+                    {
+                        var property = type.GetProperty("Default", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+
+                        return property?.PropertyType == type ? property : null;
+                    })
+                    .Where(property => property != null)
+                    .Select(property => property.GetValue(null))
+                    .Where(value => value != null)
+                    .ToDictionary(value => value.GetType(), value => value);
+
+                GenericTypes = new HashSet<Type>(types
+                    .Where(type => type.IsGenericType)
+                    .Select(type =>
+                    {
+                        var property = type.GetProperty("Default", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+
+                        return property?.PropertyType == type ? type : null;
+                    }));
+            }
+
+            public static T GetValue<T>() where T : struct
+            {
+                var type = typeof(T);
+                if (type.IsGenericType)
+                {
+                    if (!GenericTypes.Contains(type.GetGenericTypeDefinition()))
+                    {
+                        return default;
+                    }
+                    
+                    var property = type.GetProperty("Default", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    
+                    return (T) property.GetValue(null);
+                }
+                
+                if (!Values.TryGetValue(type, out var value))
+                {
+                    return default;
+                }
+
+                return (T) value;
+            }
         }
     }
 }

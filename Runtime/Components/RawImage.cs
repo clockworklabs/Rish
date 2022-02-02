@@ -113,20 +113,25 @@ namespace RishUI.Components
         }
     }
     
-    public struct RawImageProps : IRishData<RawImageProps>
+    public struct RawImageProps : IEquatable<RawImageProps>
     {
         public string textureAddress;
         public RawImageSettings settings;
 
-        public RawImageProps(RawImageSettings settings)
+        public static RawImageProps Default => new RawImageProps
         {
-            textureAddress = null;
+            settings = RawImageSettings.Default
+        };
+
+        public RawImageProps(RawImageSettings settings) : this()
+        {
             this.settings = settings;
         }
-        
-        public void Default()
+
+        public RawImageProps(RawImageProps other)
         {
-            settings = RawImageSettings.Default;
+            textureAddress = other.textureAddress;
+            settings = other.settings;
         }
         
         public bool Equals(RawImageProps other)
@@ -151,11 +156,9 @@ namespace RishUI.Components
         }
     }
 
-    public struct RawImageState : IRishData<RawImageState>
+    public struct RawImageState : IEquatable<RawImageState>
     {
         public Texture texture;
-        
-        public void Default() { }
 
         public bool Equals(RawImageState other) => texture == other.texture;
     }

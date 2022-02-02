@@ -651,15 +651,22 @@ namespace RishUI.Components
         }
     }
 
-    public struct TextProps : IRishData<TextProps>
+    public struct TextProps : IEquatable<TextProps>
     {
         public string text;
         public int? maxCharactersCount;
         public TextSettings settings;
 
-        public void Default()
+        public static TextProps Default => new TextProps
         {
-            settings = TextSettings.Default;
+            settings = TextSettings.Default
+        };
+
+        public TextProps(TextProps other)
+        {
+            text = other.text;
+            maxCharactersCount = other.maxCharactersCount;
+            settings = other.settings;
         }
 
         public bool Equals(TextProps other)
@@ -693,12 +700,10 @@ namespace RishUI.Components
         }
     }
 
-    public struct TextState : IRishData<TextState>
+    public struct TextState : IEquatable<TextState>
     {
         public TMP_FontAsset font;
         public Material material;
-
-        public void Default() { }
 
         public bool Equals(TextState other) => font == other.font && material == other.material;
     }

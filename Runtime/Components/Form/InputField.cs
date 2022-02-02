@@ -312,7 +312,7 @@ namespace RishUI.Components
     
     public enum InputFieldType { Standard, Integer, Decimal, Alphanumeric, Name, Email, Password, Pin }
 
-    public struct InputFieldProps : IRishData<InputFieldProps>
+    public struct InputFieldProps : IEquatable<InputFieldProps>
     {
         public string imageSpriteAddress;
         public ImageSettings imageSettings;
@@ -342,9 +342,9 @@ namespace RishUI.Components
 
         public Action<string> onChange;
 
-        public void Default()
+        public static InputFieldProps Default => new InputFieldProps
         {
-            imageSettings = ImageSettings.Default;
+            imageSettings = ImageSettings.Default,
             placeholderSettings = new TextSettings(TextSettings.Default)
             {
                 alignment = new TextAlignment
@@ -352,7 +352,7 @@ namespace RishUI.Components
                     horizontal = TextAlignment.Horizontal.Left,
                     vertical = TextAlignment.Vertical.Middle
                 }
-            };
+            },
             textSettings = new TextSettings(TextSettings.Default)
             {
                 alignment = new TextAlignment
@@ -360,14 +360,38 @@ namespace RishUI.Components
                     horizontal = TextAlignment.Horizontal.Left,
                     vertical = TextAlignment.Vertical.Middle
                 }
-            };
-            
-            caretBlinkRate = 0.85f;
-            caretWidth = 2;
-            showCaret = true;
-            selectionColor = new Color(0.66f, 0.81f, 1f, 0.75f);
-            selectAllOnFocus = true;
-            richText = true;
+            },
+            caretBlinkRate = 0.85f,
+            caretWidth = 2,
+            showCaret = true,
+            selectionColor = new Color(0.66f, 0.81f, 1f, 0.75f),
+            selectAllOnFocus = true,
+            richText = true,
+        };
+
+        public InputFieldProps(InputFieldProps other)
+        {
+            imageSpriteAddress = other.imageSpriteAddress;
+            imageSettings = other.imageSettings;
+            placeholderText = other.placeholderText;
+            placeholderSettings = other.placeholderSettings;
+            text = other.text;
+            textSettings = other.textSettings;
+            autoFocus = other.autoFocus;
+            characterLimit = other.characterLimit;
+            type = other.type;
+            caretBlinkRate = other.caretBlinkRate;
+            caretWidth = other.caretWidth;
+            showCaret = other.showCaret;
+            selectionColor = other.selectionColor;
+            selectAllOnFocus = other.selectAllOnFocus;
+            restoreOnEscapeKey = other.restoreOnEscapeKey;
+            hideSoftKeyboard = other.hideSoftKeyboard;
+            hideMobileInput = other.hideMobileInput;
+            readOnly = other.readOnly;
+            richText = other.richText;
+            textMargin = other.textMargin;
+            onChange = other.onChange;
         }
 
         public bool Equals(InputFieldProps other)
@@ -480,15 +504,13 @@ namespace RishUI.Components
         }
     }
     
-    public struct InputFieldState : IRishData<InputFieldState>
+    public struct InputFieldState : IEquatable<InputFieldState>
     {
         public Sprite imageSprite;
         public TMP_FontAsset placeholderFont;
         public Material placeholderMaterial;
         public TMP_FontAsset textFont;
         public Material textMaterial;
-        
-        public void Default() { }
 
         public bool Equals(InputFieldState other) => imageSprite == other.imageSprite &&
                                                      placeholderFont == other.placeholderFont &&

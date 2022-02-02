@@ -228,7 +228,7 @@ namespace RishUI.Components
 
     public enum Direction { TopDown, BottomUp, LeftRight, RightLeft }
     
-    public struct FoundationalDirectionalLayoutProps : IRishData<FoundationalDirectionalLayoutProps>
+    public struct FoundationalDirectionalLayoutProps : IEquatable<FoundationalDirectionalLayoutProps>
     {
         public Direction direction;
 
@@ -251,8 +251,6 @@ namespace RishUI.Components
         public Margins padding;
 
         public Func<RishElement, RishTransform, RishElement> elementConstructor;
-
-        public void Default() { }
         
         public bool Equals(FoundationalDirectionalLayoutProps other)
         {

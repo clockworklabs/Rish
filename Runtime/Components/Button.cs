@@ -151,7 +151,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct ButtonProps : IRishData<ButtonProps>
+    public struct ButtonProps : IEquatable<ButtonProps>
     {
         public float extraMargin;
 
@@ -166,9 +166,22 @@ namespace RishUI.Components
         public RishElement pressed;
         public RishElement disabled;
 
-        public void Default()
+        public static ButtonProps Default => new ButtonProps
         {
-            interactable = true;
+            interactable = true
+        };
+
+        public ButtonProps(ButtonProps other)
+        {
+            extraMargin = other.extraMargin;
+            interactable = other.interactable;
+            listenWhileTransforming = other.listenWhileTransforming;
+            action = other.action;
+            secondaryAction = other.secondaryAction;
+            normal = other.normal;
+            hovered = other.hovered;
+            pressed = other.pressed;
+            disabled = other.disabled;
         }
 
         public bool Equals(ButtonProps other)
@@ -209,14 +222,12 @@ namespace RishUI.Components
         }
     }
 
-    public struct ButtonState : IRishData<ButtonState>
+    public struct ButtonState : IEquatable<ButtonState>
     {
         public bool hasHovered;
         public bool hovered;
         public bool hasPressed;
         public bool pressed;
-        
-        public void Default() { }
 
         public bool Equals(ButtonState other)
         {

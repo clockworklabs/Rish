@@ -1,4 +1,5 @@
-﻿using RishUI.Input;
+﻿using System;
+using RishUI.Input;
 using RishUI.UnityComponents;
 using UnityEngine;
 
@@ -93,7 +94,7 @@ namespace RishUI.Components
         bool IScrollListener.OnScroll(ScrollInfo info) => Props.captureInput;
     }
 
-    public struct DivProps : IRishData<DivProps>
+    public struct DivProps : IEquatable<DivProps>
     {
         public string backgroundSpriteAddress;
         public bool maskable;
@@ -106,9 +107,20 @@ namespace RishUI.Components
         
         public RishList<RishElement> children;
 
-        public void Default()
+        public static DivProps Default => new DivProps
         {
-            maskable = true;
+            maskable = true
+        };
+
+        public DivProps(DivProps other)
+        {
+            backgroundSpriteAddress = other.backgroundSpriteAddress;
+            maskable = other.maskable;
+            raycastTarget = other.raycastTarget;
+            maskContent = other.maskContent;
+            maskSoftness = other.maskSoftness;
+            captureInput = other.captureInput;
+            children = other.children;
         }
 
         public bool Equals(DivProps other)
@@ -146,12 +158,10 @@ namespace RishUI.Components
         }
     }
 
-    public struct DivState : IRishData<DivState>
+    public struct DivState : IEquatable<DivState>
     {
         public Sprite sprite;
         
-        public void Default() { }
-
         public bool Equals(DivState other) => sprite == other.sprite;
     }
 }

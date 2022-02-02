@@ -228,7 +228,7 @@ namespace RishUI
             gameObject.SetActive(false);
         }
         
-        internal void UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        void IRishComponent.UpdateComponent(RishTransform local, Action<IRishComponent> setup)
         {
             Local = local;
             

@@ -1,4 +1,5 @@
-﻿using RishUI.UnityComponents;
+﻿using System;
+using RishUI.UnityComponents;
 using UnityEngine;
 
 namespace RishUI.Components
@@ -17,7 +18,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct GroupProps : IRishData<GroupProps>
+    public struct GroupProps : IEquatable<GroupProps>
     {
         public float alpha;
         public bool interactable;
@@ -25,11 +26,20 @@ namespace RishUI.Components
         public bool ignoreParentGroups;
         public RishElement content;
         
-        public void Default()
+        public static GroupProps Default => new GroupProps
         {
-            alpha = 1;
-            interactable = true;
-            raycastTarget = true;
+            alpha = 1,
+            interactable = true,
+            raycastTarget = true
+        };
+
+        public GroupProps(GroupProps other)
+        {
+            alpha = other.alpha;
+            interactable = other.interactable;
+            raycastTarget = other.raycastTarget;
+            ignoreParentGroups = other.ignoreParentGroups;
+            content = other.content;
         }
 
         public bool Equals(GroupProps other) => interactable == other.interactable &&

@@ -29,7 +29,7 @@ namespace RishUI.Components
         private void OnContentSize(float size) => Props.onContentSize?.Invoke(size);
     }
 
-    public struct DirectionalLayoutProps : IRishData<DirectionalLayoutProps>
+    public struct DirectionalLayoutProps : IEquatable<DirectionalLayoutProps>
     {
         public Direction direction;
 
@@ -55,8 +55,6 @@ namespace RishUI.Components
         {
             this.direction = direction;
         }
-
-        public void Default() { }
         
         public bool Equals(DirectionalLayoutProps other)
         {

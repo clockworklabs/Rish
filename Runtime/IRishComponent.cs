@@ -4,16 +4,9 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public interface IRishData<T> : IEquatable<T>
+    public struct NoProps : IEquatable<NoProps>
     {
-        void Default();
-    }
-    
-    public struct NoProps : IRishData<NoProps>
-    {
-        public void Default() { }
-        
-        public bool Equals(NoProps other) => true;
+        bool IEquatable<NoProps>.Equals(NoProps other) => true;
     }
 
     public delegate void OnDirty();
@@ -36,6 +29,8 @@ namespace RishUI
         RishTransform World { get; }
         
         Vector2 Size { get; }
+
+        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct
