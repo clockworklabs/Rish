@@ -3,7 +3,7 @@
   "version": "2.27.0",
   "displayName": "Rish",
   "description": "R[eact]ish UI system for Unity",
-  "unity": "2019.4",
+  "unity": "2020.3",
   "author": {
     "name": "Lisandro Crespo",
     "email": "hey@lisandroct.com",
