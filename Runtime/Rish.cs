@@ -443,8 +443,8 @@ namespace RishUI
         public static class Defaults
         {
             private static Dictionary<Type, object> Values { get; }
-            public static HashSet<Type> GenericTypes { get; }
-        
+            private static HashSet<Type> GenericTypes { get; }
+
             static Defaults()
             {
                 var types = AppDomain.CurrentDomain.GetAssemblies()
