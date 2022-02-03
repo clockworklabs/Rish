@@ -342,6 +342,7 @@ namespace RishUI.Components
 
         public Action<string> onChange;
 
+        [Default]
         public static InputFieldProps Default => new InputFieldProps
         {
             imageSettings = ImageSettings.Default,

@@ -74,6 +74,7 @@ namespace RishUI.Components
         public string spriteAddress;
         public ImageSettings settings;
 
+        [Default]
         public static ImageProps Default => new ImageProps
         {
             settings = ImageSettings.Default

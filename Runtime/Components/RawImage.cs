@@ -118,6 +118,7 @@ namespace RishUI.Components
         public string textureAddress;
         public RawImageSettings settings;
 
+        [Default]
         public static RawImageProps Default => new RawImageProps
         {
             settings = RawImageSettings.Default

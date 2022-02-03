@@ -166,6 +166,7 @@ namespace RishUI.Components
         public RishElement pressed;
         public RishElement disabled;
 
+        [Default]
         public static ButtonProps Default => new ButtonProps
         {
             interactable = true

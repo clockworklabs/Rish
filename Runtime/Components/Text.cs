@@ -657,6 +657,7 @@ namespace RishUI.Components
         public int? maxCharactersCount;
         public TextSettings settings;
 
+        [Default]
         public static TextProps Default => new TextProps
         {
             settings = TextSettings.Default

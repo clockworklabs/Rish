@@ -107,6 +107,7 @@ namespace RishUI.Components
         
         public RishList<RishElement> children;
 
+        [Default]
         public static DivProps Default => new DivProps
         {
             maskable = true

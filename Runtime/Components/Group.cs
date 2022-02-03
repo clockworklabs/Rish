@@ -26,6 +26,7 @@ namespace RishUI.Components
         public bool ignoreParentGroups;
         public RishElement content;
         
+        [Default]
         public static GroupProps Default => new GroupProps
         {
             alpha = 1,

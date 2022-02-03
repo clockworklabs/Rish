@@ -312,6 +312,7 @@ namespace RishUI.Components
 
         public RishList<RishElement> children;
 
+        [Default]
         public static GridProps Default => new GridProps
         {
             centerVertical = true
