@@ -638,6 +638,9 @@ namespace RishUI
 
         public int Count => Collection ? _children.Count : _childCount;
 
+        public T First => this[0];
+        public T Last => this[Count - 1];
+
         public T this[int index]
         {
             get
