@@ -423,72 +423,80 @@ namespace RishUI
         {
             PointersDownCount++;
 
-            if (!ReadyToUnmount && !captured && DragEvents.Count <= 0)
+            if (!ReadyToUnmount && DragEvents.Count <= 0)
             {
                 var info = PointerInfo.FromEvent(eventData, InputRatio);
 
-                if (info.IsTap)
+                if (!captured)
                 {
-                    if (this is ITapListener tapListener)
+                    if (info.IsTap)
                     {
-                        var (listen, capture) = tapListener.OnTapStart(info);
-                        if (listen)
+                        if (this is ITapListener tapListener)
                         {
-                            TapEvents.Add(eventData);
-                        }
-
-                        captured = capture;
-                    }
-                    if (this is ILongTapListener longTapListener)
-                    {
-                        var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
-                        var (listen, capture) = longTapListener.OnLongTapStart(longTapInfo);
-                        if (listen)
-                        {
-                            LongTapEvents.Add(eventData);
-                            Input.StartLongTap(() => OnLongTap(eventData));
-                        }
-                        
-                        captured = capture;
-                    }
-                } else if (info.IsLeftMouse)
-                {
-                    if (this is ILeftClickListener leftClickListener)
-                    {
-                        var (listen, capture) = leftClickListener.OnLeftClickStart(info);
-                        if (listen)
-                        {
-                            LeftClickEvents.Add(eventData);
-                        }
-
-                        captured = capture;
-                    }
-                } else if (info.IsRightMouse)
-                {
-                    if (this is IRightClickListener rightClickListener && rightClickListener.OnRightClick(info))
-                    {
-                        for (var i = TapEvents.Count - 1; i >= 0; i--)
-                        {
-                            if (this is ITapListener tapListener)
+                            var (listen, capture) = tapListener.OnTapStart(info);
+                            if (listen)
                             {
-                                var tapEvent = TapEvents[i];
-                                var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
-                                tapListener.OnTapCancel(tapInfo);
+                                TapEvents.Add(eventData);
                             }
-                            TapEvents.RemoveAt(i);
+
+                            captured = capture;
                         }
-                        for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
+                        if (this is ILongTapListener longTapListener)
                         {
-                            if (this is ILeftClickListener leftClickListener)
+                            var longTapInfo = LongTapInfo.FromPointer(info, Input.LongTapTimeout);
+                            var (listen, capture) = longTapListener.OnLongTapStart(longTapInfo);
+                            if (listen)
                             {
-                                var leftClickEvent = LeftClickEvents[i];
-                                var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
-                                leftClickListener.OnLeftClickCancel(leftClickInfo);
+                                LongTapEvents.Add(eventData);
+                                Input.StartLongTap(() => OnLongTap(eventData));
                             }
-                            LeftClickEvents.RemoveAt(i);
+                            
+                            captured = capture;
                         }
-                        captured = true;
+                    } else if (info.IsLeftMouse)
+                    {
+                        if (this is ILeftClickListener leftClickListener)
+                        {
+                            var (listen, capture) = leftClickListener.OnLeftClickStart(info);
+                            if (listen)
+                            {
+                                LeftClickEvents.Add(eventData);
+                            }
+
+                            captured = capture;
+                        }
+                    } else if (info.IsRightMouse)
+                    {
+                        if (this is IRightClickListener rightClickListener && rightClickListener.OnRightClick(info))
+                        {
+                            for (var i = TapEvents.Count - 1; i >= 0; i--)
+                            {
+                                if (this is ITapListener tapListener)
+                                {
+                                    var tapEvent = TapEvents[i];
+                                    var tapInfo = PointerInfo.FromEvent(tapEvent, InputRatio);
+                                    tapListener.OnTapCancel(tapInfo);
+                                }
+                                TapEvents.RemoveAt(i);
+                            }
+                            for (var i = LeftClickEvents.Count - 1; i >= 0; i--)
+                            {
+                                if (this is ILeftClickListener leftClickListener)
+                                {
+                                    var leftClickEvent = LeftClickEvents[i];
+                                    var leftClickInfo = PointerInfo.FromEvent(leftClickEvent, InputRatio);
+                                    leftClickListener.OnLeftClickCancel(leftClickInfo);
+                                }
+                                LeftClickEvents.RemoveAt(i);
+                            }
+                            captured = true;
+                        }
                     }
+                }
+
+                if (this is IPointerDownListener pointerDownListener)
+                {
+                    pointerDownListener.OnPointerDown(info);
                 }
             }
 

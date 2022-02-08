@@ -3,7 +3,7 @@ using System;
 namespace RishUI
 {
     [Serializable]
-    public struct RishElement : IEquatable<RishElement>
+    public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
 
@@ -13,15 +13,15 @@ namespace RishUI
         public readonly RishTransform transform;
         public readonly Action<IRishComponent> setup;
 
-        public RishElement(Type type, int key) : this(type, key, (string) null) { }
-        public RishElement(Type type, int key, string name) : this(type, key, name, RishTransform.Identity, null) { }
-        public RishElement(Type type, int key, Action<IRishComponent> setup) : this(type, key, null, setup) { }
-        public RishElement(Type type, int key, string name, Action<IRishComponent> setup) : this(type, key, name, RishTransform.Identity, setup) { }
-        public RishElement(Type type, int key, RishTransform transform) : this(type, key, null, transform, null) { }
-        public RishElement(Type type, int key, string name, RishTransform transform) : this(type, key, name, transform, null) { }
-        public RishElement(Type type, int key, RishTransform transform, Action<IRishComponent> setup) : this(type, key, null, transform, setup) { }
+        internal RishElement(Type type, int key) : this(type, key, (string) null) { }
+        internal RishElement(Type type, int key, string name) : this(type, key, name, RishTransform.Identity, null) { }
+        internal RishElement(Type type, int key, Action<IRishComponent> setup) : this(type, key, null, setup) { }
+        internal RishElement(Type type, int key, string name, Action<IRishComponent> setup) : this(type, key, name, RishTransform.Identity, setup) { }
+        internal RishElement(Type type, int key, RishTransform transform) : this(type, key, null, transform, null) { }
+        internal RishElement(Type type, int key, string name, RishTransform transform) : this(type, key, name, transform, null) { }
+        internal RishElement(Type type, int key, RishTransform transform, Action<IRishComponent> setup) : this(type, key, null, transform, setup) { }
             
-        public RishElement(Type type, int key, string name, RishTransform transform, Action<IRishComponent> setup)
+        internal RishElement(Type type, int key, string name, RishTransform transform, Action<IRishComponent> setup)
         {
             this.type = type;
             this.key = key;
@@ -32,11 +32,11 @@ namespace RishUI
             this.setup = setup;
         }
         
-        public RishElement(Type type) : this(type, RishTransform.Identity, null) { }
-        public RishElement(Type type, Action<IRishComponent> setup) : this(type, RishTransform.Identity, setup) { }
-        public RishElement(Type type, RishTransform transform) : this(type, transform, null) { }
+        internal RishElement(Type type) : this(type, RishTransform.Identity, null) { }
+        internal RishElement(Type type, Action<IRishComponent> setup) : this(type, RishTransform.Identity, setup) { }
+        internal RishElement(Type type, RishTransform transform) : this(type, transform, null) { }
         
-        public RishElement(Type type, RishTransform transform, Action<IRishComponent> setup)
+        internal RishElement(Type type, RishTransform transform, Action<IRishComponent> setup)
         {
             this.type = type;
             key = 0;
@@ -47,18 +47,15 @@ namespace RishUI
             this.setup = setup;
         }
 
-        public RishElement(RishElement other, RishTransform transform) : this(other, transform, null) { }
-        public RishElement(RishElement other, Action<IRishComponent> setup) : this(other, other.transform, setup) { }
-
-        public RishElement(RishElement other, RishTransform transform, Action<IRishComponent> setup)
+        public RishElement(RishElement other, RishTransform transform) : this(other, other.key, transform) { }
+        public RishElement(RishElement other, int key, RishTransform transform)
         {
             type = other.type;
-            key = other.key;
             name = other.name;
+            setup = other.setup;
 
             this.transform = transform;
-
-            this.setup = other.setup + setup;
+            this.key = key;
         }
 
         public bool Valid => type != null;
