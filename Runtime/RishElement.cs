@@ -63,7 +63,6 @@ namespace RishUI
         public bool Equals(RishElement other)
         {
             var isValid = Valid;
-            
             if (isValid != other.Valid)
             {
                 return false;
@@ -73,28 +72,8 @@ namespace RishUI
             {
                 return true;
             }
-            
-            if (type != other.type)
-            {
-                return false;
-            }
 
-            if (key != other.key)
-            {
-                return false;
-            }
-
-            if (setup != null || other.setup != null)
-            {
-                return false;
-            }
-
-            if (!transform.Equals(other.transform))
-            {
-                return false;
-            }
-
-            return true;
+            return setup == null && other.setup == null && type == other.type && key == other.key && name == other.name && transform.Equals(other.transform);
         }
     }
 }
