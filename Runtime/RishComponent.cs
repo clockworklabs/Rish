@@ -678,7 +678,15 @@ namespace RishUI
             get => _props;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(_props);
+                bool changed;
+                if (value is IEquatable<P> equatable)
+                {
+                    changed = equatable.Equals(_props);
+                }
+                else
+                {
+                    changed = !RishUtils.Equals<P>(value, _props);
+                }
 
                 if (changed)
                 {
@@ -767,7 +775,15 @@ namespace RishUI
             get => _state;
             set
             {
-                var changed = !(value is IEquatable<P> equatable) || !equatable.Equals(_state);
+                bool changed;
+                if (value is IEquatable<S> equatable)
+                {
+                    changed = equatable.Equals(_state);
+                }
+                else
+                {
+                    changed = !RishUtils.Equals<S>(value, _state);
+                }
 
                 if (changed)
                 {

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine;
 
 namespace RishUI
 {
@@ -60,6 +61,21 @@ namespace RishUI
             }
 
             return world;
+        }
+        
+        public static bool Equals<T>(T first, T second) where T : struct => Equals<T>(ref first, ref second);
+        private static unsafe bool Equals<T>(ref T first, ref T second) where T : struct => UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
+
+        public static bool Equals<T, G>(T first, G second) where T : struct where G : struct => Equals<T, G>(ref first, ref second);
+        private static unsafe bool Equals<T, G>(ref T first, ref G second) where T : struct where G : struct
+        {
+            var size = UnsafeUtility.SizeOf<T>();
+            if (size != UnsafeUtility.SizeOf<G>())
+            {
+                return false;
+            }
+
+            return UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), size) == 0;
         }
     }
 }
