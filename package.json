@@ -10,7 +10,7 @@
     "url": "https://lisandroct.com"
   },
   "dependencies": {
-    "com.unity.collections": "1.1.0",
+    "com.unity.collections": "0.9.0-preview.6",
     "com.unity.editorcoroutines": "1.0.0",
     "com.unity.textmeshpro": "3.0.6",
     "com.malee.reorderablelist": "1.0.1"
