@@ -243,7 +243,7 @@ namespace RishUI
             return (parentSize * (max - min) - new Vector2(left + right, top + bottom)) * scale;
         }
 
-        public bool IsValid()
+        public readonly bool IsValid()
         {
             if (!margins.IsValid())
             {
@@ -283,6 +283,7 @@ namespace RishUI
 
         public override string ToString() => $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale} - {rotation}";
 
+        // TODO: This type is unmanaged. Do we want this?
         public bool Equals(RishTransform other)
         {
             var isValid = IsValid();

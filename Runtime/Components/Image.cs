@@ -146,6 +146,7 @@ namespace RishUI.Components
             fill = other.fill;
         }
         
+        // TODO: This type is unmanaged. Do we want this?
         public bool Equals(ImageSettings other)
         {            
             if (raycastTarget != other.raycastTarget)
@@ -165,7 +166,7 @@ namespace RishUI.Components
 
             if (filled)
             {
-                if (!other.filled || !fill.Equals(other.fill))
+                if (!other.filled || RishUtils.EqualsUnmanaged<ImageFill>(fill, other.fill))
                 {
                     return false;
                 }
@@ -187,7 +188,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct ImageFill : IEquatable<ImageFill>
+    public struct ImageFill
     {
         public LinearFill? linear;
         public Radial90Fill? radial90;
@@ -195,40 +196,9 @@ namespace RishUI.Components
         public Radial360Fill? radial360;
 
         public float amount;
-
-        public bool Equals(ImageFill other)
-        {
-            if (linear.HasValue)
-            {
-                if (!other.linear.HasValue || !linear.Value.Equals(other.linear.Value))
-                {
-                    return false;
-                }
-            } else if (radial90.HasValue)
-            {
-                if (!other.radial90.HasValue || !radial90.Value.Equals(other.radial90.Value))
-                {
-                    return false;
-                }
-            }  if (radial180.HasValue)
-            {
-                if (!other.radial180.HasValue || !radial180.Value.Equals(other.radial180.Value))
-                {
-                    return false;
-                }
-            }  if (radial360.HasValue)
-            {
-                if (!other.radial360.HasValue || !radial360.Value.Equals(other.radial360.Value))
-                {
-                    return false;
-                }
-            } 
-
-            return Mathf.Approximately(amount, other.amount);
-        }
     }
 
-    public struct LinearFill : IEquatable<LinearFill>
+    public struct LinearFill
     {
         public enum Origin
         {
@@ -239,11 +209,9 @@ namespace RishUI.Components
         }
 
         public Origin origin;
-
-        public bool Equals(LinearFill other) => origin == other.origin;
     }
 
-    public struct Radial90Fill : IEquatable<Radial90Fill>
+    public struct Radial90Fill
     {
         public enum Origin
         {
@@ -255,11 +223,9 @@ namespace RishUI.Components
 
         public Origin origin;
         public bool clockwise;
-
-        public bool Equals(Radial90Fill other) => clockwise == other.clockwise && origin == other.origin;
     }
 
-    public struct Radial180Fill : IEquatable<Radial180Fill>
+    public struct Radial180Fill
     {
         public enum Origin
         {
@@ -271,11 +237,9 @@ namespace RishUI.Components
 
         public Origin origin;
         public bool clockwise;
-
-        public bool Equals(Radial180Fill other) => clockwise == other.clockwise && origin == other.origin;
     }
 
-    public struct Radial360Fill : IEquatable<Radial360Fill>
+    public struct Radial360Fill
     {
         public enum Origin
         {
@@ -287,7 +251,5 @@ namespace RishUI.Components
 
         public Origin origin;
         public bool clockwise;
-
-        public bool Equals(Radial360Fill other) => clockwise == other.clockwise && origin == other.origin;
     }
 }

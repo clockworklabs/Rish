@@ -438,40 +438,15 @@ namespace RishUI.Components
         }
     }
 
-    public struct TextSpacing : IEquatable<TextSpacing>
+    public struct TextSpacing
     {
         public float character;
         public float word;
         public float line;
         public float paragraph;
-
-        public bool Equals(TextSpacing other)
-        {
-            if (!Mathf.Approximately(character, other.character))
-            {
-                return false;
-            }
-
-            if (!Mathf.Approximately(word, other.word))
-            {
-                return false;
-            }
-
-            if (!Mathf.Approximately(line, other.line))
-            {
-                return false;
-            }
-
-            if (!Mathf.Approximately(paragraph, other.paragraph))
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
 
-    public struct TextAlignment : IEquatable<TextAlignment>
+    public struct TextAlignment
     {
         public enum Horizontal
         {
@@ -495,8 +470,6 @@ namespace RishUI.Components
 
         public Horizontal horizontal;
         public Vertical vertical;
-
-        public bool Equals(TextAlignment other) => horizontal == other.horizontal && vertical == other.vertical;
     }
 
     public enum TextOverflowMode
@@ -597,17 +570,17 @@ namespace RishUI.Components
                 return false;
             }
 
-            if (!alignment.Equals(other.alignment))
+            if (!RishUtils.EqualsUnmanaged<TextAlignment>(alignment, other.alignment))
             {
                 return false;
             }
 
-            if (!sizing.Equals(other.sizing))
+            if (!RishUtils.EqualsUnmanaged<TextSizing>(sizing, other.sizing))
             {
                 return false;
             }
 
-            if (!spacing.Equals(other.spacing))
+            if (!RishUtils.EqualsUnmanaged<TextSpacing>(spacing, other.spacing))
             {
                 return false;
             }

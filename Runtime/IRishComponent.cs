@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public struct NoProps : IEquatable<NoProps>
-    {
-        bool IEquatable<NoProps>.Equals(NoProps other) => true;
-    }
+    public struct NoProps { }
 
     public delegate void OnDirty();
     public delegate void OnTransform();

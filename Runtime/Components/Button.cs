@@ -223,34 +223,11 @@ namespace RishUI.Components
         }
     }
 
-    public struct ButtonState : IEquatable<ButtonState>
+    public struct ButtonState
     {
         public bool hasHovered;
         public bool hovered;
         public bool hasPressed;
         public bool pressed;
-
-        public bool Equals(ButtonState other)
-        {
-            if (hasHovered != other.hasHovered)
-            {
-                return false;
-            }
-            if (hasPressed != other.hasPressed)
-            {
-                return false;
-            }
-            
-            if (hasHovered && hovered != other.hovered)
-            {
-                return false;
-            }
-            if (hasPressed && pressed != other.pressed)
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
 }

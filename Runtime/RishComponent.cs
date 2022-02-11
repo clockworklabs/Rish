@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RishUI.Input;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -670,6 +671,8 @@ namespace RishUI
 
     public abstract class RishComponent<P> : RishComponent, IRishComponent<P> where P : struct
     {
+        private static bool IsUnmanaged { get; } = UnsafeUtility.IsUnmanaged<P>();
+
         private bool Dirty { get; set; }
 
         private P _props;
@@ -679,13 +682,18 @@ namespace RishUI
             set
             {
                 bool changed;
-                if (value is IEquatable<P> equatable)
+                // TODO: Maybe we want the other way around
+                if(value is IEquatable<P> equatable)
                 {
-                    changed = equatable.Equals(_props);
+                    changed = !equatable.Equals(_props);
+                } 
+                else if (IsUnmanaged)
+                {
+                    changed = !RishUtils.EqualsFast<P>(value, _props);
                 }
                 else
                 {
-                    changed = !RishUtils.Equals<P>(value, _props);
+                    changed = true;
                 }
 
                 if (changed)
@@ -769,6 +777,8 @@ namespace RishUI
     
     public abstract class RishComponent<P, S> : RishComponent<P> where P : struct where S : struct
     {
+        private static bool IsUnmanaged { get; } = UnsafeUtility.IsUnmanaged<S>();
+        
         private S _state;
         protected S State
         {
@@ -776,13 +786,18 @@ namespace RishUI
             set
             {
                 bool changed;
-                if (value is IEquatable<S> equatable)
+                // TODO: Maybe we want the other way around
+                if(value is IEquatable<S> equatable)
                 {
-                    changed = equatable.Equals(_state);
+                    changed = !equatable.Equals(_state);
+                } 
+                else if (IsUnmanaged)
+                {
+                    changed = !RishUtils.EqualsFast<S>(value, _state);
                 }
                 else
                 {
-                    changed = !RishUtils.Equals<S>(value, _state);
+                    changed = true;
                 }
 
                 if (changed)
