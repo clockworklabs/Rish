@@ -540,57 +540,11 @@ namespace RishUI.Components
 
         public bool Equals(TextSettings other)
         {
-            if (wrapping != other.wrapping)
-            {
-                return false;
-            }
-
-            if (richText != other.richText)
-            {
-                return false;
-            }
-
-            if (raycastTarget != other.raycastTarget)
-            {
-                return false;
-            }
-
-            if (maskable != other.maskable)
-            {
-                return false;
-            }
-
-            if (style != other.style)
-            {
-                return false;
-            }
-
-            if (overflow != other.overflow)
-            {
-                return false;
-            }
-
-            if (!RishUtils.EqualsUnmanaged<TextAlignment>(alignment, other.alignment))
-            {
-                return false;
-            }
-
-            if (!RishUtils.EqualsUnmanaged<TextSizing>(sizing, other.sizing))
-            {
-                return false;
-            }
-
-            if (!RishUtils.EqualsUnmanaged<TextSpacing>(spacing, other.spacing))
-            {
-                return false;
-            }
-
             var visible = !Mathf.Approximately(color.a, 0f);
             if (visible != !Mathf.Approximately(other.color.a, 0f))
             {
                 return false;
             }
-
             if (visible && (!Mathf.Approximately(color.r, other.color.r) ||
                             !Mathf.Approximately(color.g, other.color.g) ||
                             !Mathf.Approximately(color.b, other.color.b)))
@@ -598,29 +552,32 @@ namespace RishUI.Components
                 return false;
             }
 
-            var fontSet = string.IsNullOrWhiteSpace(fontAddress);
-            if (fontSet != string.IsNullOrWhiteSpace(other.fontAddress))
+            if (!visible)
+            {
+                return true;
+            }
+
+            var fontSet = !string.IsNullOrWhiteSpace(fontAddress);
+            if (fontSet != !string.IsNullOrWhiteSpace(other.fontAddress))
             {
                 return false;
             }
-
             if (fontSet && fontAddress != other.fontAddress)
             {
                 return false;
             }
 
-            var materialSet = string.IsNullOrWhiteSpace(materialAddress);
-            if (materialSet != string.IsNullOrWhiteSpace(other.materialAddress))
+            var materialSet = !string.IsNullOrWhiteSpace(materialAddress);
+            if (materialSet != !string.IsNullOrWhiteSpace(other.materialAddress))
             {
                 return false;
             }
-
             if (materialSet && materialAddress != other.materialAddress)
             {
                 return false;
             }
 
-            return true;
+            return wrapping != other.wrapping && richText != other.richText && raycastTarget != other.raycastTarget && maskable != other.maskable && style != other.style && overflow != other.overflow && RishUtils.EqualsUnmanaged<TextAlignment>(alignment, other.alignment) && RishUtils.EqualsUnmanaged<TextSizing>(sizing, other.sizing) && RishUtils.EqualsUnmanaged<TextSpacing>(spacing, other.spacing);
         }
     }
 
@@ -650,7 +607,6 @@ namespace RishUI.Components
             {
                 return false;
             }
-
             if (!textSet)
             {
                 return true;
@@ -666,12 +622,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            if (!settings.Equals(other.settings))
-            {
-                return false;
-            }
-
-            return text == other.text;
+            return text == other.text && settings.Equals(other.settings);
         }
     }
 
