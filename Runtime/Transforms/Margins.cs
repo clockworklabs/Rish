@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace RishUI
 {
+    [Serializable]
     public struct Margins : IEquatable<Margins>
     {
         public float top;

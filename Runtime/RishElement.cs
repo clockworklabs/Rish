@@ -2,7 +2,7 @@ using System;
 
 namespace RishUI
 {
-    [Serializable]
+    [Serializable] // TODO: readonly structs don't serialize properly
     public readonly struct RishElement : IEquatable<RishElement>
     {
         public static RishElement Null => new RishElement();
