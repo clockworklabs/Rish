@@ -645,14 +645,15 @@ namespace RishUI.Components
 
         public bool Equals(TextProps other)
         {
-            var textSet = string.IsNullOrWhiteSpace(text);
-            if (textSet != string.IsNullOrWhiteSpace(other.text))
+            var textSet = !string.IsNullOrWhiteSpace(text);
+            if (textSet != !string.IsNullOrWhiteSpace(other.text))
             {
                 return false;
             }
-            if (textSet && text != other.text)
+
+            if (!textSet)
             {
-                return false;
+                return true;
             }
 
             var maxCharactersCountSet = maxCharactersCount.HasValue && maxCharactersCount.Value >= 0;
@@ -670,7 +671,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return true;
+            return text == other.text;
         }
     }
 

@@ -686,6 +686,11 @@ namespace RishUI
                 if(value is IEquatable<P> equatable)
                 {
                     changed = !equatable.Equals(_props);
+                
+                    // if (typeof(P).FullName.ToLowerInvariant().Contains("textprops"))
+                    // {
+                    //     Debug.Log($"Props {changed}\n\n-----\n\n{JsonUtility.ToJson(value, true)}\n\n{JsonUtility.ToJson(_props, true)}");
+                    // }
                 } 
                 else if (IsUnmanaged)
                 {
@@ -790,6 +795,11 @@ namespace RishUI
                 if(value is IEquatable<S> equatable)
                 {
                     changed = !equatable.Equals(_state);
+                    
+                    // if (typeof(S).FullName.ToLowerInvariant().Contains("textstate"))
+                    // {
+                    //     Debug.Log($"State {changed}\n\n-----\n\n{JsonUtility.ToJson(value, true)}\n\n{JsonUtility.ToJson(_state, true)}");
+                    // }
                 } 
                 else if (IsUnmanaged)
                 {
