@@ -767,6 +767,28 @@ namespace RishUI
             return true;
         }
 
+        public T[] ToArray()
+        {
+            var array = new T[Count];
+            for (int i = 0, n = Count; i < n; i++)
+            {
+                array[i] = this[i];
+            }
+
+            return array;
+        }
+
+        public List<T> ToList()
+        {
+            var list = new List<T>(Count);
+            for (int i = 0, n = Count; i < n; i++)
+            {
+                list.Add(this[i]);
+            }
+
+            return list;
+        }
+
         public static implicit operator RishList<T>(T element)
         {
             return new RishList<T>(element);
