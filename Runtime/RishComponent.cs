@@ -686,11 +686,6 @@ namespace RishUI
                 if(value is IEquatable<P> equatable)
                 {
                     changed = !equatable.Equals(_props);
-                
-                    // if (typeof(P).FullName.ToLowerInvariant().Contains("textprops"))
-                    // {
-                    //     Debug.Log($"Props {changed}\n\n-----\n\n{JsonUtility.ToJson(value, true)}\n\n{JsonUtility.ToJson(_props, true)}");
-                    // }
                 } 
                 else if (IsUnmanaged)
                 {

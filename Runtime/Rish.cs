@@ -5,6 +5,7 @@ using System.Reflection;
 using Priority_Queue;
 using RishUI.Components;
 using RishUI.Input;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace RishUI
@@ -18,6 +19,10 @@ namespace RishUI
 
         #if UNITY_EDITOR
         public event Action<RishNode> OnRender;
+
+        [SerializeField]
+        private bool _showWarnings = true;
+        private bool ShowWarnings => _showWarnings;
         # endif
 
         [SerializeField]
@@ -58,6 +63,9 @@ namespace RishUI
 
         private void Start()
         {
+            #if UNITY_EDITOR
+            ShowEditorWarnings();
+            #endif
             UnityEngine.Input.simulateMouseWithTouches = false;
             
             var app = GetComponent<AppComponent>();
@@ -86,6 +94,90 @@ namespace RishUI
 
             OnNodeDirty(RootNode);
         }
+
+#if UNITY_EDITOR
+        private void ShowEditorWarnings()
+        {
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(type => !type.IsGenericType && type.BaseType is
+            {
+                IsGenericType: true
+            });
+
+            var stateComponents = types.Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(RishComponent<,>)).ToArray();
+            var propsComponents = stateComponents.Concat(types.Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(RishComponent<>)).ToArray());
+
+            var props = propsComponents
+                .Where(type =>
+                {
+                    var propsType = type.BaseType.GenericTypeArguments[0];
+                    if (propsType == null || propsType.IsGenericType)
+                    {
+                        return false;
+                    }
+                    
+                    if (UnsafeUtility.IsUnmanaged(propsType))
+                    {
+                        return false;
+                    }
+
+                    foreach (var iInterface in propsType.GetInterfaces())
+                    {
+                        if (!iInterface.IsGenericType || iInterface.GetGenericTypeDefinition() != typeof(IEquatable<>))
+                        {
+                            continue;
+                        }
+
+                        if (iInterface.GenericTypeArguments.Contains(propsType))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+
+            var state = stateComponents
+                .Where(type =>
+                {
+                    var stateType = type.BaseType.GenericTypeArguments[0];
+                    if (stateType == null || stateType.IsGenericType)
+                    {
+                        return false;
+                    }
+                    
+                    if (UnsafeUtility.IsUnmanaged(stateType))
+                    {
+                        return false;
+                    }
+
+                    foreach (var iInterface in stateType.GetInterfaces())
+                    {
+                        if (!iInterface.IsGenericType || iInterface.GetGenericTypeDefinition() != typeof(IEquatable<>))
+                        {
+                            continue;
+                        }
+
+                        if (iInterface.GenericTypeArguments.Contains(stateType))
+                        {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+            
+            foreach (var value in props)
+            {
+                var propsType = value.BaseType.GenericTypeArguments[0];
+                Debug.LogWarning($"Props of {value.Name} ({propsType.Name}) is managed and should implement IEquatable<{propsType.Name}>.");
+            }
+            foreach (var value in state)
+            {
+                var stateType = value.BaseType.GenericTypeArguments[1];
+                Debug.LogWarning($"State of {value.Name} ({stateType.Name}) is managed and should implement IEquatable<{stateType.Name}>.");
+            }
+        }
+#endif
 
         private void LateUpdate()
         {

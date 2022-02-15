@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace RishUI
 {
-    public readonly struct RishList<T> where T : struct, IEquatable<T>
+    public readonly struct RishList<T> where T : struct
     {
         private readonly int _childCount;
         private readonly T _child0;
@@ -27,6 +28,8 @@ namespace RishUI
         private readonly T _child18;
         private readonly T _child19;
         private readonly IList<T> _children;
+        
+        private static bool IsUnmanaged { get; } = UnsafeUtility.IsUnmanaged<T>();
 
         private RishList(T child)
         {
@@ -697,11 +700,23 @@ namespace RishUI
 
         public bool Contains(T item)
         {
-            for (int i = 0, n = Count; i < n; i++)
+            if (item is IEquatable<T> equatable)
             {
-                if (this[i].Equals(item))
+                for (int i = 0, n = Count; i < n; i++)
                 {
-                    return true;
+                    if (equatable.Equals(this[i]))
+                    {
+                        return true;
+                    }
+                }
+            } else if (IsUnmanaged)
+            {
+                for (int i = 0, n = Count; i < n; i++)
+                {
+                    if (RishUtils.EqualsFast<T>(item, this[i]))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -733,9 +748,19 @@ namespace RishUI
 
             for (var i = Count - 1; i >= 0; i--)
             {
-                if (!this[i].Equals(other[i]))
+                var item = this[i];
+                if (item is IEquatable<T> equatable)
                 {
-                    return false;
+                    if (!equatable.Equals(other[i]))
+                    {
+                        return false;
+                    }
+                } else if (IsUnmanaged)
+                {
+                    if (!RishUtils.EqualsFast<T>(item, other[i]))
+                    {
+                        return false;
+                    }
                 }
             }
 
