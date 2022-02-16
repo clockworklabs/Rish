@@ -1,4 +1,6 @@
-﻿namespace RishUI
+﻿using UnityEngine;
+
+namespace RishUI
 {
     public struct ExpandTransform
     {
@@ -34,6 +36,10 @@
         {
             this.margins = margins;
         }
+        
+        public ExpandTransform(float topBottom, float rightLeft) : this(new Vector2(topBottom, rightLeft)) {}
+        public ExpandTransform(float top, float rightLeft, float bottom) : this(new Vector3(top, rightLeft, bottom)) {}
+        public ExpandTransform(float top, float right, float bottom, float left) : this(new Vector4(top, right, bottom, left)) {}
 
         public static implicit operator RishTransform(ExpandTransform transform)
         {

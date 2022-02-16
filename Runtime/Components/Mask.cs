@@ -4,9 +4,14 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Mask : RishComponent<MaskProps, MaskState>, IDerivedState
+    public class Mask : RishComponent<MaskProps, MaskState>, IDerivedState, ICustomComponent
     {
         private string SpriteAddress { get; set; }
+        
+        void ICustomComponent.Restart()
+        {
+            SpriteAddress = null;
+        }
         
         void IDerivedState.UpdateStateFromProps()
         {
