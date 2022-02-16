@@ -23,6 +23,11 @@ namespace RishUI.Components
 
         protected override RishElement Render()
         {
+            if (Props.children.Count == 0)
+            {
+                return RishElement.Null;
+            }
+            
             var sprite = State.sprite != null;
             var empty = !sprite && !Props.rect;
 
@@ -33,19 +38,20 @@ namespace RishUI.Components
             
             return Rish.CreateUnity<UnityContainer, UnityContainerProps>(new UnityContainerProps
             {
-                imageDefinition = new UnityComponents.UnityImageDefinition
+                imageDefinition = new UnityImageDefinition
                 {
                     enabled = sprite,
                     sprite = State.sprite,
                     color = Color.white,
                     maskable = false,
                     raycastTarget = false,
-                    type = sprite && State.sprite.border != Vector4.zero ? UnityComponents.UnityImageDefinition.Type.Sliced : UnityComponents.UnityImageDefinition.Type.Simple
+                    type = sprite && State.sprite.border != Vector4.zero ? UnityImageDefinition.Type.Sliced : UnityImageDefinition.Type.Simple
                 },
                 maskDefinition = new UnityMaskDefinition
                 {
                     enabled = true,
-                    type = Props.rect && sprite ? UnityMaskDefinition.Type.Both : sprite ? UnityMaskDefinition.Type.Graphic : UnityMaskDefinition.Type.Rect
+                    type = Props.rect && sprite ? UnityMaskDefinition.Type.Both : sprite ? UnityMaskDefinition.Type.Graphic : UnityMaskDefinition.Type.Rect,
+                    rectMaskSoftness = Props.rectFade
                 }
             }, Props.children);
         }
@@ -72,16 +78,12 @@ namespace RishUI.Components
     {
         public string spriteAddress;
         public bool rect;
+        public Vector2Int rectFade;
 
         public RishList<RishElement> children;
         
         public bool Equals(MaskProps other)
         {
-            if (rect != other.rect)
-            {
-                return false;
-            }
-            
             var emptyAddress = string.IsNullOrWhiteSpace(spriteAddress);
             if (emptyAddress != string.IsNullOrWhiteSpace(other.spriteAddress))
             {
@@ -93,7 +95,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return children.Equals(other.children);
+            return rect != other.rect && rectFade.Equals(other.rectFade) && children.Equals(other.children);
         }
     }
 

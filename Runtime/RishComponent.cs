@@ -790,11 +790,6 @@ namespace RishUI
                 if(value is IEquatable<S> equatable)
                 {
                     changed = !equatable.Equals(_state);
-                    
-                    // if (typeof(S).FullName.ToLowerInvariant().Contains("textstate"))
-                    // {
-                    //     Debug.Log($"State {changed}\n\n-----\n\n{JsonUtility.ToJson(value, true)}\n\n{JsonUtility.ToJson(_state, true)}");
-                    // }
                 } 
                 else if (IsUnmanaged)
                 {
