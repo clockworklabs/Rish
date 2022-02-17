@@ -682,18 +682,13 @@ namespace RishUI
             set
             {
                 bool changed;
-                // TODO: Maybe we want the other way around
-                if(value is IEquatable<P> equatable)
-                {
-                    changed = !equatable.Equals(_props);
-                } 
-                else if (IsUnmanaged)
+                if (IsUnmanaged)
                 {
                     changed = !RishUtils.EqualsFast<P>(value, _props);
                 }
                 else
                 {
-                    changed = true;
+                    changed = !Rish.Equals.Compare(value, _props);
                 }
 
                 if (changed)
@@ -786,18 +781,13 @@ namespace RishUI
             set
             {
                 bool changed;
-                // TODO: Maybe we want the other way around
-                if(value is IEquatable<S> equatable)
-                {
-                    changed = !equatable.Equals(_state);
-                } 
-                else if (IsUnmanaged)
+                if (IsUnmanaged)
                 {
                     changed = !RishUtils.EqualsFast<S>(value, _state);
                 }
                 else
                 {
-                    changed = true;
+                    changed = !Rish.Equals.Compare(value, _state);
                 }
 
                 if (changed)

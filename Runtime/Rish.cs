@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Priority_Queue;
 using RishUI.Components;
@@ -531,7 +532,7 @@ namespace RishUI
                 
             return d;
         }
-        
+
         public static class Defaults
         {
             private static Dictionary<Type, object> Values { get; }
@@ -543,7 +544,7 @@ namespace RishUI
             {
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
-                
+
                 Values = types
                     .Where(type => !type?.IsGenericType ?? false)
                     .Select(type =>
@@ -558,7 +559,7 @@ namespace RishUI
                     .Select(property => property.GetValue(null))
                     .Where(value => value != null)
                     .ToDictionary(value => value.GetType(), value => value);
-                
+
                 GenericTypes = new HashSet<Type>(types
                     .Where(type => type?.IsGenericType ?? false)
                     .Select(type =>
@@ -581,18 +582,82 @@ namespace RishUI
                     {
                         return default;
                     }
-                    
-                    var property = type.GetProperty("Default", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    
-                    return (T) property.GetValue(null);
+
+                    var property = type.GetProperty("Default",
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+
+                    return (T)property.GetValue(null);
                 }
-                
+
                 if (!Values.TryGetValue(type, out var value))
                 {
                     return default;
                 }
 
-                return (T) value;
+                return (T)value;
+            }
+        }
+        
+        public static class Equals
+        {
+            private static Dictionary<Type, MethodInfo> Methods { get; }
+            private static Dictionary<Type, Delegate> Delegates { get; } = new Dictionary<Type, Delegate>();
+
+            public static int Count => Methods.Count;
+
+            private delegate bool Comparer<in T>(T first, T second);
+            
+            static Equals()
+            {
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
+
+                Methods = types
+                    .Where(type => !type?.IsGenericType ?? false)
+                    .Select(type =>
+                    {
+                        var method = type
+                            .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+                            .FirstOrDefault(method =>
+                            {
+                                var parameters = method.GetParameters();
+                                if (parameters.Length != 2)
+                                {
+                                    return false;
+                                }
+
+                                return Attribute.IsDefined(method, typeof(EqualsAttribute)) && method.IsStatic &&
+                                       method.ReturnType == typeof(bool) && parameters[0].ParameterType == type &&
+                                       parameters[1].ParameterType == type;
+                            });
+
+                        return method;
+                    })
+                    .Where(method => method != null)
+                    .ToDictionary(method => method.DeclaringType, method => method);
+            }
+
+            public static bool Compare<T>(T first, T second) where T : struct
+            {
+                var comparer = GetDelegate<T>();
+                return comparer?.Invoke(first, second) ?? false;
+            }
+
+            private static Comparer<T> GetDelegate<T>() where T : struct
+            {
+                var type = typeof(T);
+                if (!Delegates.TryGetValue(type, out var comparer))
+                {
+                    if (!Methods.TryGetValue(type, out var method))
+                    {
+                        return null;
+                    }
+                    
+                    comparer = Delegate.CreateDelegate(typeof(Comparer<bool>), null, method);
+                    Delegates.Add(type, comparer);
+                }
+
+                return (Comparer<T>) comparer;
             }
         }
     }
