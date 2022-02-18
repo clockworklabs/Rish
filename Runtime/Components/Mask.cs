@@ -100,7 +100,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return a.rect == b.rect && a.rectFade.Equals(b.rectFade) && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
+            return a.rect == b.rect && a.rectFade == b.rectFade && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
         }
     }
 

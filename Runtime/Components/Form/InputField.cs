@@ -429,7 +429,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            if (!RishUtils.Compare<Margins>(a.textMargin, b.textMargin))
+            if (!RishUtils.CompareUnmanaged<Margins>(a.textMargin, b.textMargin))
             {
                 return false;
             }
@@ -469,7 +469,7 @@ namespace RishUI.Components
             {
                 return false;
             }
-            if (image && !RishUtils.Compare<ImageSettings>(a.imageSettings, b.imageSettings))
+            if (image && !RishUtils.CompareUnmanaged<ImageSettings>(a.imageSettings, b.imageSettings))
             {
                 return false;
             }

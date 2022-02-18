@@ -105,7 +105,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return RishUtils.Compare<ImageSettings>(a.settings, b.settings);
+            return RishUtils.CompareUnmanaged<ImageSettings>(a.settings, b.settings);
         }
     }
 

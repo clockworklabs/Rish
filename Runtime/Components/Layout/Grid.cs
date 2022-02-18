@@ -327,7 +327,7 @@ namespace RishUI.Components
             a.overflow == b.overflow && a.centerVertical == b.centerVertical && a.centerHorizontal == b.centerHorizontal &&
             Mathf.Approximately(a.spacing.x, b.spacing.x) && Mathf.Approximately(a.spacing.y, b.spacing.y) &&
             Mathf.Approximately(a.elementSize.x, b.elementSize.x) && Mathf.Approximately(a.elementSize.y, b.elementSize.y) &&
-            RishUtils.Compare<Margins>(a.padding, b.padding) && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
+            RishUtils.CompareUnmanaged<Margins>(a.padding, b.padding) && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
     }
     
     public enum GridOverflow { None, Horizontal, Vertical }

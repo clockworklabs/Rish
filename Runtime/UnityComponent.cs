@@ -55,7 +55,7 @@ namespace RishUI
             get => _parentWorld;
             set
             {
-                if (value.Equals(_parentWorld))
+                if (RishUtils.CompareUnmanaged<RishTransform>(value, _parentWorld))
                 {
                     return;
                 }
@@ -72,7 +72,7 @@ namespace RishUI
             get => _local;
             private set
             {
-                if (_local.Equals(value))
+                if (RishUtils.CompareUnmanaged<RishTransform>(_local, value))
                 {
                     return;
                 }
@@ -97,7 +97,7 @@ namespace RishUI
             get => _size;
             private set
             {
-                if (_size.Equals(value))
+                if (Mathf.Approximately(_size.x, value.x) && Mathf.Approximately(_size.y, value.y))
                 {
                     return;
                 }

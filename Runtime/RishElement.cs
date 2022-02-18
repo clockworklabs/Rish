@@ -79,7 +79,7 @@ namespace RishUI
                 return false;
             }
 
-            return a.type == b.type && a.key == b.key && a.name == b.name && RishUtils.Compare<RishTransform>(a.transform, b.transform);
+            return a.type == b.type && a.key == b.key && a.name == b.name && RishUtils.CompareUnmanaged<RishTransform>(a.transform, b.transform);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace RishUI.Components
                 return false;
             }
 
-            return RishUtils.Compare<RawImageSettings>(a.settings, b.settings);
+            return RishUtils.CompareUnmanaged<RawImageSettings>(a.settings, b.settings);
         }
     }
 

@@ -72,7 +72,7 @@ namespace RishUI.Components
             return a.direction == b.direction && a.center == b.center && a.flexibleSpacing == b.flexibleSpacing && 
                    a.overflow == b.overflow && a.raycastTarget == b.raycastTarget && 
                    Mathf.Approximately(a.spacing, b.spacing) && Mathf.Approximately(a.elementSize, b.elementSize) &&
-                   Mathf.Approximately(a.scroll, b.scroll) && RishUtils.Compare<Margins>(a.padding, b.padding) &&
+                   Mathf.Approximately(a.scroll, b.scroll) && RishUtils.CompareUnmanaged<Margins>(a.padding, b.padding) &&
                    RishUtils.Compare<RishList<LayoutElement>>(a.children, b.children);
         }
     }
