@@ -37,7 +37,7 @@ namespace RishUI.Components
     }
     
     [Serializable]
-    public struct InputAdapterProps : IEquatable<InputAdapterProps>
+    public struct InputAdapterProps
     {
         public Action<PointerInfo> onPointerDown;
         public Action<PointerInfo> onHoverStart;
@@ -59,6 +59,7 @@ namespace RishUI.Components
 
         public RishElement content;
 
-        public bool Equals(InputAdapterProps other) => content.Equals(other.content);
+        [Comparer]
+        public static bool Equals(InputAdapterProps a, InputAdapterProps b) => RishUtils.Compare<RishElement>(a.content, b.content);
     }
 }

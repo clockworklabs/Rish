@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RishUI.Components
 {
@@ -21,8 +20,8 @@ namespace RishUI.Components
                 return RishElement.Null;
             }
 
-            var height = Size.y - Props.topPadding - Props.bottomPadding;
-            var width = Size.x - Props.leftPadding - Props.rightPadding;
+            var height = Size.y - Props.padding.top - Props.padding.bottom;
+            var width = Size.x - Props.padding.left - Props.padding.right;
 
             if (height <= 0 || width <= 0)
             {
@@ -279,10 +278,7 @@ namespace RishUI.Components
                 });
             }
 
-            return Rish.Create<Div, DivProps>(new ExpandTransform
-            {
-                margins = new Vector4(Props.topPadding, Props.rightPadding, Props.bottomPadding, Props.leftPadding)
-            }, new DivProps
+            return Rish.Create<Div, DivProps>(new ExpandTransform(Props.padding), new DivProps
             {
                 children = Rish.Create<DirectionalLayout, DirectionalLayoutProps>(new DirectionalLayoutProps
                 {
@@ -296,15 +292,12 @@ namespace RishUI.Components
         }
     }
 
-    public struct GridProps : IEquatable<GridProps>
+    public struct GridProps
     {
         public Vector2 spacing;
         public Vector2 elementSize;
         
-        public float topPadding;
-        public float leftPadding;
-        public float bottomPadding;
-        public float rightPadding;
+        public Margins padding;
 
         public GridOverflow overflow;
         public bool centerVertical;
@@ -322,65 +315,19 @@ namespace RishUI.Components
         {
             spacing = other.spacing;
             elementSize = other.elementSize;
-            topPadding = other.topPadding;
-            leftPadding = other.leftPadding;
-            bottomPadding = other.bottomPadding;
-            rightPadding = other.rightPadding;
+            padding = other.padding;
             overflow = other.overflow;
             centerVertical = other.centerVertical;
             centerHorizontal = other.centerHorizontal;
             children = other.children;
         }
 
-        public bool Equals(GridProps other)
-        {
-            if (overflow != other.overflow)
-            {
-                return false;
-            }
-            
-            if (centerVertical != other.centerVertical)
-            {
-                return false;
-            }
-            
-            if (centerHorizontal != other.centerHorizontal)
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(spacing.x, other.spacing.x) || !Mathf.Approximately(spacing.y, other.spacing.y))
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(elementSize.x, other.elementSize.x) || !Mathf.Approximately(elementSize.y, other.elementSize.y))
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(topPadding, other.topPadding))
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(leftPadding, other.leftPadding))
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(bottomPadding, other.bottomPadding))
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(rightPadding, other.rightPadding))
-            {
-                return false;
-            }
-
-            return children.Equals(other.children);
-        }
+        [Comparer]
+        public static bool Equals(GridProps a, GridProps b) =>
+            a.overflow == b.overflow && a.centerVertical == b.centerVertical && a.centerHorizontal == b.centerHorizontal &&
+            Mathf.Approximately(a.spacing.x, b.spacing.x) && Mathf.Approximately(a.spacing.y, b.spacing.y) &&
+            Mathf.Approximately(a.elementSize.x, b.elementSize.x) && Mathf.Approximately(a.elementSize.y, b.elementSize.y) &&
+            RishUtils.Compare<Margins>(a.padding, b.padding) && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
     }
     
     public enum GridOverflow { None, Horizontal, Vertical }

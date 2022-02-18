@@ -395,7 +395,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct TextSizing : IEquatable<TextSizing>
+    public struct TextSizing
     {
         public float size;
         public float minSize;
@@ -403,39 +403,6 @@ namespace RishUI.Components
         public float lineSpacingAdjustment;
 
         public bool AutoSize => minSize > 0 && minSize < size;
-
-        public bool Equals(TextSizing other)
-        {
-            if (AutoSize != other.AutoSize)
-            {
-                return false;
-            }
-
-            if (Mathf.Approximately(size, other.size))
-            {
-                return false;
-            }
-
-            if (AutoSize)
-            {
-                if (!Mathf.Approximately(minSize, other.minSize))
-                {
-                    return false;
-                }
-
-                if (!Mathf.Approximately(characterWidthAdjustment, other.characterWidthAdjustment))
-                {
-                    return false;
-                }
-
-                if (!Mathf.Approximately(lineSpacingAdjustment, other.lineSpacingAdjustment))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 
     public struct TextSpacing
@@ -479,9 +446,9 @@ namespace RishUI.Components
         Ellipsis
     }
 
-    public struct TextSettings : IEquatable<TextSettings>
+    public struct TextSettings
     {
-        public static readonly TextSettings Default = new TextSettings
+        public static TextSettings Default => new TextSettings
         {
             style = FontStyles.Normal,
             color = Color.black,
@@ -538,16 +505,17 @@ namespace RishUI.Components
             maskable = other.maskable;
         }
 
-        public bool Equals(TextSettings other)
+        [Comparer]
+        public static bool Equals(TextSettings a, TextSettings b)
         {
-            var visible = !Mathf.Approximately(color.a, 0f);
-            if (visible != !Mathf.Approximately(other.color.a, 0f))
+            var visible = !Mathf.Approximately(a.color.a, 0f);
+            if (visible != !Mathf.Approximately(b.color.a, 0f))
             {
                 return false;
             }
-            if (visible && (!Mathf.Approximately(color.r, other.color.r) ||
-                            !Mathf.Approximately(color.g, other.color.g) ||
-                            !Mathf.Approximately(color.b, other.color.b)))
+            if (visible && (!Mathf.Approximately(a.color.r, b.color.r) ||
+                            !Mathf.Approximately(a.color.g, b.color.g) ||
+                            !Mathf.Approximately(a.color.b, b.color.b)))
             {
                 return false;
             }
@@ -557,31 +525,35 @@ namespace RishUI.Components
                 return true;
             }
 
-            var fontSet = !string.IsNullOrWhiteSpace(fontAddress);
-            if (fontSet != !string.IsNullOrWhiteSpace(other.fontAddress))
+            var fontSet = !string.IsNullOrWhiteSpace(a.fontAddress);
+            if (fontSet != !string.IsNullOrWhiteSpace(b.fontAddress))
             {
                 return false;
             }
-            if (fontSet && fontAddress != other.fontAddress)
-            {
-                return false;
-            }
-
-            var materialSet = !string.IsNullOrWhiteSpace(materialAddress);
-            if (materialSet != !string.IsNullOrWhiteSpace(other.materialAddress))
-            {
-                return false;
-            }
-            if (materialSet && materialAddress != other.materialAddress)
+            if (fontSet && a.fontAddress != b.fontAddress)
             {
                 return false;
             }
 
-            return wrapping != other.wrapping && richText != other.richText && raycastTarget != other.raycastTarget && maskable != other.maskable && style != other.style && overflow != other.overflow && RishUtils.EqualsUnmanaged<TextAlignment>(alignment, other.alignment) && RishUtils.EqualsUnmanaged<TextSizing>(sizing, other.sizing) && RishUtils.EqualsUnmanaged<TextSpacing>(spacing, other.spacing);
+            var materialSet = !string.IsNullOrWhiteSpace(a.materialAddress);
+            if (materialSet != !string.IsNullOrWhiteSpace(b.materialAddress))
+            {
+                return false;
+            }
+            if (materialSet && a.materialAddress != b.materialAddress)
+            {
+                return false;
+            }
+
+            return a.wrapping == b.wrapping && a.richText == b.richText && a.raycastTarget == b.raycastTarget && 
+                   a.maskable == b.maskable && a.style == b.style && a.overflow == b.overflow &&
+                   RishUtils.CompareUnmanaged<TextAlignment>(a.alignment, b.alignment) &&
+                   RishUtils.CompareUnmanaged<TextSizing>(a.sizing, b.sizing) && 
+                   RishUtils.CompareUnmanaged<TextSpacing>(a.spacing, b.spacing);
         }
     }
 
-    public struct TextProps : IEquatable<TextProps>
+    public struct TextProps
     {
         public string text;
         public int? maxCharactersCount;
@@ -600,10 +572,11 @@ namespace RishUI.Components
             settings = other.settings;
         }
 
-        public bool Equals(TextProps other)
+        [Comparer]
+        public static bool Equals(TextProps a, TextProps b)
         {
-            var textSet = !string.IsNullOrWhiteSpace(text);
-            if (textSet != !string.IsNullOrWhiteSpace(other.text))
+            var textSet = !string.IsNullOrWhiteSpace(a.text);
+            if (textSet != !string.IsNullOrWhiteSpace(b.text))
             {
                 return false;
             }
@@ -612,25 +585,26 @@ namespace RishUI.Components
                 return true;
             }
 
-            var maxCharactersCountSet = maxCharactersCount.HasValue && maxCharactersCount.Value >= 0;
-            if (maxCharactersCountSet != (other.maxCharactersCount.HasValue && other.maxCharactersCount.Value >= 0))
+            var maxCharactersCountSet = a.maxCharactersCount.HasValue && a.maxCharactersCount.Value >= 0;
+            if (maxCharactersCountSet != (b.maxCharactersCount.HasValue && b.maxCharactersCount.Value >= 0))
             {
                 return false;
             }
-            if (maxCharactersCountSet && maxCharactersCount.Value != other.maxCharactersCount.Value)
+            if (maxCharactersCountSet && a.maxCharactersCount.Value != b.maxCharactersCount.Value)
             {
                 return false;
             }
 
-            return text == other.text && settings.Equals(other.settings);
+            return a.text == b.text && RishUtils.Compare<TextSettings>(a.settings, b.settings);
         }
     }
 
-    public struct TextState : IEquatable<TextState>
+    public struct TextState
     {
         public TMP_FontAsset font;
         public Material material;
 
-        public bool Equals(TextState other) => font == other.font && material == other.material;
+        [Comparer]
+        public static bool Equals(TextState a, TextState b) => a.font == b.font && a.material == b.material;
     }
 }

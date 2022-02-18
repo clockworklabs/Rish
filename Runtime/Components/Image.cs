@@ -69,7 +69,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct ImageProps : IEquatable<ImageProps>
+    public struct ImageProps
     {
         public string spriteAddress;
         public ImageSettings settings;
@@ -91,36 +91,33 @@ namespace RishUI.Components
             settings = other.settings;
         }
         
-        public bool Equals(ImageProps other)
+        [Comparer]
+        public static bool Equals(ImageProps a, ImageProps b)
         {
-            if (!settings.Equals(other.settings))
+            var emptyAddress = string.IsNullOrWhiteSpace(a.spriteAddress);
+            if (emptyAddress != string.IsNullOrWhiteSpace(b.spriteAddress))
             {
                 return false;
             }
             
-            var emptyAddress = string.IsNullOrWhiteSpace(spriteAddress);
-            if (emptyAddress != string.IsNullOrWhiteSpace(other.spriteAddress))
-            {
-                return false;
-            }
-            
-            if (!emptyAddress && spriteAddress != other.spriteAddress)
+            if (!emptyAddress && a.spriteAddress != b.spriteAddress)
             {
                 return false;
             }
 
-            return true;
+            return RishUtils.Compare<ImageSettings>(a.settings, b.settings);
         }
     }
 
-    public struct ImageState : IEquatable<ImageState>
+    public struct ImageState
     {
         public Sprite sprite;
 
-        public bool Equals(ImageState other) => sprite == other.sprite;
+        [Comparer]
+        public static bool Equals(ImageState a, ImageState b) => a.sprite == b.sprite;
     }
 
-    public struct ImageSettings : IEquatable<ImageSettings>
+    public struct ImageSettings
     {
         public Color color;
         public bool maskable;
@@ -144,47 +141,6 @@ namespace RishUI.Components
             preserveAspectRatio = other.preserveAspectRatio;
             filled = other.filled;
             fill = other.fill;
-        }
-        
-        // TODO: This type is unmanaged. Do we want this?
-        public bool Equals(ImageSettings other)
-        {            
-            if (raycastTarget != other.raycastTarget)
-            {
-                return false;
-            }
-
-            if (maskable != other.maskable)
-            {
-                return false;
-            }
-
-            if (preserveAspectRatio != other.preserveAspectRatio)
-            {
-                return false;
-            }
-
-            if (filled)
-            {
-                if (!other.filled || RishUtils.EqualsUnmanaged<ImageFill>(fill, other.fill))
-                {
-                    return false;
-                }
-            }
-
-            var transparent = Mathf.Approximately(color.a, 0);
-            if(transparent != Mathf.Approximately(other.color.a, 0))
-            {
-                return false;
-            }
-
-            if (!transparent && (!Mathf.Approximately(color.r, other.color.r) || !Mathf.Approximately(color.g, other.color.g) ||
-                                 !Mathf.Approximately(color.b, other.color.b) || !Mathf.Approximately(color.a, other.color.a)))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
     

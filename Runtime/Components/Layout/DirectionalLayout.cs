@@ -29,7 +29,7 @@ namespace RishUI.Components
         private void OnContentSize(float size) => Props.onContentSize?.Invoke(size);
     }
 
-    public struct DirectionalLayoutProps : IEquatable<DirectionalLayoutProps>
+    public struct DirectionalLayoutProps
     {
         public Direction direction;
 
@@ -56,57 +56,24 @@ namespace RishUI.Components
             this.direction = direction;
         }
         
-        public bool Equals(DirectionalLayoutProps other)
+        [Comparer]
+        public static bool Equals(DirectionalLayoutProps a, DirectionalLayoutProps b)
         {
-            if (direction != other.direction)
+            var maskContent = a.maskContent;
+            if (maskContent != b.maskContent)
             {
                 return false;
             }
-
-            if (maskContent != other.maskContent)
-            {
-                return false;
-            }
-            if (maskContent && maskSoftness != other.maskSoftness)
-            {
-                return false;
-            }
-            if (center != other.center)
-            {
-                return false;
-            }
-            if (flexibleSpacing != other.flexibleSpacing)
-            {
-                return false;
-            }
-            if (overflow != other.overflow)
-            {
-                return false;
-            }
-            if (raycastTarget != other.raycastTarget)
+            if (maskContent && a.maskSoftness != b.maskSoftness)
             {
                 return false;
             }
             
-            if (!Mathf.Approximately(spacing, other.spacing))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(elementSize, other.elementSize))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(scroll, other.scroll))
-            {
-                return false;
-            }
-
-            if (!padding.Equals(other.padding))
-            {
-                return false;
-            }
-
-            return children.Equals(other.children);
+            return a.direction == b.direction && a.center == b.center && a.flexibleSpacing == b.flexibleSpacing && 
+                   a.overflow == b.overflow && a.raycastTarget == b.raycastTarget && 
+                   Mathf.Approximately(a.spacing, b.spacing) && Mathf.Approximately(a.elementSize, b.elementSize) &&
+                   Mathf.Approximately(a.scroll, b.scroll) && RishUtils.Compare<Margins>(a.padding, b.padding) &&
+                   RishUtils.Compare<RishList<LayoutElement>>(a.children, b.children);
         }
     }
 }

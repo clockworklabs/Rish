@@ -1,4 +1,5 @@
-﻿using Unity.Collections.LowLevel.Unsafe;
+﻿using System;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace RishUI
@@ -63,14 +64,18 @@ namespace RishUI
             return world;
         }
         
-        public static bool EqualsFast<T>(T first, T second) where T : struct => EqualsFast<T>(ref first, ref second);
-        private static unsafe bool EqualsFast<T>(ref T first, ref T second) where T : struct => UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
-        public static bool EqualsUnmanaged<T>(T first, T second) where T : unmanaged => EqualsFast<T>(ref first, ref second);
-        public static bool Equals<T>(T first, T second) where T : struct => Equals<T>(ref first, ref second);
-        private static unsafe bool Equals<T>(ref T first, ref T second) where T : struct => UnsafeUtility.IsUnmanaged<T>() && UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
+        // TODO: What happens if I compare in memory not unmanaged structs? Does everything get copied except the reference? This could be useful to avoid comparing callbacks.
+        public static bool CompareKnownUnmanaged<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second);
+        public static bool CompareUnmanaged<T>(T first, T second) where T : unmanaged => MemCmp<T>(ref first, ref second);
+        public static bool Compare<T>(T first, T second) where T : struct => UnsafeUtility.IsUnmanaged<T>() ? MemCmp<T>(ref first, ref second) : Comparers.Compare(first, second);
+        
+        private static unsafe bool MemCmp<T>(ref T first, ref T second) where T : struct => UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
 
-        public static bool EqualsFast<T, G>(T first, G second) where T : struct where G : struct => EqualsFast<T, G>(ref first, ref second);
-        private static unsafe bool EqualsFast<T, G>(ref T first, ref G second) where T : struct where G : struct
+        public static bool CompareKnownUnmanaged<T, G>(T first, G second) where T : struct where G : struct => MemCmp<T, G>(ref first, ref second);
+        public static bool CompareUnmanaged<T, G>(T first, G second) where T : unmanaged where G : unmanaged => MemCmp<T, G>(ref first, ref second);
+        public static bool Compare<T, G>(T first, G second) where T : struct where G : struct => UnsafeUtility.IsUnmanaged<T>() && UnsafeUtility.IsUnmanaged<G>() && MemCmp<T, G>(ref first, ref second);
+        
+        private static unsafe bool MemCmp<T, G>(ref T first, ref G second) where T : struct where G : struct
         {
             var size = UnsafeUtility.SizeOf<T>();
             if (size != UnsafeUtility.SizeOf<G>())
@@ -80,22 +85,15 @@ namespace RishUI
 
             return UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), size) == 0;
         }
-        public static bool EqualsUnmanaged<T, G>(T first, G second) where T : unmanaged where G : unmanaged => EqualsFast<T, G>(ref first, ref second);
-        public static bool Equals<T, G>(T first, G second) where T : struct where G : struct => Equals<T, G>(ref first, ref second);
-        private static unsafe bool Equals<T, G>(ref T first, ref G second) where T : struct where G : struct
+        
+        public static bool CompareNullable<T>(T? first, T? second) where T : struct
         {
-            if (!UnsafeUtility.IsUnmanaged<T>() || !UnsafeUtility.IsUnmanaged<G>())
+            var hasValue = first.HasValue;
+            if (hasValue != second.HasValue)
             {
                 return false;
             }
-            
-            var size = UnsafeUtility.SizeOf<T>();
-            if (size != UnsafeUtility.SizeOf<G>())
-            {
-                return false;
-            }
-
-            return UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), size) == 0;
+            return !hasValue || Compare<T>(first.Value, second.Value);
         }
     }
 }

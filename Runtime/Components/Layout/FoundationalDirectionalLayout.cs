@@ -228,7 +228,7 @@ namespace RishUI.Components
 
     public enum Direction { TopDown, BottomUp, LeftRight, RightLeft }
     
-    public struct FoundationalDirectionalLayoutProps : IEquatable<FoundationalDirectionalLayoutProps>
+    public struct FoundationalDirectionalLayoutProps
     {
         public Direction direction;
 
@@ -252,61 +252,28 @@ namespace RishUI.Components
 
         public Func<RishElement, RishTransform, RishElement> elementConstructor;
         
-        public bool Equals(FoundationalDirectionalLayoutProps other)
+        [Comparer]
+        public static bool Equals(FoundationalDirectionalLayoutProps a, FoundationalDirectionalLayoutProps b)
         {
-            if (direction != other.direction)
+            var maskContent = a.maskContent;
+            if (maskContent != b.maskContent)
+            {
+                return false;
+            }
+            if (maskContent && a.maskSoftness != b.maskSoftness)
             {
                 return false;
             }
 
-            if (maskContent != other.maskContent)
-            {
-                return false;
-            }
-            if (maskContent && maskSoftness != other.maskSoftness)
-            {
-                return false;
-            }
-            if (center != other.center)
-            {
-                return false;
-            }
-            if (flexibleSpacing != other.flexibleSpacing)
-            {
-                return false;
-            }
-            if (overflow != other.overflow)
-            {
-                return false;
-            }
-            if (raycastTarget != other.raycastTarget)
-            {
-                return false;
-            }
-            
-            if (!Mathf.Approximately(spacing, other.spacing))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(elementSize, other.elementSize))
-            {
-                return false;
-            }
-            if (!Mathf.Approximately(scroll, other.scroll))
-            {
-                return false;
-            }
-
-            if (!padding.Equals(other.padding))
-            {
-                return false;
-            }
-
-            return children.Equals(other.children);
+            return a.direction == b.direction && a.center == b.center && a.flexibleSpacing == b.flexibleSpacing &&
+                   a.overflow == b.overflow && a.raycastTarget == b.raycastTarget &&
+                   Mathf.Approximately(a.spacing, b.spacing) && Mathf.Approximately(a.elementSize, b.elementSize) &&
+                   Mathf.Approximately(a.scroll, b.scroll) && RishUtils.Compare<Margins>(a.padding, b.padding) &&
+                   RishUtils.Compare<RishList<LayoutElement>>(a.children, b.children);
         }
     }
 
-    public struct LayoutElement : IEquatable<LayoutElement>
+    public struct LayoutElement
     {
         public float size;
         public RishElement element;
@@ -317,24 +284,20 @@ namespace RishUI.Components
             element = RishElement.Null;
         }
 
-        public bool Equals(LayoutElement other)
+        [Comparer]
+        public static bool Equals(LayoutElement a, LayoutElement b)
         {
-            if (!element.Valid && !other.element.Valid)
+            var valid = a.element.Valid;
+            if (valid != b.element.Valid)
+            {
+                return false;
+            }
+            if (!valid)
             {
                 return true;
             }
             
-            if (!Mathf.Approximately(size, other.size))
-            {
-                return false;
-            }
-
-            if (!element.Equals(other.element))
-            {
-                return false;
-            }
-
-            return true;
+            return Mathf.Approximately(a.size, b.size) && RishUtils.Compare<RishElement>(a.element, b.element);
         }
 
         public static implicit operator LayoutElement(RishElement element) => new LayoutElement

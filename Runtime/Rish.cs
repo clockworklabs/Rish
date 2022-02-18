@@ -102,80 +102,69 @@ namespace RishUI
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(type => !type.IsGenericType && type.BaseType is
             {
                 IsGenericType: true
-            });
+            }).ToArray();
 
             var stateComponents = types.Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(RishComponent<,>)).ToArray();
-            var propsComponents = stateComponents.Concat(types.Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(RishComponent<>)).ToArray());
-
-            var props = propsComponents
-                .Where(type =>
-                {
-                    var propsType = type.BaseType.GenericTypeArguments[0];
-                    if (propsType == null || propsType.IsGenericType)
-                    {
-                        return false;
-                    }
-                    
-                    if (UnsafeUtility.IsUnmanaged(propsType))
-                    {
-                        return false;
-                    }
-
-                    foreach (var iInterface in propsType.GetInterfaces())
-                    {
-                        if (!iInterface.IsGenericType || iInterface.GetGenericTypeDefinition() != typeof(IEquatable<>))
-                        {
-                            continue;
-                        }
-
-                        if (iInterface.GenericTypeArguments.Contains(propsType))
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                });
-
-            var state = stateComponents
-                .Where(type =>
-                {
-                    var stateType = type.BaseType.GenericTypeArguments[0];
-                    if (stateType == null || stateType.IsGenericType)
-                    {
-                        return false;
-                    }
-                    
-                    if (UnsafeUtility.IsUnmanaged(stateType))
-                    {
-                        return false;
-                    }
-
-                    foreach (var iInterface in stateType.GetInterfaces())
-                    {
-                        if (!iInterface.IsGenericType || iInterface.GetGenericTypeDefinition() != typeof(IEquatable<>))
-                        {
-                            continue;
-                        }
-
-                        if (iInterface.GenericTypeArguments.Contains(stateType))
-                        {
-                            return false;
-                        }
-                    }
-                    
-                    return true;
-                });
+            var propsComponents = stateComponents.Concat(types.Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(RishComponent<>))).ToArray();
             
-            foreach (var value in props)
+            foreach(var componentType in propsComponents)
             {
-                var propsType = value.BaseType.GenericTypeArguments[0];
-                Debug.LogWarning($"Props of {value.Name} ({propsType.Name}) is managed and should implement IEquatable<{propsType.Name}>.");
+                PrintWarnings(0, componentType);
             }
-            foreach (var value in state)
+            foreach(var componentType in stateComponents)
             {
-                var stateType = value.BaseType.GenericTypeArguments[1];
-                Debug.LogWarning($"State of {value.Name} ({stateType.Name}) is managed and should implement IEquatable<{stateType.Name}>.");
+                PrintWarnings(1, componentType);
+            }
+
+            void PrintWarnings(int argumentIndex, Type componentType)
+            {
+                if (argumentIndex < 0 || argumentIndex > 1)
+                {
+                    return;
+                }
+                
+                var propsType = componentType.BaseType.GenericTypeArguments[argumentIndex];
+                if (propsType == null || propsType.IsGenericType)
+                {
+                    return;
+                }
+
+                var argumentType = argumentIndex == 0 ? "props" : "state";
+                var descriptor = $"{propsType.Name} ({argumentType} of {componentType.Name})";
+
+                var hasComparer = Comparers.Contains(propsType);
+                
+                if (UnsafeUtility.IsUnmanaged(propsType))
+                {
+                    if (hasComparer)
+                    {
+                        Debug.LogWarning($"{descriptor} is unmanaged and doesn't need a comparer.");
+                    }
+                }
+                else
+                {
+                    if (!hasComparer)
+                    {
+                        Debug.LogWarning($"{descriptor} is managed and should have a comparer.");
+                    }
+                }
+            
+                var defaultAttributes = propsType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic).Where(property => Attribute.IsDefined(property, typeof(DefaultAttribute))).ToArray();
+                if (defaultAttributes.Length > 0)
+                {
+                    if (defaultAttributes.Length > 1)
+                    {
+                        Debug.LogWarning($"{descriptor} has more than 1 default value.");
+                    }
+                    else
+                    {
+                        var defaultAttribute = defaultAttributes[0];
+                        if (!defaultAttribute.GetGetMethod().IsStatic)
+                        {
+                            Debug.LogWarning($"Default of {descriptor} should be static.");
+                        }
+                    }
+                }
             }
         }
 #endif
@@ -531,134 +520,6 @@ namespace RishUI
             func?.Invoke(ref d);
                 
             return d;
-        }
-
-        public static class Defaults
-        {
-            private static Dictionary<Type, object> Values { get; }
-            private static HashSet<Type> GenericTypes { get; }
-
-            public static int Count => Values.Count + GenericTypes.Count;
-
-            static Defaults()
-            {
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
-
-                Values = types
-                    .Where(type => !type?.IsGenericType ?? false)
-                    .Select(type =>
-                    {
-                        var property = type
-                            .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                            .FirstOrDefault(property => Attribute.IsDefined(property, typeof(DefaultAttribute)));
-
-                        return property?.PropertyType == type ? property : null;
-                    })
-                    .Where(property => property != null)
-                    .Select(property => property.GetValue(null))
-                    .Where(value => value != null)
-                    .ToDictionary(value => value.GetType(), value => value);
-
-                GenericTypes = new HashSet<Type>(types
-                    .Where(type => type?.IsGenericType ?? false)
-                    .Select(type =>
-                    {
-                        var property = type
-                            .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                            .FirstOrDefault(property => Attribute.IsDefined(property, typeof(DefaultAttribute)));
-
-                        return property?.PropertyType == type ? type : null;
-                    })
-                    .Where(type => type != null));
-            }
-
-            public static T GetValue<T>() where T : struct
-            {
-                var type = typeof(T);
-                if (type.IsGenericType)
-                {
-                    if (!GenericTypes.Contains(type.GetGenericTypeDefinition()))
-                    {
-                        return default;
-                    }
-
-                    var property = type.GetProperty("Default",
-                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-
-                    return (T)property.GetValue(null);
-                }
-
-                if (!Values.TryGetValue(type, out var value))
-                {
-                    return default;
-                }
-
-                return (T)value;
-            }
-        }
-        
-        public static class Equals
-        {
-            private static Dictionary<Type, MethodInfo> Methods { get; }
-            private static Dictionary<Type, Delegate> Delegates { get; } = new Dictionary<Type, Delegate>();
-
-            public static int Count => Methods.Count;
-
-            private delegate bool Comparer<in T>(T first, T second);
-            
-            static Equals()
-            {
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
-
-                Methods = types
-                    .Where(type => !type?.IsGenericType ?? false)
-                    .Select(type =>
-                    {
-                        var method = type
-                            .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                            .FirstOrDefault(method =>
-                            {
-                                var parameters = method.GetParameters();
-                                if (parameters.Length != 2)
-                                {
-                                    return false;
-                                }
-
-                                return Attribute.IsDefined(method, typeof(EqualsAttribute)) && method.IsStatic &&
-                                       method.ReturnType == typeof(bool) && parameters[0].ParameterType == type &&
-                                       parameters[1].ParameterType == type;
-                            });
-
-                        return method;
-                    })
-                    .Where(method => method != null)
-                    .ToDictionary(method => method.DeclaringType, method => method);
-            }
-
-            public static bool Compare<T>(T first, T second) where T : struct
-            {
-                var comparer = GetDelegate<T>();
-                return comparer?.Invoke(first, second) ?? false;
-            }
-
-            private static Comparer<T> GetDelegate<T>() where T : struct
-            {
-                var type = typeof(T);
-                if (!Delegates.TryGetValue(type, out var comparer))
-                {
-                    if (!Methods.TryGetValue(type, out var method))
-                    {
-                        return null;
-                    }
-                    
-                    comparer = Delegate.CreateDelegate(typeof(Comparer<bool>), null, method);
-                    Delegates.Add(type, comparer);
-                }
-
-                return (Comparer<T>) comparer;
-            }
         }
     }
 }

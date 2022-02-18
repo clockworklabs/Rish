@@ -4,7 +4,7 @@ using UnityEngine;
 namespace RishUI
 {
     [Serializable]
-    public struct Margins : IEquatable<Margins>
+    public struct Margins
     {
         public float top;
         public float right;
@@ -20,23 +20,6 @@ namespace RishUI
             !float.IsNaN(left) && !float.IsInfinity(left);
         
         public override string ToString() => $"{top} - {right} - {bottom} - {left}";
-
-        // TODO: This type is unmanaged. Do we want this?
-        public bool Equals(Margins other)
-        {
-            var isValid = IsValid();
-            if (isValid != other.IsValid())
-            {
-                return false;
-            }
-            if (!isValid)
-            {
-                return true;
-            }
-            
-            return Mathf.Approximately(top, other.top) && Mathf.Approximately(right, other.right) &&
-                Mathf.Approximately(bottom, other.bottom) && Mathf.Approximately(left, other.left);
-        }
 
         public static implicit operator Margins(Vector4 vector) => new Margins
         {

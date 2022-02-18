@@ -55,11 +55,12 @@ namespace RishUI.Components
         private void Submit() => Props.action?.Invoke();
     }
 
-    public struct FormProps : IEquatable<FormProps>
+    public struct FormProps
     {
         public RishElement content;
         public Action action;
-        
-        public bool Equals(FormProps other) => content.Equals(other.content);
+
+        [Comparer]
+        public static bool Equals(FormProps a, FormProps b) => RishUtils.Compare<RishElement>(a.content, b.content);
     }
 }

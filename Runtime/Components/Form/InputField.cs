@@ -312,7 +312,7 @@ namespace RishUI.Components
     
     public enum InputFieldType { Standard, Integer, Decimal, Alphanumeric, Name, Email, Password, Pin }
 
-    public struct InputFieldProps : IEquatable<InputFieldProps>
+    public struct InputFieldProps
     {
         public string imageSpriteAddress;
         public ImageSettings imageSettings;
@@ -395,108 +395,109 @@ namespace RishUI.Components
             onChange = other.onChange;
         }
 
-        public bool Equals(InputFieldProps other)
+        [Comparer]
+        public static bool Equals(InputFieldProps a, InputFieldProps b)
         {
-            if (autoFocus != other.autoFocus)
+            if (a.autoFocus != b.autoFocus)
             {
                 return false;
             }
-            if(selectAllOnFocus != other.selectAllOnFocus) {
+            if(a.selectAllOnFocus != b.selectAllOnFocus) {
                 return false;
             }
-            if(restoreOnEscapeKey != other.restoreOnEscapeKey) {
+            if(a.restoreOnEscapeKey != b.restoreOnEscapeKey) {
                 return false;
             }
-            if(hideSoftKeyboard != other.hideSoftKeyboard) {
+            if(a.hideSoftKeyboard != b.hideSoftKeyboard) {
                 return false;
             }
-            if(hideMobileInput != other.hideMobileInput) {
+            if(a.hideMobileInput != b.hideMobileInput) {
                 return false;
             }
-            if(readOnly != other.readOnly) {
+            if(a.readOnly != b.readOnly) {
                 return false;
             }
-            if(richText != other.richText) {
-                return false;
-            }
-            
-            if(characterLimit != other.characterLimit) {
+            if(a.richText != b.richText) {
                 return false;
             }
             
-            if(type != other.type) {
+            if(a.characterLimit != b.characterLimit) {
+                return false;
+            }
+            
+            if(a.type != b.type) {
                 return false;
             }
 
-            if (!textMargin.Equals(other.textMargin))
+            if (!RishUtils.Compare<Margins>(a.textMargin, b.textMargin))
             {
                 return false;
             }
 
-            if (showCaret != other.showCaret)
+            if (a.showCaret != b.showCaret)
             {
                 return false;
             }
-            if (showCaret)
+            if (a.showCaret)
             {
-                if(caretWidth != other.caretWidth) {
+                if(a.caretWidth != b.caretWidth) {
                     return false;
                 }
-                if(!Mathf.Approximately(caretBlinkRate, other.caretBlinkRate)) {
+                if(!Mathf.Approximately(a.caretBlinkRate, b.caretBlinkRate)) {
                     return false;
                 }
             }
             
-            var showSelection = !Mathf.Approximately(selectionColor.a, 0);
-            if (showSelection != !Mathf.Approximately(other.selectionColor.a, 0))
+            var showSelection = !Mathf.Approximately(a.selectionColor.a, 0);
+            if (showSelection != !Mathf.Approximately(b.selectionColor.a, 0))
             {
                 return false;
             }
             if (showSelection)
             {
-                if (!Mathf.Approximately(selectionColor.r, other.selectionColor.r) ||
-                    !Mathf.Approximately(selectionColor.g, other.selectionColor.g) ||
-                    !Mathf.Approximately(selectionColor.b, other.selectionColor.b) ||
-                    !Mathf.Approximately(selectionColor.a, other.selectionColor.a))
+                if (!Mathf.Approximately(a.selectionColor.r, b.selectionColor.r) ||
+                    !Mathf.Approximately(a.selectionColor.g, b.selectionColor.g) ||
+                    !Mathf.Approximately(a.selectionColor.b, b.selectionColor.b) ||
+                    !Mathf.Approximately(a.selectionColor.a, b.selectionColor.a))
                 {
                     return false;
                 }
             }
             
-            var image = !string.IsNullOrWhiteSpace(imageSpriteAddress);
-            if (image != !string.IsNullOrWhiteSpace(other.imageSpriteAddress))
+            var image = !string.IsNullOrWhiteSpace(a.imageSpriteAddress);
+            if (image != !string.IsNullOrWhiteSpace(b.imageSpriteAddress))
             {
                 return false;
             }
-            if (image && !imageSettings.Equals(other.imageSettings))
+            if (image && !RishUtils.Compare<ImageSettings>(a.imageSettings, b.imageSettings))
             {
                 return false;
             }
 
-            var placeholder = !string.IsNullOrWhiteSpace(placeholderText);
-            if (placeholder != !string.IsNullOrWhiteSpace(other.placeholderText))
+            var placeholder = !string.IsNullOrWhiteSpace(a.placeholderText);
+            if (placeholder != !string.IsNullOrWhiteSpace(b.placeholderText))
             {
                 return false;
             }
             if (placeholder)
             {
-                if (!placeholderSettings.Equals(other.placeholderSettings))
+                if (!RishUtils.Compare<TextSettings>(a.placeholderSettings, b.placeholderSettings))
                 {
                     return false;
                 }
 
-                if (placeholderText != other.placeholderText)
+                if (a.placeholderText != b.placeholderText)
                 {
                     return false;
                 }
             }
             
-            if (text != other.text)
+            if (a.text != b.text)
             {
                 return false;
             }
 
-            if (!textSettings.Equals(other.textSettings))
+            if (!RishUtils.Compare<TextSettings>(a.textSettings, b.textSettings))
             {
                 return false;
             }
@@ -505,7 +506,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct InputFieldState : IEquatable<InputFieldState>
+    public struct InputFieldState
     {
         public Sprite imageSprite;
         public TMP_FontAsset placeholderFont;
@@ -513,9 +514,10 @@ namespace RishUI.Components
         public TMP_FontAsset textFont;
         public Material textMaterial;
 
-        public bool Equals(InputFieldState other) => imageSprite == other.imageSprite &&
-                                                     placeholderFont == other.placeholderFont &&
-                                                     placeholderMaterial == other.placeholderMaterial &&
-                                                     textFont == other.textFont && textMaterial == other.textMaterial;
+        [Comparer]
+        public static bool Equals(InputFieldState a, InputFieldState b) =>
+            a.imageSprite == b.imageSprite && a.placeholderFont == b.placeholderFont &&
+            a.placeholderMaterial == b.placeholderMaterial && a.textFont == b.textFont && 
+            a.textMaterial == b.textMaterial;
     }
 }

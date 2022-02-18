@@ -700,23 +700,11 @@ namespace RishUI
 
         public bool Contains(T item)
         {
-            if (item is IEquatable<T> equatable)
+            for (int i = 0, n = Count; i < n; i++)
             {
-                for (int i = 0, n = Count; i < n; i++)
+                if (RishUtils.Compare<T>(item, this[i]))
                 {
-                    if (equatable.Equals(this[i]))
-                    {
-                        return true;
-                    }
-                }
-            } else if (IsUnmanaged)
-            {
-                for (int i = 0, n = Count; i < n; i++)
-                {
-                    if (RishUtils.EqualsFast<T>(item, this[i]))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -728,6 +716,7 @@ namespace RishUI
             return new Enumerator(this);
         }
 
+        [Comparer]
         public bool Equals(RishList<T> other)
         {
             var count = Count;
@@ -748,19 +737,9 @@ namespace RishUI
 
             for (var i = Count - 1; i >= 0; i--)
             {
-                var item = this[i];
-                if (item is IEquatable<T> equatable)
+                if (!RishUtils.Compare<T>(this[i], other[i]))
                 {
-                    if (!equatable.Equals(other[i]))
-                    {
-                        return false;
-                    }
-                } else if (IsUnmanaged)
-                {
-                    if (!RishUtils.EqualsFast<T>(item, other[i]))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 

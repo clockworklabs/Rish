@@ -94,7 +94,7 @@ namespace RishUI.Components
         bool IScrollListener.OnScroll(ScrollInfo info) => Props.captureInput;
     }
 
-    public struct DivProps : IEquatable<DivProps>
+    public struct DivProps
     {
         public string backgroundSpriteAddress;
         public bool maskable;
@@ -124,45 +124,38 @@ namespace RishUI.Components
             children = other.children;
         }
 
-        public bool Equals(DivProps other)
+        [Comparer]
+        public static bool Equals(DivProps a, DivProps b)
         {
-            if (maskable != other.maskable)
+            var maskContent = a.maskContent;
+            if (maskContent != b.maskContent)
             {
                 return false;
             }
-            if (raycastTarget != other.raycastTarget)
+            if (maskContent && a.maskSoftness != b.maskSoftness)
             {
                 return false;
             }
-            if (maskContent != other.maskContent)
+                
+            var emptyAddress = string.IsNullOrWhiteSpace(a.backgroundSpriteAddress);
+            if (emptyAddress != string.IsNullOrWhiteSpace(b.backgroundSpriteAddress))
             {
                 return false;
             }
-
-            if (maskContent && maskSoftness != other.maskSoftness)
-            {
-                return false;
-            }
-
-            var emptyAddress = string.IsNullOrWhiteSpace(backgroundSpriteAddress);
-            if (emptyAddress != string.IsNullOrWhiteSpace(other.backgroundSpriteAddress))
+            if (!emptyAddress && a.backgroundSpriteAddress != b.backgroundSpriteAddress)
             {
                 return false;
             }
             
-            if (!emptyAddress && backgroundSpriteAddress != other.backgroundSpriteAddress)
-            {
-                return false;
-            }
-            
-            return children.Equals(other.children);
+            return a.maskable == b.maskable && a.raycastTarget == b.raycastTarget && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
         }
     }
 
-    public struct DivState : IEquatable<DivState>
+    public struct DivState
     {
         public Sprite sprite;
         
-        public bool Equals(DivState other) => sprite == other.sprite;
+        [Comparer]
+        public static bool Equals(DivState a, DivState b) => a.sprite == b.sprite;
     }
 }

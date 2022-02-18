@@ -79,7 +79,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct MaskProps : IEquatable<MaskProps>
+    public struct MaskProps
     {
         public string spriteAddress;
         public bool rect;
@@ -87,27 +87,28 @@ namespace RishUI.Components
 
         public RishList<RishElement> children;
         
-        public bool Equals(MaskProps other)
+        [Comparer]
+        public static bool Equals(MaskProps a, MaskProps b)
         {
-            var emptyAddress = string.IsNullOrWhiteSpace(spriteAddress);
-            if (emptyAddress != string.IsNullOrWhiteSpace(other.spriteAddress))
+            var emptyAddress = string.IsNullOrWhiteSpace(a.spriteAddress);
+            if (emptyAddress != string.IsNullOrWhiteSpace(b.spriteAddress))
             {
                 return false;
             }
-            
-            if (!emptyAddress && spriteAddress != other.spriteAddress)
+            if (!emptyAddress && a.spriteAddress != b.spriteAddress)
             {
                 return false;
             }
 
-            return rect != other.rect && rectFade.Equals(other.rectFade) && children.Equals(other.children);
+            return a.rect == b.rect && a.rectFade.Equals(b.rectFade) && RishUtils.Compare<RishList<RishElement>>(a.children, b.children);
         }
     }
 
-    public struct MaskState : IEquatable<MaskState>
+    public struct MaskState
     {
         public Sprite sprite;
 
-        public bool Equals(MaskState other) => sprite == other.sprite;
+        [Comparer]
+        public static bool Equals(MaskState a, MaskState b) => a.sprite == b.sprite;
     }
 }

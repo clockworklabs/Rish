@@ -151,7 +151,7 @@ namespace RishUI.Components
         }
     }
 
-    public struct ButtonProps : IEquatable<ButtonProps>
+    public struct ButtonProps
     {
         public float extraMargin;
 
@@ -185,42 +185,13 @@ namespace RishUI.Components
             disabled = other.disabled;
         }
 
-        public bool Equals(ButtonProps other)
-        {
-            if (interactable != other.interactable)
-            {
-                return false;
-            }
-
-            if (listenWhileTransforming != other.listenWhileTransforming)
-            {
-                return false;
-            }
-
-            if (Mathf.Approximately(extraMargin, other.extraMargin))
-            {
-                return false;
-            }
-
-            if (!normal.Equals(other.normal))
-            {
-                return false;
-            }
-            if (!hovered.Equals(other.hovered))
-            {
-                return false;
-            }
-            if (!pressed.Equals(other.pressed))
-            {
-                return false;
-            }
-            if (!disabled.Equals(other.disabled))
-            {
-                return false;
-            }
-            
-            return true;
-        }
+        [Comparer]
+        public static bool Equals(ButtonProps a, ButtonProps b) =>
+            a.interactable == b.interactable && a.listenWhileTransforming == b.listenWhileTransforming &&
+            Mathf.Approximately(a.extraMargin, b.extraMargin) && RishUtils.Compare<RishElement>(a.normal, b.normal) &&
+            RishUtils.Compare<RishElement>(a.hovered, b.hovered) &&
+            RishUtils.Compare<RishElement>(a.pressed, b.pressed) &&
+            RishUtils.Compare<RishElement>(a.disabled, b.disabled);
     }
 
     public struct ButtonState

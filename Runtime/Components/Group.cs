@@ -18,7 +18,7 @@ namespace RishUI.Components
         }
     }
     
-    public struct GroupProps : IEquatable<GroupProps>
+    public struct GroupProps
     {
         public float alpha;
         public bool interactable;
@@ -43,10 +43,10 @@ namespace RishUI.Components
             content = other.content;
         }
 
-        public bool Equals(GroupProps other) => interactable == other.interactable &&
-                                                raycastTarget == other.raycastTarget &&
-                                                ignoreParentGroups == other.ignoreParentGroups &&
-                                                Mathf.Approximately(alpha, other.alpha) &&
-                                                content.Equals(other.content);
+        [Comparer]
+        public static bool Equals(GroupProps a, GroupProps b) => 
+            a.interactable == b.interactable && a.raycastTarget == b.raycastTarget &&
+            a.ignoreParentGroups == b.ignoreParentGroups && Mathf.Approximately(a.alpha, b.alpha) &&
+            RishUtils.Compare<RishElement>(a.content, b.content);
     }
 }

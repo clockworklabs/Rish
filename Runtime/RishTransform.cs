@@ -283,56 +283,6 @@ namespace RishUI
 
         public override string ToString() => $"{min} - {max} - {top} - {right} - {bottom} - {left} - {scale} - {rotation}";
 
-        // TODO: This type is unmanaged. Do we want this?
-        public bool Equals(RishTransform other)
-        {
-            var isValid = IsValid();
-            
-            if (isValid != other.IsValid())
-            {
-                return false;
-            }
-
-            if (!isValid)
-            {
-                return true;
-            }
-            
-            if(!Mathf.Approximately(min.x, other.min.x))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(min.y, other.min.y))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(max.x, other.max.x))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(max.y, other.max.y))
-            {
-                return false;
-            }
-
-            if (!margins.Equals(other.margins))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(scale.x, other.scale.x))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(scale.y, other.scale.y))
-            {
-                return false;
-            }
-            if(!Mathf.Approximately(rotation, other.rotation))
-            {
-                return false;
-            }
-
-            return true;
-        }
+        bool IEquatable<RishTransform>.Equals(RishTransform other) => RishUtils.CompareUnmanaged<RishTransform>(this, other);
     }
 }

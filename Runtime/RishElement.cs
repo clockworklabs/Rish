@@ -3,7 +3,7 @@ using System;
 namespace RishUI
 {
     [Serializable] // TODO: readonly structs don't serialize properly
-    public readonly struct RishElement : IEquatable<RishElement>
+    public readonly struct RishElement
     {
         public static RishElement Null => new RishElement();
 
@@ -60,10 +60,11 @@ namespace RishUI
 
         public bool Valid => type != null && transform.IsValid();
 
-        public bool Equals(RishElement other)
+        [Comparer]
+        public static bool Equals(RishElement a, RishElement b)
         {
-            var isValid = Valid;
-            if (isValid != other.Valid)
+            var isValid = a.Valid;
+            if (isValid != b.Valid)
             {
                 return false;
             }
@@ -73,12 +74,12 @@ namespace RishUI
                 return true;
             }
 
-            if (setup != null || other.setup != null)
+            if (a.setup != null || b.setup != null)
             {
                 return false;
             }
 
-            return type == other.type && key == other.key && name == other.name && transform.Equals(other.transform);
+            return a.type == b.type && a.key == b.key && a.name == b.name && RishUtils.Compare<RishTransform>(a.transform, b.transform);
         }
     }
 }

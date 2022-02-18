@@ -62,9 +62,9 @@ namespace RishUI.Components
         }
     }
 
-    public struct RawImageSettings : IEquatable<RawImageSettings>
+    public struct RawImageSettings
     {
-        public static readonly RawImageSettings Default = new RawImageSettings
+        public static RawImageSettings Default => new RawImageSettings
         {
             color = Color.white,
             maskable = true,
@@ -76,44 +76,9 @@ namespace RishUI.Components
         public bool maskable;
         public bool raycastTarget;
         public Rect uvRect;
-
-        public RawImageSettings(RawImageSettings other)
-        {
-            color = other.color;
-            maskable = other.maskable;
-            raycastTarget = other.raycastTarget;
-            uvRect = other.uvRect;
-        }
-        
-        public bool Equals(RawImageSettings other)
-        {            
-            if (raycastTarget != other.raycastTarget)
-            {
-                return false;
-            }
-
-            if (maskable != other.maskable)
-            {
-                return false;
-            }
-
-            var transparent = Mathf.Approximately(color.a, 0);
-            if(transparent != Mathf.Approximately(other.color.a, 0))
-            {
-                return false;
-            }
-
-            if (!transparent && (!Mathf.Approximately(color.r, other.color.r) || !Mathf.Approximately(color.g, other.color.g) ||
-                                 !Mathf.Approximately(color.b, other.color.b) || !Mathf.Approximately(color.a, other.color.a)))
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
     
-    public struct RawImageProps : IEquatable<RawImageProps>
+    public struct RawImageProps
     {
         public string textureAddress;
         public RawImageSettings settings;
@@ -135,32 +100,28 @@ namespace RishUI.Components
             settings = other.settings;
         }
         
-        public bool Equals(RawImageProps other)
+        [Comparer]
+        public static bool Equals(RawImageProps a, RawImageProps b)
         {
-            if (!settings.Equals(other.settings))
+            var emptyAddress = string.IsNullOrWhiteSpace(a.textureAddress);
+            if (emptyAddress != string.IsNullOrWhiteSpace(b.textureAddress))
             {
                 return false;
             }
-            
-            var emptyAddress = string.IsNullOrWhiteSpace(textureAddress);
-            if (emptyAddress != string.IsNullOrWhiteSpace(other.textureAddress))
-            {
-                return false;
-            }
-            
-            if (!emptyAddress && textureAddress != other.textureAddress)
+            if (!emptyAddress && a.textureAddress != b.textureAddress)
             {
                 return false;
             }
 
-            return true;
+            return RishUtils.Compare<RawImageSettings>(a.settings, b.settings);
         }
     }
 
-    public struct RawImageState : IEquatable<RawImageState>
+    public struct RawImageState
     {
         public Texture texture;
 
-        public bool Equals(RawImageState other) => texture == other.texture;
+        [Comparer]
+        public static bool Equals(RawImageState a, RawImageState b) => a.texture == b.texture;
     }
 }

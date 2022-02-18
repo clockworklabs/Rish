@@ -681,15 +681,7 @@ namespace RishUI
             get => _props;
             set
             {
-                bool changed;
-                if (IsUnmanaged)
-                {
-                    changed = !RishUtils.EqualsFast<P>(value, _props);
-                }
-                else
-                {
-                    changed = !Rish.Equals.Compare(value, _props);
-                }
+                var changed = !RishUtils.Compare<P>(value, _props);
 
                 if (changed)
                 {
@@ -719,7 +711,7 @@ namespace RishUI
 
         private protected override void Default()
         {
-            Props = Rish.Defaults.GetValue<P>();
+            Props = Defaults.GetValue<P>();
         }
 
         private void Enable()
@@ -772,23 +764,13 @@ namespace RishUI
     
     public abstract class RishComponent<P, S> : RishComponent<P> where P : struct where S : struct
     {
-        private static bool IsUnmanaged { get; } = UnsafeUtility.IsUnmanaged<S>();
-        
         private S _state;
         protected S State
         {
             get => _state;
             set
             {
-                bool changed;
-                if (IsUnmanaged)
-                {
-                    changed = !RishUtils.EqualsFast<S>(value, _state);
-                }
-                else
-                {
-                    changed = !Rish.Equals.Compare(value, _state);
-                }
+                var changed = !RishUtils.Compare<S>(value, _state);
 
                 if (changed)
                 {
@@ -801,7 +783,7 @@ namespace RishUI
         
         private protected override void Initialize()
         {
-            State = Rish.Defaults.GetValue<S>();
+            State = Defaults.GetValue<S>();
             
             base.Initialize();
         }
