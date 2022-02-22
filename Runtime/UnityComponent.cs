@@ -132,7 +132,8 @@ namespace RishUI
         internal bool HasPointerOver => PointerEnterEvents.Count > 0;
         internal bool HasPointerDown => PointerDownEvents.Count > 0;
 
-        protected void ForceRender(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
+        protected void ForceRender() => ForceRender(false);
+        protected void ForceRender(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
         
         internal void Constructor(InputSystem input)
         {

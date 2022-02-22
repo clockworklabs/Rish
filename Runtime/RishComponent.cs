@@ -187,7 +187,8 @@ namespace RishUI
         private EventsList LongTapEvents { get; } = new EventsList();
         private HashSet<int> DragEvents { get; } = new HashSet<int>();
 
-        protected void ForceRender(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
+        protected void ForceRender() => ForceRender(false);
+        protected void ForceRender(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
 
         internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, AssetsManager assets)
         {
