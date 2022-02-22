@@ -139,7 +139,7 @@ namespace RishUI
                 TopLevelTransform.SetParent(RealParentTransform);
             }
 
-            Component.OnDirty += NotifyDirty;
+            Component.OnDirty += OnComponentDirty;
             Component.OnTransform += OnRectChange;
             switch (Component)
             {
@@ -154,7 +154,7 @@ namespace RishUI
             }
         }
 
-        private void NotifyDirty() => Rish.OnNodeDirty(this);
+        private void OnComponentDirty(bool forceThisFrame) => Rish.OnNodeDirty(this, forceThisFrame);
         private void NotifyUnmount() => Rish.OnNodeUnmounted(this);
 
         private void OnRectChange()
@@ -341,7 +341,7 @@ namespace RishUI
             Mounted = false;
 
             Component.OnTransform -= OnRectChange;
-            Component.OnDirty -= NotifyDirty;
+            Component.OnDirty -= OnComponentDirty;
             Component.OnReadyToUnmount -= TryUnmount;
 
             switch (Component)

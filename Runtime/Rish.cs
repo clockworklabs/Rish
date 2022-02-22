@@ -93,7 +93,7 @@ namespace RishUI
                children = app.Run()
             }));
 
-            OnNodeDirty(RootNode);
+            OnNodeDirty(RootNode, true);
         }
 
 #if UNITY_EDITOR
@@ -219,7 +219,7 @@ namespace RishUI
             Input.OnEvent(Event.current);
         }
 
-        internal void OnNodeDirty(RishNode node, bool forceThisFrame = false)
+        internal void OnNodeDirty(RishNode node, bool forceThisFrame)
         {
             if (forceThisFrame || node.Depth > CurrentDepth)
             {
@@ -248,11 +248,8 @@ namespace RishUI
 
         private void AddNodeToList(RishNode node) => DirtyList.Add(node);
 
-        internal void OnNodeUnmounted(RishNode node)
-        {
-            Unmounted.Add(node);
-        }
-        
+        internal void OnNodeUnmounted(RishNode node) => Unmounted.Add(node);
+
         private void Render(RishNode node)
         {
             if (!node.Mounted) return;
@@ -327,7 +324,8 @@ namespace RishUI
             var name = child.name;
 
             var childNode = node?.FindFreeChild(type, key);
-            if (childNode == null)
+            var newChild = childNode == null;
+            if (newChild)
             {
                 if (node == null || node.Active)
                 {
@@ -343,7 +341,11 @@ namespace RishUI
             childNode.UpdateIndex();
             
             var component = childNode.Component;
-            component.UpdateComponent(child.transform, child.setup);
+            component.UpdateTransform(child.transform);
+            if (newChild || !child.transformOnly)
+            {
+                component.SetupComponent(child.setup);
+            }
 
             return childNode;
         }

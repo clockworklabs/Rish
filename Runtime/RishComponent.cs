@@ -187,7 +187,7 @@ namespace RishUI
         private EventsList LongTapEvents { get; } = new EventsList();
         private HashSet<int> DragEvents { get; } = new HashSet<int>();
 
-        protected void ForceRender() => OnDirty?.Invoke();
+        protected void ForceRender(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
 
         internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, AssetsManager assets)
         {
@@ -287,7 +287,7 @@ namespace RishUI
 
         private void SetInputRatio(Vector2 inputRatio) => InputRatio = inputRatio;
 
-        void IRishComponent.UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        void IRishComponent.UpdateTransform(RishTransform local)
         {
             if (JustMounted || !ManualTransform)
             {
@@ -295,7 +295,9 @@ namespace RishUI
                 Local = local;
                 LocalLocked = true;
             }
-
+        }
+        void IRishComponent.SetupComponent(Action<IRishComponent> setup)
+        {
             if (setup != null)
             {
                 setup.Invoke(this);

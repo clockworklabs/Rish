@@ -6,7 +6,7 @@ namespace RishUI
 {
     public struct NoProps { }
 
-    public delegate void OnDirty();
+    public delegate void OnDirty(bool forceThisFrame);
     public delegate void OnTransform();
     public delegate void OnWorld(RishTransform world);
     public delegate void OnSize(Vector2 size);
@@ -27,7 +27,8 @@ namespace RishUI
         
         Vector2 Size { get; }
 
-        void UpdateComponent(RishTransform local, Action<IRishComponent> setup);
+        void UpdateTransform(RishTransform local);
+        void SetupComponent(Action<IRishComponent> setup);
     }
 
     public interface IRishComponent<P> : IRishComponent where P : struct

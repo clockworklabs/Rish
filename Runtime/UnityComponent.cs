@@ -132,7 +132,7 @@ namespace RishUI
         internal bool HasPointerOver => PointerEnterEvents.Count > 0;
         internal bool HasPointerDown => PointerDownEvents.Count > 0;
 
-        protected void ForceRender() => OnDirty?.Invoke();
+        protected void ForceRender(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
         
         internal void Constructor(InputSystem input)
         {
@@ -228,10 +228,12 @@ namespace RishUI
             gameObject.SetActive(false);
         }
         
-        void IRishComponent.UpdateComponent(RishTransform local, Action<IRishComponent> setup)
+        void IRishComponent.UpdateTransform(RishTransform local)
         {
             Local = local;
-            
+        }
+        void IRishComponent.SetupComponent(Action<IRishComponent> setup)
+        {
             setup?.Invoke(this);
         }
         
