@@ -99,7 +99,17 @@ namespace RishUI
 #if UNITY_EDITOR
         private void ShowEditorWarnings()
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(type => !type.IsGenericType && type.BaseType is
+            var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).ToArray();
+
+            foreach (var type in allTypes)
+            {
+                if (UnsafeUtility.IsUnmanaged(type) && Comparers.Contains(type))
+                {
+                    Debug.LogWarning($"{type} is unmanaged and doesn't need a comparer.");
+                }
+            }
+            
+            var types = allTypes.Where(type => !type.IsGenericType && type.BaseType is
             {
                 IsGenericType: true
             }).ToArray();
