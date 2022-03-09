@@ -202,11 +202,11 @@ namespace RishUI
                     var data = PointerDragEvents[i];
                     ((IEndDragHandler) this).OnEndDrag(data);
                 }
-                for(var i = PointerEnterEvents.Count - 1; i >= 0; i--)
-                {
-                    var data = PointerEnterEvents[i];
-                    OnPointerExit(data);
-                }
+            }
+            for(var i = PointerEnterEvents.Count - 1; i >= 0; i--)
+            {
+                var data = PointerEnterEvents[i];
+                OnPointerExit(data);
             }
             
             if (Parent != null)

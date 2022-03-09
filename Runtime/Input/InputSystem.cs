@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 namespace RishUI.Input
 {
@@ -14,7 +15,7 @@ namespace RishUI.Input
         private Rish Rish { get; }
         
         private RishComponent _appComponent;
-        private RishComponent AppComponent => _appComponent ??= Rish.RootNode.GetChild(0).GetChild(0).Component as RishComponent;
+        private RishComponent AppComponent => _appComponent ??= Rish.RootNode.Component as RishComponent;
 
         public bool HasPointerOver => AppComponent is { HasPointerOver: true };
         public bool HasPointerDown => AppComponent is { HasPointerDown: true };
@@ -85,6 +86,13 @@ namespace RishUI.Input
                         case TouchPhase.Ended:
                             OnInternalPointerUp?.Invoke(touch.fingerId);
                             break;
+                        case TouchPhase.Began:
+                            if (!HasPointerOver)
+                            {
+                                
+                            }
+                            OnInternalPointerUp?.Invoke(touch.fingerId);
+                            break;
                     }
                 }
             }
@@ -117,12 +125,15 @@ namespace RishUI.Input
             switch (e.type)
             {
                 case EventType.MouseDown:
-                    if (KeyboardFocus == null)
+                    if (!HasPointerOver)
                     {
-                        return;
+                        StartLatePointerDownPropagation(e.mousePosition, -e.button - 1, false);
+                    }
+                    if (KeyboardFocus != null)
+                    {
+                        SetKeyboardFocus(null);
                     }
                     
-                    SetKeyboardFocus(null);
                     return;
                 case EventType.KeyDown:
                     if (keyCode.IsModifier())
@@ -141,6 +152,13 @@ namespace RishUI.Input
                     
                     OnKeyUp(keyCode);
 
+                    return;
+                case EventType.TouchDown:
+                    if (!HasPointerDown)
+                    {
+                        Debug.Log(e.button);
+                        // StartLatePointerDownPropagation(e.mousePosition, e., false);
+                    }
                     return;
             }
         }
@@ -271,7 +289,10 @@ namespace RishUI.Input
             DownKeys.Remove(keyCode);
         }
 
-        internal void StartLatePointerDownPropagation(PointerEventData eventData, bool captured)
+        internal void StartLatePointerDownPropagation(PointerEventData eventData, bool captured) =>
+            StartLatePointerDownPropagation(eventData.position, eventData.pointerId, captured);
+
+        private void StartLatePointerDownPropagation(Vector2 position, int pointerId, bool captured)
         {
             for (int i = 0, n = LatePointerDownListeners.Count; i < n; i++)
             {
@@ -281,8 +302,13 @@ namespace RishUI.Input
                 {
                     continue;
                 }
+
+                var info = new PointerInfo
+                {
+                    position = position * component.InputRatio,
+                    id = pointerId
+                };
                 
-                var info = PointerInfo.FromEvent(eventData, component.InputRatio);
                 LatePointerDownListeners[i].OnLatePointerDown(info, captured);
             }
         }

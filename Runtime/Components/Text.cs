@@ -513,16 +513,14 @@ namespace RishUI.Components
             {
                 return false;
             }
-            if (visible && (!Mathf.Approximately(a.color.r, b.color.r) ||
-                            !Mathf.Approximately(a.color.g, b.color.g) ||
-                            !Mathf.Approximately(a.color.b, b.color.b)))
-            {
-                return false;
-            }
-
             if (!visible)
             {
                 return true;
+            }
+            
+            if (!Mathf.Approximately(a.color.r, b.color.r) || !Mathf.Approximately(a.color.g, b.color.g) || !Mathf.Approximately(a.color.b, b.color.b) || !Mathf.Approximately(a.color.a, b.color.a))
+            {
+                return false;
             }
 
             var fontSet = !string.IsNullOrWhiteSpace(a.fontAddress);
