@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace RishUI.Input
 {
@@ -12,15 +13,16 @@ namespace RishUI.Input
         
         private Rish Rish { get; }
         
-        private RishComponent _root;
-        private RishComponent Root => _root ?? (_root = Rish.RootNode.Component as RishComponent);
+        private RishComponent _appComponent;
+        private RishComponent AppComponent => _appComponent ??= Rish.RootNode.GetChild(0).GetChild(0).Component as RishComponent;
 
-        public bool HasPointerOver => Root != null && Root.HasPointerOver;
-        public bool HasPointerDown => Root != null && Root.HasPointerDown;
+        public bool HasPointerOver => AppComponent is { HasPointerOver: true };
+        public bool HasPointerDown => AppComponent is { HasPointerDown: true };
         public bool HasKeyboardFocus => KeyboardFocus != null;
 
         internal float LongTapTimeout => Rish.LongTapTimeout;
         
+        private List<ILatePointerDownListener> LatePointerDownListeners { get; } = new List<ILatePointerDownListener>();
         private List<IKeyboardListener> KeyboardListeners { get; } = new List<IKeyboardListener>();
         internal IFocusedKeyboardListener KeyboardFocus { get; private set; }
         
@@ -143,19 +145,40 @@ namespace RishUI.Input
             }
         }
 
-        internal void RegisterKeyboardListener(IKeyboardListener keyboardListener)
+        internal void RegisterLatePointerDownListener(ILatePointerDownListener listener)
         {
-            if (KeyboardListeners.Contains(keyboardListener))
+            if (LatePointerDownListeners.Contains(listener))
             {
                 return;
             }
             
-            KeyboardListeners.Add(keyboardListener);
+            LatePointerDownListeners.Add(listener);
         }
 
-        internal void UnregisterKeyboardListener(IKeyboardListener keyboardListener)
+        internal void UnregisterLatePointerDownListener(ILatePointerDownListener listener)
         {
-            var index = KeyboardListeners.IndexOf(keyboardListener);
+            var index = LatePointerDownListeners.IndexOf(listener);
+            if (index < 0)
+            {
+                return;
+            }
+            
+            LatePointerDownListeners.RemoveAt(index);
+        }
+
+        internal void RegisterKeyboardListener(IKeyboardListener listener)
+        {
+            if (KeyboardListeners.Contains(listener))
+            {
+                return;
+            }
+            
+            KeyboardListeners.Add(listener);
+        }
+
+        internal void UnregisterKeyboardListener(IKeyboardListener listener)
+        {
+            var index = KeyboardListeners.IndexOf(listener);
             if (index < 0)
             {
                 return;
@@ -170,12 +193,12 @@ namespace RishUI.Input
             {
                 return;
             }
-
+            
             if (KeyboardFocus == null && DownKeys.Count > 0)
             {
                 foreach (var keyCode in DownKeys)
                 {
-                    for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+                    for (var i = KeyboardListeners.Count - 1; i >= 0; i--)
                     {
                         var listener = KeyboardListeners[i];
                         listener?.OnKeyUp(keyCode);
@@ -213,7 +236,7 @@ namespace RishUI.Input
                     return;
                 }
                         
-                for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+                for (var i = KeyboardListeners.Count - 1; i >= 0; i--)
                 {
                     var listener = KeyboardListeners[i];
                     listener?.OnKeyDown(keyCode);
@@ -239,13 +262,29 @@ namespace RishUI.Input
                 return;
             }
                     
-            for (int i = 0, n = KeyboardListeners.Count; i < n; i++)
+            for (var i = KeyboardListeners.Count - 1; i >= 0; i--)
             {
                 var listener = KeyboardListeners[i];
                 listener?.OnKeyUp(keyCode);
             }
                     
             DownKeys.Remove(keyCode);
+        }
+
+        internal void StartLatePointerDownPropagation(PointerEventData eventData, bool captured)
+        {
+            for (int i = 0, n = LatePointerDownListeners.Count; i < n; i++)
+            {
+                var listener = LatePointerDownListeners[i];
+                var component = listener as RishComponent;
+                if (component == null)
+                {
+                    continue;
+                }
+                
+                var info = PointerInfo.FromEvent(eventData, component.InputRatio);
+                LatePointerDownListeners[i].OnLatePointerDown(info, captured);
+            }
         }
     }
 }

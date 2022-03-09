@@ -90,7 +90,8 @@ namespace RishUI
 
             RootNode = AddChild(null, Create<Div, DivProps>(new DivProps
             {
-               children = app.Run()
+                raycastTarget = true,
+                children = app.Run()
             }));
 
             OnNodeDirty(RootNode, true);

@@ -168,7 +168,7 @@ namespace RishUI
         private InputSystem Input { get; set; }
         protected AssetsManager Assets { get; private set; }
         
-        private Vector2 InputRatio { get; set; }
+        internal Vector2 InputRatio { get; private set; }
 
         protected bool JustMounted { get; private set; }
 
@@ -223,6 +223,11 @@ namespace RishUI
             
             ForceRender();
 
+            if (this is ILatePointerDownListener laterPointerDownListener)
+            {
+                Input.RegisterLatePointerDownListener(laterPointerDownListener);
+            }
+
             if (this is IKeyboardListener keyboardListener)
             {
                 Input.RegisterKeyboardListener(keyboardListener);
@@ -266,6 +271,11 @@ namespace RishUI
             if (this is IMountingListener mountingListener)
             {
                 mountingListener.ComponentWillUnmount();
+            }
+
+            if (this is ILatePointerDownListener laterPointerDownListener)
+            {
+                Input.UnregisterLatePointerDownListener(laterPointerDownListener);
             }
 
             if (this is IKeyboardListener keyboardListener)
@@ -504,7 +514,14 @@ namespace RishUI
                 }
             }
 
-            Parent?.OnPointerDown(eventData, captured);
+            if (Parent != null)
+            {
+                Parent.OnPointerDown(eventData, captured);
+            }
+            else
+            {
+                Input.StartLatePointerDownPropagation(eventData, captured);
+            }
         }
 
         void IRishInputListener.OnPointerUp(PointerEventData eventData)
