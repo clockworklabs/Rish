@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace RishUI
 {
@@ -20,26 +21,7 @@ namespace RishUI
                 .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
 
             Methods = types
-                .Where(type => !type?.IsGenericType ?? false)
-                .Select(type =>
-                {
-                    var method = type
-                        .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                        .FirstOrDefault(method =>
-                        {
-                            var parameters = method.GetParameters();
-                            if (parameters.Length != 2)
-                            {
-                                return false;
-                            }
-
-                            return Attribute.IsDefined(method, typeof(ComparerAttribute)) && method.IsStatic &&
-                                   method.ReturnType == typeof(bool) && parameters[0].ParameterType == type &&
-                                   parameters[1].ParameterType == type;
-                        });
-
-                    return method;
-                })
+                .Select(GetComparer)
                 .Where(method => method != null)
                 .ToDictionary(method => method.DeclaringType, method => method);
         }
@@ -55,16 +37,49 @@ namespace RishUI
             var type = typeof(T);
             if (!Delegates.TryGetValue(type, out var comparer))
             {
-                if (!Methods.TryGetValue(type, out var method))
+                var methodKey = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+                if (!Methods.TryGetValue(methodKey, out var method))
                 {
                     return null;
                 }
                 
-                comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
+                if (type.IsGenericType)
+                {
+                    var concreteMethod = GetComparer(type);
+                    if (concreteMethod == null)
+                    {
+                        return null;
+                    }
+
+                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, concreteMethod);
+                }
+                else
+                {
+                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
+                }
+
                 Delegates.Add(type, comparer);
             }
 
             return (Comparer<T>) comparer;
+        }
+
+        private static MethodInfo GetComparer(Type type)
+        {
+            return type
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+                .FirstOrDefault(method =>
+                {
+                    var parameters = method.GetParameters();
+                    if (parameters.Length != 2)
+                    {
+                        return false;
+                    }
+
+                    return Attribute.IsDefined(method, typeof(ComparerAttribute)) && method.IsStatic &&
+                           method.ReturnType == typeof(bool) && parameters[0].ParameterType == type &&
+                           parameters[1].ParameterType == type;
+                });
         }
 
         internal static bool Contains(Type type) => Methods.ContainsKey(type);
