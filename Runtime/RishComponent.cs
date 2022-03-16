@@ -710,7 +710,16 @@ namespace RishUI
                     ForceRender();
                 }
                 
-                _props = value;
+                if (this is IAdvancedPropsListener<P> listener)
+                {
+                    var oldProps = _props;
+                    _props = value;
+                    listener.PropsSet(oldProps);
+                }
+                else
+                {
+                    _props = value;
+                }
             }
         }
         
@@ -796,8 +805,17 @@ namespace RishUI
                 {
                     ForceRender();
                 }
-                
-                _state = value;
+
+                if (this is IAdvancedStateListener<S> listener)
+                {
+                    var oldState = _state;
+                    _state = value;
+                    listener.StateSet(oldState);
+                }
+                else
+                {
+                    _state = value;
+                }
             }
         }
         
