@@ -141,6 +141,7 @@ namespace RishUI
                 if (activator == null)
                 {
                     activator = Activators.Get<RishComponent>(type);
+                    
                     VirtualActivators[type] = activator;
                 }
 
