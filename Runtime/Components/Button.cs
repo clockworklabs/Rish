@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RishUI.Components
 {
-    public class Button : RishComponent<ButtonProps, ButtonState>, IRectListener, IDerivedState, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
+    public class Button : RishComponent<ButtonProps, ButtonState>, IRectListener, IHoverListener, ITapListener, ILeftClickListener, ILongTapListener, IRightClickListener
     {
         private int PrimaryId { get; set; }
         private bool Listening { get; set; }
@@ -19,38 +19,36 @@ namespace RishUI.Components
             Listening = false;
         }
 
-        void IDerivedState.UpdateStateFromProps()
-        {
-            var state = State;
-            state.hasHovered = Props.hovered.Valid;
-            state.hasPressed = Props.pressed.Valid;
-            State = state;
-        }
-
         protected override RishElement Render()
         {
-            RishElement child;
+            RishElement element;
             if (!Props.interactable)
             {
-                child = Props.disabled.Valid 
+                element = Props.disabled.Valid 
                     ? Props.disabled 
                     : Props.normal;
             } else if(State.pressed && Props.pressed.Valid)
             {
-                child = Props.pressed;
+                element = Props.pressed;
             } else if(State.hovered && Props.hovered.Valid)
             {
-                child = Props.hovered;
+                element = Props.hovered;
             } 
             else
             {
-                child = Props.normal;
+                element = Props.normal;
+            }
+
+            var extraMargin = Props.extraMargin;
+            if (Mathf.Approximately(extraMargin.top, 0) && Mathf.Approximately(extraMargin.right, 0) && Mathf.Approximately(extraMargin.bottom, 0) && Mathf.Approximately(extraMargin.left, 0))
+            {
+                return element;
             }
             
             return Rish.Create<Div, DivProps>(new ExpandTransform(-Props.extraMargin), new DivProps
             {
                 raycastTarget = true,
-                children = new RishElement(child, new ExpandTransform(Props.extraMargin) * child.transform)
+                children = new RishElement(element, new ExpandTransform(Props.extraMargin) * element.transform)
             });
         }
 
@@ -153,7 +151,7 @@ namespace RishUI.Components
 
     public struct ButtonProps
     {
-        public float extraMargin;
+        public Margins extraMargin;
 
         public bool interactable;
         public bool listenWhileTransforming;
@@ -188,7 +186,8 @@ namespace RishUI.Components
         [Comparer]
         public static bool Equals(ButtonProps a, ButtonProps b) =>
             a.interactable == b.interactable && a.listenWhileTransforming == b.listenWhileTransforming &&
-            Mathf.Approximately(a.extraMargin, b.extraMargin) && RishUtils.Compare<RishElement>(a.normal, b.normal) &&
+            RishUtils.Compare<Margins>(a.extraMargin, b.extraMargin) &&
+            RishUtils.Compare<RishElement>(a.normal, b.normal) &&
             RishUtils.Compare<RishElement>(a.hovered, b.hovered) &&
             RishUtils.Compare<RishElement>(a.pressed, b.pressed) &&
             RishUtils.Compare<RishElement>(a.disabled, b.disabled);
@@ -196,9 +195,7 @@ namespace RishUI.Components
 
     public struct ButtonState
     {
-        public bool hasHovered;
         public bool hovered;
-        public bool hasPressed;
         public bool pressed;
     }
 }
