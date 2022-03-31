@@ -38,12 +38,6 @@ namespace RishUI.Components
             {
                 element = Props.normal;
             }
-
-            var extraMargin = Props.extraMargin;
-            if (Mathf.Approximately(extraMargin.top, 0) && Mathf.Approximately(extraMargin.right, 0) && Mathf.Approximately(extraMargin.bottom, 0) && Mathf.Approximately(extraMargin.left, 0))
-            {
-                return element;
-            }
             
             return Rish.Create<Div, DivProps>(new ExpandTransform(-Props.extraMargin), new DivProps
             {
