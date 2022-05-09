@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace RishUI
@@ -14,35 +13,39 @@ namespace RishUI
 
         static Defaults()
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
-
-            Values = types
-                .Where(type => !type?.IsGenericType ?? false)
-                .Select(type =>
+            Values = new Dictionary<Type, object>(200);
+            GenericTypes = new HashSet<Type>();
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (Rish.ShouldIgnoreAssembly(asm))
                 {
-                    var property = type
-                        .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                        .FirstOrDefault(property => Attribute.IsDefined(property, typeof(DefaultAttribute)));
+                    continue;
+                }
 
-                    return property?.PropertyType == type ? property : null;
-                })
-                .Where(property => property != null)
-                .Select(property => property.GetValue(null))
-                .Where(value => value != null)
-                .ToDictionary(value => value.GetType(), value => value);
-
-            GenericTypes = new HashSet<Type>(types
-                .Where(type => type?.IsGenericType ?? false)
-                .Select(type =>
+                foreach (var type in asm.GetTypes())
                 {
-                    var property = type
-                        .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                        .FirstOrDefault(property => Attribute.IsDefined(property, typeof(DefaultAttribute)));
-
-                    return property?.PropertyType == type ? type : null;
-                })
-                .Where(type => type != null));
+                    var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    foreach (var property in properties)
+                    {
+                        if (property.PropertyType == type && Attribute.IsDefined(property, typeof(DefaultAttribute)))
+                        {
+                            if (type.IsGenericType)
+                            {
+                                GenericTypes.Add(type);
+                            }
+                            else
+                            {
+                                var val = property.GetValue(null);
+                                if (val != null)
+                                {
+                                    Values.Add(type, val);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public static T GetValue<T>() where T : struct

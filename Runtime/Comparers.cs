@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -17,13 +15,27 @@ namespace RishUI
 
         static Comparers()
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes()).Where(type => type?.IsValueType ?? false).ToArray();
+            Methods = new Dictionary<Type, MethodInfo>(200);
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (Rish.ShouldIgnoreAssembly(asm))
+                {
+                    continue;
+                }
 
-            Methods = types
-                .Select(GetComparer)
-                .Where(method => method != null)
-                .ToDictionary(method => method.DeclaringType, method => method);
+                foreach (var type in asm.GetTypes())
+                {
+                    if (!type.IsValueType)
+                    {
+                        continue;
+                    }
+                    var method = GetComparer(type);
+                    if (method != null)
+                    {
+                        Methods.Add(type, method);
+                    }
+                }
+            }
         }
 
         public static bool Compare<T>(T first, T second) where T : struct
@@ -66,20 +78,17 @@ namespace RishUI
 
         private static MethodInfo GetComparer(Type type)
         {
-            return type
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                .FirstOrDefault(method =>
+            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            {
+                var parameters = method.GetParameters();
+                if (parameters.Length == 2 && method.ReturnType == typeof(bool) && 
+                    parameters[0].ParameterType == type && parameters[1].ParameterType == type
+                    && Attribute.IsDefined(method, typeof(ComparerAttribute)))
                 {
-                    var parameters = method.GetParameters();
-                    if (parameters.Length != 2)
-                    {
-                        return false;
-                    }
-
-                    return Attribute.IsDefined(method, typeof(ComparerAttribute)) && method.IsStatic &&
-                           method.ReturnType == typeof(bool) && parameters[0].ParameterType == type &&
-                           parameters[1].ParameterType == type;
-                });
+                    return method;
+                }
+            }
+            return null;
         }
 
         internal static bool Contains(Type type) => Methods.ContainsKey(type);
