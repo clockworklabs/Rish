@@ -165,7 +165,7 @@ namespace RishUI
         }
         
         private DimensionsTracker DimensionsTracker { get; set; }
-        private InputSystem Input { get; set; }
+        protected InputSystem Input { get; set; }
         protected AssetsManager Assets { get; private set; }
         
         internal Vector2 InputRatio { get; private set; }
