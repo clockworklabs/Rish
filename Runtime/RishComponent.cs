@@ -166,7 +166,10 @@ namespace RishUI
         
         private DimensionsTracker DimensionsTracker { get; set; }
         protected InputSystem Input { get; set; }
-        protected AssetsManager Assets { get; private set; }
+
+        private RootComponent _root;
+        private RootComponent Root => _root ??= GetParent<RootComponent>();
+        protected AssetsManager Assets => Root.AssetsManager;
         
         internal Vector2 InputRatio { get; private set; }
 
@@ -190,10 +193,9 @@ namespace RishUI
         protected void ForceRender() => ForceRender(false);
         protected void ForceRender(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
 
-        internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input, AssetsManager assets)
+        internal void Constructor(DimensionsTracker dimensionsTracker, InputSystem input)
         {
             DimensionsTracker = dimensionsTracker;
-            Assets = assets;
             Input = input;
         }
 

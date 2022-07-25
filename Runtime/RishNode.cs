@@ -233,7 +233,7 @@ namespace RishUI
 
             ChildCount++;
         }
-
+        
         internal RishNode FindFreeChild(Type type, int key)
         {
             if (Children == null || Children.Count == 0)
@@ -250,6 +250,14 @@ namespace RishUI
                     index = i;
                     break;
                 }
+                
+                #if UNITY_EDITOR
+                if (other.Key == key && other.Type.FullName == type.FullName)
+                {
+                    index = i;
+                    break;
+                }
+                #endif
             }
 
             if (index < 0)
@@ -266,7 +274,7 @@ namespace RishUI
 
             return child;
         }
-
+        
         private void SwapChildren(int a, int b)
         {
             if (a == b)
@@ -279,12 +287,10 @@ namespace RishUI
                 return;
             }
 
-            var temp = Children[a];
-            Children[a] = Children[b];
-            Children[b] = temp;
+            (Children[a], Children[b]) = (Children[b], Children[a]);
         }
 
-        private void Destroy()
+        internal void Destroy()
         {
             if (!Active) return;
             if (!Mounted) return;

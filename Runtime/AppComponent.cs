@@ -1,10 +1,6 @@
-﻿using UnityEngine;
-
-namespace RishUI
+﻿namespace RishUI
 {
-    [RequireComponent(typeof(Rish))]
-    [DisallowMultipleComponent]
-    public abstract class AppComponent : MonoBehaviour
+    public abstract class AppComponent
     {
         public abstract void GetAsset<T>(string address, AssetResult<T> callback);
 
