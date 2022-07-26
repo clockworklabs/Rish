@@ -22,7 +22,6 @@ namespace RishUI
             
             HotReloader = new HotReloader(Props.assemblyDefinition);
             HotReloader.OnSuccessfulCompilation += SetAppComponent;
-            HotReloader.Compile();
 #else
             var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassname) != null);
             SetAppComponent(asm);
