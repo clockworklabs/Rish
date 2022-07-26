@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using RishUI.Components;
 using UnityEditorInternal;
@@ -8,7 +9,7 @@ namespace RishUI
 {
     internal class RootComponent : RishComponent<RootComponentProps>, IPropsListener
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
         private HotReloader HotReloader { get; set; }
 #endif
         
@@ -17,7 +18,7 @@ namespace RishUI
         
         void IPropsListener.PropsDidChange()
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
             HotReloader?.Dispose();
             
             HotReloader = new HotReloader(Props.assemblyDefinition);
@@ -30,7 +31,7 @@ namespace RishUI
         
         void IPropsListener.PropsWillChange()
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
             HotReloader?.Dispose();
             HotReloader = null;
 #endif

@@ -1,3 +1,4 @@
+#if RISH_HOT_RELOAD_READY
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Unity.Collections;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -121,3 +121,4 @@ namespace RishUI
         }
     }
 }
+#endif
