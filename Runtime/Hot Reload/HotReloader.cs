@@ -28,14 +28,16 @@ namespace RishUI
         private bool Dirty { get; set; }
         private int Count { get; set; }
         
-        public HotReloader(AssemblyDefinitionAsset assemblyDefinition)
+        public HotReloader(string path)
         {
             UnityThread.InitUnityThread();
-            
-            var path = AssetDatabase.GetAssetPath(assemblyDefinition);
-            var folder = Path.GetDirectoryName(path);
 
-            Watcher = new FileWatcher(folder);
+            if (!Directory.Exists(path))
+            {
+                throw new UnityException("Invalid folder for HotReloader");
+            }
+            
+            Watcher = new FileWatcher(path);
             Watcher.Changed += ChangedFile;
             Watcher.Created += CreatedFile;
             Watcher.Deleted += DeletedFile;

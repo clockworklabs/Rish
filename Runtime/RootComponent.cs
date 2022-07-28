@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using RishUI.Components;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace RishUI
@@ -20,13 +19,25 @@ namespace RishUI
         {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
             HotReloader?.Dispose();
-            
-            HotReloader = new HotReloader(Props.assemblyDefinition);
-            HotReloader.OnSuccessfulCompilation += SetAppComponent;
+
+            if (string.IsNullOrWhiteSpace(Props.hotReloadFolder))
+            {
+                LoadDefault();
+            }
+            else
+            {
+                HotReloader = new HotReloader(Props.hotReloadFolder);
+                HotReloader.OnSuccessfulCompilation += SetAppComponent;
+            }
 #else
+            LoadDefault();
+#endif
+        }
+
+        private void LoadDefault()
+        {
             var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassname) != null);
             SetAppComponent(asm);
-#endif
         }
         
         void IPropsListener.PropsWillChange()
@@ -67,10 +78,12 @@ namespace RishUI
 
     internal struct RootComponentProps
     {
-        public AssemblyDefinitionAsset assemblyDefinition;
+        #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+        public string hotReloadFolder;
+        #endif
         public string rootClassname;
 
         [Comparer]
-        private bool Equals(RootComponentProps a, RootComponentProps b) => a.assemblyDefinition == b.assemblyDefinition && a.rootClassname == b.rootClassname;
+        private bool Equals(RootComponentProps a, RootComponentProps b) => false;
     }
 }

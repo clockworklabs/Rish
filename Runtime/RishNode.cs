@@ -245,14 +245,19 @@ namespace RishUI
             for (var i = ChildCount; i < Children.Count; i++)
             {
                 var other = Children[i];
-                if (other.Key == key && other.Type == type)
+                if (other.Key != key)
+                {
+                    continue;
+                }
+                
+                if (other.Type == type)
                 {
                     index = i;
                     break;
                 }
                 
-                #if UNITY_EDITOR
-                if (other.Key == key && other.Type.FullName == type.FullName)
+                #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+                if (other.Type.FullName == type.FullName)
                 {
                     index = i;
                     break;
