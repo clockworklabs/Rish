@@ -1,193 +1,118 @@
-using System;
 using System.Collections.Generic;
 using Priority_Queue;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.v3
 {
-    public class Dom : FastPriorityQueueNode
+    public class Dom
     {
-        private static uint _nextID;
-        
-        private uint ID { get; }
-        
-        
-        private uint Key { get; set; }
-        
-        private VisualElement VisualElement { get; set; }
-        private Type Type => VisualElement.GetType();
-        
-        private Dom Parent { get; set; }
-        private List<Dom> Children { get; set; }
-        
-        public int Depth { get; private set; } // => Parent?.Depth + 1 ?? 0;
-        
-        private int ChildCount { get; set; }
-        
-        private bool Rendering { get; set; }
-        
-        private RishRoot Rish { get; }
+        private const int MaxDirtySize = 256;
+                
+        private uint NextID { get; set; }
+        private Stack<Node> Pool { get; } = new (MaxDirtySize * 4);
 
-        public Dom(RishRoot rish)
+        private Node Root { get; }
+        
+        private List<Node> DirtyList { get; } = new (MaxDirtySize);
+        private FastPriorityQueue<Node> DirtyQueue { get; } = new (MaxDirtySize);
+        
+        private int CurrentDepth { get; set; }
+        
+        public Dom(UIDocument document, string rootClassName)
         {
-            ID = _nextID++;
+            var node = GetNode();
+            node.MountAs<App>(null);
 
-            Rish = rish;
-        }
-
-        public void Clear()
-        {
-            Rendering = true;
-            ChildCount = 0;
-        }
-
-        public DomComponent GetFreeChild()
-        {
-            if (Children == null || Children.Count == 0)
-            {
-                return null;
-            }
-
+            Root = node;
             
-
-            if (index < 0)
-            {
-                return null;
-            }
-
-            var child = Children[index];
-
-            if (Active && !child.Active) return null;
-            if (!child.Mounted) return null;
-
-            Children.RemoveAtSwapBack(index);
-
-            return child;
+            document.rootVisualElement.Add(node.Element);
         }
-        
-        public void AddChild<T>(uint key) where T : DomComponent
+
+        private void OnDirtyNode(Node node)
         {
-            if (!Rendering)
+            if (node.Depth <= CurrentDepth)
+            {
+                DirtyList.Add(node);
+                return;
+            }
+            
+            EnqueueDirtyNode(node);
+        }
+
+        private void EnqueueDirtyNode(Node node)
+        {
+            if (DirtyQueue.Contains(node))
             {
                 return;
             }
 
-            var type = typeof(T);
-            
-            Children ??= new List<DomComponent>(10);
-
-            T child;
-            if (Children.Count <= 0)
+            if (DirtyQueue.Count >= DirtyQueue.MaxSize)
             {
-                // TODO: Create new node
-                child = null;
+                DirtyQueue.Resize(DirtyQueue.MaxSize * 2);
             }
-            else
-            {
-                var index = -1;
-                for (var i = ChildCount; i < Children.Count; i++)
-                {
-                    var other = Children[i];
-                    if (other.Key != key)
-                    {
-                        continue;
-                    }
-                    
-                    if (other.Type == type)
-                    {
-                        index = i;
-                        break;
-                    }
-#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-                    if (other.Type.FullName == type.FullName)
-                    {
-                        index = i;
-                        break;
-                    }
-#endif
-                }
 
-                child = index >= 0 ? Children[index] as T : null;
+            DirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
+        }
+
+        public void Update()
+        {
+            for (int i = 0, n = DirtyList.Count; i < n; i++)
+            {
+                var node = DirtyList[i];
+                EnqueueDirtyNode(node);
+            }
+            
+            DirtyList.Clear();
+
+            while (DirtyQueue.Count > 0)
+            {
+                var node = DirtyQueue.Dequeue();
+                CurrentDepth = node.Depth;
                 
-                if (child == null)
-                {
-                    // TODO: Create new node
-                    child = null;
-                }
-            }
-            
-            child.Parent = this;
-            Children.Add(child);
-
-            var targetIndex = ChildCount;
-            var lastIndex = Children.Count - 1;
-
-            if (targetIndex < lastIndex)
-            {
-                (Children[targetIndex], Children[lastIndex]) = (Children[lastIndex], Children[targetIndex]);
+                node.Render();
             }
 
-            ChildCount++;
+            // if (Unmounted.Count <= 0) return;
+            //
+            // for (int i = 0, n = Unmounted.Count; i < n; i++)
+            // {
+            //     NodesPool.Push(Unmounted[i]);
+            // }
+            //
+            // Unmounted.Clear();
         }
 
-        public T AddChild<T, P>(uint key, P props) where T : RishComponent
+        public Node GetNode()
         {
-            if (!Rendering)
+            if (Pool.Count <= 0)
             {
-                return null;
-            }
-            
-            Children ??= new List<IDomComponent>(10);
-            
-            T child;
-            if (Children.Count <= 0)
-            {
-                // TODO: Create new node
-                child = null;
-            }
-            else
-            {
-                var index = -1;
-                for (var i = ChildCount; i < Children.Count; i++)
-                {
-                    var other = Children[i];
-                    if (other.Key == key && other.Type == type)
-                    {
-                        index = i;
-                        break;
-                    }
-#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-                    if (other.Key == key && other.Type.FullName == type.FullName)
-                    {
-                        index = i;
-                        break;
-                    }
-#endif
-                }
-            }
-            
-            child.Parent = this;
-            Children.Add(child);
-
-            var targetIndex = ChildCount;
-            var lastIndex = Children.Count - 1;
-
-            if (targetIndex < lastIndex)
-            {
-                (Children[targetIndex], Children[lastIndex]) = (Children[lastIndex], Children[targetIndex]);
+                PopulatePool();
             }
 
-            ChildCount++;
+            return Pool.Pop();
         }
 
-        public void Clean()
+        public bool ReturnNode(Node node)
         {
-            for (int i = Children.Count, n = ChildCount; i > n; i--)
+            if (node.Dom != this)
             {
-                Children.RemoveAt(i);
+                return false;
             }
 
-            Rendering = false;
+            Pool.Push(node);
+            return true;
+        }
+
+        private void PopulatePool()
+        {
+            for (var i = 0; i < MaxDirtySize; i++)
+            {
+                var node = new Node(this, NextID++);
+                node.OnDirty += OnDirtyNode;
+                
+                Pool.Push(node);
+            }
         }
     }
 }
