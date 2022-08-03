@@ -12,64 +12,108 @@ namespace RishUI.v3
 
     public static class Rish
     {
-        public static IElement Create<T>(uint key, ClassList classList, Style style, NoPropsSetup<T> setup, params IElement[] children) where T : VisualElement, new()
+        public static IElement Create(Element element)
+        {
+            return null;
+        }
+        public static IElement Create<P>(Element<P> element) where P : struct
+        {
+            return null;
+        }
+        
+        public static IElement Create<T>(uint key, Name name, ClassList classList, Style style, NoPropsSetup<T> setup, params IElement[] children) where T : VisualElement, new()
         {
             // TODO: Use pool
 
             var element = new NativeSetup<T>();
-            element.Factory(key, classList, style, setup, children);
+            element.Factory(key, name, classList, style, setup, children);
 
             return element;
         }
         
-        public static IElement Create<T, P>(uint key, ClassList classList, Style style, PropsSetup<T, P> setup, P props, params IElement[] children) where T : VisualElement, new() where P : struct
+        public static IElement Create<T, P>(uint key, Name name, ClassList classList, Style style, PropsSetup<T, P> setup, P props, params IElement[] children) where T : VisualElement, new() where P : struct
         {
             // TODO: Use pool
 
             var element = new NativeSetup<T, P>();
-            element.Factory(key, classList, style, setup, props, children);
+            element.Factory(key, name, classList, style, setup, props, children);
 
             return element;
         }
 
-        public static IElement Create<T>() where T : RishElement, new() => Create<T>(0, default, default);
-        public static IElement Create<T>(uint key) where T : RishElement, new() => Create<T>(key, default, default);
-        public static IElement Create<T>(ClassList classList) where T : RishElement, new() => Create<T>(0, classList, default);
-        public static IElement Create<T>(Style style) where T : RishElement, new() => Create<T>(0, default, style);
-        public static IElement Create<T>(uint key, ClassList classList) where T : RishElement, new() => Create<T>(key, classList, default);
-        public static IElement Create<T>(uint key, Style style) where T : RishElement, new() => Create<T>(key, default, style);
-        public static IElement Create<T>(ClassList classList, Style style) where T : RishElement, new() => Create<T>(0, classList, style);
-        public static IElement Create<T>(uint key, ClassList classList, Style style) where T : RishElement, new()
+        // 0/4 = 1
+        public static IElement Create<T>() where T : RishElement, new() => Create<T>(0, default, default, default);
+        // 1/4 = 4
+        public static IElement Create<T>(uint key) where T : RishElement, new() => Create<T>(key, default, default, default);
+        public static IElement Create<T>(Name name) where T : RishElement, new() => Create<T>(0, name, default, default);
+        public static IElement Create<T>(ClassList classList) where T : RishElement, new() => Create<T>(0, default, classList, default);
+        public static IElement Create<T>(Style style) where T : RishElement, new() => Create<T>(0, default, default, style);
+        // 2/4 = 6
+        public static IElement Create<T>(uint key, Name name) where T : RishElement, new() => Create<T>(key, name, default, default);
+        public static IElement Create<T>(uint key, ClassList classList) where T : RishElement, new() => Create<T>(key, default, classList, default);
+        public static IElement Create<T>(uint key, Style style) where T : RishElement, new() => Create<T>(key, default, default, style);
+        public static IElement Create<T>(Name name, ClassList classList) where T : RishElement, new() => Create<T>(0, name, classList, default);
+        public static IElement Create<T>(Name name, Style style) where T : RishElement, new() => Create<T>(0, name, default, style);
+        public static IElement Create<T>(ClassList classList, Style style) where T : RishElement, new() => Create<T>(0, default, classList, style);
+        // 3/4 = 4
+        public static IElement Create<T>(uint key, Name name, ClassList classList) where T : RishElement, new() => Create<T>(key, name, classList, default);
+        public static IElement Create<T>(uint key, Name name, Style style) where T : RishElement, new() => Create<T>(key, name, default, style);
+        public static IElement Create<T>(uint key, ClassList classList, Style style) where T : RishElement, new() => Create<T>(key, default, classList, style);
+        public static IElement Create<T>(Name name, ClassList classList, Style style) where T : RishElement, new() => Create<T>(0, name, classList, style);
+        // 4/4 = 1
+        public static IElement Create<T>(uint key, Name name, ClassList classList, Style style) where T : RishElement, new()
         {
             // TODO: Use pool
 
             var element = new RishSetup<T>();
-            element.Factory(key, classList, style);
+            element.Factory(key, name, classList, style);
 
             return element;
         }
 
-        public static IElement Create<T, P>() where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(uint key) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, default, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, classList, default, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, style, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, props);
-        public static IElement Create<T, P>(uint key, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, classList, default, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(uint key, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, style, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(uint key, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, null, default, props);
-        public static IElement Create<T, P>(ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, classList, style, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, classList, default, props);
-        public static IElement Create<T, P>(Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, null, style, props);
-        public static IElement Create<T, P>(uint key, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, classList, style, Defaults.GetValue<P>());
-        public static IElement Create<T, P>(uint key, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, classList, default, props);
-        public static IElement Create<T, P>(uint key, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, null, style, props);
-        public static IElement Create<T, P>(ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, classList, style, props);
-        public static IElement Create<T, P>(uint key, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct
+        // 0/5 = 0
+        public static IElement Create<T, P>() where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, default, Defaults.GetValue<P>());
+        // 1/5 = 5
+        public static IElement Create<T, P>(uint key) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(Name name) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, default, props);
+        // 2/5 = 10
+        public static IElement Create<T, P>(uint key, Name name) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, default, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, default, default, props);
+        public static IElement Create<T, P>(Name name, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(Name name, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(Name name, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, default, default, props);
+        public static IElement Create<T, P>(ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, classList, default, props);
+        public static IElement Create<T, P>(Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, default, style, props);
+        // 3/5 = 10
+        public static IElement Create<T, P>(uint key, Name name, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, Name name, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, Name name, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, default, default, props);
+        public static IElement Create<T, P>(uint key, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, classList, default, props);
+        public static IElement Create<T, P>(uint key, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, default, style, props);
+        public static IElement Create<T, P>(Name name, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(Name name, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, classList, default, props);
+        public static IElement Create<T, P>(Name name, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, default, style, props);
+        public static IElement Create<T, P>(ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, default, classList, style, props);
+        // 4/5 = 5
+        public static IElement Create<T, P>(uint key, Name name, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<T, P>(uint key, Name name, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, classList, default, props);
+        public static IElement Create<T, P>(uint key, Name name, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, name, default, style, props);
+        public static IElement Create<T, P>(uint key, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, default, classList, style, props);
+        public static IElement Create<T, P>(Name name, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, name, classList, style, props);
+        // 5/5 = 1
+        public static IElement Create<T, P>(uint key, Name name, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct
         {
             // TODO: Use pool
 
             var element = new RishSetup<T, P>();
-            element.Factory(key, classList, style, props);
+            element.Factory(key, name, classList, style, props);
 
             return element;
         }
@@ -77,7 +121,8 @@ namespace RishUI.v3
         private class NativeSetup<T> : IElement where T : VisualElement, new()
         {
             private uint Key { get; set; }
-            private ClassList classList { get; set; }
+            private Name Name { get; set; }
+            private ClassList ClassList { get; set; }
             private Style Style { get; set; }
             private NoPropsSetup<T> Setup { get; set; }
             private IElement[] Children { get; set; }
@@ -85,19 +130,19 @@ namespace RishUI.v3
             void IElement.Invoke(Node node)
             {
                 var element = node.AddChild<T>(Key, Children);
-                if (element.userData as string != ClassList)
+
+                element.name = Name;
+                
+                if (ClassList.Count > 0)
                 {
                     element.ClearClassList();
-                    if (!string.IsNullOrWhiteSpace(ClassList))
+                    foreach (var className in ClassList)
                     {
-                        var classList = ClassList.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var className in classList)
+                        if (!string.IsNullOrWhiteSpace(className))
                         {
                             element.AddToClassList(className);
                         }
                     }
-
-                    element.userData = ClassList;
                 }
                 
                 Style.SetInlineStyle(element);
@@ -107,9 +152,10 @@ namespace RishUI.v3
                 // TODO: Free children
             }
 
-            public void Factory(uint key, ClassList classList, Style style, NoPropsSetup<T> setup, IElement[] children)
+            public void Factory(uint key, Name name, ClassList classList, Style style, NoPropsSetup<T> setup, IElement[] children)
             {
                 Key = key;
+                Name = name;
                 ClassList = classList;
                 Style = style;
                 Setup = setup;
@@ -120,7 +166,8 @@ namespace RishUI.v3
         private class NativeSetup<T, P> : IElement where T: VisualElement, new() where P : struct
         {
             private uint Key { get; set; }
-            private ClassList classList { get; set; }
+            private Name Name { get; set; }
+            private ClassList ClassList { get; set; }
             private Style Style { get; set; }
             private PropsSetup<T, P> Setup { get; set; }
             private P Props { get; set; }
@@ -129,20 +176,19 @@ namespace RishUI.v3
             void IElement.Invoke(Node node)
             {
                 var element = node.AddChild<T>(Key, Children);
-                element.ClearClassList();
-                if (element.userData as string != ClassList)
+
+                element.name = Name;
+                
+                if (ClassList.Count > 0)
                 {
                     element.ClearClassList();
-                    if (!string.IsNullOrWhiteSpace(ClassList))
+                    foreach (var className in ClassList)
                     {
-                        var classList = ClassList.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var className in classList)
+                        if (!string.IsNullOrWhiteSpace(className))
                         {
                             element.AddToClassList(className);
                         }
                     }
-
-                    element.userData = ClassList;
                 }
                 
                 Style.SetInlineStyle(element);
@@ -152,9 +198,10 @@ namespace RishUI.v3
                 // TODO: Free children
             }
 
-            public void Factory(uint key, ClassList classList, Style style, PropsSetup<T, P> setup, P props, IElement[] children)
+            public void Factory(uint key, Name name, ClassList classList, Style style, PropsSetup<T, P> setup, P props, IElement[] children)
             {
                 Key = key;
+                Name = name;
                 ClassList = classList;
                 Style = style;
                 Setup = setup;
@@ -166,34 +213,35 @@ namespace RishUI.v3
         private class RishSetup<T> : IElement where T : VisualElement, new()
         {
             private uint Key { get; set; }
-            private ClassList classList { get; set; }
+            private Name Name { get; set; }
+            private ClassList ClassList { get; set; }
             private Style Style { get; set; }
             
             void IElement.Invoke(Node node)
             {
                 var element = node.AddChild<T>(Key);
+
+                element.name = Name;
                 
-                if (element.userData as string != ClassList)
+                if (ClassList.Count > 0)
                 {
                     element.ClearClassList();
-                    if (!string.IsNullOrWhiteSpace(ClassList))
+                    foreach (var className in ClassList)
                     {
-                        var classList = ClassList.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var className in classList)
+                        if (!string.IsNullOrWhiteSpace(className))
                         {
                             element.AddToClassList(className);
                         }
                     }
-
-                    element.userData = ClassList;
                 }
                 
                 Style.SetInlineStyle(element);
             }
 
-            public void Factory(uint key, ClassList classList, Style style)
+            public void Factory(uint key, Name name, ClassList classList, Style style)
             {
                 Key = key;
+                Name = name;
                 ClassList = classList;
                 Style = style;
             }
@@ -202,27 +250,27 @@ namespace RishUI.v3
         private class RishSetup<T, P> : IElement where T : RishElement<P>, new() where P : struct
         {
             private uint Key { get; set; }
-            private ClassList classList { get; set; }
+            private Name Name { get; set; }
+            private ClassList ClassList { get; set; }
             private Style Style { get; set; }
             private P Props { get; set; }
             
             void IElement.Invoke(Node node)
             {
                 var element = node.AddChild<T>(Key);
+
+                element.name = Name;
                 
-                if (element.userData as string != ClassList)
+                if (ClassList.Count > 0)
                 {
                     element.ClearClassList();
-                    if (!string.IsNullOrWhiteSpace(ClassList))
+                    foreach (var className in ClassList)
                     {
-                        var classList = ClassList.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var className in classList)
+                        if (!string.IsNullOrWhiteSpace(className))
                         {
                             element.AddToClassList(className);
                         }
                     }
-
-                    element.userData = ClassList;
                 }
                 
                 Style.SetInlineStyle(element);
@@ -230,9 +278,10 @@ namespace RishUI.v3
                 element.Props = Props;
             }
 
-            public void Factory(uint key, ClassList classList, Style style, P props)
+            public void Factory(uint key, Name name, ClassList classList, Style style, P props)
             {
                 Key = key;
+                Name = name;
                 ClassList = classList;
                 Style = style;
                 Props = props;

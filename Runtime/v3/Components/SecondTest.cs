@@ -11,9 +11,9 @@ namespace RishUI.v3.Components
     {
         public override IElement Render()
         {
-            return Div(1, "test class2", new []
+            return Div(1, ("test", "class2"), new []
             {
-                Div(new Style
+                Div(name: "Name", new Style
                 {
                     backgroundColor = new StyleColor(Color.blue)
                 }),
@@ -43,6 +43,15 @@ namespace RishUI.v3.Components
                     })
                 })
             });
+
+            return Rish.Create<SecondTestProps>(Anonymous);
+
+            return Anonymous(default);
+        }
+
+        public IElement Anonymous(SecondTestProps props)
+        {
+            return Div();
         }
     }
 
@@ -54,62 +63,114 @@ namespace RishUI.v3.Components
     public static class Export
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest() => SecondTest(0, null, default, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest() => Rish.Create<SecondTest, SecondTestProps>(0, default, default, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key) => SecondTest(key, null, default, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(uint key) => Rish.Create<SecondTest, SecondTestProps>(key, default, default, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(string classList) => SecondTest(0, classList, default, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(Name name) => Rish.Create<SecondTest, SecondTestProps>(0, name, default, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(Style style) => SecondTest(0, null, style, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(ClassList classList) => Rish.Create<SecondTest, SecondTestProps>(0, default, classList, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(SecondTestProps props) => SecondTest(0, null, default, props);
+        public static IElement SecondTest(Style style) => Rish.Create<SecondTest, SecondTestProps>(0, default, default, style, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, string classList) => SecondTest(key, classList, default, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, default, default, default, props);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, Style style) => SecondTest(key, null, style, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(uint key, Name name) => Rish.Create<SecondTest, SecondTestProps>(key, name, default, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, SecondTestProps props) => SecondTest(key, null, default, props);
+        public static IElement SecondTest(uint key, ClassList classList) => Rish.Create<SecondTest, SecondTestProps>(key, default, classList, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(string classList, Style style) => SecondTest(0, classList, style, RishUI.Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(uint key, Style style) => Rish.Create<SecondTest, SecondTestProps>(key, default, default, style, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(string classList, SecondTestProps props) => SecondTest(0, classList, default, props);
+        public static IElement SecondTest(uint key, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, default, default, default, props);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(Style style, SecondTestProps props) => SecondTest(0, null, style, props);
+        public static IElement SecondTest(Name name, ClassList classList) => Rish.Create<SecondTest, SecondTestProps>(0, name, classList, default, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, string classList, Style style) => Rish.Create<SecondTest, SecondTestProps>(key, classList, style, Defaults.GetValue<SecondTestProps>());
+        public static IElement SecondTest(Name name, Style style) => Rish.Create<SecondTest, SecondTestProps>(0, name, default, style, Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, string classList, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, classList, default, props);
+        public static IElement SecondTest(Name name, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, name, default, default, props);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, null, style, props);
+        public static IElement SecondTest(ClassList classList, Style style) => Rish.Create<SecondTest, SecondTestProps>(0, default, classList, style, RishUI.Defaults.GetValue<SecondTestProps>());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(string classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, classList, style, props);
+        public static IElement SecondTest(ClassList classList, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, default, classList, default, props);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement SecondTest(uint key, string classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, classList, style, props);
+        public static IElement SecondTest(Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, default, default, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, ClassList classList) => Rish.Create<SecondTest, SecondTestProps>(key, name, classList, default, Defaults.GetValue<SecondTestProps>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, Style style) => Rish.Create<SecondTest, SecondTestProps>(key, name, default, style, Defaults.GetValue<SecondTestProps>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, name, default, default, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, ClassList classList, Style style) => Rish.Create<SecondTest, SecondTestProps>(key, default, classList, style, Defaults.GetValue<SecondTestProps>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, ClassList classList, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, default, classList, default, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, default, default, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(Name name, ClassList classList, Style style) => Rish.Create<SecondTest, SecondTestProps>(0, name, classList, style, Defaults.GetValue<SecondTestProps>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(Name name, ClassList classList, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, name, classList, default, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(Name name, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, name, default, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(ClassList classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, default, classList, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, ClassList classList, Style style) => Rish.Create<SecondTest, SecondTestProps>(key, name, classList, style, default);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, ClassList classList, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, name, classList, default, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, name, default, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, ClassList classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, default, classList, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(Name name, ClassList classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(0, name, classList, style, props);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement SecondTest(uint key, Name name, ClassList classList, Style style, SecondTestProps props) => Rish.Create<SecondTest, SecondTestProps>(key, name, classList, style, props);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div() => Rish.Create<VisualElement>(0, null, default, Components.Div.Setup, null);
+        public static IElement Div() => Rish.Create<VisualElement>(0, default, default, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(uint key) => Rish.Create<VisualElement>(key, null, default, Components.Div.Setup, null);
+        public static IElement Div(uint key) => Rish.Create<VisualElement>(key, default, default, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(string classList) => Rish.Create<VisualElement>(0, classList, default, Components.Div.Setup, null);
+        public static IElement Div(Name name) => Rish.Create<VisualElement>(0, name, default, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(Style style) => Rish.Create<VisualElement>(0, null, style, Components.Div.Setup, null);
+        public static IElement Div(ClassList classList) => Rish.Create<VisualElement>(0, default, classList, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(params IElement[] children) => Rish.Create<VisualElement>(0, null, default, Components.Div.Setup, children);
+        public static IElement Div(Style style) => Rish.Create<VisualElement>(0, default, default, style, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(uint key, params IElement[] children) => Rish.Create<VisualElement>(key, null, default, Components.Div.Setup, children);
+        public static IElement Div(IElement[] children) => Rish.Create<VisualElement>(0, default, default, default, Components.Div.Setup, children);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(string classList, params IElement[] children) => Rish.Create<VisualElement>(0, classList, default, Components.Div.Setup, children);
+        public static IElement Div(uint key, Name name) => Rish.Create<VisualElement>(key, name, default, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(Style style, params IElement[] children) => Rish.Create<VisualElement>(0, null, style, Components.Div.Setup, children);
+        public static IElement Div(uint key, ClassList classList) => Rish.Create<VisualElement>(key, default, classList, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(uint key, string classList, params IElement[] children) => Rish.Create<VisualElement>(key, classList, default, Components.Div.Setup, children);
+        public static IElement Div(uint key, Style style) => Rish.Create<VisualElement>(key, default, default, style, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(uint key, Style style, params IElement[] children) => Rish.Create<VisualElement>(key, null, style, Components.Div.Setup, children);
+        public static IElement Div(uint key, IElement[] children) => Rish.Create<VisualElement>(key, default, default, default, Components.Div.Setup, children);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(string classList, Style style, params IElement[] children) => Rish.Create<VisualElement>(0, classList, style, Components.Div.Setup, children);
+        public static IElement Div(Name name, ClassList classList) => Rish.Create<VisualElement>(0, name, classList, default, Components.Div.Setup, null);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IElement Div(uint key, string classList, Style style, params IElement[] children) => Rish.Create<VisualElement>(key, classList, style, Components.Div.Setup, children);
+        public static IElement Div(Name name, Style style) => Rish.Create<VisualElement>(0, name, default, style, Components.Div.Setup, null);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(Name name, IElement[] children) => Rish.Create<VisualElement>(0, name, default, default, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(ClassList classList, Style style) => Rish.Create<VisualElement>(0, default, classList, style, Components.Div.Setup, null);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(ClassList classList, IElement[] children) => Rish.Create<VisualElement>(0, default, classList, default, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, Name name, ClassList classList) => Rish.Create<VisualElement>(key, name, classList, default, Components.Div.Setup, null);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, Name name, Style style) => Rish.Create<VisualElement>(key, name, default, style, Components.Div.Setup, null);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, Name name, IElement[] children) => Rish.Create<VisualElement>(key, name, default, default, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, ClassList classList, IElement[] children) => Rish.Create<VisualElement>(key, default, classList, default, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, Style style, IElement[] children) => Rish.Create<VisualElement>(key, default, default, style, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(ClassList classList, Style style, IElement[] children) => Rish.Create<VisualElement>(0, default, classList, style, Components.Div.Setup, children);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IElement Div(uint key, ClassList classList, Style style, IElement[] children) => Rish.Create<VisualElement>(key, default, classList, style, Components.Div.Setup, children);
     }
 }
