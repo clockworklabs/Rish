@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UIElements;
 
-namespace RishUI.v3.Components
+namespace RishUI.v3.Elements
 {
     [PoolSize(3)]
     public class TestElement : RishElement

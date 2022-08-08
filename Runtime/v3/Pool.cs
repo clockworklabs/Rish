@@ -38,8 +38,6 @@ namespace RishUI.v3
             {
                 Size = InitialSize;
             }
-                        
-            Debug.Log(Size);
         }
                 
         public static bool Return(T element)

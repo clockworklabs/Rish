@@ -92,7 +92,7 @@ namespace RishUI
             UnityThread.ExecuteCoroutine(Compile());
         }
 
-        public IEnumerator Compile()
+        private IEnumerator Compile()
         {
             yield return new WaitForEndOfFrame();
             

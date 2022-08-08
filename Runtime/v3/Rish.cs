@@ -10,13 +10,92 @@ namespace RishUI.v3
         void Invoke(Node node);
     }
 
+    public struct Descriptor
+    {
+        public uint key;
+        public Name name;
+        public ClassList classList;
+        public Style style;
+    }
+
+    public struct Descriptor<P> where P : struct
+    {
+        public uint key;
+        public Name name;
+        public ClassList classList;
+        public Style style;
+        public P props;
+    }
+
     public static class Rish
     {
-        public static IElement Create(Element element)
+        public static IElement Create(FunctionElement functionElement) => Create(functionElement, 0, default, default, default);
+        public static IElement Create(FunctionElement functionElement, uint key) => Create(functionElement, key, default, default, default);
+        public static IElement Create(FunctionElement functionElement, Name name) => Create(functionElement, 0, name, default, default);
+        public static IElement Create(FunctionElement functionElement, ClassList classList) => Create(functionElement, 0, default, classList, default);
+        public static IElement Create(FunctionElement functionElement, Style style) => Create(functionElement, 0, default, default, style);
+        public static IElement Create(FunctionElement functionElement, uint key, Name name) => Create(functionElement, key, name, default, default);
+        public static IElement Create(FunctionElement functionElement, uint key, ClassList classList) => Create(functionElement, key, default, classList, default);
+        public static IElement Create(FunctionElement functionElement, uint key, Style style) => Create(functionElement, key, default, default, style);
+        public static IElement Create(FunctionElement functionElement, Name name, ClassList classList) => Create(functionElement, 0, name, classList, default);
+        public static IElement Create(FunctionElement functionElement, Name name, Style style) => Create(functionElement, 0, name, default, style);
+        public static IElement Create(FunctionElement functionElement, ClassList classList, Style style) => Create(functionElement, 0, default, classList, style);
+        public static IElement Create(FunctionElement functionElement, uint key, Name name, ClassList classList) => Create(functionElement, key, name, classList, default);
+        public static IElement Create(FunctionElement functionElement, uint key, Name name, Style style) => Create(functionElement, key, name, default, style);
+        public static IElement Create(FunctionElement functionElement, uint key, ClassList classList, Style style) => Create(functionElement, key, default, classList, style);
+        public static IElement Create(FunctionElement functionElement, Name name, ClassList classList, Style style) => Create(functionElement, 0, name, classList, style);
+        public static IElement Create(FunctionElement functionElement, uint key, Name name, ClassList classList, Style style) => Create(functionElement, new Descriptor
+        {
+            key = key,
+            name = name,
+            classList = classList,
+            style = style
+        });
+        public static IElement Create(FunctionElement functionElement, Descriptor descriptor)
         {
             return null;
         }
-        public static IElement Create<P>(Element<P> element) where P : struct
+        
+        public static IElement Create<P>(FunctionElement<P> functionElement) where P : struct => Create(functionElement, 0, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key) where P : struct => Create(functionElement, key, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name) where P : struct => Create(functionElement, 0, name, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, ClassList classList) where P : struct => Create(functionElement, 0, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, Style style) where P : struct => Create(functionElement, 0, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, P props) where P : struct => Create(functionElement, 0, default, default, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name) where P : struct => Create(functionElement, key, name, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList) where P : struct => Create(functionElement, key, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Style style) where P : struct => Create(functionElement, key, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, P props) where P : struct => Create(functionElement, key, default, default, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList) where P : struct => Create(functionElement, 0, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, Style style) where P : struct => Create(functionElement, 0, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, P props) where P : struct => Create(functionElement, 0, name, default, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, ClassList classList, Style style) where P : struct => Create(functionElement, 0, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, ClassList classList, P props) where P : struct => Create(functionElement, 0, default, classList, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, Style style, P props) where P : struct => Create(functionElement, 0, default, default, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList) where P : struct => Create(functionElement, key, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, Style style) where P : struct => Create(functionElement, key, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, P props) where P : struct => Create(functionElement, key, name, default, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, Style style) where P : struct => Create(functionElement, key, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, P props) where P : struct => Create(functionElement, key, default, classList, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Style style, P props) where P : struct => Create(functionElement, key, default, default, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, Style style) where P : struct => Create(functionElement, 0, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, P props) where P : struct => Create(functionElement, 0, name, classList, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, Style style, P props) where P : struct => Create(functionElement, 0, name, default, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, ClassList classList, Style style, P props) where P : struct => Create(functionElement, 0, default, classList, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style) where P : struct => Create(functionElement, key, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, P props) where P : struct => Create(functionElement, key, name, classList, default, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, Style style, P props) where P : struct => Create(functionElement, key, name, default, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, Style style, P props) where P : struct => Create(functionElement, key, default, classList, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, Style style, P props) where P : struct => Create(functionElement, 0, name, classList, style, props);
+        public static IElement Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>
+        {
+            key = key,
+            name = name,
+            classList = classList,
+            style = style,
+            props = props
+        });
+        public static IElement Create<P>(FunctionElement<P> functionElement, Descriptor<P> descriptor) where P : struct
         {
             return null;
         }

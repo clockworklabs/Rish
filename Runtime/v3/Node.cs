@@ -160,6 +160,11 @@ namespace RishUI.v3
 
         private void Clean()
         {
+            if (Children == null || Children.Count <= 0)
+            {
+                return;
+            }
+            
             for (int i = Children.Count, n = ChildCount; i > n; i--)
             {
                 var child = Children[i];

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine.UIElements;
 
 namespace RishUI.v3
@@ -29,20 +28,73 @@ namespace RishUI.v3
 
         public abstract IElement Render();
     }
+
+    public static class FunctionElementExtensions
+    {
+        public static IElement Create(this FunctionElement functionElement) => Rish.Create(functionElement, 0, default, default, default);
+        public static IElement Create(this FunctionElement functionElement, uint key) => Rish.Create(functionElement, key, default, default, default);
+        public static IElement Create(this FunctionElement functionElement, Name name) => Rish.Create(functionElement, 0, name, default, default);
+        public static IElement Create(this FunctionElement functionElement, ClassList classList) => Rish.Create(functionElement, 0, default, classList, default);
+        public static IElement Create(this FunctionElement functionElement, Style style) => Rish.Create(functionElement, 0, default, default, style);
+        public static IElement Create(this FunctionElement functionElement, uint key, Name name) => Rish.Create(functionElement, key, name, default, default);
+        public static IElement Create(this FunctionElement functionElement, uint key, ClassList classList) => Rish.Create(functionElement, key, default, classList, default);
+        public static IElement Create(this FunctionElement functionElement, uint key, Style style) => Rish.Create(functionElement, key, default, default, style);
+        public static IElement Create(this FunctionElement functionElement, Name name, ClassList classList) => Rish.Create(functionElement, 0, name, classList, default);
+        public static IElement Create(this FunctionElement functionElement, Name name, Style style) => Rish.Create(functionElement, 0, name, default, style);
+        public static IElement Create(this FunctionElement functionElement, ClassList classList, Style style) => Rish.Create(functionElement, 0, default, classList, style);
+        public static IElement Create(this FunctionElement functionElement, uint key, Name name, ClassList classList) => Rish.Create(functionElement, key, name, classList, default);
+        public static IElement Create(this FunctionElement functionElement, uint key, Name name, Style style) => Rish.Create(functionElement, key, name, default, style);
+        public static IElement Create(this FunctionElement functionElement, uint key, ClassList classList, Style style) => Rish.Create(functionElement, key, default, classList, style);
+        public static IElement Create(this FunctionElement functionElement, Name name, ClassList classList, Style style) => Rish.Create(functionElement, 0, name, classList, style);
+        public static IElement Create(this FunctionElement functionElement, uint key, Name name, ClassList classList, Style style) => Rish.Create(functionElement, key, name, classList, style);
+        
+        public static IElement Create<P>(this FunctionElement<P> functionElement) where P : struct => Rish.Create<P>(functionElement, 0, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key) where P : struct => Rish.Create<P>(functionElement, key, default, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name) where P : struct => Rish.Create<P>(functionElement, 0, name, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, ClassList classList) where P : struct => Rish.Create<P>(functionElement, 0, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Style style) where P : struct => Rish.Create<P>(functionElement, 0, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, P props) where P : struct => Rish.Create<P>(functionElement, 0, default, default, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name) where P : struct => Rish.Create<P>(functionElement, key, name, default, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, ClassList classList) where P : struct => Rish.Create<P>(functionElement, key, default, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Style style) where P : struct => Rish.Create<P>(functionElement, key, default, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, P props) where P : struct => Rish.Create<P>(functionElement, key, default, default, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, ClassList classList) where P : struct => Rish.Create<P>(functionElement, 0, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, Style style) where P : struct => Rish.Create<P>(functionElement, 0, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, P props) where P : struct => Rish.Create<P>(functionElement, 0, name, default, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, ClassList classList, Style style) where P : struct => Rish.Create<P>(functionElement, 0, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, ClassList classList, P props) where P : struct => Rish.Create<P>(functionElement, 0, default, classList, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Style style, P props) where P : struct => Rish.Create<P>(functionElement, 0, default, default, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, ClassList classList) where P : struct => Rish.Create<P>(functionElement, key, name, classList, default, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, Style style) where P : struct => Rish.Create<P>(functionElement, key, name, default, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, P props) where P : struct => Rish.Create<P>(functionElement, key, name, default, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, ClassList classList, Style style) where P : struct => Rish.Create<P>(functionElement, key, default, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, ClassList classList, P props) where P : struct => Rish.Create<P>(functionElement, key, default, classList, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Style style, P props) where P : struct => Rish.Create<P>(functionElement, key, default, default, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, ClassList classList, Style style) where P : struct => Rish.Create<P>(functionElement, 0, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, ClassList classList, P props) where P : struct => Rish.Create<P>(functionElement, 0, name, classList, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, Style style, P props) where P : struct => Rish.Create<P>(functionElement, 0, name, default, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, ClassList classList, Style style, P props) where P : struct => Rish.Create<P>(functionElement, 0, default, classList, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style) where P : struct => Rish.Create<P>(functionElement, key, name, classList, style, Defaults.GetValue<P>());
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, ClassList classList, P props) where P : struct => Rish.Create<P>(functionElement, key, name, classList, default, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, Style style, P props) where P : struct => Rish.Create<P>(functionElement, key, name, default, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, ClassList classList, Style style, P props) where P : struct => Rish.Create<P>(functionElement, key, default, classList, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, Name name, ClassList classList, Style style, P props) where P : struct => Rish.Create<P>(functionElement, 0, name, classList, style, props);
+        public static IElement Create<P>(this FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style, P props) where P : struct => Rish.Create<P>(functionElement, key, name, classList, style, props);
+    }
     
-    public delegate IElement Element();
-    public delegate IElement Element<P>(P props) where P : struct;
+    public delegate IElement FunctionElement();
+    public delegate IElement FunctionElement<P>(P props) where P : struct;
 
     public class AnonymousElement : RishElement
     {
-        public Element Delegate { get; internal set; }
+        public FunctionElement Delegate { get; internal set; }
 
         public override IElement Render() => Delegate?.Invoke();
     }
     
     public class AnonymousElement<P> : RishElement<P> where P : struct
     {
-        public Element<P> Delegate { get; internal set; }
+        public FunctionElement<P> Delegate { get; internal set; }
 
         public override IElement Render() => Delegate?.Invoke(Props);
     }
