@@ -4,6 +4,6 @@
     {
         // void GetAsset<T>(string address, AssetResult<T> callback);
 
-        IElement GetRoot();
+        Element GetRoot();
     }
 }

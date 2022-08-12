@@ -206,7 +206,6 @@ namespace RishUI.v3
                     var rishType = GetRishElementType(type);
                     if (rishType == null)
                     {
-                        Debug.Log($"{type.FullName} isn't RishElement");
                         continue;
                     }
 

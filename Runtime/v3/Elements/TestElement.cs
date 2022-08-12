@@ -1,21 +1,18 @@
-using System;
-using UnityEngine.UIElements;
-
 namespace RishUI.v3.Elements
 {
     [PoolSize(3)]
     public class TestElement : RishElement
     {
-        public override IElement Render()
+        public override Element Render()
         {
             return null;
         }
         
-        public static IElement TestAnonymousElement() {
+        public static Element TestAnonymousElement() {
             return Rish.Create<App, AppProps>();
         }
         
-        private IElement TestAnonymousElementWithProps(Props props) {
+        private Element TestAnonymousElementWithProps(Props props) {
             return Rish.Create<App, AppProps>();
         }
 

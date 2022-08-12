@@ -1,9 +1,9 @@
-using static Export;
+using RishUI.v3.Elements;
 
 namespace RishUI.v3
 {
     public class TestApp : IAppComponent
     {
-        IElement IAppComponent.GetRoot() => SimpleTest(0);
+        Element IAppComponent.GetRoot() => Rish.Create<SimpleTest, SimpleTestProps>(0);
     }
 }

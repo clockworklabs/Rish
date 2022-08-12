@@ -76,8 +76,6 @@ namespace RishUI.v3
             setup?.Invoke(this);
 
             Clean();
-            
-            // TODO: Return setup to pool
         }
         
         private void Clear()
@@ -85,7 +83,7 @@ namespace RishUI.v3
             ChildCount = 0;
         }
         
-        public T AddChild<T>(uint key, IElement[] children = null) where T : VisualElement, new()
+        public T AddChild<T>(uint key, Element[] children = null) where T : VisualElement, new()
         {
             var type = typeof(T);
             
@@ -151,8 +149,6 @@ namespace RishUI.v3
                     children[i]?.Invoke(child);
                 }
                 child.Clean();
-                
-                // TODO: Return children to pool
             }
 
             return element;
