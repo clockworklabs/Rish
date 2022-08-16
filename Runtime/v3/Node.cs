@@ -18,6 +18,7 @@ namespace RishUI.v3
         internal VisualElement Element { get; private set; }
         private Type Type => Element.GetType();
         
+        public bool Mounted { get; private set; }
         private Node Parent { get; set; }
         private List<Node> Children { get; set; }
         
@@ -25,6 +26,8 @@ namespace RishUI.v3
         
         private int ChildCount { get; set; }
         
+        private List<ElementSetup> OwnedSetups { get; set; }
+        private List<ElementSetup> OldOwnedSetups { get; set; }
         
         public Node(Dom dom, uint id)
         {
@@ -32,25 +35,37 @@ namespace RishUI.v3
             ID = id;
         }
 
-        public void MountAs<T>(Node parent) where T : VisualElement, new()
+        public void MountAs<T>(Node parent, uint key) where T : VisualElement, new()
         {
-            Parent = parent;
-            Depth = Parent?.Depth + 1 ?? 0;
+            if (Mounted)
+            {
+                throw new UnityException("Node is already mounted");
+            }
             
-            Element = ElementsPool<T>.Get();
+            Mounted = true;
+            
+            Parent = parent;
+            Key = key;
+            Depth = Parent?.Depth + 1 ?? 0;
+
+            Element = ElementsPool.Get<T>();
             Parent?.Element.Add(Element);
             
             Children?.Clear();
             ChildCount = 0;
 
-            if (Element is IRishElement)
+            if (Element is RishElement rishElement)
             {
-                Dirty();   
+                rishElement.OnDirty += Dirty;
+                
+                rishElement.Mount();
             }
         }
 
         private void Unmount()
         {
+            Mounted = false;
+            
             if (Children?.Count > 0)
             {
                 for (int i = 0, n = Children.Count; i < n; i++)
@@ -59,22 +74,78 @@ namespace RishUI.v3
                 }
                 Children.Clear();
             }
+            
+            if (Element is RishElement rishElement)
+            {
+                rishElement.OnDirty -= Dirty;
+                
+                rishElement.Unmount();
+            }
 
-            Element.Clear();
             Element.RemoveFromHierarchy();
+            ElementsPool.Return(Element);
+            Element = null;
+
+            if (OwnedSetups?.Count > 0)
+            {
+                for (int i = 0, n = OwnedSetups.Count; i < n; i++)
+                {
+                    Rish.ReturnToPool(OwnedSetups[i]);
+                }
+                OwnedSetups.Clear();
+            }
             
             Dom.ReturnNode(this);
+        }
+
+        private void TakeOwnership(ElementSetup setup)
+        {
+            setup.Owner = this;
+
+            OwnedSetups ??= new List<ElementSetup>();
+            
+            OwnedSetups.Add(setup);
         }
 
         private void Dirty() => OnDirty?.Invoke(this);
 
         public void Render()
         {
+            if (OwnedSetups?.Count > 0)
+            {
+                OldOwnedSetups ??= new List<ElementSetup>();
+                OldOwnedSetups.AddRange(OwnedSetups);
+                OwnedSetups.Clear();
+            }
+            
+            Rish.SubscribeToElementCreation(TakeOwnership);
+            
             Clear();
 
-            var setup = (Element as IRishElement)?.Render();
+            var setup = (Element as RishElement)?.Render().GetSetup();
             setup?.Invoke(this);
 
+            Clean();
+
+            Rish.UnsubscribeFromElementCreation(TakeOwnership);
+            
+            if (OldOwnedSetups?.Count > 0)
+            {
+                for (int i = 0, n = OldOwnedSetups.Count; i < n; i++)
+                {
+                    Rish.ReturnToPool(OldOwnedSetups[i]);
+                }
+                OldOwnedSetups.Clear();
+            }
+        }
+
+        public void SetChildren(Children children)
+        {
+            Clear();
+            for(int i = 0, n = children.Count; i < n; i++)
+            {
+                children[i].GetSetup()?.Invoke(this);
+            }
             Clean();
         }
         
@@ -83,25 +154,24 @@ namespace RishUI.v3
             ChildCount = 0;
         }
         
-        public T AddChild<T>(uint key, Element[] children = null) where T : VisualElement, new()
+        public (Node, T) AddChild<T>(uint key) where T : VisualElement, new()
         {
             var type = typeof(T);
-            
-            Children ??= new List<Node>(10); // RishElements will always have only one child, maybe we can have 2 separates pools of Node for native and Rish elements 
 
+            Children ??= new List<Node>(10); // RishElements will always have only one child, maybe we can have 2 separates pools of Node for native and Rish elements 
             Node child = null;
+            var index = -1;
             if (Children.Count > 0)
             {
-                var index = -1;
                 for (var i = ChildCount; i < Children.Count; i++)
                 {
-                    var other = Children[i];
-                    if (other.Key != key)
+                    var currentChild = Children[i];
+                    if (currentChild.Key != key)
                     {
                         continue;
                     }
                     
-                    if (other.Type == type)
+                    if (currentChild.Type == type)
                     {
                         index = i;
                         break;
@@ -114,54 +184,42 @@ namespace RishUI.v3
                     }
 #endif
                 }
-                
+
                 child = index >= 0 ? Children[index] : null;
             }
 
             if (child == null)
             {
                 child = Dom.GetNode();
-                child.MountAs<T>(this);
+                child.MountAs<T>(this, key);
+
+                index = Children.Count;
                 
                 Children.Add(child);
             }
-            
-            child.Parent = this;
             
             var element = child.Element as T;
             element?.BringToFront();
             
             var targetIndex = ChildCount;
-            var lastIndex = Children.Count - 1;
-
-            if (targetIndex < lastIndex)
+            if (targetIndex < index)
             {
-                (Children[targetIndex], Children[lastIndex]) = (Children[lastIndex], Children[targetIndex]);
+                (Children[targetIndex], Children[index]) = (Children[index], Children[targetIndex]);
             }
 
             ChildCount++;
 
-            if (children?.Length > 0)
-            {
-                child.Clear();
-                for(int i = 0, n = children.Length; i < n; i++)
-                {
-                    children[i]?.Invoke(child);
-                }
-                child.Clean();
-            }
-
-            return element;
+            return (child, element);
         }
 
         private void Clean()
         {
-            if (Children == null || Children.Count <= 0)
+            if (Children == null || Children.Count <= 0 || ChildCount >= Children.Count)
             {
                 return;
             }
             
-            for (int i = Children.Count, n = ChildCount; i > n; i--)
+            for (int i = Children.Count - 1, n = ChildCount; i >= n; i--)
             {
                 var child = Children[i];
                 child.Unmount();

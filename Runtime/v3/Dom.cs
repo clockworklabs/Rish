@@ -22,7 +22,7 @@ namespace RishUI.v3
         public Dom(UIDocument document, string rootClassName)
         {
             var node = GetNode();
-            node.MountAs<App>(null);
+            node.MountAs<App>(null, 0);
 
             Root = node;
             
@@ -68,19 +68,14 @@ namespace RishUI.v3
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();
+                if (!node.Mounted)
+                {
+                    continue;
+                }
                 CurrentDepth = node.Depth;
                 
                 node.Render();
             }
-
-            // if (Unmounted.Count <= 0) return;
-            //
-            // for (int i = 0, n = Unmounted.Count; i < n; i++)
-            // {
-            //     NodesPool.Push(Unmounted[i]);
-            // }
-            //
-            // Unmounted.Clear();
         }
 
         public Node GetNode()

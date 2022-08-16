@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using UnityEngine.UIElements;
 
 namespace RishUI.v3
 {
@@ -1491,6 +1492,24 @@ namespace RishUI.v3
         public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
             return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30, classes.Item31, classes.Item32);
+        }
+
+        public void SetClasses(VisualElement element)
+        {
+            element.ClearClassList();
+            
+            if (Count <= 0)
+            {
+                return;
+            }
+            
+            foreach (var className in this)
+            {
+                if (!string.IsNullOrWhiteSpace(className))
+                {
+                    element.AddToClassList(className);
+                }
+            }
         }
 
         public Enumerator GetEnumerator()

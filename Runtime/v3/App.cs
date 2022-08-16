@@ -5,7 +5,7 @@ namespace RishUI.v3
     [PoolSize(1)]
     public class App : RishElement<AppProps>
     {
-        public override Element Render()
+        public override ElementDefinition Render()
         {
             var app = (IAppComponent) new TestApp();
             
