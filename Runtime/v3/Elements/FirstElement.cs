@@ -6,7 +6,7 @@ namespace RishUI.v3.Elements
 {
     public class FirstElement : RishElement
     {
-        public override ElementDefinition Render()
+        public override Element Render()
         {
             return null;
         }

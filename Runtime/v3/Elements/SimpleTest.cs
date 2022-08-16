@@ -22,7 +22,7 @@ namespace RishUI.v3.Elements
             State = state;
         }
         
-        public override ElementDefinition Render()
+        public override Element Render()
         {
             // return Rish.Create<Div>(("test", "class2"), new Children(
             //     Rish.Create<Div>(1, new Style
@@ -87,7 +87,7 @@ namespace RishUI.v3.Elements
         //     backgroundColor = new StyleColor(new Color(0.5f, 0.3f, 0.1f))
         // }, Div.Setup);
         
-        private static ElementDefinition Element() => Rish.Create<Div>(new Style
+        private static Element Element() => Rish.Create<Div>(new Style
         {
             backgroundColor = new StyleColor(new Color(0.5f, 0.3f, 0.1f))
         });

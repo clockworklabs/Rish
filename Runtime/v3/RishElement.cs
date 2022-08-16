@@ -35,7 +35,7 @@ namespace RishUI.v3
             }
         }
         
-        public abstract ElementDefinition Render();
+        public abstract Element Render();
     }
     
     public abstract class RishElement<P> : RishElement where P : struct
@@ -46,8 +46,13 @@ namespace RishUI.v3
             get => _props;
             set
             {
+                var propsListener = this as IPropsListener;
+                propsListener?.PropsWillChange();
+                
                 _props = value;
-
+                
+                propsListener?.PropsDidChange();
+                
                 Dirty();
             }
         }
@@ -68,20 +73,20 @@ namespace RishUI.v3
         }
     }
     
-    public delegate ElementDefinition FunctionElement();
-    public delegate ElementDefinition FunctionElement<P>(P props) where P : struct;
+    public delegate Element FunctionElement();
+    public delegate Element FunctionElement<P>(P props) where P : struct;
 
     public class AnonymousElement : RishElement
     {
         public FunctionElement Delegate { get; internal set; }
 
-        public override ElementDefinition Render() => Delegate?.Invoke() ?? ElementDefinition.Null;
+        public override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
     public class AnonymousElement<P> : RishElement<P> where P : struct
     {
         public FunctionElement<P> Delegate { get; internal set; }
 
-        public override ElementDefinition Render() => Delegate?.Invoke(Props) ?? ElementDefinition.Null;
+        public override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
     }
 }

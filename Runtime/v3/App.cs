@@ -1,15 +1,69 @@
+using System;
+using System.Linq;
+using System.Reflection;
 using Unity.Collections;
+using UnityEngine;
 
 namespace RishUI.v3
 {
-    [PoolSize(1)]
-    public class App : RishElement<AppProps>
+    public interface IApp
     {
-        public override ElementDefinition Render()
+        // void GetAsset<T>(string address, AssetResult<T> callback);
+
+        Element GetRoot();
+    }
+    
+    [PoolSize(1)]
+    public class App : RishElement<AppProps>, IPropsListener
+    {
+#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+        private HotReloader HotReloader { get; set; }
+#endif
+        
+        private IApp UserApp { get; set; }
+        
+        void IPropsListener.PropsDidChange()
         {
-            var app = (IAppComponent) new TestApp();
+// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+//             HotReloader?.Dispose();
+//             
+//             HotReloader = new HotReloader(Props.assemblyDefinition);
+//             HotReloader.OnSuccessfulCompilation += SetAppComponent;
+// #else
+            var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassName.Value) != null);
+            SetApp(asm);
+// #endif
+        }
+        
+        void IPropsListener.PropsWillChange()
+        {
+#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+            HotReloader?.Dispose();
+            HotReloader = null;
+#endif
+        }
+
+        public override Element Render()
+        {
+            if (UserApp == null)
+            {
+                return Element.Null;
+            }
+
+            return UserApp.GetRoot();
+        }
+
+        private void SetApp(Assembly assembly)
+        {
+            var type = assembly.GetType(Props.rootClassName.Value);
+            if (type == null || Activator.CreateInstance(type) is not IApp app)
+            {
+                throw new UnityException("No app found");
+            }
+
+            UserApp = app;
             
-            return app.GetRoot();
+            Dirty();
         }
     }
 

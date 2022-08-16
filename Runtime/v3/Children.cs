@@ -9,40 +9,40 @@ namespace RishUI.v3
         private readonly int _count;
         public int Count => _count;
         
-        private readonly ElementDefinition _element0;
-        private readonly ElementDefinition _element1;
-        private readonly ElementDefinition _element2;
-        private readonly ElementDefinition _element3;
-        private readonly ElementDefinition _element4;
-        private readonly ElementDefinition _element5;
-        private readonly ElementDefinition _element6;
-        private readonly ElementDefinition _element7;
-        private readonly ElementDefinition _element8;
-        private readonly ElementDefinition _element9;
-        private readonly ElementDefinition _element10;
-        private readonly ElementDefinition _element11;
-        private readonly ElementDefinition _element12;
-        private readonly ElementDefinition _element13;
-        private readonly ElementDefinition _element14;
-        private readonly ElementDefinition _element15;
-        private readonly ElementDefinition _element16;
-        private readonly ElementDefinition _element17;
-        private readonly ElementDefinition _element18;
-        private readonly ElementDefinition _element19;
-        private readonly ElementDefinition _element20;
-        private readonly ElementDefinition _element21;
-        private readonly ElementDefinition _element22;
-        private readonly ElementDefinition _element23;
-        private readonly ElementDefinition _element24;
-        private readonly ElementDefinition _element25;
-        private readonly ElementDefinition _element26;
-        private readonly ElementDefinition _element27;
-        private readonly ElementDefinition _element28;
-        private readonly ElementDefinition _element29;
-        private readonly ElementDefinition _element30;
-        private readonly ElementDefinition _element31;
+        private readonly Element _element0;
+        private readonly Element _element1;
+        private readonly Element _element2;
+        private readonly Element _element3;
+        private readonly Element _element4;
+        private readonly Element _element5;
+        private readonly Element _element6;
+        private readonly Element _element7;
+        private readonly Element _element8;
+        private readonly Element _element9;
+        private readonly Element _element10;
+        private readonly Element _element11;
+        private readonly Element _element12;
+        private readonly Element _element13;
+        private readonly Element _element14;
+        private readonly Element _element15;
+        private readonly Element _element16;
+        private readonly Element _element17;
+        private readonly Element _element18;
+        private readonly Element _element19;
+        private readonly Element _element20;
+        private readonly Element _element21;
+        private readonly Element _element22;
+        private readonly Element _element23;
+        private readonly Element _element24;
+        private readonly Element _element25;
+        private readonly Element _element26;
+        private readonly Element _element27;
+        private readonly Element _element28;
+        private readonly Element _element29;
+        private readonly Element _element30;
+        private readonly Element _element31;
 
-        public Children(ElementDefinition child0)
+        public Children(Element child0)
         {
             _count = 1;
 
@@ -80,7 +80,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1)
+        public Children(Element child0, Element child1)
         {
             _count = 2;
 
@@ -118,7 +118,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2)
+        public Children(Element child0, Element child1, Element child2)
         {
             _count = 3;
 
@@ -156,7 +156,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3)
+        public Children(Element child0, Element child1, Element child2, Element child3)
         {
             _count = 4;
 
@@ -194,7 +194,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4)
         {
             _count = 5;
 
@@ -232,7 +232,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5)
         {
             _count = 6;
 
@@ -270,7 +270,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6)
         {
             _count = 7;
 
@@ -308,7 +308,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7)
         {
             _count = 8;
 
@@ -346,7 +346,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8)
         {
             _count = 9;
 
@@ -384,7 +384,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9)
         {
             _count = 10;
 
@@ -422,7 +422,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10)
         {
             _count = 11;
 
@@ -460,7 +460,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11)
         {
             _count = 12;
 
@@ -498,7 +498,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12)
         {
             _count = 13;
 
@@ -536,7 +536,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13)
         {
             _count = 14;
 
@@ -574,7 +574,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14)
         {
             _count = 15;
 
@@ -612,7 +612,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15)
         {
             _count = 16;
 
@@ -650,7 +650,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16)
         {
             _count = 17;
 
@@ -688,7 +688,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17)
         {
             _count = 18;
 
@@ -726,7 +726,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18)
         {
             _count = 19;
 
@@ -764,7 +764,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19)
         {
             _count = 20;
 
@@ -802,7 +802,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20)
         {
             _count = 21;
 
@@ -840,7 +840,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21)
         {
             _count = 22;
 
@@ -878,7 +878,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22)
         {
             _count = 23;
 
@@ -916,7 +916,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23)
         {
             _count = 24;
 
@@ -954,7 +954,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24)
         {
             _count = 25;
 
@@ -992,7 +992,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25)
         {
             _count = 26;
 
@@ -1030,7 +1030,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26)
         {
             _count = 27;
 
@@ -1068,7 +1068,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26, ElementDefinition child27)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26, Element child27)
         {
             _count = 28;
 
@@ -1106,7 +1106,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26, ElementDefinition child27, ElementDefinition child28)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26, Element child27, Element child28)
         {
             _count = 29;
 
@@ -1144,7 +1144,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26, ElementDefinition child27, ElementDefinition child28, ElementDefinition child29)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26, Element child27, Element child28, Element child29)
         {
             _count = 30;
 
@@ -1182,7 +1182,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26, ElementDefinition child27, ElementDefinition child28, ElementDefinition child29, ElementDefinition child30)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26, Element child27, Element child28, Element child29, Element child30)
         {
             _count = 31;
 
@@ -1220,7 +1220,7 @@ namespace RishUI.v3
             _element31 = default;
         }
 
-        public Children(ElementDefinition child0, ElementDefinition child1, ElementDefinition child2, ElementDefinition child3, ElementDefinition child4, ElementDefinition child5, ElementDefinition child6, ElementDefinition child7, ElementDefinition child8, ElementDefinition child9, ElementDefinition child10, ElementDefinition child11, ElementDefinition child12, ElementDefinition child13, ElementDefinition child14, ElementDefinition child15, ElementDefinition child16, ElementDefinition child17, ElementDefinition child18, ElementDefinition child19, ElementDefinition child20, ElementDefinition child21, ElementDefinition child22, ElementDefinition child23, ElementDefinition child24, ElementDefinition child25, ElementDefinition child26, ElementDefinition child27, ElementDefinition child28, ElementDefinition child29, ElementDefinition child30, ElementDefinition child31)
+        public Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19, Element child20, Element child21, Element child22, Element child23, Element child24, Element child25, Element child26, Element child27, Element child28, Element child29, Element child30, Element child31)
         {
             _count = 32;
 
@@ -1258,7 +1258,7 @@ namespace RishUI.v3
             _element31 = child31;
         }
 
-        public ElementDefinition this[int index]
+        public Element this[int index]
         {
             get
             {
@@ -1334,162 +1334,162 @@ namespace RishUI.v3
             }
         }
 
-        public static implicit operator Children(ElementDefinition child0)
+        public static implicit operator Children(Element child0)
         {
             return new Children(child0);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element) children)
         {
             return new Children(children.Item1, children.Item2);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27, children.Item28);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27, children.Item28, children.Item29);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27, children.Item28, children.Item29, children.Item30);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27, children.Item28, children.Item29, children.Item30, children.Item31);
         }
 
-        public static implicit operator Children((ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition, ElementDefinition) children)
+        public static implicit operator Children((Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element, Element) children)
         {
             return new Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20, children.Item21, children.Item22, children.Item23, children.Item24, children.Item25, children.Item26, children.Item27, children.Item28, children.Item29, children.Item30, children.Item31, children.Item32);
         }
@@ -1504,7 +1504,7 @@ namespace RishUI.v3
             private readonly Children _list;
 
             private int _index;
-            private ElementDefinition _current;
+            private Element _current;
 
             public Enumerator(Children list)
             {
@@ -1513,7 +1513,7 @@ namespace RishUI.v3
                 _current = default;
             }
 
-            public ElementDefinition Current => _current;
+            public Element Current => _current;
 
             public bool MoveNext()
             {

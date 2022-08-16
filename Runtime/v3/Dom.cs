@@ -24,9 +24,15 @@ namespace RishUI.v3
             var node = GetNode();
             node.MountAs<App>(null, 0);
 
+            var appElement = (App) node.Element;
+            appElement.Props = new AppProps
+            {
+                rootClassName = rootClassName
+            };
+
             Root = node;
             
-            document.rootVisualElement.Add(node.Element);
+            document.rootVisualElement.Add(appElement);
         }
 
         private void OnDirtyNode(Node node)

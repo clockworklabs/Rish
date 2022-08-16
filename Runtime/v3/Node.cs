@@ -26,8 +26,8 @@ namespace RishUI.v3
         
         private int ChildCount { get; set; }
         
-        private List<ElementSetup> OwnedSetups { get; set; }
-        private List<ElementSetup> OldOwnedSetups { get; set; }
+        private List<ElementDefinition> OwnedDefinitions { get; set; }
+        private List<ElementDefinition> OwnedDefinitionsBuffer { get; set; }
         
         public Node(Dom dom, uint id)
         {
@@ -86,65 +86,72 @@ namespace RishUI.v3
             ElementsPool.Return(Element);
             Element = null;
 
-            if (OwnedSetups?.Count > 0)
+            if (OwnedDefinitions?.Count > 0)
             {
-                for (int i = 0, n = OwnedSetups.Count; i < n; i++)
+                for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
                 {
-                    Rish.ReturnToPool(OwnedSetups[i]);
+                    Rish.ReturnToPool(OwnedDefinitions[i]);
                 }
-                OwnedSetups.Clear();
+                OwnedDefinitions.Clear();
             }
             
             Dom.ReturnNode(this);
         }
 
-        private void TakeOwnership(ElementSetup setup)
+        private void TakeOwnership(ElementDefinition definition)
         {
-            setup.Owner = this;
+            definition.Owner = this;
 
-            OwnedSetups ??= new List<ElementSetup>();
+            OwnedDefinitions ??= new List<ElementDefinition>();
             
-            OwnedSetups.Add(setup);
+            OwnedDefinitions.Add(definition);
         }
 
         private void Dirty() => OnDirty?.Invoke(this);
 
         public void Render()
         {
-            if (OwnedSetups?.Count > 0)
+            if (Element is not RishElement rishElement)
             {
-                OldOwnedSetups ??= new List<ElementSetup>();
-                OldOwnedSetups.AddRange(OwnedSetups);
-                OwnedSetups.Clear();
+                throw new UnityException("Only RishElements can render");
+            }
+            
+            if (OwnedDefinitions?.Count > 0)
+            {
+                (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
             }
             
             Rish.SubscribeToElementCreation(TakeOwnership);
             
             Clear();
 
-            var setup = (Element as RishElement)?.Render().GetSetup();
-            setup?.Invoke(this);
-
+            rishElement.Render().Invoke(this);
+            
             Clean();
 
             Rish.UnsubscribeFromElementCreation(TakeOwnership);
             
-            if (OldOwnedSetups?.Count > 0)
+            if (OwnedDefinitionsBuffer?.Count > 0)
             {
-                for (int i = 0, n = OldOwnedSetups.Count; i < n; i++)
+                for (int i = 0, n = OwnedDefinitionsBuffer.Count; i < n; i++)
                 {
-                    Rish.ReturnToPool(OldOwnedSetups[i]);
+                    Rish.ReturnToPool(OwnedDefinitionsBuffer[i]);
                 }
-                OldOwnedSetups.Clear();
+                OwnedDefinitionsBuffer.Clear();
             }
         }
 
         public void SetChildren(Children children)
         {
+            if (Element is RishElement)
+            {
+                throw new UnityException("Only VisualElements can have multiple children");
+            }
+            
             Clear();
             for(int i = 0, n = children.Count; i < n; i++)
             {
-                children[i].GetSetup()?.Invoke(this);
+                children[i].Invoke(this);
             }
             Clean();
         }

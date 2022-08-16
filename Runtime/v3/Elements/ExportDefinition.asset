@@ -19,10 +19,8 @@ MonoBehaviour:
   - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\Div.cs
     writeTime: 637962606711905688
   - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\FirstElement.cs
-    writeTime: 637961775837487031
+    writeTime: 637962639470810827
   - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\SimpleTest.cs
-    writeTime: 637962605965657003
-  - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\TestApp.cs
-    writeTime: 637961775514508656
+    writeTime: 637962642073531525
   - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\TestElement.cs
-    writeTime: 637961775955636306
+    writeTime: 637962657754977581
