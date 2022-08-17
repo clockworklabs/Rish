@@ -43,15 +43,7 @@ namespace RishUI.v3
 #endif
         }
 
-        public override Element Render()
-        {
-            if (UserApp == null)
-            {
-                return Element.Null;
-            }
-
-            return UserApp.GetRoot();
-        }
+        public override Element Render() => UserApp?.GetRoot() ?? Element.Null;
 
         private void SetApp(Assembly assembly)
         {

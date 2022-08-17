@@ -1,4 +1,0 @@
-﻿namespace RishUI.v3
-{
-
-}

@@ -407,5 +407,242 @@ namespace RishUI.v3
             element.style.width = StyleKeyword.Null;
             element.style.wordSpacing = StyleKeyword.Null;
         }
+
+        [Comparer]
+        public static bool Equals(Style a, Style b)
+        {
+            return
+                (a.alignContent.HasValue && b.alignContent.HasValue
+                    ? a.alignContent.Value.Equals(b.alignContent.Value)
+                    : a.alignContent.HasValue == b.alignContent.HasValue) &&
+                (a.alignItems.HasValue && b.alignItems.HasValue
+                    ? a.alignItems.Value.Equals(b.alignItems.Value)
+                    : a.alignItems.HasValue == b.alignItems.HasValue) &&
+                (a.alignSelf.HasValue && b.alignSelf.HasValue
+                    ? a.alignSelf.Value.Equals(b.alignSelf.Value)
+                    : a.alignSelf.HasValue == b.alignSelf.HasValue) &&
+                (a.backgroundColor.HasValue && b.backgroundColor.HasValue
+                    ? a.backgroundColor.Value.Equals(b.backgroundColor.Value)
+                    : a.backgroundColor.HasValue == b.backgroundColor.HasValue) &&
+                (a.backgroundImage.HasValue && b.backgroundImage.HasValue
+                    ? a.backgroundImage.Value.Equals(b.backgroundImage.Value)
+                    : a.backgroundImage.HasValue == b.backgroundImage.HasValue) &&
+                (a.borderBottomColor.HasValue && b.borderBottomColor.HasValue
+                    ? a.borderBottomColor.Value.Equals(b.borderBottomColor.Value)
+                    : a.borderBottomColor.HasValue == b.borderBottomColor.HasValue) &&
+                (a.borderBottomLeftRadius.HasValue && b.borderBottomLeftRadius.HasValue
+                    ? a.borderBottomLeftRadius.Value.Equals(b.borderBottomLeftRadius.Value)
+                    : a.borderBottomLeftRadius.HasValue == b.borderBottomLeftRadius.HasValue) &&
+                (a.borderBottomRightRadius.HasValue && b.borderBottomRightRadius.HasValue
+                    ? a.borderBottomRightRadius.Value.Equals(b.borderBottomRightRadius.Value)
+                    : a.borderBottomRightRadius.HasValue == b.borderBottomRightRadius.HasValue) &&
+                (a.borderBottomWidth.HasValue && b.borderBottomWidth.HasValue
+                    ? a.borderBottomWidth.Value.Equals(b.borderBottomWidth.Value)
+                    : a.borderBottomWidth.HasValue == b.borderBottomWidth.HasValue) &&
+                (a.borderLeftColor.HasValue && b.borderLeftColor.HasValue
+                    ? a.borderLeftColor.Value.Equals(b.borderLeftColor.Value)
+                    : a.borderLeftColor.HasValue == b.borderLeftColor.HasValue) &&
+                (a.borderLeftWidth.HasValue && b.borderLeftWidth.HasValue
+                    ? a.borderLeftWidth.Value.Equals(b.borderLeftWidth.Value)
+                    : a.borderLeftWidth.HasValue == b.borderLeftWidth.HasValue) &&
+                (a.borderRightColor.HasValue && b.borderRightColor.HasValue
+                    ? a.borderRightColor.Value.Equals(b.borderRightColor.Value)
+                    : a.borderRightColor.HasValue == b.borderRightColor.HasValue) &&
+                (a.borderRightWidth.HasValue && b.borderRightWidth.HasValue
+                    ? a.borderRightWidth.Value.Equals(b.borderRightWidth.Value)
+                    : a.borderRightWidth.HasValue == b.borderRightWidth.HasValue) &&
+                (a.borderTopColor.HasValue && b.borderTopColor.HasValue
+                    ? a.borderTopColor.Value.Equals(b.borderTopColor.Value)
+                    : a.borderTopColor.HasValue == b.borderTopColor.HasValue) &&
+                (a.borderTopLeftRadius.HasValue && b.borderTopLeftRadius.HasValue
+                    ? a.borderTopLeftRadius.Value.Equals(b.borderTopLeftRadius.Value)
+                    : a.borderTopLeftRadius.HasValue == b.borderTopLeftRadius.HasValue) &&
+                (a.borderTopRightRadius.HasValue && b.borderTopRightRadius.HasValue
+                    ? a.borderTopRightRadius.Value.Equals(b.borderTopRightRadius.Value)
+                    : a.borderTopRightRadius.HasValue == b.borderTopRightRadius.HasValue) &&
+                (a.borderTopWidth.HasValue && b.borderTopWidth.HasValue
+                    ? a.borderTopWidth.Value.Equals(b.borderTopWidth.Value)
+                    : a.borderTopWidth.HasValue == b.borderTopWidth.HasValue) &&
+                (a.bottom.HasValue && b.bottom.HasValue
+                    ? a.bottom.Value.Equals(b.bottom.Value)
+                    : a.bottom.HasValue == b.bottom.HasValue) &&
+                (a.color.HasValue && b.color.HasValue
+                    ? a.color.Value.Equals(b.color.Value)
+                    : a.color.HasValue == b.color.HasValue) &&
+                (a.cursor.HasValue && b.cursor.HasValue
+                    ? a.cursor.Value.Equals(b.cursor.Value)
+                    : a.cursor.HasValue == b.cursor.HasValue) &&
+                (a.display.HasValue && b.display.HasValue
+                    ? a.display.Value.Equals(b.display.Value)
+                    : a.display.HasValue == b.display.HasValue) &&
+                (a.flexBasis.HasValue && b.flexBasis.HasValue
+                    ? a.flexBasis.Value.Equals(b.flexBasis.Value)
+                    : a.flexBasis.HasValue == b.flexBasis.HasValue) &&
+                (a.flexDirection.HasValue && b.flexDirection.HasValue
+                    ? a.flexDirection.Value.Equals(b.flexDirection.Value)
+                    : a.flexDirection.HasValue == b.flexDirection.HasValue) &&
+                (a.flexGrow.HasValue && b.flexGrow.HasValue
+                    ? a.flexGrow.Value.Equals(b.flexGrow.Value)
+                    : a.flexGrow.HasValue == b.flexGrow.HasValue) &&
+                (a.flexShrink.HasValue && b.flexShrink.HasValue
+                    ? a.flexShrink.Value.Equals(b.flexShrink.Value)
+                    : a.flexShrink.HasValue == b.flexShrink.HasValue) &&
+                (a.flexWrap.HasValue && b.flexWrap.HasValue
+                    ? a.flexWrap.Value.Equals(b.flexWrap.Value)
+                    : a.flexWrap.HasValue == b.flexWrap.HasValue) &&
+                (a.fontSize.HasValue && b.fontSize.HasValue
+                    ? a.fontSize.Value.Equals(b.fontSize.Value)
+                    : a.fontSize.HasValue == b.fontSize.HasValue) &&
+                (a.height.HasValue && b.height.HasValue
+                    ? a.height.Value.Equals(b.height.Value)
+                    : a.height.HasValue == b.height.HasValue) &&
+                (a.justifyContent.HasValue && b.justifyContent.HasValue
+                    ? a.justifyContent.Value.Equals(b.justifyContent.Value)
+                    : a.justifyContent.HasValue == b.justifyContent.HasValue) &&
+                (a.left.HasValue && b.left.HasValue
+                    ? a.left.Value.Equals(b.left.Value)
+                    : a.left.HasValue == b.left.HasValue) &&
+                (a.letterSpacing.HasValue && b.letterSpacing.HasValue
+                    ? a.letterSpacing.Value.Equals(b.letterSpacing.Value)
+                    : a.letterSpacing.HasValue == b.letterSpacing.HasValue) &&
+                (a.marginBottom.HasValue && b.marginBottom.HasValue
+                    ? a.marginBottom.Value.Equals(b.marginBottom.Value)
+                    : a.marginBottom.HasValue == b.marginBottom.HasValue) &&
+                (a.marginLeft.HasValue && b.marginLeft.HasValue
+                    ? a.marginLeft.Value.Equals(b.marginLeft.Value)
+                    : a.marginLeft.HasValue == b.marginLeft.HasValue) &&
+                (a.marginRight.HasValue && b.marginRight.HasValue
+                    ? a.marginRight.Value.Equals(b.marginRight.Value)
+                    : a.marginRight.HasValue == b.marginRight.HasValue) &&
+                (a.marginTop.HasValue && b.marginTop.HasValue
+                    ? a.marginTop.Value.Equals(b.marginTop.Value)
+                    : a.marginTop.HasValue == b.marginTop.HasValue) &&
+                (a.maxHeight.HasValue && b.maxHeight.HasValue
+                    ? a.maxHeight.Value.Equals(b.maxHeight.Value)
+                    : a.maxHeight.HasValue == b.maxHeight.HasValue) &&
+                (a.maxWidth.HasValue && b.maxWidth.HasValue
+                    ? a.maxWidth.Value.Equals(b.maxWidth.Value)
+                    : a.maxWidth.HasValue == b.maxWidth.HasValue) &&
+                (a.minHeight.HasValue && b.minHeight.HasValue
+                    ? a.minHeight.Value.Equals(b.minHeight.Value)
+                    : a.minHeight.HasValue == b.minHeight.HasValue) &&
+                (a.minWidth.HasValue && b.minWidth.HasValue
+                    ? a.minWidth.Value.Equals(b.minWidth.Value)
+                    : a.minWidth.HasValue == b.minWidth.HasValue) &&
+                (a.opacity.HasValue && b.opacity.HasValue
+                    ? a.opacity.Value.Equals(b.opacity.Value)
+                    : a.opacity.HasValue == b.opacity.HasValue) &&
+                (a.overflow.HasValue && b.overflow.HasValue
+                    ? a.overflow.Value.Equals(b.overflow.Value)
+                    : a.overflow.HasValue == b.overflow.HasValue) &&
+                (a.paddingBottom.HasValue && b.paddingBottom.HasValue
+                    ? a.paddingBottom.Value.Equals(b.paddingBottom.Value)
+                    : a.paddingBottom.HasValue == b.paddingBottom.HasValue) &&
+                (a.paddingLeft.HasValue && b.paddingLeft.HasValue
+                    ? a.paddingLeft.Value.Equals(b.paddingLeft.Value)
+                    : a.paddingLeft.HasValue == b.paddingLeft.HasValue) &&
+                (a.paddingRight.HasValue && b.paddingRight.HasValue
+                    ? a.paddingRight.Value.Equals(b.paddingRight.Value)
+                    : a.paddingRight.HasValue == b.paddingRight.HasValue) &&
+                (a.paddingTop.HasValue && b.paddingTop.HasValue
+                    ? a.paddingTop.Value.Equals(b.paddingTop.Value)
+                    : a.paddingTop.HasValue == b.paddingTop.HasValue) &&
+                (a.position.HasValue && b.position.HasValue
+                    ? a.position.Value.Equals(b.position.Value)
+                    : a.position.HasValue == b.position.HasValue) &&
+                (a.right.HasValue && b.right.HasValue
+                    ? a.right.Value.Equals(b.right.Value)
+                    : a.right.HasValue == b.right.HasValue) &&
+                (a.rotate.HasValue && b.rotate.HasValue
+                    ? a.rotate.Value.Equals(b.rotate.Value)
+                    : a.rotate.HasValue == b.rotate.HasValue) &&
+                (a.scale.HasValue && b.scale.HasValue
+                    ? a.scale.Value.Equals(b.scale.Value)
+                    : a.scale.HasValue == b.scale.HasValue) &&
+                (a.textOverflow.HasValue && b.textOverflow.HasValue
+                    ? a.textOverflow.Value.Equals(b.textOverflow.Value)
+                    : a.textOverflow.HasValue == b.textOverflow.HasValue) &&
+                (a.textShadow.HasValue && b.textShadow.HasValue
+                    ? a.textShadow.Value.Equals(b.textShadow.Value)
+                    : a.textShadow.HasValue == b.textShadow.HasValue) &&
+                (a.top.HasValue && b.top.HasValue
+                    ? a.top.Value.Equals(b.top.Value)
+                    : a.top.HasValue == b.top.HasValue) &&
+                (a.transformOrigin.HasValue && b.transformOrigin.HasValue
+                    ? a.transformOrigin.Value.Equals(b.transformOrigin.Value)
+                    : a.transformOrigin.HasValue == b.transformOrigin.HasValue) &&
+                (a.transitionDelay.HasValue && b.transitionDelay.HasValue
+                    ? a.transitionDelay.Value.Equals(b.transitionDelay.Value)
+                    : a.transitionDelay.HasValue == b.transitionDelay.HasValue) &&
+                (a.transitionDuration.HasValue && b.transitionDuration.HasValue
+                    ? a.transitionDuration.Value.Equals(b.transitionDuration.Value)
+                    : a.transitionDuration.HasValue == b.transitionDuration.HasValue) &&
+                (a.transitionProperty.HasValue && b.transitionProperty.HasValue
+                    ? a.transitionProperty.Value.Equals(b.transitionProperty.Value)
+                    : a.transitionProperty.HasValue == b.transitionProperty.HasValue) &&
+                (a.transitionTimingFunction.HasValue && b.transitionTimingFunction.HasValue
+                    ? a.transitionTimingFunction.Value.Equals(b.transitionTimingFunction.Value)
+                    : a.transitionTimingFunction.HasValue == b.transitionTimingFunction.HasValue) &&
+                (a.translate.HasValue && b.translate.HasValue
+                    ? a.translate.Value.Equals(b.translate.Value)
+                    : a.translate.HasValue == b.translate.HasValue) &&
+                (a.unityBackgroundImageTintColor.HasValue && b.unityBackgroundImageTintColor.HasValue
+                    ? a.unityBackgroundImageTintColor.Value.Equals(b.unityBackgroundImageTintColor.Value)
+                    : a.unityBackgroundImageTintColor.HasValue == b.unityBackgroundImageTintColor.HasValue) &&
+                (a.unityBackgroundScaleMode.HasValue && b.unityBackgroundScaleMode.HasValue
+                    ? a.unityBackgroundScaleMode.Value.Equals(b.unityBackgroundScaleMode.Value)
+                    : a.unityBackgroundScaleMode.HasValue == b.unityBackgroundScaleMode.HasValue) &&
+                (a.unityFont.HasValue && b.unityFont.HasValue
+                    ? a.unityFont.Value.Equals(b.unityFont.Value)
+                    : a.unityFont.HasValue == b.unityFont.HasValue) &&
+                (a.unityFontDefinition.HasValue && b.unityFontDefinition.HasValue
+                    ? a.unityFontDefinition.Value.Equals(b.unityFontDefinition.Value)
+                    : a.unityFontDefinition.HasValue == b.unityFontDefinition.HasValue) &&
+                (a.unityFontStyleAndWeight.HasValue && b.unityFontStyleAndWeight.HasValue
+                    ? a.unityFontStyleAndWeight.Value.Equals(b.unityFontStyleAndWeight.Value)
+                    : a.unityFontStyleAndWeight.HasValue == b.unityFontStyleAndWeight.HasValue) &&
+                (a.unityOverflowClipBox.HasValue && b.unityOverflowClipBox.HasValue
+                    ? a.unityOverflowClipBox.Value.Equals(b.unityOverflowClipBox.Value)
+                    : a.unityOverflowClipBox.HasValue == b.unityOverflowClipBox.HasValue) &&
+                (a.unityParagraphSpacing.HasValue && b.unityParagraphSpacing.HasValue
+                    ? a.unityParagraphSpacing.Value.Equals(b.unityParagraphSpacing.Value)
+                    : a.unityParagraphSpacing.HasValue == b.unityParagraphSpacing.HasValue) &&
+                (a.unitySliceBottom.HasValue && b.unitySliceBottom.HasValue
+                    ? a.unitySliceBottom.Value.Equals(b.unitySliceBottom.Value)
+                    : a.unitySliceBottom.HasValue == b.unitySliceBottom.HasValue) &&
+                (a.unitySliceLeft.HasValue && b.unitySliceLeft.HasValue
+                    ? a.unitySliceLeft.Value.Equals(b.unitySliceLeft.Value)
+                    : a.unitySliceLeft.HasValue == b.unitySliceLeft.HasValue) &&
+                (a.unitySliceRight.HasValue && b.unitySliceRight.HasValue
+                    ? a.unitySliceRight.Value.Equals(b.unitySliceRight.Value)
+                    : a.unitySliceRight.HasValue == b.unitySliceRight.HasValue) &&
+                (a.unitySliceTop.HasValue && b.unitySliceTop.HasValue
+                    ? a.unitySliceTop.Value.Equals(b.unitySliceTop.Value)
+                    : a.unitySliceTop.HasValue == b.unitySliceTop.HasValue) &&
+                (a.unityTextAlign.HasValue && b.unityTextAlign.HasValue
+                    ? a.unityTextAlign.Value.Equals(b.unityTextAlign.Value)
+                    : a.unityTextAlign.HasValue == b.unityTextAlign.HasValue) &&
+                (a.unityTextOutlineColor.HasValue && b.unityTextOutlineColor.HasValue
+                    ? a.unityTextOutlineColor.Value.Equals(b.unityTextOutlineColor.Value)
+                    : a.unityTextOutlineColor.HasValue == b.unityTextOutlineColor.HasValue) &&
+                (a.unityTextOutlineWidth.HasValue && b.unityTextOutlineWidth.HasValue
+                    ? a.unityTextOutlineWidth.Value.Equals(b.unityTextOutlineWidth.Value)
+                    : a.unityTextOutlineWidth.HasValue == b.unityTextOutlineWidth.HasValue) &&
+                (a.unityTextOverflowPosition.HasValue && b.unityTextOverflowPosition.HasValue
+                    ? a.unityTextOverflowPosition.Value.Equals(b.unityTextOverflowPosition.Value)
+                    : a.unityTextOverflowPosition.HasValue == b.unityTextOverflowPosition.HasValue) &&
+                (a.visibility.HasValue && b.visibility.HasValue
+                    ? a.visibility.Value.Equals(b.visibility.Value)
+                    : a.visibility.HasValue == b.visibility.HasValue) &&
+                (a.whiteSpace.HasValue && b.whiteSpace.HasValue
+                    ? a.whiteSpace.Value.Equals(b.whiteSpace.Value)
+                    : a.whiteSpace.HasValue == b.whiteSpace.HasValue) &&
+                (a.width.HasValue && b.width.HasValue
+                    ? a.width.Value.Equals(b.width.Value)
+                    : a.width.HasValue == b.width.HasValue) &&
+                (a.wordSpacing.HasValue && b.wordSpacing.HasValue
+                    ? a.wordSpacing.Value.Equals(b.wordSpacing.Value)
+                    : a.wordSpacing.HasValue == b.wordSpacing.HasValue);
+        }
     }
 }

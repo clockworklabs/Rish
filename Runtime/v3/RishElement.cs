@@ -11,18 +11,15 @@ namespace RishUI.v3
         internal event Action OnDirty;
 
         protected void Dirty() => OnDirty?.Invoke();
-        
+
         internal void Mount()
         {
-            // if (this is ICustomComponent customComponent)
-            // {
-            //     customComponent.Restart();
-            // }
-
             if (this is IMountingListener mountingListener)
             {
                 mountingListener.ComponentDidMount();
             }
+            
+            MountInternal();
             
             Dirty();
         }
@@ -33,28 +30,60 @@ namespace RishUI.v3
             {
                 mountingListener.ComponentWillUnmount();
             }
+
+            UnmountInternal();
         }
+        
+        private protected virtual void MountInternal() { }
+        private protected virtual void UnmountInternal() { }
         
         public abstract Element Render();
     }
     
     public abstract class RishElement<P> : RishElement where P : struct
     {
+        private bool PropsSet { get; set; }
+        
         private P _props;
         public P Props
         {
             get => _props;
             set
             {
-                var propsListener = this as IPropsListener;
-                propsListener?.PropsWillChange();
+                var dirty = !RishUtils.Compare<P>(value, _props);
                 
+                var propsListener = this as IPropsListener;
+                if (PropsSet)
+                {
+                    propsListener?.PropsWillChange();
+                }
+
                 _props = value;
                 
                 propsListener?.PropsDidChange();
-                
-                Dirty();
+
+                PropsSet = true;
+
+                if (dirty)
+                {
+                    Dirty();
+                }
             }
+        }
+
+        private protected override void MountInternal()
+        {
+            base.UnmountInternal();
+            
+            PropsSet = false;
+        }
+
+        private protected override void UnmountInternal()
+        {
+            base.UnmountInternal();
+
+            var propsListener = this as IPropsListener;
+            propsListener?.PropsWillChange();
         }
     }
 
@@ -66,10 +95,22 @@ namespace RishUI.v3
             get => _state;
             protected set
             {
-                _state = value;
+                var dirty = !RishUtils.Compare<S>(value, _state);
                 
-                Dirty();
+                _state = value;
+
+                if (dirty)
+                {
+                    Dirty();
+                }
             }
+        }
+
+        private protected override void MountInternal()
+        {
+            base.MountInternal();
+
+            State = Defaults.GetValue<S>();
         }
     }
     

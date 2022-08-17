@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -32,6 +33,11 @@ namespace RishUI.v3
             }
             
             Dom = new Dom(document, RootClassName);
+        }
+
+        private void OnDestroy()
+        {
+            Dom.Dispose();
         }
 
         private void LateUpdate()

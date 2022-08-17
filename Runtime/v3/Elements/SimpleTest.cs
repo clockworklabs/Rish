@@ -1,3 +1,5 @@
+using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -45,13 +47,13 @@ namespace RishUI.v3.Elements
             //         backgroundColor = new StyleColor(Color.magenta)
             //     })
             // ));
-            
-            return Rish.Create<Div>(1, ("test", "class2"), new Children(
+        
+            return Rish.Create<Div>(1, ("test", "class2"), Rish.CreateChildren(
                 Rish.Create<Div>(new Style
                 {
                     backgroundColor = new StyleColor(Color.blue)
                 }),
-                Rish.Create<Div>(new Children(
+                Rish.Create<Div>(Rish.CreateChildren(
                     Rish.Create<Div>(new Style
                     {
                         backgroundColor = new StyleColor(Color.magenta)
@@ -65,7 +67,7 @@ namespace RishUI.v3.Elements
                 {
                     text = "Hello, world"
                 }),
-                Rish.Create<Div>(new Children(
+                Rish.Create<Div>(Rish.CreateChildren(
                     Rish.Create<Div>(new Style
                     {
                         backgroundColor = new StyleColor(Color.cyan)
@@ -77,15 +79,10 @@ namespace RishUI.v3.Elements
                         backgroundColor = new StyleColor(State.color)
                     })
                 )),
-                Rish.Create(Element),
+                Rish.Create(Element, (ClassList) "class2"),
                 Rish.Create<Div>(Props.children)
             ));
         }
-
-        // private FunctionElement Element = () => Rish.Create<VisualElement>(new Style
-        // {
-        //     backgroundColor = new StyleColor(new Color(0.5f, 0.3f, 0.1f))
-        // }, Div.Setup);
         
         private static Element Element() => Rish.Create<Div>(new Style
         {
@@ -96,10 +93,19 @@ namespace RishUI.v3.Elements
     public struct SimpleTestProps
     {
         public Children children;
+
+        [Comparer]
+        private static bool Equals(SimpleTestProps a, SimpleTestProps b) => Children.Equals(a.children, b.children);
     }
 
     public struct SimpleTestState
     {
         public Color color;
+
+        [Default]
+        private static SimpleTestState Default => new()
+        {
+            color = Color.white
+        };
     }
 }

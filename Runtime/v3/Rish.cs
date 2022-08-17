@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,7 +8,7 @@ namespace RishUI.v3
 {
     public delegate void RefAction<T>(ref T value) where T : struct;
 
-    public struct Element
+    public struct Element : IEquatable<Element>
     {
         private int id;
 
@@ -20,13 +21,28 @@ namespace RishUI.v3
                 return;
             }
             
-            Rish.GetDefinition(id)?.Invoke(node);
+            Rish.GetDefinition(id).Invoke(node);
         }
         
         public static implicit operator Element(ElementDefinition definition) => new()
         {
             id = definition.ID
         };
+        
+        bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
+
+        [Comparer]
+        private static bool Equals(Element a, Element b)
+        {
+            var aSet = a.id > 0;
+            var bSet = b.id > 0;
+            if (aSet ^ bSet)
+            {
+                return false;
+            }
+
+            return !aSet || Rish.GetDefinition(a.id).Equals(Rish.GetDefinition(b.id));
+        }
     }
     
     public abstract class ElementDefinition : IEquatable<ElementDefinition>
@@ -62,7 +78,7 @@ namespace RishUI.v3
         public abstract bool Equals(ElementDefinition other);
     }
 
-    public struct Descriptor
+    public struct Descriptor : IEquatable<Descriptor>
     {
         public uint key;
         public Name name;
@@ -78,9 +94,31 @@ namespace RishUI.v3
             classList = other.classList;
             style = other.style;
         }
+        
+        bool IEquatable<Descriptor>.Equals(Descriptor other) => Equals(this, other);
+
+        [Comparer]
+        private static bool Equals(Descriptor a, Descriptor b)
+        {
+            return RishUtils.CompareUnmanaged<Unmanaged>(a, b) && Style.Equals(a.style, b.style);
+        }
+
+        private struct Unmanaged
+        {
+            private uint _key;
+            private Name _name;
+            private ClassList _classList;
+        
+            public static implicit operator Unmanaged(Descriptor managed) => new()
+            {
+                _key = managed.key,
+                _name = managed.name,
+                _classList = managed.classList
+            };
+        }
     }
 
-    public struct Descriptor<P> where P : struct
+    public struct Descriptor<P> : IEquatable<Descriptor<P>> where P : struct
     {
         public uint key;
         public Name name;
@@ -102,18 +140,38 @@ namespace RishUI.v3
             props = other.props;
         }
         
-        public static implicit operator Descriptor(Descriptor<P> descriptor) => new()
+        bool IEquatable<Descriptor<P>>.Equals(Descriptor<P> other) => Equals(this, other);
+
+        [Comparer]
+        private static bool Equals(Descriptor<P> a, Descriptor<P> b)
         {
-            key = descriptor.key,
-            name = descriptor.name,
-            classList = descriptor.classList,
-            style = descriptor.style
-        };
+            return RishUtils.CompareUnmanaged<Unmanaged>(a, b) && Style.Equals(a.style, b.style) && RishUtils.Compare<P>(a.props, b.props);
+        }
+
+        private struct Unmanaged
+        {
+            private uint _key;
+            private Name _name;
+            private ClassList _classList;
+        
+            public static implicit operator Unmanaged(Descriptor<P> managed) => new()
+            {
+                _key = managed.key,
+                _name = managed.name,
+                _classList = managed.classList
+            };
+        }
+    }
+
+    public interface IOwner
+    {
+        void TakeOwnership(ElementDefinition definition);
+        void TakeOwnership(NativeArray<Element> children);
     }
 
     public static class Rish
     {
-        private static Stack<Action<ElementDefinition>> OnCreateCallbacks { get; } = new();
+        private static Stack<IOwner> Owners { get; } = new();
         
         private const int InitialPoolSize = 64;
         private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
@@ -158,24 +216,122 @@ namespace RishUI.v3
 
         internal static ElementDefinition GetDefinition(int id) => All[id - 1];
 
-        internal static void SubscribeToElementCreation(Action<ElementDefinition> callback)
+        internal static void RegisterOwner(IOwner listener)
         {
-            OnCreateCallbacks.Push(callback);
+            Owners.Push(listener);
         }
 
-        internal static void UnsubscribeFromElementCreation(Action<ElementDefinition> callback)
+        internal static void UnregisterOwner(IOwner listener)
         {
-            if (OnCreateCallbacks.Peek() != callback)
+            if (Owners.Peek() != listener)
             {
                 throw new UnityException("You're not the current subscriber. This should never happen.");
             }
             
-            OnCreateCallbacks.Pop();
+            Owners.Pop();
         }
 
         private static void OnCreate(ElementDefinition definition)
         {
-            OnCreateCallbacks.Peek()?.Invoke(definition);
+            var owner = Owners.Peek();
+            if (owner == null)
+            {
+                throw new UnityException("There's nobody to claim ownership of this ElementDefinition");
+            }
+            
+            owner.TakeOwnership(definition);
+        }
+        private static void OnCreate(NativeArray<Element> children)
+        {
+            var owner = Owners.Peek();
+            if (owner == null)
+            {
+                throw new UnityException("There's nobody to claim ownership of this NativeArray<Element>");
+            }
+            
+            owner.TakeOwnership(children);
+        }
+        
+        public static Children CreateChildren(Element child0)
+        {
+            var array = new NativeArray<Element>(1, Allocator.Persistent);
+            array[0] = child0;
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(Element child0, Element child1)
+        {
+            var array = new NativeArray<Element>(2, Allocator.Persistent);
+            array[0] = child0;
+            array[1] = child1;
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(Element child0, Element child1, Element child2)
+        {
+            var array = new NativeArray<Element>(3, Allocator.Persistent);
+            array[0] = child0;
+            array[1] = child1;
+            array[2] = child2;
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(Element child0, Element child1, Element child2, Element child3)
+        {
+            var array = new NativeArray<Element>(4, Allocator.Persistent);
+            array[0] = child0;
+            array[1] = child1;
+            array[2] = child2;
+            array[3] = child3;
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(Element child0, Element child1, Element child2, Element child3, Element child4)
+        {
+            var array = new NativeArray<Element>(5, Allocator.Persistent);
+            array[0] = child0;
+            array[1] = child1;
+            array[2] = child2;
+            array[3] = child3;
+            array[4] = child4;
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(params Element[] children)
+        {
+            var length = children.Length;
+            var array = new NativeArray<Element>(length, Allocator.Persistent);
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = children[i];
+            }
+
+            OnCreate(array);
+            
+            return array;
+        }
+        public static Children CreateChildren(List<Element> children)
+        {
+            var length = children.Count;
+            var array = new NativeArray<Element>(length, Allocator.Persistent);
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = children[i];
+            }
+
+            OnCreate(array);
+            
+            return array;
         }
         
         // -------------------------------------------------------------------------------------------------------------
@@ -1377,7 +1533,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is FunctionDefinition otherDefinition && RishUtils.Compare<Descriptor>(Descriptor, otherDefinition.Descriptor) && Function == otherDefinition.Function;
             }
         }
 
@@ -1407,7 +1563,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is FunctionDefinition<P> otherDefinition && RishUtils.Compare<Descriptor<P>>(Descriptor, otherDefinition.Descriptor) && Function == otherDefinition.Function;
             }
         }
         
@@ -1438,7 +1594,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is NativeDefinition<T> otherDefinition && RishUtils.Compare<Descriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
             }
         }
 
@@ -1469,7 +1625,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is NativeDefinition<T, P> otherDefinition && RishUtils.Compare<Descriptor<P>>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
             }
         }
 
@@ -1494,7 +1650,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is RishDefinition<T> otherDefinition && RishUtils.Compare<Descriptor>(Descriptor, otherDefinition.Descriptor);
             }
         }
 
@@ -1521,7 +1677,7 @@ namespace RishUI.v3
 
             public override bool Equals(ElementDefinition other)
             {
-                return false;
+                return other is RishDefinition<T, P> otherDefinition && RishUtils.Compare<Descriptor<P>>(Descriptor, otherDefinition.Descriptor);
             }
         }
         

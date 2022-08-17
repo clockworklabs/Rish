@@ -64,9 +64,9 @@ namespace RishUI.v3
         // }
         
         // TODO: What happens if I compare in memory not unmanaged structs? Does everything get copied except the reference? This could be useful to avoid comparing callbacks.
-        public static bool CompareKnownUnmanaged<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second);
-        public static bool CompareUnmanaged<T>(T first, T second) where T : unmanaged => MemCmp<T>(ref first, ref second);
-        public static bool Compare<T>(T first, T second) where T : struct => UnsafeUtility.IsUnmanaged<T>() ? MemCmp<T>(ref first, ref second) : Comparers.Compare(first, second);
+        public static bool CompareKnownUnmanaged<T>(T first, T second) where T : struct => Comparers.Contains<T>() ? Comparers.Compare(first, second) : MemCmp<T>(ref first, ref second);
+        public static bool CompareUnmanaged<T>(T first, T second) where T : unmanaged => Comparers.Contains<T>() ? Comparers.Compare(first, second) : MemCmp<T>(ref first, ref second);
+        public static bool Compare<T>(T first, T second) where T : struct => Comparers.Contains<T>() ? Comparers.Compare(first, second) : UnsafeUtility.IsUnmanaged<T>() && MemCmp<T>(ref first, ref second);
 
         public static unsafe bool MemCmp<T>(ref T first, ref T second) where T : struct => UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
 

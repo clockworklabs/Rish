@@ -34,6 +34,11 @@ namespace RishUI.v3
             
             document.rootVisualElement.Add(appElement);
         }
+        
+        public void Dispose()
+        {
+            Root.Unmount();
+        }
 
         private void OnDirtyNode(Node node)
         {

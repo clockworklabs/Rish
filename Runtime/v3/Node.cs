@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Priority_Queue;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.v3
 {
-    public class Node : FastPriorityQueueNode
+    public class Node : FastPriorityQueueNode, IOwner
     {
         public event Action<Node> OnDirty;
         
@@ -28,6 +30,9 @@ namespace RishUI.v3
         
         private List<ElementDefinition> OwnedDefinitions { get; set; }
         private List<ElementDefinition> OwnedDefinitionsBuffer { get; set; }
+        
+        private List<NativeArray<Element>> OwnedChildren { get; set; }
+        private List<NativeArray<Element>> OwnedChildrenBuffer { get; set; }
         
         public Node(Dom dom, uint id)
         {
@@ -62,7 +67,7 @@ namespace RishUI.v3
             }
         }
 
-        private void Unmount()
+        internal void Unmount()
         {
             Mounted = false;
             
@@ -85,7 +90,7 @@ namespace RishUI.v3
             Element.RemoveFromHierarchy();
             ElementsPool.Return(Element);
             Element = null;
-
+            
             if (OwnedDefinitions?.Count > 0)
             {
                 for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
@@ -94,17 +99,34 @@ namespace RishUI.v3
                 }
                 OwnedDefinitions.Clear();
             }
-            
+            if (OwnedChildren?.Count > 0)
+            {
+                for (int i = 0, n = OwnedChildren.Count; i < n; i++)
+                {
+                    OwnedChildren[i].Dispose();
+                }
+                OwnedChildren.Clear();
+            }
+
             Dom.ReturnNode(this);
         }
+        
+        private void RegisterOwner() => Rish.RegisterOwner(this);
+        private void UnregisterOwner() => Rish.UnregisterOwner(this);
 
-        private void TakeOwnership(ElementDefinition definition)
+        void IOwner.TakeOwnership(ElementDefinition definition)
         {
             definition.Owner = this;
 
             OwnedDefinitions ??= new List<ElementDefinition>();
             
             OwnedDefinitions.Add(definition);
+        }
+        void IOwner.TakeOwnership(NativeArray<Element> children)
+        {
+            OwnedChildren ??= new List<NativeArray<Element>>();
+            
+            OwnedChildren.Add(children);
         }
 
         private void Dirty() => OnDirty?.Invoke(this);
@@ -120,8 +142,12 @@ namespace RishUI.v3
             {
                 (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
             }
+            if (OwnedChildren?.Count > 0)
+            {
+                (OwnedChildren, OwnedChildrenBuffer) = (OwnedChildrenBuffer, OwnedChildren);
+            }
             
-            Rish.SubscribeToElementCreation(TakeOwnership);
+            RegisterOwner();
             
             Clear();
 
@@ -129,7 +155,7 @@ namespace RishUI.v3
             
             Clean();
 
-            Rish.UnsubscribeFromElementCreation(TakeOwnership);
+            UnregisterOwner();
             
             if (OwnedDefinitionsBuffer?.Count > 0)
             {
@@ -138,6 +164,14 @@ namespace RishUI.v3
                     Rish.ReturnToPool(OwnedDefinitionsBuffer[i]);
                 }
                 OwnedDefinitionsBuffer.Clear();
+            }
+            if (OwnedChildrenBuffer?.Count > 0)
+            {
+                for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
+                {
+                    OwnedChildrenBuffer[i].Dispose();
+                }
+                OwnedChildrenBuffer.Clear();
             }
         }
 
