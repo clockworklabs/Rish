@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 namespace RishUI.v3
 {
     public struct EmptyProps { }
-    public struct EmptyState { }
     
     public abstract class RishElement : VisualElement
     {
@@ -13,7 +12,7 @@ namespace RishUI.v3
         internal event Action OnReadyToUnmount;
 
         private bool UnmountRequested { get; set; }
-        internal bool ReadyToUnmount { get; private set; }
+        private bool ReadyToUnmount { get; set; }
         
         protected void Dirty() => OnDirty?.Invoke();
         protected void CanUnmount()
@@ -41,9 +40,15 @@ namespace RishUI.v3
             Dirty();
         }
 
-        internal void RequestUnmount()
+        internal void RequestUnmount(bool forceUnmount)
         {
             UnmountRequested = true;
+
+            if (forceUnmount)
+            {
+                CanUnmount();
+                return;
+            }
             
             if (this is ICustomUnmountListener listener)
             {

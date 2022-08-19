@@ -18,9 +18,3 @@ MonoBehaviour:
   _fileInfos:
   - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\Div.cs
     writeTime: 637962606711905688
-  - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\FirstElement.cs
-    writeTime: 637962639470810827
-  - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\SimpleTest.cs
-    writeTime: 637964179778776711
-  - path: Packages\com.clockworklabs.rish\Runtime\v3\Elements\TestElement.cs
-    writeTime: 637962657754977581

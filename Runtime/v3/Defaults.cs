@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine.Scripting;
 
 namespace RishUI.v3
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DefaultAttribute : PreserveAttribute { }
+    
     public class Defaults
     {
         private static Dictionary<Type, object> Values { get; }
