@@ -37,7 +37,7 @@ namespace RishUI.v3
         
         public void Dispose()
         {
-            Root.Unmount();
+            Root.RequestUnmount(true);
         }
 
         private void OnDirtyNode(Node node)
@@ -79,7 +79,7 @@ namespace RishUI.v3
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();
-                if (!node.Mounted)
+                if (!node.IsMounted())
                 {
                     continue;
                 }
@@ -93,7 +93,7 @@ namespace RishUI.v3
         {
             if (Pool.Count <= 0)
             {
-                PopulatePool();
+                CreateNodes();
             }
 
             return Pool.Pop();
@@ -110,14 +110,12 @@ namespace RishUI.v3
             return true;
         }
 
-        private void PopulatePool()
+        private void CreateNodes()
         {
             for (var i = 0; i < MaxDirtySize; i++)
             {
                 var node = new Node(this, NextID++);
                 node.OnDirty += OnDirtyNode;
-                
-                Pool.Push(node);
             }
         }
     }

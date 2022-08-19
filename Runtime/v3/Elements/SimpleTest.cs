@@ -79,7 +79,7 @@ namespace RishUI.v3.Elements
                         backgroundColor = new StyleColor(State.color)
                     })
                 )),
-                Rish.Create(Element, (ClassList) "class2"),
+                Rish.Create(Element, classList: "class2"),
                 Rish.Create<Div>(Props.children)
             ));
         }

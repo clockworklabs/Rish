@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.v3
@@ -9,14 +10,30 @@ namespace RishUI.v3
     public abstract class RishElement : VisualElement
     {
         internal event Action OnDirty;
+        internal event Action OnReadyToUnmount;
 
+        private bool UnmountRequested { get; set; }
+        internal bool ReadyToUnmount { get; private set; }
+        
         protected void Dirty() => OnDirty?.Invoke();
+        protected void CanUnmount()
+        {
+            if (!UnmountRequested || ReadyToUnmount)
+            {
+                return;
+            }
+            
+            ReadyToUnmount = true;
+            OnReadyToUnmount?.Invoke();
+        }
 
         internal void Mount()
         {
-            if (this is IMountingListener mountingListener)
+            UnmountRequested = false;
+            ReadyToUnmount = false;
+            if (this is IMountingListener listener)
             {
-                mountingListener.ComponentDidMount();
+                listener.ComponentDidMount();
             }
             
             MountInternal();
@@ -24,11 +41,30 @@ namespace RishUI.v3
             Dirty();
         }
 
+        internal void RequestUnmount()
+        {
+            UnmountRequested = true;
+            
+            if (this is ICustomUnmountListener listener)
+            {
+                listener.UnmountRequested();
+            }
+            else
+            {
+                CanUnmount();
+            }
+        }
+
         internal void Unmount()
         {
-            if (this is IMountingListener mountingListener)
+            if (!ReadyToUnmount)
             {
-                mountingListener.ComponentWillUnmount();
+                throw new UnityException("Invalid state");
+            }
+            
+            if (this is IMountingListener listener)
+            {
+                listener.ComponentWillUnmount();
             }
 
             UnmountInternal();
@@ -74,7 +110,7 @@ namespace RishUI.v3
         private protected override void MountInternal()
         {
             base.UnmountInternal();
-            
+
             PropsSet = false;
         }
 
