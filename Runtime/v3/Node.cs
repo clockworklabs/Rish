@@ -11,6 +11,7 @@ namespace RishUI.v3
     {
         public event Action<Node> OnDirty;
         private event Action<Node> OnReadyToUnmount;
+        private event Action OnHierarchyChanged;
         
         public Dom Dom { get; }
         public uint ID { get; }
@@ -34,6 +35,8 @@ namespace RishUI.v3
         
         private List<NativeArray<Element>> OwnedChildren { get; set; }
         private List<NativeArray<Element>> OwnedChildrenBuffer { get; set; }
+        
+        private int Index { get; set; } // This is to keep the position for the elements with custom unmounting
         
         public Node(Dom dom, uint id)
         {
@@ -146,7 +149,7 @@ namespace RishUI.v3
         public void Render()
         {
 #if UNITY_EDITOR
-            if (!Machine.IsMounted())
+            if (!CanRender())
             {
                 throw new UnityException("Invalid state. A node that isn't mounted shouldn't be dirty.");
             }
@@ -196,7 +199,7 @@ namespace RishUI.v3
         public void SetChildren(Children children)
         {
 #if UNITY_EDITOR
-            if (!Machine.IsMounted())
+            if (!CanRender())
             {
                 throw new UnityException("Invalid state. A node that isn't mounted shouldn't be dirty.");
             }
@@ -221,6 +224,12 @@ namespace RishUI.v3
         
         public (Node, T) AddChild<T>(uint key) where T : VisualElement, new()
         {
+#if UNITY_EDITOR
+            if (!CanRender())
+            {
+                throw new UnityException("Hierarchy of unmounted nodes shouldn't change");
+            }
+#endif
             var type = typeof(T);
 
             Children ??= new List<Node>(10); // RishElements will always have only one child, maybe we can have 2 separates pools of Node for native and Rish elements 
@@ -255,6 +264,13 @@ namespace RishUI.v3
 
             if (child == null)
             {
+#if UNITY_EDITOR
+                // TODO: Maybe revisit for more advanced custom behaviors
+                if (IsUnmounting())
+                {
+                    throw new UnityException("Unmounting nodes shouldn't add new children");
+                }
+#endif
                 child = Dom.GetNode();
                 child.MountAs<T>(this, key);
 
@@ -262,19 +278,11 @@ namespace RishUI.v3
                 
                 Children.Add(child);
             }
+
+            child.Index = ChildCount;
             
             var element = child.Element as T;
-            // Unmounting elements go at the front
-            if (Element.childCount > ChildCount)
-            {
-                element?.PlaceBehind(Element[ChildCount]);
-            }
-            else
-            {
-                element?.BringToFront();
-            }
-            // Unmounting elements go at the bottom
-            // element?.BringToFront();
+            element?.BringToFront();
             
             var targetIndex = ChildCount;
             if (targetIndex < index)
@@ -289,7 +297,18 @@ namespace RishUI.v3
 
         private void Clean()
         {
-            if (Children == null || Children.Count <= 0 || ChildCount >= Children.Count)
+            if (Children == null)
+            {
+                return;
+            }
+#if UNITY_EDITOR
+            // TODO: Maybe revisit for more advanced custom behaviors
+            if (IsUnmounting() && ChildCount < Children.Count)
+            {
+                throw new UnityException("Unmounting nodes shouldn't delete any children");
+            }
+#endif
+            if (Children.Count <= 0 || ChildCount >= Children.Count)
             {
                 return;
             }
@@ -300,9 +319,12 @@ namespace RishUI.v3
                 child.RequestUnmount(false);
                 Children.RemoveAt(i);
             }
+            
+            OnHierarchyChanged?.Invoke();
         }
 
-        public bool IsMounted() => Machine.IsMounted();
+        private bool IsUnmounting() => Machine.IsUnmounting();
+        public bool CanRender() => Machine.IsMounted() || IsUnmounting();
 
         private class StateMachine
         {
@@ -385,8 +407,8 @@ namespace RishUI.v3
             protected Node Node { get; }
 
             protected Dom Dom => Node.Dom;
-            
-            public State(StateMachine machine, Node node)
+
+            protected State(StateMachine machine, Node node)
             {
                 Machine = machine;
                 Node = node;
@@ -404,6 +426,12 @@ namespace RishUI.v3
             
             public override void Enter()
             {
+                var element = Node.Element;
+                if (element is RishElement rishElement)
+                {
+                    rishElement.OnDirty -= Node.Dirty;
+                }
+                
                 Node.Restart();
                 
                 Dom.ReturnNode(Node);
@@ -446,14 +474,7 @@ namespace RishUI.v3
                 }
             }
             
-            public override void Exit()
-            {
-                var element = Node.Element;
-                if (element is RishElement rishElement)
-                {
-                    rishElement.OnDirty -= Node.Dirty;
-                }
-            }
+            public override void Exit() { }
         }
 
         private class UnmountRequestedState : State
@@ -468,6 +489,8 @@ namespace RishUI.v3
             
             public override void Enter()
             {
+                Node.Parent.OnHierarchyChanged += UpdatePosition;
+                
                 ElementReady = false;
                 
 #if UNITY_EDITOR
@@ -501,7 +524,10 @@ namespace RishUI.v3
                 }
             }
             
-            public override void Exit() { }
+            public override void Exit()
+            {
+                Node.Parent.OnHierarchyChanged -= UpdatePosition;
+            }
 
             private void TryUnmount()
             {
@@ -547,6 +573,27 @@ namespace RishUI.v3
                 
                 TryUnmount();
             }
+
+            private void UpdatePosition()
+            {
+                var element = Node.Element;
+
+                var target = Node.Index;
+
+                if (target == 0)
+                {
+                    element.SendToBack();
+                }
+                else
+                {
+                    var parent = Node.Parent;
+                    var parentElement = Node.Parent.Element;
+                    var offset = parentElement.childCount - parent.ChildCount;
+
+                    target += offset;
+                    element.PlaceInFront(parentElement[target - 1]);
+                }
+            }
         }
         
         private class ReadyToUnmountState : State
@@ -556,7 +603,8 @@ namespace RishUI.v3
             public override void Enter()
             {
                 var parent = Node.Parent;
-                if (parent == null || parent.Machine.IsMounted())
+                parent.OnHierarchyChanged += UpdatePosition;
+                if (parent.Machine.IsMounted())
                 {
                     Transition();
                 }
@@ -566,7 +614,31 @@ namespace RishUI.v3
                 }
             }
             
-            public override void Exit() { }
+            public override void Exit()
+            {
+                Node.Parent.OnHierarchyChanged -= UpdatePosition;
+            }
+
+            private void UpdatePosition()
+            {
+                var element = Node.Element;
+
+                var target = Node.Index;
+
+                if (target == 0)
+                {
+                    element.SendToBack();
+                }
+                else
+                {
+                    var parent = Node.Parent;
+                    var parentElement = Node.Parent.Element;
+                    var offset = parentElement.childCount - parent.ChildCount;
+
+                    target += offset;
+                    element.PlaceInFront(parentElement[target - 1]);
+                }
+            }
         }
         
         private class UnmountedState : State

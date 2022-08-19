@@ -79,7 +79,7 @@ namespace RishUI.v3
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();
-                if (!node.IsMounted())
+                if (!node.CanRender())
                 {
                     continue;
                 }
