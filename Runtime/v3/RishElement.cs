@@ -89,7 +89,7 @@ namespace RishUI.v3
         public P Props
         {
             get => _props;
-            set
+            internal set
             {
                 var dirty = !RishUtils.Compare<P>(value, _props);
                 
@@ -131,10 +131,11 @@ namespace RishUI.v3
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
         private S _state;
-        public S State
+
+        protected S State
         {
             get => _state;
-            protected set
+            set
             {
                 var dirty = !RishUtils.Compare<S>(value, _state);
                 
