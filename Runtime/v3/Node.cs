@@ -98,6 +98,13 @@ namespace RishUI.v3
                 get => _currentState;
                 set
                 {
+#if UNITY_EDITOR
+                    // if (_currentState != null)
+                    // {
+                    //     Debug.Log($"{Node.Type.Name}: {_currentState.GetType().Name} -> {value.GetType().Name}");
+                    // }
+#endif
+                    
                     _currentState?.Exit();
 
                     _currentState = value;
@@ -121,6 +128,8 @@ namespace RishUI.v3
                     throw new UnityException("Node must be not null");
                 }
 #endif
+                
+                Node = node;
 
                 Unmounted = new UnmountedState(this, node);
                 Mounted = new MountedState(this, node);
@@ -143,11 +152,15 @@ namespace RishUI.v3
 
             public void GoBack()
             {
+#if UNITY_EDITOR
                 CurrentState = CurrentState switch
                 {
                     ReadyToUnmountState => UnmountRequested,
                     _ => throw new UnityException("Invalid")
                 };
+#else
+                CurrentState = UnmountRequested;
+#endif
             }
 
             public void ForceUnmount()
@@ -180,7 +193,6 @@ namespace RishUI.v3
 
             protected uint Key
             {
-                get => Node.Key;
                 set => Node.Key = value;
             }
             protected VisualElement Element
@@ -208,7 +220,6 @@ namespace RishUI.v3
 
             protected int Depth
             {
-                get => Node.Depth;
                 set => Node.Depth = value;
             }
 
@@ -242,17 +253,14 @@ namespace RishUI.v3
             
             protected int Index
             {
-                get => Node.Index;
                 set => Node.Index = value;
             }
             protected bool Unmounting
             {
-                get => Node.Unmounting;
                 set => Node.Unmounting = value;
             }
             protected bool ReadyToUnmount
             {
-                get => Node.ReadyToUnmount;
                 set => Node.ReadyToUnmount = value;
             }
             
@@ -604,7 +612,7 @@ namespace RishUI.v3
                         {
                             element.SendToBack();
                         }
-                        else if (index >= ChildCount)
+                        else if (index >= Element.childCount)
                         {
                             element.BringToFront();
                         }
@@ -644,8 +652,6 @@ namespace RishUI.v3
 
         private abstract class UnmountingState : ActiveState
         {
-            protected bool IsUnmountingRoot => Parent == null || !Parent.Contains(Node);
-
             protected UnmountingState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void Unmount(bool forceUnmount)
@@ -719,6 +725,8 @@ namespace RishUI.v3
                     }
                 }
                 
+                Unmounting = true;
+                
                 if (Element is RishElement rishElement)
                 {
                     rishElement.OnReadyToUnmount += ElementReadyToUnmount;
@@ -728,8 +736,6 @@ namespace RishUI.v3
                 {
                     ElementReadyToUnmount();
                 }
-
-                Unmounting = true;
             }
             
             public override void Exit()
@@ -763,6 +769,13 @@ namespace RishUI.v3
 
             private void TryUnmount()
             {
+#if UNITY_EDITOR
+                if (UnreadyCount < 0 || UnmountingCount < 0)
+                {
+                    throw new UnityException("Invalid state.");
+                }
+#endif
+                
                 if (!ElementReady || UnreadyCount > 0 || UnmountingCount > 0)
                 {
                     return;
@@ -773,6 +786,12 @@ namespace RishUI.v3
 
             private void ElementReadyToUnmount()
             {
+#if UNITY_EDITOR
+                if (ElementReady)
+                {
+                    throw new UnityException("Invalid state. Element was already ready.");
+                }
+#endif
                 ElementReady = true;
                 
                 TryUnmount();
@@ -836,7 +855,8 @@ namespace RishUI.v3
 
             private void TryUnmount()
             {
-                if (IsUnmountingRoot)
+                var isUnmountingRoot = Parent == null || !Parent.Contains(Node);
+                if (isUnmountingRoot)
                 {
                     Transition();
                 }
