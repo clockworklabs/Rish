@@ -356,7 +356,7 @@ namespace RishUI.v3
                 
                 if (UnmountingChildren?.Count > 0)
                 {
-                    for (int i = 0, n = UnmountingChildren.Count; i < n; i++)
+                    for (var i = UnmountingChildren.Count - 1; i >= 0; i--)
                     {
                         var child = UnmountingChildren[i];
                         child.Unmount(true);
@@ -593,8 +593,9 @@ namespace RishUI.v3
                 
                 if (UnmountingChildren != null)
                 {
-                    var offset = childrenCount - ChildCount;
+                    var offset = UnmountingChildren.Count;
                     
+                    UnmountingChildren.Sort((a, b) => a.Index.CompareTo(b.Index));
                     foreach (var child in UnmountingChildren)
                     {
                         var element = child.Element;
@@ -611,6 +612,8 @@ namespace RishUI.v3
                         {
                             element.PlaceBehind(Element[offset + index]);
                         }
+
+                        offset--;
                     }
                 }
 
