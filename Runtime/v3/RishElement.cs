@@ -40,16 +40,21 @@ namespace RishUI.v3
             Dirty();
         }
 
-        internal void RequestUnmount(bool forceUnmount)
+        // This will only be called when not disposing the app
+        internal void RequestUnmount()
         {
-            UnmountRequested = true;
-
-            if (forceUnmount)
+            if (UnmountRequested)
             {
-                CanUnmount();
+                if (ReadyToUnmount)
+                {
+                    OnReadyToUnmount?.Invoke();
+                }
+
                 return;
             }
-            
+
+            UnmountRequested = true;
+
             if (this is ICustomUnmountListener listener)
             {
                 listener.UnmountRequested();
@@ -62,11 +67,6 @@ namespace RishUI.v3
 
         internal void Unmount()
         {
-            if (!ReadyToUnmount)
-            {
-                throw new UnityException("Invalid state");
-            }
-            
             if (this is IMountingListener listener)
             {
                 listener.ComponentWillUnmount();
@@ -137,6 +137,11 @@ namespace RishUI.v3
             get => _state;
             set
             {
+                // TODO: Seems broken
+                // Debug.Log($"1: {Comparers.Contains<S>()}");
+                // Debug.Log($"2: {Comparers.Compare(_state, value)}");
+                // Debug.Log($"3: {UnsafeUtility.IsUnmanaged<S>()}");
+                // Debug.Log($"4: {RishUtils.MemCmp(ref _state, ref value)}");
                 var dirty = !RishUtils.Compare<S>(value, _state);
                 
                 _state = value;

@@ -37,7 +37,7 @@ namespace RishUI.v3
         
         public void Dispose()
         {
-            Root.RequestUnmount(true);
+            Root.Unmount(true);
         }
 
         private void OnDirtyNode(Node node)
@@ -79,7 +79,7 @@ namespace RishUI.v3
             while (DirtyQueue.Count > 0)
             {
                 var node = DirtyQueue.Dequeue();
-                if (!node.CanRender())
+                if (!node.IsActive())
                 {
                     continue;
                 }
