@@ -1521,7 +1521,7 @@ namespace RishUI.v3
 
             public override void Invoke(Node node)
             {
-                var (_, element) = node.AddChild<AnonymousElement>(Descriptor.key);
+                var (_, element) = node.AddChild<SimpleElement>(Descriptor.key);
 
                 element.name = Descriptor.name;
                 
@@ -1550,7 +1550,7 @@ namespace RishUI.v3
 
             public override void Invoke(Node node)
             {
-                var (_, element) = node.AddChild<AnonymousElement<P>>(Descriptor.key);
+                var (_, element) = node.AddChild<SimpleElement<P>>(Descriptor.key);
 
                 element.name = Descriptor.name;
                 

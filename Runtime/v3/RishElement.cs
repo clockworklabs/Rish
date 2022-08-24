@@ -4,13 +4,64 @@ using UnityEngine.UIElements;
 
 namespace RishUI.v3
 {
-    public struct EmptyProps { }
-    
-    public abstract class RishElement : VisualElement
-    {
-        internal event Action OnDirty;
-        internal event Action OnReadyToUnmount;
+    public struct NoProps { }
 
+    internal interface IRishElement
+    {
+        event Action OnDirty;
+        event Action OnReadyToUnmount;
+        
+        void Mount();
+        void RequestUnmount();
+        void Unmount();
+
+        Element Render();
+    }
+
+    public abstract class RishElement<P> : VisualElement, IRishElement where P : struct
+    {
+        private event Action OnDirty;
+        event Action IRishElement.OnDirty
+        {
+            add => OnDirty += value;
+            remove => OnDirty -= value;
+        }
+
+        private event Action OnReadyToUnmount;
+        event Action IRishElement.OnReadyToUnmount
+        {
+            add => OnReadyToUnmount += value;
+            remove => OnReadyToUnmount -= value;
+        }
+
+        protected internal event Action OnMounted;
+
+        private P? _props;
+        public P Props
+        {
+            get => _props.Value;
+            internal set
+            {
+                var propsSet = _props.HasValue;
+                var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
+                
+                var propsListener = this as IPropsListener;
+                if (propsSet)
+                {
+                    propsListener?.PropsWillChange();
+                }
+
+                _props = value;
+                
+                propsListener?.PropsDidChange();
+
+                if (dirty)
+                {
+                    Dirty();
+                }
+            }
+        }
+        
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
         
@@ -26,22 +77,23 @@ namespace RishUI.v3
             OnReadyToUnmount?.Invoke();
         }
 
-        internal void Mount()
+        void IRishElement.Mount()
         {
+            _props = null;
+            OnMounted?.Invoke();
+            
             UnmountRequested = false;
             ReadyToUnmount = false;
+            
             if (this is IMountingListener listener)
             {
                 listener.ComponentDidMount();
             }
             
-            MountInternal();
-            
             Dirty();
         }
 
-        // This will only be called when not disposing the app
-        internal void RequestUnmount()
+        void IRishElement.RequestUnmount()
         {
             if (UnmountRequested)
             {
@@ -65,83 +117,42 @@ namespace RishUI.v3
             }
         }
 
-        internal void Unmount()
+        void IRishElement.Unmount()
         {
+            var propsListener = this as IPropsListener;
+            propsListener?.PropsWillChange();
+            
             if (this is IMountingListener listener)
             {
                 listener.ComponentWillUnmount();
             }
-
-            UnmountInternal();
         }
-        
-        private protected virtual void MountInternal() { }
-        private protected virtual void UnmountInternal() { }
-        
-        public abstract Element Render();
+
+        Element IRishElement.Render()
+        {
+#if UNITY_EDITOR
+            if (!_props.HasValue)
+            {
+                throw new UnityException("Invalid state. Props was never set.");
+            }
+#endif
+            
+            return Render();
+        }
+
+        protected abstract Element Render();
     }
     
-    public abstract class RishElement<P> : RishElement where P : struct
-    {
-        private bool PropsSet { get; set; }
-        
-        private P _props;
-        public P Props
-        {
-            get => _props;
-            internal set
-            {
-                var dirty = !RishUtils.Compare<P>(value, _props);
-                
-                var propsListener = this as IPropsListener;
-                if (PropsSet)
-                {
-                    propsListener?.PropsWillChange();
-                }
-
-                _props = value;
-                
-                propsListener?.PropsDidChange();
-
-                PropsSet = true;
-
-                if (dirty)
-                {
-                    Dirty();
-                }
-            }
-        }
-
-        private protected override void MountInternal()
-        {
-            base.UnmountInternal();
-
-            PropsSet = false;
-        }
-
-        private protected override void UnmountInternal()
-        {
-            base.UnmountInternal();
-
-            var propsListener = this as IPropsListener;
-            propsListener?.PropsWillChange();
-        }
-    }
+    public abstract class RishElement : RishElement<NoProps> { }
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
         private S _state;
-
         protected S State
         {
             get => _state;
             set
             {
-                // TODO: Seems broken
-                // Debug.Log($"1: {Comparers.Contains<S>()}");
-                // Debug.Log($"2: {Comparers.Compare(_state, value)}");
-                // Debug.Log($"3: {UnsafeUtility.IsUnmanaged<S>()}");
-                // Debug.Log($"4: {RishUtils.MemCmp(ref _state, ref value)}");
                 var dirty = !RishUtils.Compare<S>(value, _state);
                 
                 _state = value;
@@ -152,11 +163,14 @@ namespace RishUI.v3
                 }
             }
         }
-
-        private protected override void MountInternal()
+        
+        protected RishElement()
         {
-            base.MountInternal();
+            OnMounted += SetDefaultState;
+        }
 
+        private void SetDefaultState()
+        {
             State = Defaults.GetValue<S>();
         }
     }
@@ -164,17 +178,17 @@ namespace RishUI.v3
     public delegate Element FunctionElement();
     public delegate Element FunctionElement<P>(P props) where P : struct;
 
-    public class AnonymousElement : RishElement
+    public class SimpleElement : RishElement
     {
-        public FunctionElement Delegate { get; internal set; }
+        internal FunctionElement Delegate { private get; set; }
 
-        public override Element Render() => Delegate?.Invoke() ?? Element.Null;
+        protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
-    public class AnonymousElement<P> : RishElement<P> where P : struct
+    public class SimpleElement<P> : RishElement<P> where P : struct
     {
-        public FunctionElement<P> Delegate { get; internal set; }
+        internal FunctionElement<P> Delegate { private get; set; }
 
-        public override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
+        protected override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
     }
 }

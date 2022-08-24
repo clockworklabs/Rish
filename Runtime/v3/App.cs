@@ -43,7 +43,7 @@ namespace RishUI.v3
 #endif
         }
 
-        public override Element Render()
+        protected override Element Render()
         {
             return UserApp?.GetRoot() ?? Element.Null;
         }

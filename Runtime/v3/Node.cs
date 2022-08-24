@@ -373,7 +373,7 @@ namespace RishUI.v3
                 
                 if (Element != null)
                 {
-                    if (Element is RishElement rishElement)
+                    if (Element is IRishElement rishElement)
                     {
                         rishElement.OnDirty -= Node.Dirty;
                         rishElement.Unmount();
@@ -410,7 +410,7 @@ namespace RishUI.v3
                     throw new UnityException("Invalid state. Element should always be set before mounting");
                 }
 #endif
-                if (Element is RishElement rishElement)
+                if (Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty += Node.Dirty;
                     rishElement.Mount();
@@ -464,7 +464,7 @@ namespace RishUI.v3
             public override void Render()
             {
 #if UNITY_EDITOR
-                if (Element is not RishElement rishElement)
+                if (Element is not IRishElement rishElement)
                 {
                     throw new UnityException("Only RishElements can render");
                 }
@@ -727,7 +727,7 @@ namespace RishUI.v3
                 
                 Unmounting = true;
                 
-                if (Element is RishElement rishElement)
+                if (Element is IRishElement rishElement)
                 {
                     rishElement.OnReadyToUnmount += ElementReadyToUnmount;
                     rishElement.RequestUnmount();
@@ -761,7 +761,7 @@ namespace RishUI.v3
                     UnmountingChildrenOnEnter.Clear();
                 }
                 
-                if (Element is RishElement rishElement)
+                if (Element is IRishElement rishElement)
                 {
                     rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
                 }

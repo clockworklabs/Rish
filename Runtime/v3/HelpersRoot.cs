@@ -223,7 +223,7 @@ namespace RishUI.v3
                     }
 
                     var propsType = rishType.GetGenericArguments()[0];
-                    StringBuilder.AppendLine(propsType == typeof(EmptyProps)
+                    StringBuilder.AppendLine(propsType == typeof(NoProps)
                         ? GetHelpersForTypedElement(type, customName)
                         : GetHelpersForTypedElementWithProps(type, propsType, customName));
 
