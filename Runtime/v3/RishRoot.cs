@@ -42,8 +42,6 @@ namespace RishUI.v3
 
         private void LateUpdate()
         {
-            // Input?.OnLateUpdate();
-                
             Dom.Update();
         }
     }

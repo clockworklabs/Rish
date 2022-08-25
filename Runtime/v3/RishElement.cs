@@ -64,7 +64,7 @@ namespace RishUI.v3
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
-        
+
         protected void Dirty() => OnDirty?.Invoke();
         protected void CanUnmount()
         {
@@ -79,6 +79,11 @@ namespace RishUI.v3
 
         void IRishElement.Mount()
         {
+            if (this is ICustomComponent customComponent)
+            {
+                customComponent.Restart();
+            }
+            
             _props = null;
             OnMounted?.Invoke();
             
@@ -133,7 +138,7 @@ namespace RishUI.v3
 #if UNITY_EDITOR
             if (!_props.HasValue)
             {
-                throw new UnityException("Invalid state. Props was never set.");
+                throw new UnityException($"Invalid state. Props of {GetType().Name} ({typeof(P)}) was never set.");
             }
 #endif
             
@@ -142,8 +147,19 @@ namespace RishUI.v3
 
         protected abstract Element Render();
     }
-    
-    public abstract class RishElement : RishElement<NoProps> { }
+
+    public abstract class RishElement : RishElement<NoProps>
+    {
+        protected RishElement()
+        {
+            OnMounted += SetDefaultProps;
+        }
+
+        private void SetDefaultProps()
+        {
+            Props = default;
+        }
+    }
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
@@ -173,19 +189,26 @@ namespace RishUI.v3
         {
             State = Defaults.GetValue<S>();
         }
+
+        protected void SetState(RefAction<S> action)
+        {
+            var state = State;
+            action?.Invoke(ref state);
+            State = state;
+        }
     }
     
     public delegate Element FunctionElement();
     public delegate Element FunctionElement<P>(P props) where P : struct;
 
-    public class SimpleElement : RishElement
+    public class FunctionalElement : RishElement
     {
         internal FunctionElement Delegate { private get; set; }
 
         protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
-    public class SimpleElement<P> : RishElement<P> where P : struct
+    public class FunctionalElement<P> : RishElement<P> where P : struct
     {
         internal FunctionElement<P> Delegate { private get; set; }
 

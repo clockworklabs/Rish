@@ -252,7 +252,7 @@ namespace RishUI.v3
             owner.TakeOwnership(children);
         }
         
-        public static Children CreateChildren(Element child0)
+        public static Children Children(Element child0)
         {
             var array = new NativeArray<Element>(1, Allocator.Persistent);
             array[0] = child0;
@@ -261,7 +261,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(Element child0, Element child1)
+        public static Children Children(Element child0, Element child1)
         {
             var array = new NativeArray<Element>(2, Allocator.Persistent);
             array[0] = child0;
@@ -271,7 +271,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(Element child0, Element child1, Element child2)
+        public static Children Children(Element child0, Element child1, Element child2)
         {
             var array = new NativeArray<Element>(3, Allocator.Persistent);
             array[0] = child0;
@@ -282,7 +282,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(Element child0, Element child1, Element child2, Element child3)
+        public static Children Children(Element child0, Element child1, Element child2, Element child3)
         {
             var array = new NativeArray<Element>(4, Allocator.Persistent);
             array[0] = child0;
@@ -294,7 +294,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(Element child0, Element child1, Element child2, Element child3, Element child4)
+        public static Children Children(Element child0, Element child1, Element child2, Element child3, Element child4)
         {
             var array = new NativeArray<Element>(5, Allocator.Persistent);
             array[0] = child0;
@@ -307,7 +307,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(params Element[] children)
+        public static Children Children(params Element[] children)
         {
             var length = children.Length;
             var array = new NativeArray<Element>(length, Allocator.Persistent);
@@ -320,7 +320,7 @@ namespace RishUI.v3
             
             return array;
         }
-        public static Children CreateChildren(List<Element> children)
+        public static Children Children(List<Element> children)
         {
             var length = children.Count;
             var array = new NativeArray<Element>(length, Allocator.Persistent);
@@ -424,7 +424,7 @@ namespace RishUI.v3
         // Descriptor
         public static Element Create(FunctionElement functionElement, Descriptor descriptor)
         {
-            var element = GetFromPool<FunctionDefinition>();
+            var element = GetFromPool<FunctionalDefinition>();
             element.Factory(descriptor, functionElement);
             
             OnCreate(element);
@@ -713,7 +713,7 @@ namespace RishUI.v3
         // Descriptor
         public static Element Create<P>(FunctionElement<P> functionElement, Descriptor<P> descriptor) where P : struct
         {
-            var element = GetFromPool<FunctionDefinition<P>>();
+            var element = GetFromPool<FunctionalDefinition<P>>();
             element.Factory(descriptor, functionElement);
             
             OnCreate(element);
@@ -816,7 +816,7 @@ namespace RishUI.v3
         public static Element Create<T>(Descriptor descriptor, Children? children = null) where T : VisualElement, INativeElement, new()
         {
             var element = GetFromPool<NativeDefinition<T>>();
-            element.Factory(descriptor, children ?? Children.Empty);
+            element.Factory(descriptor, children ?? v3.Children.Empty);
             
             OnCreate(element);
 
@@ -1105,7 +1105,7 @@ namespace RishUI.v3
         public static Element Create<T, P>(Descriptor<P> descriptor, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct
         {
             var element = GetFromPool<NativeDefinition<T, P>>();
-            element.Factory(descriptor, children ?? Children.Empty);
+            element.Factory(descriptor, children ?? v3.Children.Empty);
             
             OnCreate(element);
 
@@ -1508,62 +1508,62 @@ namespace RishUI.v3
         // -------------------------------------------------------------------------------------------------------------
         // --- SETUPS --------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private class FunctionDefinition : ElementDefinition
+        private class FunctionalDefinition : ElementDefinition
         {
             private Descriptor Descriptor { get; set; }
-            private FunctionElement Function { get; set; }
+            private FunctionElement Element { get; set; }
             
             public void Factory(Descriptor descriptor, FunctionElement function)
             {
                 Descriptor = descriptor;
-                Function = function;
+                Element = function;
             }
 
             public override void Invoke(Node node)
             {
-                var (_, element) = node.AddChild<SimpleElement>(Descriptor.key);
+                var (_, element) = node.AddChild<FunctionalElement>(Descriptor.key);
 
                 element.name = Descriptor.name;
                 
                 Descriptor.classList.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
-                element.Delegate = Function;
+                element.Delegate = Element;
             }
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is FunctionDefinition otherDefinition && RishUtils.Compare<Descriptor>(Descriptor, otherDefinition.Descriptor) && Function == otherDefinition.Function;
+                return other is FunctionalDefinition otherDefinition && RishUtils.Compare<Descriptor>(Descriptor, otherDefinition.Descriptor) && Element == otherDefinition.Element;
             }
         }
 
-        private class FunctionDefinition<P> : ElementDefinition where P : struct
+        private class FunctionalDefinition<P> : ElementDefinition where P : struct
         {
             private Descriptor<P> Descriptor { get; set; }
-            private FunctionElement<P> Function { get; set; }
+            private FunctionElement<P> Element { get; set; }
 
             public void Factory(Descriptor<P> descriptor, FunctionElement<P> function)
             {
                 Descriptor = descriptor;
-                Function = function;
+                Element = function;
             }
 
             public override void Invoke(Node node)
             {
-                var (_, element) = node.AddChild<SimpleElement<P>>(Descriptor.key);
+                var (_, element) = node.AddChild<FunctionalElement<P>>(Descriptor.key);
 
                 element.name = Descriptor.name;
                 
                 Descriptor.classList.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
-                element.Delegate = Function;
+                element.Delegate = Element;
                 element.Props = Descriptor.props;
             }
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is FunctionDefinition<P> otherDefinition && RishUtils.Compare<Descriptor<P>>(Descriptor, otherDefinition.Descriptor) && Function == otherDefinition.Function;
+                return other is FunctionalDefinition<P> otherDefinition && RishUtils.Compare<Descriptor<P>>(Descriptor, otherDefinition.Descriptor) && Element == otherDefinition.Element;
             }
         }
         
