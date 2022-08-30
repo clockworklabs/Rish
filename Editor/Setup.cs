@@ -6,7 +6,7 @@ using UnityEditor.Build;
 using UnityEditor.Compilation;
 using UnityEngine;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
     public static class SetupHotReload
     {

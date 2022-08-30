@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
     [CustomPropertyDrawer(typeof(Prototype))]
     public class PrototypeDrawer : PropertyDrawer

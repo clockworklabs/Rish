@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
     [CustomEditor(typeof(PrototypesProvider))]
     public class PrototypesProviderInspector : UnityEditor.Editor

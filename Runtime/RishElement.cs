@@ -1,84 +1,217 @@
 using System;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    [Serializable] // TODO: readonly structs don't serialize properly
-    public readonly struct RishElement
+    public struct NoProps { }
+
+    internal interface IRishElement
     {
-        public static RishElement Null => new RishElement();
-
-        public readonly Type type;
-        public readonly int key;
-        public readonly string name;
-        public readonly RishTransform transform;
-        public readonly Action<IRishComponent> setup;
-
-        public readonly bool transformOnly;
-
-        internal RishElement(Type type) : this(type, 0, null, RishTransform.Identity, null) { }
-        internal RishElement(Type type, int key) : this(type, key, null, RishTransform.Identity, null) { }
-        internal RishElement(Type type, string name) : this(type, 0, name, RishTransform.Identity, null) { }
-        internal RishElement(Type type, RishTransform transform) : this(type, 0, null, transform, null) { }
-        internal RishElement(Type type, Action<IRishComponent> setup) : this(type, 0, null, RishTransform.Identity, setup) { }
-        internal RishElement(Type type, int key, string name) : this(type, key, name, RishTransform.Identity, null) { }
-        internal RishElement(Type type, int key, RishTransform transform) : this(type, key, null, transform, null) { }
-        internal RishElement(Type type, int key, Action<IRishComponent> setup) : this(type, key, null, RishTransform.Identity, setup) { }
-        internal RishElement(Type type, string name, RishTransform transform) : this(type, 0, name, transform, null) { }
-        internal RishElement(Type type, string name, Action<IRishComponent> setup) : this(type, 0, name, RishTransform.Identity, setup) { }
-        internal RishElement(Type type, RishTransform transform, Action<IRishComponent> setup) : this(type, 0, null, transform, setup) { }
-        internal RishElement(Type type, int key, string name, RishTransform transform) : this(type, key, name, transform, null) { }
-        internal RishElement(Type type, int key, string name, Action<IRishComponent> setup) : this(type, key, name, RishTransform.Identity, setup) { }
-        internal RishElement(Type type, int key, RishTransform transform, Action<IRishComponent> setup) : this(type, key, null, transform, setup) { }
-        internal RishElement(Type type, string name, RishTransform transform, Action<IRishComponent> setup) : this(type, 0, name, transform, setup) { }
-        internal RishElement(Type type, int key, string name, RishTransform transform, Action<IRishComponent> setup) : this(type, key, name, transform, setup, false) { }
+        event Action OnDirty;
+        event Action OnReadyToUnmount;
         
-        private RishElement(Type type, int key, string name, RishTransform transform, Action<IRishComponent> setup, bool transformOnly)
-        {
-            this.type = type;
-            this.key = key;
-            this.name = name;
-            this.transform = transform;
-            this.setup = setup;
+        void Mount();
+        void RequestUnmount();
+        void Unmount();
 
-            this.transformOnly = transformOnly;
+        Element Render();
+    }
+
+    public abstract class RishElement<P> : VisualElement, IRishElement where P : struct
+    {
+        private event Action OnDirty;
+        event Action IRishElement.OnDirty
+        {
+            add => OnDirty += value;
+            remove => OnDirty -= value;
+        }
+
+        private event Action OnReadyToUnmount;
+        event Action IRishElement.OnReadyToUnmount
+        {
+            add => OnReadyToUnmount += value;
+            remove => OnReadyToUnmount -= value;
+        }
+
+        protected internal event Action OnMounted;
+
+        private P? _props;
+        public P Props
+        {
+            get => _props.Value;
+            internal set
+            {
+                var propsSet = _props.HasValue;
+                var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
+                
+                var propsListener = this as IPropsListener;
+                if (propsSet)
+                {
+                    propsListener?.PropsWillChange();
+                }
+
+                _props = value;
+                
+                propsListener?.PropsDidChange();
+
+                if (dirty)
+                {
+                    Dirty();
+                }
+            }
         }
         
-        
-        
-        
+        private bool UnmountRequested { get; set; }
+        private bool ReadyToUnmount { get; set; }
 
-        public RishElement(RishElement other, int key) : this(other.type, key, other.name, other.transform, other.setup) { }
-        public RishElement(RishElement other, string name) : this(other.type, other.key, name, other.transform, other.setup) { }
-        public RishElement(RishElement other, RishTransform transform) : this(other.type, other.key, other.name, transform, other.setup) { }
-        public RishElement(RishElement other, int key, string name) : this(other.type, key, name, other.transform, other.setup) { }
-        public RishElement(RishElement other, int key, RishTransform transform) : this(other.type, key, other.name, transform, other.setup) { }
-        public RishElement(RishElement other, string name, RishTransform transform) : this(other.type, other.key, name, transform, other.setup) { }
-        public RishElement(RishElement other, int key, string name, RishTransform transform) : this(other.type, key, name, transform, other.setup) { }
-
-        public RishElement SkipSetup() => new RishElement(type, key, name, transform, setup, true);
-
-        public bool Valid => type != null && transform.IsValid();
-
-        [Comparer]
-        public static bool Equals(RishElement a, RishElement b)
+        protected void Dirty() => OnDirty?.Invoke();
+        protected void CanUnmount()
         {
-            var isValid = a.Valid;
-            if (isValid != b.Valid)
+            if (!UnmountRequested || ReadyToUnmount)
             {
-                return false;
+                return;
             }
-
-            if (!isValid)
-            {
-                return true;
-            }
-
-            if (a.setup != null || b.setup != null)
-            {
-                return false;
-            }
-
-            return a.type == b.type && a.key == b.key && a.name == b.name && RishUtils.CompareUnmanaged<RishTransform>(a.transform, b.transform);
+            
+            ReadyToUnmount = true;
+            OnReadyToUnmount?.Invoke();
         }
+
+        void IRishElement.Mount()
+        {
+            if (this is ICustomComponent customComponent)
+            {
+                customComponent.Restart();
+            }
+            
+            _props = null;
+            OnMounted?.Invoke();
+            
+            UnmountRequested = false;
+            ReadyToUnmount = false;
+            
+            if (this is IMountingListener listener)
+            {
+                listener.ComponentDidMount();
+            }
+            
+            Dirty();
+        }
+
+        void IRishElement.RequestUnmount()
+        {
+            if (UnmountRequested)
+            {
+                if (ReadyToUnmount)
+                {
+                    OnReadyToUnmount?.Invoke();
+                }
+
+                return;
+            }
+
+            UnmountRequested = true;
+
+            if (this is ICustomUnmountListener listener)
+            {
+                listener.UnmountRequested();
+            }
+            else
+            {
+                CanUnmount();
+            }
+        }
+
+        void IRishElement.Unmount()
+        {
+            var propsListener = this as IPropsListener;
+            propsListener?.PropsWillChange();
+            
+            if (this is IMountingListener listener)
+            {
+                listener.ComponentWillUnmount();
+            }
+        }
+
+        Element IRishElement.Render()
+        {
+#if UNITY_EDITOR
+            if (!_props.HasValue)
+            {
+                throw new UnityException($"Invalid state. Props of {GetType().Name} ({typeof(P)}) was never set.");
+            }
+#endif
+            
+            return Render();
+        }
+
+        protected abstract Element Render();
+    }
+
+    public abstract class RishElement : RishElement<NoProps>
+    {
+        protected RishElement()
+        {
+            OnMounted += SetDefaultProps;
+        }
+
+        private void SetDefaultProps()
+        {
+            Props = default;
+        }
+    }
+
+    public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
+    {
+        private S _state;
+        protected S State
+        {
+            get => _state;
+            set
+            {
+                var dirty = !RishUtils.Compare<S>(value, _state);
+                
+                _state = value;
+
+                if (dirty)
+                {
+                    Dirty();
+                }
+            }
+        }
+        
+        protected RishElement()
+        {
+            OnMounted += SetDefaultState;
+        }
+
+        private void SetDefaultState()
+        {
+            State = Defaults.GetValue<S>();
+        }
+
+        protected void SetState(RefAction<S> action)
+        {
+            var state = State;
+            action?.Invoke(ref state);
+            State = state;
+        }
+    }
+    
+    public delegate Element FunctionElement();
+    public delegate Element FunctionElement<P>(P props) where P : struct;
+
+    public class FunctionalElement : RishElement
+    {
+        internal FunctionElement Delegate { private get; set; }
+
+        protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
+    }
+    
+    public class FunctionalElement<P> : RishElement<P> where P : struct
+    {
+        internal FunctionElement<P> Delegate { private get; set; }
+
+        protected override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
     }
 }

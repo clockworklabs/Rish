@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
     public static class CreateRishMenu
     {

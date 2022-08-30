@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
 	public class DOMTreeView : TreeView
 	{

@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine.Scripting;
 
 namespace RishUI
 {
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class ComparerAttribute : PreserveAttribute { }
+    
     public static class Comparers
     {
         private static Dictionary<Type, MethodInfo> Methods { get; }
@@ -18,10 +22,10 @@ namespace RishUI
             Methods = new Dictionary<Type, MethodInfo>(200);
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (Rish.ShouldIgnoreAssembly(asm))
-                {
-                    continue;
-                }
+                // if (Rish.ShouldIgnoreAssembly(asm))
+                // {
+                //     continue;
+                // }
 
                 foreach (var type in asm.GetTypes())
                 {
@@ -91,6 +95,7 @@ namespace RishUI
             return null;
         }
 
+        internal static bool Contains<T>() => Contains(typeof(T));
         internal static bool Contains(Type type) => Methods.ContainsKey(type);
     }
 }

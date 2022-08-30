@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-namespace RishUI
+namespace RishUI.Deprecated
 {
     // internal class IndexedList<K, V>
     // {

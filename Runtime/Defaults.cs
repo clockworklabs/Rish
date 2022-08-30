@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine.Scripting;
 
 namespace RishUI
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DefaultAttribute : PreserveAttribute { }
+    
     public class Defaults
     {
         private static Dictionary<Type, object> Values { get; }
@@ -17,10 +21,11 @@ namespace RishUI
             GenericTypes = new HashSet<Type>();
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (Rish.ShouldIgnoreAssembly(asm))
-                {
-                    continue;
-                }
+                // TODO: Improve performance
+                // if (Rish.ShouldIgnoreAssembly(asm))
+                // {
+                //     continue;
+                // }
 
                 foreach (var type in asm.GetTypes())
                 {

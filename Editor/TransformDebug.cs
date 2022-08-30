@@ -2,7 +2,7 @@ using System.Globalization;
 using UnityEditor;
 using UnityEngine;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
     public static class TransformDebug
     {

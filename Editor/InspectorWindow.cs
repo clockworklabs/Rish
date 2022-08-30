@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
-namespace RishUI.Editor
+namespace RishUI.Deprecated.Editor
 {
 	public class InspectorWindow : EditorWindow
 	{

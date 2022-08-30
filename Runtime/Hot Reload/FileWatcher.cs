@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace RishUI
+namespace RishUI.Deprecated
 {
     internal delegate void ChangedFile(string path);
     internal delegate void CreatedFile(string path);
