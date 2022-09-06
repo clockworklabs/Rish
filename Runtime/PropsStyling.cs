@@ -13,15 +13,15 @@ namespace RishUI
     public class StyledPropAttribute : PreserveAttribute
     {
         public readonly string name;
-        private readonly bool? _defaultBool;
-        private readonly int? _defaultInt;
-        private readonly float? _defaultFloat;
-        private readonly Color? _defaultColor;
-        private readonly FixedString32Bytes? _defaultString32;
-        private readonly FixedString64Bytes? _defaultString64;
-        private readonly FixedString128Bytes? _defaultString128;
-        private readonly FixedString512Bytes? _defaultString512;
-        private readonly FixedString4096Bytes? _defaultString4096;
+        private readonly bool _defaultBool;
+        private readonly int _defaultInt;
+        private readonly float _defaultFloat;
+        private readonly Color _defaultColor;
+        private readonly FixedString32Bytes _defaultString32;
+        private readonly FixedString64Bytes _defaultString64;
+        private readonly FixedString128Bytes _defaultString128;
+        private readonly FixedString512Bytes _defaultString512;
+        private readonly FixedString4096Bytes _defaultString4096;
 
         public StyledPropAttribute(string name)
         {
@@ -64,105 +64,15 @@ namespace RishUI
             _defaultString4096 = defaultValue;
         }
 
-        public bool TryGetDefault(out bool value)
-        {
-            if (_defaultBool.HasValue)
-            {
-                value = _defaultBool.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out int value)
-        {
-            if (_defaultInt.HasValue)
-            {
-                value = _defaultInt.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out float value)
-        {
-            if (_defaultFloat.HasValue)
-            {
-                value = _defaultFloat.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out Color value)
-        {
-            if (_defaultColor.HasValue)
-            {
-                value = _defaultColor.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out FixedString32Bytes value)
-        {
-            if (_defaultString32.HasValue)
-            {
-                value = _defaultString32.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out FixedString64Bytes value)
-        {
-            if (_defaultString64.HasValue)
-            {
-                value = _defaultString64.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out FixedString128Bytes value)
-        {
-            if (_defaultString128.HasValue)
-            {
-                value = _defaultString128.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out FixedString512Bytes value)
-        {
-            if (_defaultString512.HasValue)
-            {
-                value = _defaultString512.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-        public bool TryGetDefault(out FixedString4096Bytes value)
-        {
-            if (_defaultString4096.HasValue)
-            {
-                value = _defaultString4096.Value;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
+        public void GetDefault(out bool value) => value = _defaultBool;
+        public void GetDefault(out int value) => value = _defaultInt;
+        public void GetDefault(out float value) => value = _defaultFloat;
+        public void GetDefault(out Color value) => value = _defaultColor;
+        public void GetDefault(out FixedString32Bytes value) => value = _defaultString32;
+        public void GetDefault(out FixedString64Bytes value) => value = _defaultString64;
+        public void GetDefault(out FixedString128Bytes value) => value = _defaultString128;
+        public void GetDefault(out FixedString512Bytes value) => value = _defaultString512;
+        public void GetDefault(out FixedString4096Bytes value) => value = _defaultString4096;
     }
 
     public static class StyledProps
@@ -197,11 +107,6 @@ namespace RishUI
 
         public static void Style<T>(ref T props, ICustomStyle customStyle) where T : struct
         {
-            if (customStyle == null)
-            {
-                return;
-            }
-
             var type = typeof(T);
 
             var properties = StyledProperties[type];
@@ -274,11 +179,12 @@ namespace RishUI
                     var current = ((CustomBoolGetter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<bool>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomBoolSetter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out value))
+                    } else
                     {
+                        attribute.GetDefault(out value);
                         ((CustomBoolSetter<T>) setter)(ref props, value);
                     }
                 } else if (type == IntType)
@@ -286,11 +192,12 @@ namespace RishUI
                     var current = ((CustomIntGetter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<int>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomIntSetter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out value))
+                    } else
                     {
+                        attribute.GetDefault(out value);
                         ((CustomIntSetter<T>) setter)(ref props, value);
                     }
                 } else if (type == FloatType)
@@ -298,11 +205,12 @@ namespace RishUI
                     var current = ((CustomFloatGetter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<float>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomFloatSetter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out value))
+                    } else
                     {
+                        attribute.GetDefault(out value);
                         ((CustomFloatSetter<T>) setter)(ref props, value);
                     }
                 } else if (type == ColorType)
@@ -310,11 +218,12 @@ namespace RishUI
                     var current = ((CustomColorGetter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<Color>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomColorSetter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out value))
+                    } else
                     {
+                        attribute.GetDefault(out value);
                         ((CustomColorSetter<T>) setter)(ref props, value);
                     }
                 } else if (type == String32Type)
@@ -322,11 +231,12 @@ namespace RishUI
                     var current = ((CustomString32Getter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<string>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomString32Setter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out FixedString32Bytes fixedValue))
+                    } else
                     {
+                        attribute.GetDefault(out FixedString32Bytes fixedValue);
                         ((CustomString32Setter<T>) setter)(ref props, fixedValue);
                     }
                 } else if (type == String64Type)
@@ -334,11 +244,12 @@ namespace RishUI
                     var current = ((CustomString64Getter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<string>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomString64Setter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out FixedString64Bytes fixedValue))
+                    } else
                     {
+                        attribute.GetDefault(out FixedString64Bytes fixedValue);
                         ((CustomString64Setter<T>) setter)(ref props, fixedValue);
                     }
                 } else if (type == String128Type)
@@ -346,11 +257,12 @@ namespace RishUI
                     var current = ((CustomString128Getter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<string>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomString128Setter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out FixedString128Bytes fixedValue))
+                    } else
                     {
+                        attribute.GetDefault(out FixedString128Bytes fixedValue);
                         ((CustomString128Setter<T>) setter)(ref props, fixedValue);
                     }
                 } else if (type == String512Type)
@@ -358,11 +270,12 @@ namespace RishUI
                     var current = ((CustomString512Getter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<string>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomString512Setter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out FixedString512Bytes fixedValue))
+                    } else
                     {
+                        attribute.GetDefault(out FixedString512Bytes fixedValue);
                         ((CustomString512Setter<T>) setter)(ref props, fixedValue);
                     }
                 } else if (type == String4096Type)
@@ -370,11 +283,12 @@ namespace RishUI
                     var current = ((CustomString4096Getter<T>) getter)(ref props);
                     if (current.HasValue) return;
                     var customProperty = new CustomStyleProperty<string>(name);
-                    if (customStyle.TryGetValue(customProperty, out var value))
+                    if (customStyle != null && customStyle.TryGetValue(customProperty, out var value))
                     {
                         ((CustomString4096Setter<T>) setter)(ref props, value);
-                    } else if (attribute.TryGetDefault(out FixedString4096Bytes fixedValue))
+                    } else
                     {
+                        attribute.GetDefault(out FixedString4096Bytes fixedValue);
                         ((CustomString4096Setter<T>) setter)(ref props, fixedValue);
                     }
                 }

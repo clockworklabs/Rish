@@ -30,10 +30,11 @@ namespace RishUI.Elements
         private App _app;
         private App App => _app ??= GetFirstAncestorOfType<App>();
 
-        private bool RaycastTarget { get; set; }
+        private ImageProps.PickingMode PickingMode { get; set; }
         private AssetDefinition CurrentAsset { get; set; }
 
         // TODO: Improve performance
+        private int ReadableId { get; set; }
         private bool ManualReadable { get; set; }
         private Texture2D _readableTexture;
         private Texture2D ReadableTexture
@@ -41,6 +42,14 @@ namespace RishUI.Elements
             get => _readableTexture;
             set
             {
+                var id = value.GetInstanceID();
+                if (ReadableId == id)
+                {
+                    return;
+                }
+
+                ReadableId = id;
+                
                 if (_readableTexture && ManualReadable)
                 {
                     Object.Destroy(_readableTexture);
@@ -67,7 +76,11 @@ namespace RishUI.Elements
             tintColor = props.tintColor;
             scaleMode = props.scaleMode;
 
-            RaycastTarget = props.raycastTarget;
+            pickingMode = props.pickingMode != ImageProps.PickingMode.Ignore
+                ? UIElements.PickingMode.Position
+                : UIElements.PickingMode.Ignore;
+
+            PickingMode = props.pickingMode;
             
             switch (props.type)
             {
@@ -88,7 +101,13 @@ namespace RishUI.Elements
 
         public override bool ContainsPoint(Vector2 localPoint)
         {
-            if (!RaycastTarget)
+            var inRect = base.ContainsPoint(localPoint);
+            if (PickingMode == ImageProps.PickingMode.Rect)
+            {
+                return inRect;
+            }
+
+            if (!inRect)
             {
                 return false;
             }
@@ -106,11 +125,6 @@ namespace RishUI.Elements
 
             // TODO: Add support for VectorImage raycast
             if (vectorImage != null)
-            {
-                return false;
-            }
-
-            if (!base.ContainsPoint(localPoint))
             {
                 return false;
             }
@@ -294,13 +308,14 @@ namespace RishUI.Elements
     public struct ImageProps
     {
         public enum Type { Sprite, Vector, Texture }
+        public enum PickingMode { Alpha, Rect, Ignore }
 
         public Type type;
+        public PickingMode pickingMode;
         public FixedString64Bytes address;
         public Color tintColor;
         public Rect uv;
         public ScaleMode scaleMode;
-        public bool raycastTarget;
 
         [Default]
         private static ImageProps Default => new()

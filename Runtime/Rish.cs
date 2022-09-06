@@ -1688,9 +1688,8 @@ namespace RishUI
                 
                 Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
-
+                
                 var props = Descriptor.props;
-                StyledProps.Style(ref props, element.customStyle);
                 
                 element.Props = props;
             }

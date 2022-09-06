@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,11 +58,7 @@ namespace RishUI
             if (ContainsStyledProps && external)
             {
                 _preStylingProps = value;
-                
-                if (ContainsStyledProps && CustomStyle != null)
-                {
-                    StyledProps.Style(ref value, CustomStyle);
-                }
+                StyledProps.Style(ref value, CustomStyle);
             }
 
             _props = value;
