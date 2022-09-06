@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public readonly struct ClassList
+    public readonly struct ClassName
     {
         private readonly int _count;
         public int Count => _count;
@@ -42,7 +42,7 @@ namespace RishUI
         private readonly FixedString128Bytes _element30;
         private readonly FixedString128Bytes _element31;
 
-        public ClassList(string class0)
+        public ClassName(string class0)
         {
             _count = 1;
 
@@ -80,7 +80,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1)
+        public ClassName(string class0, string class1)
         {
             _count = 2;
 
@@ -118,7 +118,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2)
+        public ClassName(string class0, string class1, string class2)
         {
             _count = 3;
 
@@ -156,7 +156,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3)
+        public ClassName(string class0, string class1, string class2, string class3)
         {
             _count = 4;
 
@@ -194,7 +194,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4)
+        public ClassName(string class0, string class1, string class2, string class3, string class4)
         {
             _count = 5;
 
@@ -232,7 +232,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5)
         {
             _count = 6;
 
@@ -270,7 +270,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6)
         {
             _count = 7;
 
@@ -308,7 +308,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7)
         {
             _count = 8;
 
@@ -346,7 +346,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8)
         {
             _count = 9;
 
@@ -384,7 +384,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9)
         {
             _count = 10;
 
@@ -422,7 +422,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10)
         {
             _count = 11;
 
@@ -460,7 +460,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11)
         {
             _count = 12;
 
@@ -498,7 +498,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12)
         {
             _count = 13;
 
@@ -536,7 +536,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13)
         {
             _count = 14;
 
@@ -574,7 +574,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14)
         {
             _count = 15;
 
@@ -612,7 +612,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15)
         {
             _count = 16;
 
@@ -650,7 +650,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16)
         {
             _count = 17;
 
@@ -688,7 +688,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17)
         {
             _count = 18;
 
@@ -726,7 +726,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18)
         {
             _count = 19;
 
@@ -764,7 +764,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19)
         {
             _count = 20;
 
@@ -802,7 +802,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20)
         {
             _count = 21;
 
@@ -840,7 +840,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21)
         {
             _count = 22;
 
@@ -878,7 +878,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22)
         {
             _count = 23;
 
@@ -916,7 +916,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23)
         {
             _count = 24;
 
@@ -954,7 +954,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24)
         {
             _count = 25;
 
@@ -992,7 +992,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25)
         {
             _count = 26;
 
@@ -1030,7 +1030,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26)
         {
             _count = 27;
 
@@ -1068,7 +1068,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27)
         {
             _count = 28;
 
@@ -1106,7 +1106,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28)
         {
             _count = 29;
 
@@ -1144,7 +1144,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29)
         {
             _count = 30;
 
@@ -1182,7 +1182,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29, string class30)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29, string class30)
         {
             _count = 31;
 
@@ -1220,7 +1220,7 @@ namespace RishUI
             _element31 = default;
         }
 
-        public ClassList(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29, string class30, string class31)
+        public ClassName(string class0, string class1, string class2, string class3, string class4, string class5, string class6, string class7, string class8, string class9, string class10, string class11, string class12, string class13, string class14, string class15, string class16, string class17, string class18, string class19, string class20, string class21, string class22, string class23, string class24, string class25, string class26, string class27, string class28, string class29, string class30, string class31)
         {
             _count = 32;
 
@@ -1334,164 +1334,164 @@ namespace RishUI
             }
         }
 
-        public static implicit operator ClassList(string class0)
+        public static implicit operator ClassName(string class0)
         {
-            return new ClassList(class0);
+            return new ClassName(class0);
         }
 
-        public static implicit operator ClassList((string, string) classes)
+        public static implicit operator ClassName((string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2);
+            return new ClassName(classes.Item1, classes.Item2);
         }
 
-        public static implicit operator ClassList((string, string, string) classes)
+        public static implicit operator ClassName((string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3);
         }
 
-        public static implicit operator ClassList((string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30, classes.Item31);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30, classes.Item31);
         }
 
-        public static implicit operator ClassList((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) classes)
         {
-            return new ClassList(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30, classes.Item31, classes.Item32);
+            return new ClassName(classes.Item1, classes.Item2, classes.Item3, classes.Item4, classes.Item5, classes.Item6, classes.Item7, classes.Item8, classes.Item9, classes.Item10, classes.Item11, classes.Item12, classes.Item13, classes.Item14, classes.Item15, classes.Item16, classes.Item17, classes.Item18, classes.Item19, classes.Item20, classes.Item21, classes.Item22, classes.Item23, classes.Item24, classes.Item25, classes.Item26, classes.Item27, classes.Item28, classes.Item29, classes.Item30, classes.Item31, classes.Item32);
         }
 
         public void SetClasses(VisualElement element)
@@ -1519,12 +1519,12 @@ namespace RishUI
 
         public struct Enumerator
         {
-            private readonly ClassList _list;
+            private readonly ClassName _list;
 
             private int _index;
             private string _current;
 
-            public Enumerator(ClassList list)
+            public Enumerator(ClassName list)
             {
                 _list = list;
                 _index = 0;

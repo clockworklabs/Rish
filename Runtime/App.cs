@@ -6,9 +6,11 @@ using UnityEngine;
 
 namespace RishUI
 {
+    public delegate void AssetResult<in T>(FixedString64Bytes address, T asset);
+    
     public interface IApp
     {
-        // void GetAsset<T>(string address, AssetResult<T> callback);
+        void GetAsset<T>(FixedString64Bytes address, AssetResult<T> callback);
 
         Element GetRoot();
     }
@@ -19,8 +21,8 @@ namespace RishUI
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
         private HotReloader HotReloader { get; set; }
 #endif
-        
-        private IApp UserApp { get; set; }
+
+        internal IApp UserApp { get; private set; }
         
         void IPropsListener.PropsDidChange()
         {

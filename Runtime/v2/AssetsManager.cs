@@ -1,26 +1,27 @@
-﻿using RishUI.Deprecated;
-
-public delegate void AssetResult<T>(string address, T asset);
-
-public class AssetsManager
+﻿namespace RishUI.Deprecated
 {
-    public AssetsManager(AppComponent app)
+    public delegate void AssetResult<T>(string address, T asset);
+
+    public class AssetsManager
     {
-        App = app;
-    }
-
-    private AppComponent App { get; }
-
-    public void Get<T>(string address, AssetResult<T> callback)
-    {
-        if (callback == null) return;
-
-        if (string.IsNullOrWhiteSpace(address))
+        public AssetsManager(AppComponent app)
         {
-            callback.Invoke(address, default);
-            return;
+            App = app;
         }
 
-        App.GetAsset(address, callback);
+        private AppComponent App { get; }
+
+        public void Get<T>(string address, AssetResult<T> callback)
+        {
+            if (callback == null) return;
+
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                callback.Invoke(address, default);
+                return;
+            }
+
+            App.GetAsset(address, callback);
+        }
     }
 }

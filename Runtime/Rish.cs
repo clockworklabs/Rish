@@ -10,9 +10,9 @@ namespace RishUI
 
     public struct Element : IEquatable<Element>
     {
-        private int id;
+        private int _id;
 
-        public bool Valid => id > 0;
+        public bool Valid => _id > 0;
         
         public static Element Null => new ();
 
@@ -23,12 +23,12 @@ namespace RishUI
                 return;
             }
             
-            Rish.GetDefinition(id).Invoke(node);
+            Rish.GetDefinition(_id).Invoke(node);
         }
         
         public static implicit operator Element(ElementDefinition definition) => new()
         {
-            id = definition.ID
+            _id = definition.ID
         };
         
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
@@ -43,7 +43,7 @@ namespace RishUI
                 return false;
             }
 
-            return !aSet || Rish.GetDefinition(a.id).Equals(Rish.GetDefinition(b.id));
+            return !aSet || Rish.GetDefinition(a._id).Equals(Rish.GetDefinition(b._id));
         }
     }
     
@@ -84,7 +84,7 @@ namespace RishUI
     {
         public uint key;
         public Name name;
-        public ClassList classList;
+        public ClassName className;
         public Style style;
 
         public static Descriptor Default => new();
@@ -93,8 +93,15 @@ namespace RishUI
         {
             key = other.key;
             name = other.name;
-            classList = other.classList;
+            className = other.className;
             style = other.style;
+        }
+
+        public Descriptor Modify(RefAction<Descriptor> action)
+        {
+            var descriptor = this;
+            action?.Invoke(ref descriptor);
+            return descriptor;
         }
         
         bool IEquatable<Descriptor>.Equals(Descriptor other) => Equals(this, other);
@@ -109,13 +116,13 @@ namespace RishUI
         {
             private uint _key;
             private Name _name;
-            private ClassList _classList;
+            private ClassName _className;
         
             public static implicit operator Unmanaged(Descriptor managed) => new()
             {
                 _key = managed.key,
                 _name = managed.name,
-                _classList = managed.classList
+                _className = managed.className
             };
         }
     }
@@ -124,7 +131,7 @@ namespace RishUI
     {
         public uint key;
         public Name name;
-        public ClassList classList;
+        public ClassName className;
         public Style style;
         public P props;
 
@@ -137,9 +144,16 @@ namespace RishUI
         {
             key = other.key;
             name = other.name;
-            classList = other.classList;
+            className = other.className;
             style = other.style;
             props = other.props;
+        }
+
+        public Descriptor<P> Modify(RefAction<Descriptor<P>> action)
+        {
+            var descriptor = this;
+            action?.Invoke(ref descriptor);
+            return descriptor;
         }
         
         bool IEquatable<Descriptor<P>>.Equals(Descriptor<P> other) => Equals(this, other);
@@ -154,13 +168,13 @@ namespace RishUI
         {
             private uint _key;
             private Name _name;
-            private ClassList _classList;
+            private ClassName _className;
         
             public static implicit operator Unmanaged(Descriptor<P> managed) => new()
             {
                 _key = managed.key,
                 _name = managed.name,
-                _classList = managed.classList
+                _className = managed.className
             };
         }
     }
@@ -254,6 +268,7 @@ namespace RishUI
             owner.TakeOwnership(children);
         }
         
+        public static Children Children() => RishUI.Children.Empty;
         public static Children Children(Element child0)
         {
             var array = new NativeArray<Element>(1, Allocator.Persistent);
@@ -351,9 +366,9 @@ namespace RishUI
         {
             name = name
         });
-        public static Element Create(FunctionElement functionElement, ClassList classList) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, ClassName className) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
-            classList = classList
+            className = className
         });
         public static Element Create(FunctionElement functionElement, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
@@ -365,37 +380,37 @@ namespace RishUI
             key = key,
             name = name
         });
-        public static Element Create(FunctionElement functionElement, uint key, ClassList classList) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, uint key, ClassName className) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList
+            className = className
         });
         public static Element Create(FunctionElement functionElement, uint key, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             key = key,
             style = style
         });
-        public static Element Create(FunctionElement functionElement, Name name, ClassList classList) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, Name name, ClassName className) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
         });
         public static Element Create(FunctionElement functionElement, Name name, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             name = name,
             style = style
         });
-        public static Element Create(FunctionElement functionElement, ClassList classList, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, ClassName className, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         });
         // 3/4 -> 4
-        public static Element Create(FunctionElement functionElement, uint key, Name name, ClassList classList) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, uint key, Name name, ClassName className) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create(FunctionElement functionElement, uint key, Name name, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
@@ -403,24 +418,24 @@ namespace RishUI
             name = name,
             style = style
         });
-        public static Element Create(FunctionElement functionElement, uint key, ClassList classList, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, uint key, ClassName className, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create(FunctionElement functionElement, Name name, ClassList classList, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, Name name, ClassName className, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
         // 4/4 -> 1
-        public static Element Create(FunctionElement functionElement, uint key, Name name, ClassList classList, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
+        public static Element Create(FunctionElement functionElement, uint key, Name name, ClassName className, Style style) => Create(functionElement, new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
         // Descriptor
@@ -447,9 +462,9 @@ namespace RishUI
         {
             name = name
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList
+            className = className
         });
         public static Element Create<P>(FunctionElement<P> functionElement, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -469,10 +484,10 @@ namespace RishUI
             key = key,
             name = name
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList
+            className = className
         });
         public static Element Create<P>(FunctionElement<P> functionElement, uint key, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -489,10 +504,10 @@ namespace RishUI
             key = key,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<P>(FunctionElement<P> functionElement, Name name, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -509,19 +524,19 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<P>(FunctionElement<P> functionElement, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
@@ -535,11 +550,11 @@ namespace RishUI
             props = RefProps(props)
         });
         // 3/5 -> 10
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -559,22 +574,22 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<P>(FunctionElement<P> functionElement, uint key, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
@@ -589,22 +604,22 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<P>(FunctionElement<P> functionElement, Name name, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
@@ -619,38 +634,38 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, ClassList classList, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, ClassName className, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
         // 4/5 -> 5
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className, Style style) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
@@ -667,48 +682,48 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassList classList, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, ClassName className, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassList classList, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, Name name, ClassName className, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
         // 5/5 -> 1
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className, Style style, P props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassList classList, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<P>(FunctionElement<P> functionElement, uint key, Name name, ClassName className, Style style, RefAction<P> props) where P : struct => Create(functionElement, new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
@@ -742,9 +757,9 @@ namespace RishUI
         {
             name = name
         }, children);
-        public static Element Create<T>(ClassList classList, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(ClassName className, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T>(Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
@@ -756,37 +771,37 @@ namespace RishUI
             key = key,
             name = name
         }, children);
-        public static Element Create<T>(uint key, ClassList classList, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, ClassName className, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T>(uint key, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             style = style
         }, children);
-        public static Element Create<T>(Name name, ClassList classList, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(Name name, ClassName className, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
         }, children);
         public static Element Create<T>(Name name, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
             style = style
         }, children);
-        public static Element Create<T>(ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         }, children);
         // 3/4 -> 4
-        public static Element Create<T>(uint key, Name name, ClassList classList, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, Name name, ClassName className, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T>(uint key, Name name, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
@@ -794,24 +809,24 @@ namespace RishUI
             name = name,
             style = style
         }, children);
-        public static Element Create<T>(uint key, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         }, children);
-        public static Element Create<T>(Name name, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         }, children);
         // 4/4 -> 1
-        public static Element Create<T>(uint key, Name name, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         }, children);
         // Descriptor
@@ -838,9 +853,9 @@ namespace RishUI
         {
             name = name
         }, children);
-        public static Element Create<T, P>(ClassList classList, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T, P>(Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -860,10 +875,10 @@ namespace RishUI
             key = key,
             name = name
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T, P>(uint key, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -880,10 +895,10 @@ namespace RishUI
             key = key,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T, P>(Name name, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -900,19 +915,19 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         }, children);
-        public static Element Create<T, P>(ClassList classList, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = props
         }, children);
-        public static Element Create<T, P>(ClassList classList, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = RefProps(props)
         }, children);
         public static Element Create<T, P>(Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -926,11 +941,11 @@ namespace RishUI
             props = RefProps(props)
         }, children);
         // 3/5 = 10
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         }, children);
         public static Element Create<T, P>(uint key, Name name, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -950,22 +965,22 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = props
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         }, children);
         public static Element Create<T, P>(uint key, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -980,22 +995,22 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = props
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         }, children);
         public static Element Create<T, P>(Name name, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1010,38 +1025,38 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(ClassList classList, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = props
         }, children);
-        public static Element Create<T, P>(ClassList classList, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         }, children);
         // 4/5 = 5
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         }, children);
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = props
         }, children);
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         }, children);
         public static Element Create<T, P>(uint key, Name name, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1058,48 +1073,48 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         }, children);
-        public static Element Create<T, P>(uint key, ClassList classList, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         }, children);
-        public static Element Create<T, P>(Name name, ClassList classList, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         }, children);
         // 5/5 = 1
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         }, children);
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style, RefAction<P> props, Children? children = null) where T : VisualElement, INativeElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         }, children);
@@ -1133,9 +1148,9 @@ namespace RishUI
         {
             name = name,
         });
-        public static Element Create<T>(ClassList classList) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(ClassName className) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
-            classList = classList
+            className = className
         });
         public static Element Create<T>(Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
@@ -1147,37 +1162,37 @@ namespace RishUI
             key = key,
             name = name
         });
-        public static Element Create<T>(uint key, ClassList classList) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, ClassName className) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList
+            className = className
         });
         public static Element Create<T>(uint key, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             style = style
         });
-        public static Element Create<T>(Name name, ClassList classList) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(Name name, ClassName className) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<T>(Name name, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
             style = style
         });
-        public static Element Create<T>(ClassList classList, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(ClassName className, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         });
         // 3/4 -> 4
-        public static Element Create<T>(uint key, Name name, ClassList classList) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, Name name, ClassName className) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<T>(uint key, Name name, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
@@ -1185,24 +1200,24 @@ namespace RishUI
             name = name,
             style = style
         });
-        public static Element Create<T>(uint key, ClassList classList, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, ClassName className, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<T>(Name name, ClassList classList, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(Name name, ClassName className, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
         // 4/4 -> 1
-        public static Element Create<T>(uint key, Name name, ClassList classList, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
+        public static Element Create<T>(uint key, Name name, ClassName className, Style style) where T : RishElement, new() => Create<T>(new Descriptor(Descriptor.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
         // Descriptor
@@ -1227,9 +1242,9 @@ namespace RishUI
         {
             name = name
         });
-        public static Element Create<T, P>(ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList
+            className = className
         });
         public static Element Create<T, P>(Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -1249,10 +1264,10 @@ namespace RishUI
             key = key,
             name = name
         });
-        public static Element Create<T, P>(uint key, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList
+            className = className
         });
         public static Element Create<T, P>(uint key, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -1269,10 +1284,10 @@ namespace RishUI
             key = key,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(Name name, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<T, P>(Name name, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -1289,19 +1304,19 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<T, P>(ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<T, P>(ClassList classList, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<T, P>(Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1315,11 +1330,11 @@ namespace RishUI
             props = RefProps(props)
         });
         // 3/5 = 10
-        public static Element Create<T, P>(uint key, Name name, ClassList classList) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList
+            className = className
         });
         public static Element Create<T, P>(uint key, Name name, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
@@ -1339,22 +1354,22 @@ namespace RishUI
             name = name,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(uint key, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<T, P>(uint key, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<T, P>(uint key, ClassList classList, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<T, P>(uint key, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1369,22 +1384,22 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(Name name, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<T, P>(Name name, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<T, P>(Name name, ClassList classList, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<T, P>(Name name, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1399,38 +1414,38 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<T, P>(ClassList classList, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(ClassName className, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
         // 4/5 = 5
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style
         });
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = props
         });
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             props = RefProps(props)
         });
         public static Element Create<T, P>(uint key, Name name, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
@@ -1447,48 +1462,48 @@ namespace RishUI
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(uint key, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<T, P>(uint key, ClassList classList, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, ClassName className, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
-        public static Element Create<T, P>(Name name, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<T, P>(Name name, ClassList classList, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(Name name, ClassName className, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
         // 5/5 = 1
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style, P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = props
         });
-        public static Element Create<T, P>(uint key, Name name, ClassList classList, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
+        public static Element Create<T, P>(uint key, Name name, ClassName className, Style style, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(new Descriptor<P>(Descriptor<P>.Default)
         {
             key = key,
             name = name,
-            classList = classList,
+            className = className,
             style = style,
             props = RefProps(props)
         });
@@ -1527,7 +1542,7 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
                 element.Delegate = Element;
@@ -1556,7 +1571,7 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
                 element.Delegate = Element;
@@ -1586,7 +1601,7 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
                 element.Setup();
@@ -1617,7 +1632,7 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
                 element.Setup(Descriptor.props);
@@ -1646,7 +1661,7 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
             }
 
@@ -1671,10 +1686,13 @@ namespace RishUI
 
                 element.name = Descriptor.name;
                 
-                Descriptor.classList.SetClasses(element);
+                Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
+
+                var props = Descriptor.props;
+                StyledProps.Style(ref props, element.customStyle);
                 
-                element.Props = Descriptor.props;
+                element.Props = props;
             }
 
             public override bool Equals(ElementDefinition other)

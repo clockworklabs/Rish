@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -35,35 +36,74 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
-
+        
+        private P _preStylingProps;
         private P? _props;
         public P Props
         {
             get => _props.Value;
-            internal set
+            internal set => SetProps(value, true);
+        }
+
+        private void SetProps(P value, bool external)
+        {
+            var propsSet = _props.HasValue;
+            var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
+                
+            var propsListener = this as IPropsListener;
+            if (propsSet)
             {
-                var propsSet = _props.HasValue;
-                var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
-                
-                var propsListener = this as IPropsListener;
-                if (propsSet)
-                {
-                    propsListener?.PropsWillChange();
-                }
+                propsListener?.PropsWillChange();
+            }
 
-                _props = value;
+            if (ContainsStyledProps && external)
+            {
+                _preStylingProps = value;
                 
-                propsListener?.PropsDidChange();
-
-                if (dirty)
+                if (ContainsStyledProps && CustomStyle != null)
                 {
-                    Dirty();
+                    StyledProps.Style(ref value, CustomStyle);
                 }
+            }
+
+            _props = value;
+                
+            propsListener?.PropsDidChange();
+
+            if (dirty)
+            {
+                Dirty();
             }
         }
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
+
+        // TODO: Do we need this? (Maybe for assets)
+        private App _app;
+        private App App => _app ??= GetFirstOfType<App>();
+        
+        private bool ContainsStyledProps { get; }
+        private ICustomStyle CustomStyle { get; set; }
+        
+        protected RishElement()
+        {
+            ContainsStyledProps = StyledProps.Register<P>();
+
+            if (ContainsStyledProps)
+            {
+                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+            }
+        }
+        
+        private void OnCustomStyle(CustomStyleResolvedEvent evt)
+        {
+            CustomStyle = evt.customStyle;
+
+            var props = _preStylingProps;
+            StyledProps.Style(ref props, CustomStyle);
+            SetProps(props, false);
+        }
 
         protected void Dirty() => OnDirty?.Invoke();
         protected void CanUnmount()
@@ -77,13 +117,16 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
+        protected void GetAsset<T>(string address, AssetResult<T> callback) => App.UserApp.GetAsset(address, callback);
+
         void IRishElement.Mount()
         {
             if (this is ICustomComponent customComponent)
             {
                 customComponent.Restart();
             }
-            
+
+            CustomStyle = null;
             _props = null;
             OnMounted?.Invoke();
             

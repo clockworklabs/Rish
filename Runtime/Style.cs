@@ -82,14 +82,85 @@ namespace RishUI
         public StyleEnum<WhiteSpace>? whiteSpace;
         public StyleLength? width;
         public StyleLength? wordSpacing;
+        
+        public StyleColorsShorthand borderColor
+        {
+            set
+            {
+                borderTopColor = value.top;
+                borderRightColor = value.right;
+                borderBottomColor = value.bottom;
+                borderLeftColor = value.left;
+            }
+        }
+        public StyleLengthsShorthand borderRadius
+        {
+            set
+            {
+                borderTopLeftRadius = value.topLeft;
+                borderTopRightRadius = value.topRight;
+                borderBottomRightRadius = value.bottomRight;
+                borderBottomLeftRadius = value.bottomLeft;
+            }
+        }
+        public StyleFloatsShorthand borderWidth
+        {
+            set
+            {
+                borderTopWidth = value.top;
+                borderRightWidth = value.right;
+                borderBottomWidth = value.bottom;
+                borderLeftWidth = value.left;
+            }
+        }
+        public StyleFlexShorthand flex
+        {
+            set
+            {
+                flexGrow = value.grow;
+                flexShrink = value.shrink;
+                flexBasis = value.basis;
+            }
+        }
+        public StyleLengthsShorthand margin
+        {
+            set
+            {
+                marginTop = value.top;
+                marginRight = value.right;
+                marginBottom = value.bottom;
+                marginLeft = value.left;
+            }
+        }
+        public StyleLengthsShorthand padding
+        {
+            set
+            {
+                paddingTop = value.top;
+                paddingRight = value.right;
+                paddingBottom = value.bottom;
+                paddingLeft = value.left;
+            }
+        }
 
-        private static Style DefaultStyle = default;
+        public StyleTransitionShorthand transition
+        {
+            set
+            {
+                transitionProperty = value.property;
+                transitionDuration = value.duration;
+                transitionDelay = value.delay;
+                transitionTimingFunction = value.easing;
+            }
+        }
+
+        private static Style Default = default;
 
         public void SetInlineStyle(VisualElement element)
         {
             ResetInlineStyles(element);
             
-            if (RishUtils.MemCmp(ref this, ref DefaultStyle))
+            if (RishUtils.MemCmp(ref this, ref Default))
             {
                 return;
             }
