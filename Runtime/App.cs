@@ -6,12 +6,8 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public delegate void AssetResult<in T>(FixedString64Bytes address, T asset);
-    
     public interface IApp
     {
-        void GetAsset<T>(FixedString64Bytes address, AssetResult<T> callback);
-
         Element GetRoot();
     }
     

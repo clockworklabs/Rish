@@ -73,10 +73,6 @@ namespace RishUI
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
-
-        // TODO: Do we need this? (Maybe for assets)
-        private App _app;
-        private App App => _app ??= GetFirstOfType<App>();
         
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
@@ -111,8 +107,6 @@ namespace RishUI
             ReadyToUnmount = true;
             OnReadyToUnmount?.Invoke();
         }
-
-        protected void GetAsset<T>(string address, AssetResult<T> callback) => App.UserApp.GetAsset(address, callback);
 
         void IRishElement.Mount()
         {
