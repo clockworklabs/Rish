@@ -43,6 +43,31 @@ namespace RishUI
             get => _props.Value;
             internal set => SetProps(value, true);
         }
+        
+        private bool UnmountRequested { get; set; }
+        private bool ReadyToUnmount { get; set; }
+        
+        private bool ContainsStyledProps { get; }
+        private ICustomStyle CustomStyle { get; set; }
+        
+        protected RishElement()
+        {
+            ContainsStyledProps = StyledProps.Register<P>();
+
+            if (ContainsStyledProps)
+            {
+                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+            }
+        }
+        
+        private void OnCustomStyle(CustomStyleResolvedEvent evt)
+        {
+            CustomStyle = evt.customStyle;
+
+            var props = _preStylingProps;
+            StyledProps.Style(ref props, CustomStyle);
+            SetProps(props, false);
+        }
 
         private void SetProps(P value, bool external)
         {
@@ -69,31 +94,6 @@ namespace RishUI
             {
                 Dirty();
             }
-        }
-        
-        private bool UnmountRequested { get; set; }
-        private bool ReadyToUnmount { get; set; }
-        
-        private bool ContainsStyledProps { get; }
-        private ICustomStyle CustomStyle { get; set; }
-        
-        protected RishElement()
-        {
-            ContainsStyledProps = StyledProps.Register<P>();
-
-            if (ContainsStyledProps)
-            {
-                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
-            }
-        }
-        
-        private void OnCustomStyle(CustomStyleResolvedEvent evt)
-        {
-            CustomStyle = evt.customStyle;
-
-            var props = _preStylingProps;
-            StyledProps.Style(ref props, CustomStyle);
-            SetProps(props, false);
         }
 
         protected void Dirty() => OnDirty?.Invoke();
@@ -178,6 +178,17 @@ namespace RishUI
         }
 
         protected abstract Element Render();
+
+        public sealed override void Blur() => base.Blur();
+        public sealed override VisualElement contentContainer => base.contentContainer;
+        public sealed override FocusController focusController => base.focusController;
+        public sealed override bool canGrabFocus => base.canGrabFocus;
+        protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
+        // public sealed override bool ContainsPoint(Vector2 localPoint) => base.ContainsPoint(localPoint);
+        // public sealed override bool Overlaps(Rect rectangle) => base.Overlaps(rectangle);
+        // public sealed override void HandleEvent(EventBase evt) => base.HandleEvent(evt);
+        // protected sealed override void ExecuteDefaultAction(EventBase evt) => base.ExecuteDefaultAction(evt);
+        // protected sealed override void ExecuteDefaultActionAtTarget(EventBase evt) => base.ExecuteDefaultActionAtTarget(evt);
     }
 
     public abstract class RishElement : RishElement<NoProps>
@@ -229,7 +240,7 @@ namespace RishUI
             State = state;
         }
     }
-    
+
     public delegate Element FunctionElement();
     public delegate Element FunctionElement<P>(P props) where P : struct;
 

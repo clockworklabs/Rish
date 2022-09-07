@@ -6,14 +6,24 @@ using VectorImage = UnityEngine.UIElements.VectorImage;
 
 namespace RishUI.Elements
 {
-    public class Div : UIElements.VisualElement, INativeElement
+    public class Div : UIElements.VisualElement, IPrimitiveElement
     {
-        void INativeElement.Setup() { }
+        void IPrimitiveElement.Setup() { }
     }
     
-    public class Text : UIElements.Label, INativeElement<TextProps>
+    // public class Text : PrimitiveWrapper<UIElements.Label, TextProps>
+    // {
+    //     public Text() : base(false) { }
+    //
+    //     protected override void Setup(UIElements.Label element, TextProps props)
+    //     {
+    //         element.text = props.text.Value;
+    //     }
+    // }
+    
+    public class Text : UIElements.Label, IPrimitiveElement<TextProps>
     {
-        void INativeElement<TextProps>.Setup(TextProps props)
+        void IPrimitiveElement<TextProps>.Setup(TextProps props)
         {
             text = props.text.Value;
         }
@@ -23,12 +33,9 @@ namespace RishUI.Elements
     {
         public FixedString4096Bytes text;
     }
-
-    public class Image : UIElements.Image, INativeElement<ImageProps>
+    
+    public class Image : PrimitiveWrapper<UIElements.Image, ImageProps>
     {
-        private App _app;
-        private App App => _app ??= GetFirstAncestorOfType<App>();
-
         private ImageProps.PickingMode PickingMode { get; set; }
 
         // TODO: Profile
@@ -68,11 +75,13 @@ namespace RishUI.Elements
             }
         }
         
-        void INativeElement<ImageProps>.Setup(ImageProps props)
+        public Image() : base(false) { }
+
+        protected override void Setup(UIElements.Image element, ImageProps props)
         {
-            uv = props.uv;
-            tintColor = props.tintColor;
-            scaleMode = props.scaleMode;
+            element.uv = props.uv;
+            element.tintColor = props.tintColor;
+            element.scaleMode = props.scaleMode;
 
             pickingMode = props.pickingMode != ImageProps.PickingMode.Ignore
                 ? UIElements.PickingMode.Position
@@ -82,25 +91,25 @@ namespace RishUI.Elements
 
             if (props.sprite != null)
             {
-                sprite = props.sprite;
-                vectorImage = null;
-                image = null;
+                element.sprite = props.sprite;
+                element.vectorImage = null;
+                element.image = null;
 
                 ReadableTexture = props.sprite.texture;
             }
-            else if (vectorImage != null)
+            else if (props.vectorImage != null)
             {
-                sprite = null;
-                vectorImage = props.vectorImage;
-                image = null;
+                element.sprite = null;
+                element.vectorImage = props.vectorImage;
+                element.image = null;
 
                 ReadableTexture = null;
             }
-            else if (vectorImage != null)
+            else if (props.texture != null)
             {
-                sprite = null;
-                vectorImage = null;
-                image = props.texture;
+                element.sprite = null;
+                element.vectorImage = null;
+                element.image = props.texture;
 
                 if (props.texture is Texture2D texture2D)
                 {
@@ -113,15 +122,15 @@ namespace RishUI.Elements
             }
             else
             {
-                sprite = null;
-                vectorImage = null;
-                image = null;
+                element.sprite = null;
+                element.vectorImage = null;
+                element.image = null;
 
                 ReadableTexture = null;
             }
         }
 
-        public override bool ContainsPoint(Vector2 localPoint)
+        protected override bool ContainsPoint(UIElements.Image element, Vector2 localPoint)
         {
             var inRect = base.ContainsPoint(localPoint);
             if (PickingMode == ImageProps.PickingMode.Rect || ReadableTexture == null)
@@ -134,12 +143,12 @@ namespace RishUI.Elements
                 return false;
             }
 
-            var sourceRect = sprite != null
-                ? sprite.rect
-                : new Rect(this.sourceRect.x, this.sourceRect.y - this.sourceRect.height, this.sourceRect.width, this.sourceRect.height);
+            var sourceRect = element.sprite != null
+                ? element.sprite.rect
+                : new Rect(element.sourceRect.x, element.sourceRect.y - element.sourceRect.height, element.sourceRect.width, element.sourceRect.height);
 
             var uv = new Vector2(localPoint.x / layout.width, 1 - localPoint.y / layout.height);
-            switch (scaleMode)
+            switch (element.scaleMode)
             {
                 case ScaleMode.StretchToFill:
                 {
@@ -241,7 +250,7 @@ namespace RishUI.Elements
         public Sprite sprite;
         public VectorImage vectorImage;
         public Texture texture;
-        public Color tintColor;
+        public Color tintColor { get; set; }
         public Rect uv;
         public ScaleMode scaleMode;
 
