@@ -8,7 +8,17 @@ namespace RishUI.Elements
 {
     public class Div : UIElements.VisualElement, IPrimitiveElement
     {
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
+
+        public Div()
+        {
+            PickingManager = new PickingManager(this);
+        }
+        
         void IPrimitiveElement.Setup() { }
+        
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
     // public class Text : PrimitiveWrapper<UIElements.Label, TextProps>
@@ -23,10 +33,20 @@ namespace RishUI.Elements
     
     public class Text : UIElements.Label, IPrimitiveElement<TextProps>
     {
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
+
+        public Text()
+        {
+            PickingManager = new PickingManager(this);
+        }
+        
         void IPrimitiveElement<TextProps>.Setup(TextProps props)
         {
             text = props.text.Value;
         }
+        
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
     public struct TextProps

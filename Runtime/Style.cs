@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -82,7 +83,8 @@ namespace RishUI
         public StyleEnum<WhiteSpace>? whiteSpace;
         public StyleLength? width;
         public StyleLength? wordSpacing;
-        
+        public StyleEnum<PointerDetectionMode>? pointerDetection;
+
         public StyleColorsShorthand borderColor
         {
             set
@@ -396,6 +398,33 @@ namespace RishUI
             if(wordSpacing.HasValue) {
                 element.style.wordSpacing = wordSpacing.Value;
             }
+
+            // TODO: Set inline
+            if (pointerDetection.HasValue)
+            {
+                var value = pointerDetection.Value;
+                PointerDetectionMode detectionMode;
+                switch (value.keyword)
+                {
+                    case StyleKeyword.Undefined:
+                        detectionMode = value.value;
+                        break;
+                    case StyleKeyword.None:
+                        detectionMode = PointerDetectionMode.Ignore;
+                        break;
+                    default:
+                        detectionMode = PointerDetectionMode.Rect;
+                        break;
+                }
+                
+                if (value.keyword == StyleKeyword.Undefined)
+                {
+                    if (element is IAdvancedPicking manualRaycast)
+                    {
+                        manualRaycast.Manager.InlinePointerDetection = detectionMode;
+                    }
+                }
+            }
         }
 
         private static void ResetInlineStyles(VisualElement element)
@@ -477,6 +506,11 @@ namespace RishUI
             element.style.whiteSpace = StyleKeyword.Null;
             element.style.width = StyleKeyword.Null;
             element.style.wordSpacing = StyleKeyword.Null;
+            
+            if (element is IAdvancedPicking advancedPicking)
+            {
+                advancedPicking.Manager.InlinePointerDetection = null;
+            }
         }
 
         [Comparer]
@@ -713,7 +747,10 @@ namespace RishUI
                     : a.width.HasValue == b.width.HasValue) &&
                 (a.wordSpacing.HasValue && b.wordSpacing.HasValue
                     ? a.wordSpacing.Value.Equals(b.wordSpacing.Value)
-                    : a.wordSpacing.HasValue == b.wordSpacing.HasValue);
+                    : a.wordSpacing.HasValue == b.wordSpacing.HasValue) &&
+                (a.pointerDetection.HasValue && b.pointerDetection.HasValue
+                    ? a.pointerDetection.Value.Equals(b.pointerDetection.Value)
+                    : a.pointerDetection.HasValue == b.pointerDetection.HasValue);
         }
     }
 }

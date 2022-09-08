@@ -18,7 +18,7 @@ namespace RishUI
         Element Render();
     }
 
-    public abstract class RishElement<P> : VisualElement, IRishElement where P : struct
+    public abstract class RishElement<P> : VisualElement, IRishElement, IAdvancedPicking where P : struct
     {
         private event Action OnDirty;
         event Action IRishElement.OnDirty
@@ -49,24 +49,16 @@ namespace RishUI
         
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
-        
+
         protected RishElement()
         {
             ContainsStyledProps = StyledProps.Register<P>();
-
             if (ContainsStyledProps)
             {
                 RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
             }
-        }
-        
-        private void OnCustomStyle(CustomStyleResolvedEvent evt)
-        {
-            CustomStyle = evt.customStyle;
 
-            var props = _preStylingProps;
-            StyledProps.Style(ref props, CustomStyle);
-            SetProps(props, false);
+            PickingManager = new PickingManager(this);
         }
 
         private void SetProps(P value, bool external)
@@ -107,6 +99,9 @@ namespace RishUI
             ReadyToUnmount = true;
             OnReadyToUnmount?.Invoke();
         }
+
+        protected PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
 
         void IRishElement.Mount()
         {
@@ -178,17 +173,23 @@ namespace RishUI
         }
 
         protected abstract Element Render();
+        
+        private void OnCustomStyle(CustomStyleResolvedEvent evt)
+        {
+            CustomStyle = evt.customStyle;
+
+            var props = _preStylingProps;
+            StyledProps.Style(ref props, CustomStyle);
+            SetProps(props, false);
+        }
 
         public sealed override void Blur() => base.Blur();
         public sealed override VisualElement contentContainer => base.contentContainer;
         public sealed override FocusController focusController => base.focusController;
         public sealed override bool canGrabFocus => base.canGrabFocus;
         protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
-        // public sealed override bool ContainsPoint(Vector2 localPoint) => base.ContainsPoint(localPoint);
-        // public sealed override bool Overlaps(Rect rectangle) => base.Overlaps(rectangle);
-        // public sealed override void HandleEvent(EventBase evt) => base.HandleEvent(evt);
-        // protected sealed override void ExecuteDefaultAction(EventBase evt) => base.ExecuteDefaultAction(evt);
-        // protected sealed override void ExecuteDefaultActionAtTarget(EventBase evt) => base.ExecuteDefaultActionAtTarget(evt);
+
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
 
     public abstract class RishElement : RishElement<NoProps>

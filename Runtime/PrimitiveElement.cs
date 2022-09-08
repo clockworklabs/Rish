@@ -3,12 +3,12 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public interface IPrimitiveElement
+    public interface IPrimitiveElement : IAdvancedPicking
     {
         void Setup();
     }
 
-    public interface IPrimitiveElement<P> where P : struct
+    public interface IPrimitiveElement<P> : IAdvancedPicking where P : struct
     {
         void Setup(P props);
     }
@@ -23,6 +23,9 @@ namespace RishUI
 
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
+        
+        private PickingManager DetectionManager { get; }
+        PickingManager IAdvancedPicking.Manager { get; }
 
         protected PrimitiveWrapper(bool fillElement)
         {
@@ -40,6 +43,8 @@ namespace RishUI
             }
 
             hierarchy.Add(Element);
+
+            DetectionManager = new PickingManager(this);
         }
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
