@@ -145,6 +145,7 @@ namespace RishUI
             backgroundBorder.z = Mathf.Max(backgroundBorder.z, 0);
             backgroundBorder.w = Mathf.Max(backgroundBorder.w, 0);
 
+            // TODO: Maybe remove this?
             if (backgroundBorder != Vector4.zero)
             {
                 Element.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
