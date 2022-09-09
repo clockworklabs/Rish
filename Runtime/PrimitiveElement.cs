@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+
     public interface IPrimitiveElement : IAdvancedPicking
     {
         void Setup();
@@ -24,8 +25,8 @@ namespace RishUI
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
         
-        private PickingManager DetectionManager { get; }
-        PickingManager IAdvancedPicking.Manager { get; }
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
 
         protected PrimitiveWrapper(bool fillElement)
         {
@@ -44,7 +45,7 @@ namespace RishUI
 
             hierarchy.Add(Element);
 
-            DetectionManager = new PickingManager(this);
+            PickingManager = new PickingManager(Element);
         }
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
@@ -79,15 +80,95 @@ namespace RishUI
         
         public sealed override void Blur() => base.Blur();
         public sealed override FocusController focusController => base.focusController;
-        public sealed override bool Overlaps(Rect rectangle) => base.Overlaps(rectangle);
+        public sealed override bool Overlaps(Rect rectangle) => Overlaps(Element, rectangle);
         public sealed override bool canGrabFocus => base.canGrabFocus;
         protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
-        public sealed override bool ContainsPoint(Vector2 localPoint) => base.ContainsPoint(localPoint);
+        public sealed override bool ContainsPoint(Vector2 localPoint) => ContainsPoint(Element, localPoint);
         public sealed override void HandleEvent(EventBase evt) => base.HandleEvent(evt);
         protected sealed override void ExecuteDefaultAction(EventBase evt) => base.ExecuteDefaultAction(evt);
         protected sealed override void ExecuteDefaultActionAtTarget(EventBase evt) => base.ExecuteDefaultActionAtTarget(evt);
 
         protected virtual bool Overlaps(T element, Rect rectangle) => base.Overlaps(rectangle);
-        protected virtual bool ContainsPoint(T element, Vector2 localPoint) => base.ContainsPoint(localPoint);
+        protected virtual bool ContainsPoint(T element, Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
+    }
+    
+    public abstract class RishVisualElement : VisualElement, IPrimitiveElement
+    {
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
+
+        protected RishVisualElement()
+        {
+            PickingManager = new PickingManager(this);
+        }
+
+        void IPrimitiveElement.Setup() => Setup();
+        protected abstract void Setup();
+        
+        public sealed override void Blur() => base.Blur();
+        public sealed override FocusController focusController => base.focusController;
+        public sealed override bool canGrabFocus => base.canGrabFocus;
+        protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
+    }
+    
+    public abstract class RishVisualElement<P> : VisualElement, IPrimitiveElement<P> where P : struct
+    {
+        private P _preStylingProps;
+        private P? _props;
+
+        private bool ContainsStyledProps { get; }
+        private ICustomStyle CustomStyle { get; set; }
+        
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
+
+        protected RishVisualElement()
+        {
+            ContainsStyledProps = StyledProps.Register<P>();
+
+            if (ContainsStyledProps)
+            {
+                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+            }
+
+            PickingManager = new PickingManager(this);
+        }
+        
+        private void OnCustomStyle(CustomStyleResolvedEvent evt)
+        {
+            CustomStyle = evt.customStyle;
+
+            var props = _preStylingProps;
+            StyledProps.Style(ref props, CustomStyle);
+            SetProps(props, false);
+        }
+
+        private void SetProps(P value, bool external)
+        {
+            var dirty = !_props.HasValue || !RishUtils.Compare<P>(value, _props.Value);
+            
+            if (ContainsStyledProps && external)
+            {
+                _preStylingProps = value;
+                StyledProps.Style(ref value, CustomStyle);
+            }
+
+            _props = value;
+
+            if (dirty)
+            {
+                Setup(value);
+            }
+        }
+
+        void IPrimitiveElement<P>.Setup(P props) => SetProps(props, true);
+        protected abstract void Setup(P props);
+        
+        public sealed override void Blur() => base.Blur();
+        public sealed override FocusController focusController => base.focusController;
+        public sealed override bool canGrabFocus => base.canGrabFocus;
+        protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
 }

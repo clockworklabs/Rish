@@ -10,8 +10,8 @@ namespace RishUI
     
     public enum PointerDetectionMode
     {
-        Alpha,
         Rect,
+        Alpha,
         ImageAlpha,
         Ignore
     }
@@ -23,8 +23,8 @@ namespace RishUI
         private VisualElement Element { get; }
         
         internal PointerDetectionMode? InlinePointerDetection { private get; set; }
-        private PointerDetectionMode? CustomStylePointerDetection { get; set; }
-        public PointerDetectionMode PointerDetection => InlinePointerDetection ?? (CustomStylePointerDetection ?? PointerDetectionMode.Rect);
+        private PointerDetectionMode? StylePointerDetection { get; set; }
+        public PointerDetectionMode PointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? (Element.parent is IAdvancedPicking parent ? parent.Manager.PointerDetection : PointerDetectionMode.Rect));
         
         private float BackgroundColorAlpha { get; set; }
         private Vector4 BackgroundSlices { get; set; }
@@ -73,9 +73,12 @@ namespace RishUI
         public PickingManager(VisualElement element)
         {
             Element = element;
-            
-            element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+
+            Element.generateVisualContent += OnDirty;
+            Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
+
+        private void OnDirty(MeshGenerationContext context) => Setup();
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {
@@ -97,8 +100,13 @@ namespace RishUI
             {
                 mode = null;
             }
-            CustomStylePointerDetection = mode;
+            StylePointerDetection = mode;
 
+            Setup();
+        }
+
+        private void Setup()
+        {
             if (PointerDetection == PointerDetectionMode.Ignore)
             {
                 Element.pickingMode = PickingMode.Ignore;

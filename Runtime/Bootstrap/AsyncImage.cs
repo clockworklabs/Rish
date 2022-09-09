@@ -1,7 +1,6 @@
 using RishUI.Elements;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Image = RishUI.Elements.Image;
 
 namespace RishUI.Bootstrap.Elements
@@ -12,7 +11,11 @@ namespace RishUI.Bootstrap.Elements
 
         void IPropsListener.PropsDidChange()
         {
-            SetBasics(Props);
+            State = new ImageProps
+            {
+                tintColor = Props.tintColor,
+                scaleMode = Props.scaleMode
+            };
             
             switch (Props.type)
             {
@@ -23,7 +26,10 @@ namespace RishUI.Bootstrap.Elements
                 //     SetAsset<VectorImage>(Props.address);
                 //     break;
                 case AsyncImageProps.Type.Texture:
-                    SetAsset<Texture>(Props.address);
+                    SetAsset<Texture2D>(Props.address);
+                    break;
+                case AsyncImageProps.Type.RenderTexture:
+                    SetAsset<RenderTexture>(Props.address);
                     break;
                 default:
                     throw new UnityException("Image type not supported");
@@ -33,16 +39,6 @@ namespace RishUI.Bootstrap.Elements
         void IPropsListener.PropsWillChange() { }
         
         protected override Element Render() => Rish.Create<Image, ImageProps>(State);
-
-        private void SetBasics(AsyncImageProps props)
-        {
-            var state = State;
-            state.pickingMode = props.pickingMode;
-            state.tintColor = props.tintColor;
-            state.uv = props.uv;
-            state.scaleMode = props.scaleMode;
-            State = state;
-        }
 
         // TODO: Maybe pass the callback in props?
         // private void GetAsset<T>(FixedString64Bytes address, AssetResult<T> callback) => App.UserApp.GetAsset(address, callback);
@@ -59,7 +55,9 @@ namespace RishUI.Bootstrap.Elements
                     ? AsyncImageProps.Type.Sprite
                     // : assetType == typeof(VectorImage)
                     //     ? AsyncImageProps.Type.Vector
-                        : AsyncImageProps.Type.Texture
+                        : assetType == typeof(Texture2D)
+                            ? AsyncImageProps.Type.Texture
+                            : AsyncImageProps.Type.RenderTexture
             };
 
             if (RishUtils.CompareUnmanaged<AssetDefinition>(CurrentAsset, targetAsset))
@@ -73,6 +71,7 @@ namespace RishUI.Bootstrap.Elements
             state.sprite = null;
             // state.vectorImage = null;
             state.texture = null;
+            state.renderTexture = null;
             State = state;
             
             switch (targetAsset.type)
@@ -85,6 +84,9 @@ namespace RishUI.Bootstrap.Elements
                 //     break;
                 case AsyncImageProps.Type.Texture:
                     GetAsset<Texture>(address, OnAsset);
+                    break;
+                case AsyncImageProps.Type.RenderTexture:
+                    GetAsset<RenderTexture>(address, OnAsset);
                     break;
                 default:
                     throw new UnityException("Asset type unsupported");
@@ -107,8 +109,11 @@ namespace RishUI.Bootstrap.Elements
                 // case VectorImage vectorImage:
                 //     state.vectorImage = vectorImage;
                 //     break;
-                case Texture texture:
+                case Texture2D texture:
                     state.texture = texture;
+                    break;
+                case RenderTexture renderTexture:
+                    state.renderTexture = renderTexture;
                     break;
                 default:
                     throw new UnityException("Asset type unsupported");
@@ -126,20 +131,12 @@ namespace RishUI.Bootstrap.Elements
 
     public struct AsyncImageProps
     {
-        public enum Type { Sprite, /*Vector,*/ Texture }
+        public enum Type { Sprite, /*Vector,*/ Texture, RenderTexture }
 
         public Type type;
-        public ImageProps.PickingMode pickingMode;
         public FixedString64Bytes address;
-        public Color tintColor;
-        public Rect uv;
+        [StyledProp("--props-tint-color", 1, 1, 1, 1)]
+        public Color? tintColor { get; set; }
         public ScaleMode scaleMode;
-
-        [Default]
-        private static AsyncImageProps Default => new()
-        {
-            tintColor = Color.white,
-            uv = new Rect(Vector2.zero, Vector2.one)
-        };
     }
 }

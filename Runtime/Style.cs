@@ -429,6 +429,11 @@ namespace RishUI
 
         private static void ResetInlineStyles(VisualElement element)
         {
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+            
             element.style.alignContent = StyleKeyword.Null;
             element.style.alignItems = StyleKeyword.Null;
             element.style.alignSelf = StyleKeyword.Null;
