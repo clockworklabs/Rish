@@ -4,86 +4,87 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    
     public struct Style
     {
-        public StyleEnum<Align>? alignContent;
-        public StyleEnum<Align>? alignItems;
-        public StyleEnum<Align>? alignSelf;
-        public StyleColor? backgroundColor;
-        public StyleBackground? backgroundImage;
-        public StyleColor? borderBottomColor;
-        public StyleLength? borderBottomLeftRadius;
-        public StyleLength? borderBottomRightRadius;
-        public StyleFloat? borderBottomWidth;
-        public StyleColor? borderLeftColor;
-        public StyleFloat? borderLeftWidth;
-        public StyleColor? borderRightColor;
-        public StyleFloat? borderRightWidth;
-        public StyleColor? borderTopColor;
-        public StyleLength? borderTopLeftRadius;
-        public StyleLength? borderTopRightRadius;
-        public StyleFloat? borderTopWidth;
-        public StyleLength? bottom;
-        public StyleColor? color;
-        public StyleCursor? cursor;
-        public StyleEnum<DisplayStyle>? display;
-        public StyleLength? flexBasis;
-        public StyleEnum<FlexDirection>? flexDirection;
-        public StyleFloat? flexGrow;
-        public StyleFloat? flexShrink;
-        public StyleEnum<Wrap>? flexWrap;
-        public StyleLength? fontSize;
-        public StyleLength? height;
-        public StyleEnum<Justify>? justifyContent;
-        public StyleLength? left;
-        public StyleLength? letterSpacing;
-        public StyleLength? marginBottom;
-        public StyleLength? marginLeft;
-        public StyleLength? marginRight;
-        public StyleLength? marginTop;
-        public StyleLength? maxHeight;
-        public StyleLength? maxWidth;
-        public StyleLength? minHeight;
-        public StyleLength? minWidth;
-        public StyleFloat? opacity;
-        public StyleEnum<Overflow>? overflow;
-        public StyleLength? paddingBottom;
-        public StyleLength? paddingLeft;
-        public StyleLength? paddingRight;
-        public StyleLength? paddingTop;
-        public StyleEnum<Position>? position;
-        public StyleLength? right;
-        public StyleRotate? rotate;
-        public StyleScale? scale;
-        public StyleEnum<TextOverflow>? textOverflow;
-        public StyleTextShadow? textShadow;
-        public StyleLength? top;
-        public StyleTransformOrigin? transformOrigin;
-        public StyleList<TimeValue>? transitionDelay;
-        public StyleList<TimeValue>? transitionDuration;
-        public StyleList<StylePropertyName>? transitionProperty;
-        public StyleList<EasingFunction>? transitionTimingFunction;
-        public StyleTranslate? translate;
-        public StyleColor? unityBackgroundImageTintColor;
-        public StyleEnum<ScaleMode>? unityBackgroundScaleMode;
-        public StyleFont? unityFont;
-        public StyleFontDefinition? unityFontDefinition;
-        public StyleEnum<FontStyle>? unityFontStyleAndWeight;
-        public StyleEnum<OverflowClipBox>? unityOverflowClipBox;
-        public StyleLength? unityParagraphSpacing;
-        public StyleInt? unitySliceBottom;
-        public StyleInt? unitySliceLeft;
-        public StyleInt? unitySliceRight;
-        public StyleInt? unitySliceTop;
-        public StyleEnum<TextAnchor>? unityTextAlign;
-        public StyleColor? unityTextOutlineColor;
-        public StyleFloat? unityTextOutlineWidth;
-        public StyleEnum<TextOverflowPosition>? unityTextOverflowPosition;
-        public StyleEnum<Visibility>? visibility;
-        public StyleEnum<WhiteSpace>? whiteSpace;
-        public StyleLength? width;
-        public StyleLength? wordSpacing;
-        public StyleEnum<PointerDetectionMode>? pointerDetection;
+        public StyleEnum<Align> alignContent;
+        public StyleEnum<Align> alignItems;
+        public StyleEnum<Align> alignSelf;
+        public StyleColor backgroundColor;
+        public StyleBackground backgroundImage;
+        public StyleColor borderBottomColor;
+        public StyleLength borderBottomLeftRadius;
+        public StyleLength borderBottomRightRadius;
+        public StyleFloat borderBottomWidth;
+        public StyleColor borderLeftColor;
+        public StyleFloat borderLeftWidth;
+        public StyleColor borderRightColor;
+        public StyleFloat borderRightWidth;
+        public StyleColor borderTopColor;
+        public StyleLength borderTopLeftRadius;
+        public StyleLength borderTopRightRadius;
+        public StyleFloat borderTopWidth;
+        public StyleLength bottom;
+        public StyleColor color;
+        public StyleCursor cursor;
+        public StyleEnum<DisplayStyle> display;
+        public StyleLength flexBasis;
+        public StyleEnum<FlexDirection> flexDirection;
+        public StyleFloat flexGrow;
+        public StyleFloat flexShrink;
+        public StyleEnum<Wrap> flexWrap;
+        public StyleLength fontSize;
+        public StyleLength height;
+        public StyleEnum<Justify> justifyContent;
+        public StyleLength left;
+        public StyleLength letterSpacing;
+        public StyleLength marginBottom;
+        public StyleLength marginLeft;
+        public StyleLength marginRight;
+        public StyleLength marginTop;
+        public StyleLength maxHeight;
+        public StyleLength maxWidth;
+        public StyleLength minHeight;
+        public StyleLength minWidth;
+        public StyleFloat opacity;
+        public StyleEnum<Overflow> overflow;
+        public StyleLength paddingBottom;
+        public StyleLength paddingLeft;
+        public StyleLength paddingRight;
+        public StyleLength paddingTop;
+        public StyleEnum<Position> position;
+        public StyleLength right;
+        public StyleRotate rotate;
+        public StyleScale scale;
+        public StyleEnum<TextOverflow> textOverflow;
+        public StyleTextShadow textShadow;
+        public StyleLength top;
+        public StyleTransformOrigin transformOrigin;
+        public StyleList<TimeValue> transitionDelay;
+        public StyleList<TimeValue> transitionDuration;
+        public StyleList<StylePropertyName> transitionProperty;
+        public StyleList<EasingFunction> transitionTimingFunction;
+        public StyleTranslate translate;
+        public StyleColor unityBackgroundImageTintColor;
+        public StyleEnum<ScaleMode> unityBackgroundScaleMode;
+        public StyleFont unityFont;
+        public StyleFontDefinition unityFontDefinition;
+        public StyleEnum<FontStyle> unityFontStyleAndWeight;
+        public StyleEnum<OverflowClipBox> unityOverflowClipBox;
+        public StyleLength unityParagraphSpacing;
+        public StyleInt unitySliceBottom;
+        public StyleInt unitySliceLeft;
+        public StyleInt unitySliceRight;
+        public StyleInt unitySliceTop;
+        public StyleEnum<TextAnchor> unityTextAlign;
+        public StyleColor unityTextOutlineColor;
+        public StyleFloat unityTextOutlineWidth;
+        public StyleEnum<TextOverflowPosition> unityTextOverflowPosition;
+        public StyleEnum<Visibility> visibility;
+        public StyleEnum<WhiteSpace> whiteSpace;
+        public StyleLength width;
+        public StyleLength wordSpacing;
+        public StyleEnum<PointerDetectionMode> pointerDetection;
 
         public StyleColorsShorthand borderColor
         {
@@ -167,262 +168,249 @@ namespace RishUI
                 return;
             }
             
-            if(alignContent.HasValue) {
-                element.style.alignContent = alignContent.Value;
+            if(alignContent.IsNotNull()) {
+                element.style.alignContent = alignContent;
             }
-            if(alignItems.HasValue) {
-                element.style.alignItems = alignItems.Value;
+            if(alignItems.IsNotNull()) {
+                element.style.alignItems = alignItems;
             }
-            if(alignSelf.HasValue) {
-                element.style.alignSelf = alignSelf.Value;
+            if(alignSelf.IsNotNull()) {
+                element.style.alignSelf = alignSelf;
             }
-            if(backgroundColor.HasValue) {
-                element.style.backgroundColor = backgroundColor.Value;
+            if(backgroundColor.IsNotNull()) {
+                element.style.backgroundColor = backgroundColor;
             }
-            if(backgroundImage.HasValue) {
-                element.style.backgroundImage = backgroundImage.Value;
+            if(backgroundImage.IsNotNull()) {
+                element.style.backgroundImage = backgroundImage;
             }
-            if(borderBottomColor.HasValue) {
-                element.style.borderBottomColor = borderBottomColor.Value;
+            if(borderBottomColor.IsNotNull()) {
+                element.style.borderBottomColor = borderBottomColor;
             }
-            if(borderBottomLeftRadius.HasValue) {
-                element.style.borderBottomLeftRadius = borderBottomLeftRadius.Value;
+            if(borderBottomLeftRadius.IsNotNull()) {
+                element.style.borderBottomLeftRadius = borderBottomLeftRadius;
             }
-            if(borderBottomRightRadius.HasValue) {
-                element.style.borderBottomRightRadius = borderBottomRightRadius.Value;
+            if(borderBottomRightRadius.IsNotNull()) {
+                element.style.borderBottomRightRadius = borderBottomRightRadius;
             }
-            if(borderBottomWidth.HasValue) {
-                element.style.borderBottomWidth = borderBottomWidth.Value;
+            if(borderBottomWidth.IsNotNull()) {
+                element.style.borderBottomWidth = borderBottomWidth;
             }
-            if(borderLeftColor.HasValue) {
-                element.style.borderLeftColor = borderLeftColor.Value;
+            if(borderLeftColor.IsNotNull()) {
+                element.style.borderLeftColor = borderLeftColor;
             }
-            if(borderLeftWidth.HasValue) {
-                element.style.borderLeftWidth = borderLeftWidth.Value;
+            if(borderLeftWidth.IsNotNull()) {
+                element.style.borderLeftWidth = borderLeftWidth;
             }
-            if(borderRightColor.HasValue) {
-                element.style.borderRightColor = borderRightColor.Value;
+            if(borderRightColor.IsNotNull()) {
+                element.style.borderRightColor = borderRightColor;
             }
-            if(borderRightWidth.HasValue) {
-                element.style.borderRightWidth = borderRightWidth.Value;
+            if(borderRightWidth.IsNotNull()) {
+                element.style.borderRightWidth = borderRightWidth;
             }
-            if(borderTopColor.HasValue) {
-                element.style.borderTopColor = borderTopColor.Value;
+            if(borderTopColor.IsNotNull()) {
+                element.style.borderTopColor = borderTopColor;
             }
-            if(borderTopLeftRadius.HasValue) {
-                element.style.borderTopLeftRadius = borderTopLeftRadius.Value;
+            if(borderTopLeftRadius.IsNotNull()) {
+                element.style.borderTopLeftRadius = borderTopLeftRadius;
             }
-            if(borderTopRightRadius.HasValue) {
-                element.style.borderTopRightRadius = borderTopRightRadius.Value;
+            if(borderTopRightRadius.IsNotNull()) {
+                element.style.borderTopRightRadius = borderTopRightRadius;
             }
-            if(borderTopWidth.HasValue) {
-                element.style.borderTopWidth = borderTopWidth.Value;
+            if(borderTopWidth.IsNotNull()) {
+                element.style.borderTopWidth = borderTopWidth;
             }
-            if(bottom.HasValue) {
-                element.style.bottom = bottom.Value;
+            if(bottom.IsNotNull()) {
+                element.style.bottom = bottom;
             }
-            if(color.HasValue) {
-                element.style.color = color.Value;
+            if(color.IsNotNull()) {
+                element.style.color = color;
             }
-            if(cursor.HasValue) {
-                element.style.cursor = cursor.Value;
+            if(cursor.IsNotNull()) {
+                element.style.cursor = cursor;
             }
-            if(display.HasValue) {
-                element.style.display = display.Value;
+            if(display.IsNotNull()) {
+                element.style.display = display;
             }
-            if(flexBasis.HasValue) {
-                element.style.flexBasis = flexBasis.Value;
+            if(flexBasis.IsNotNull()) {
+                element.style.flexBasis = flexBasis;
             }
-            if(flexDirection.HasValue) {
-                element.style.flexDirection = flexDirection.Value;
+            if(flexDirection.IsNotNull()) {
+                element.style.flexDirection = flexDirection;
             }
-            if(flexGrow.HasValue) {
-                element.style.flexGrow = flexGrow.Value;
+            if(flexGrow.IsNotNull()) {
+                element.style.flexGrow = flexGrow;
             }
-            if(flexShrink.HasValue) {
-                element.style.flexShrink = flexShrink.Value;
+            if(flexShrink.IsNotNull()) {
+                element.style.flexShrink = flexShrink;
             }
-            if(flexWrap.HasValue) {
-                element.style.flexWrap = flexWrap.Value;
+            if(flexWrap.IsNotNull()) {
+                element.style.flexWrap = flexWrap;
             }
-            if(fontSize.HasValue) {
-                element.style.fontSize = fontSize.Value;
+            if(fontSize.IsNotNull()) {
+                element.style.fontSize = fontSize;
             }
-            if(height.HasValue) {
-                element.style.height = height.Value;
+            if(height.IsNotNull()) {
+                element.style.height = height;
             }
-            if(justifyContent.HasValue) {
-                element.style.justifyContent = justifyContent.Value;
+            if(justifyContent.IsNotNull()) {
+                element.style.justifyContent = justifyContent;
             }
-            if(left.HasValue) {
-                element.style.left = left.Value;
+            if(left.IsNotNull()) {
+                element.style.left = left;
             }
-            if(letterSpacing.HasValue) {
-                element.style.letterSpacing = letterSpacing.Value;
+            if(letterSpacing.IsNotNull()) {
+                element.style.letterSpacing = letterSpacing;
             }
-            if(marginBottom.HasValue) {
-                element.style.marginBottom = marginBottom.Value;
+            if(marginBottom.IsNotNull()) {
+                element.style.marginBottom = marginBottom;
             }
-            if(marginLeft.HasValue) {
-                element.style.marginLeft = marginLeft.Value;
+            if(marginLeft.IsNotNull()) {
+                element.style.marginLeft = marginLeft;
             }
-            if(marginRight.HasValue) {
-                element.style.marginRight = marginRight.Value;
+            if(marginRight.IsNotNull()) {
+                element.style.marginRight = marginRight;
             }
-            if(marginTop.HasValue) {
-                element.style.marginTop = marginTop.Value;
+            if(marginTop.IsNotNull()) {
+                element.style.marginTop = marginTop;
             }
-            if(maxHeight.HasValue) {
-                element.style.maxHeight = maxHeight.Value;
+            if(maxHeight.IsNotNull()) {
+                element.style.maxHeight = maxHeight;
             }
-            if(maxWidth.HasValue) {
-                element.style.maxWidth = maxWidth.Value;
+            if(maxWidth.IsNotNull()) {
+                element.style.maxWidth = maxWidth;
             }
-            if(minHeight.HasValue) {
-                element.style.minHeight = minHeight.Value;
+            if(minHeight.IsNotNull()) {
+                element.style.minHeight = minHeight;
             }
-            if(minWidth.HasValue) {
-                element.style.minWidth = minWidth.Value;
+            if(minWidth.IsNotNull()) {
+                element.style.minWidth = minWidth;
             }
-            if(opacity.HasValue) {
-                element.style.opacity = opacity.Value;
+            if(opacity.IsNotNull()) {
+                element.style.opacity = opacity;
             }
-            if(overflow.HasValue) {
-                element.style.overflow = overflow.Value;
+            if(overflow.IsNotNull()) {
+                element.style.overflow = overflow;
             }
-            if(paddingBottom.HasValue) {
-                element.style.paddingBottom = paddingBottom.Value;
+            if(paddingBottom.IsNotNull()) {
+                element.style.paddingBottom = paddingBottom;
             }
-            if(paddingLeft.HasValue) {
-                element.style.paddingLeft = paddingLeft.Value;
+            if(paddingLeft.IsNotNull()) {
+                element.style.paddingLeft = paddingLeft;
             }
-            if(paddingRight.HasValue) {
-                element.style.paddingRight = paddingRight.Value;
+            if(paddingRight.IsNotNull()) {
+                element.style.paddingRight = paddingRight;
             }
-            if(paddingTop.HasValue) {
-                element.style.paddingTop = paddingTop.Value;
+            if(paddingTop.IsNotNull()) {
+                element.style.paddingTop = paddingTop;
             }
-            if(position.HasValue) {
-                element.style.position = position.Value;
+            if(position.IsNotNull()) {
+                element.style.position = position;
             }
-            if(right.HasValue) {
-                element.style.right = right.Value;
+            if(right.IsNotNull()) {
+                element.style.right = right;
             }
-            if(rotate.HasValue) {
-                element.style.rotate = rotate.Value;
+            if(rotate.IsNotNull()) {
+                element.style.rotate = rotate;
             }
-            if(scale.HasValue) {
-                element.style.scale = scale.Value;
+            if(scale.IsNotNull()) {
+                element.style.scale = scale;
             }
-            if(textOverflow.HasValue) {
-                element.style.textOverflow = textOverflow.Value;
+            if(textOverflow.IsNotNull()) {
+                element.style.textOverflow = textOverflow;
             }
-            if(textShadow.HasValue) {
-                element.style.textShadow = textShadow.Value;
+            if(textShadow.IsNotNull()) {
+                element.style.textShadow = textShadow;
             }
-            if(top.HasValue) {
-                element.style.top = top.Value;
+            if(top.IsNotNull()) {
+                element.style.top = top;
             }
-            if(transformOrigin.HasValue) {
-                element.style.transformOrigin = transformOrigin.Value;
+            if(transformOrigin.IsNotNull()) {
+                element.style.transformOrigin = transformOrigin;
             }
-            if(transitionDelay.HasValue) {
-                element.style.transitionDelay = transitionDelay.Value;
+            if(transitionDelay.IsNotNull()) {
+                element.style.transitionDelay = transitionDelay;
             }
-            if(transitionDuration.HasValue) {
-                element.style.transitionDuration = transitionDuration.Value;
+            if(transitionDuration.IsNotNull()) {
+                element.style.transitionDuration = transitionDuration;
             }
-            if(transitionProperty.HasValue) {
-                element.style.transitionProperty = transitionProperty.Value;
+            if(transitionProperty.IsNotNull()) {
+                element.style.transitionProperty = transitionProperty;
             }
-            if(transitionTimingFunction.HasValue) {
-                element.style.transitionTimingFunction = transitionTimingFunction.Value;
+            if(transitionTimingFunction.IsNotNull()) {
+                element.style.transitionTimingFunction = transitionTimingFunction;
             }
-            if(translate.HasValue) {
-                element.style.translate = translate.Value;
+            if(translate.IsNotNull()) {
+                element.style.translate = translate;
             }
-            if(unityBackgroundImageTintColor.HasValue) {
-                element.style.unityBackgroundImageTintColor = unityBackgroundImageTintColor.Value;
+            if(unityBackgroundImageTintColor.IsNotNull()) {
+                element.style.unityBackgroundImageTintColor = unityBackgroundImageTintColor;
             }
-            if(unityBackgroundScaleMode.HasValue) {
-                element.style.unityBackgroundScaleMode = unityBackgroundScaleMode.Value;
+            if(unityBackgroundScaleMode.IsNotNull()) {
+                element.style.unityBackgroundScaleMode = unityBackgroundScaleMode;
             }
-            if(unityFont.HasValue) {
-                element.style.unityFont = unityFont.Value;
+            if(unityFont.IsNotNull()) {
+                element.style.unityFont = unityFont;
             }
-            if(unityFontDefinition.HasValue) {
-                element.style.unityFontDefinition = unityFontDefinition.Value;
+            if(unityFontDefinition.IsNotNull()) {
+                element.style.unityFontDefinition = unityFontDefinition;
             }
-            if(unityFontStyleAndWeight.HasValue) {
-                element.style.unityFontStyleAndWeight = unityFontStyleAndWeight.Value;
+            if(unityFontStyleAndWeight.IsNotNull()) {
+                element.style.unityFontStyleAndWeight = unityFontStyleAndWeight;
             }
-            if(unityOverflowClipBox.HasValue) {
-                element.style.unityOverflowClipBox = unityOverflowClipBox.Value;
+            if(unityOverflowClipBox.IsNotNull()) {
+                element.style.unityOverflowClipBox = unityOverflowClipBox;
             }
-            if(unityParagraphSpacing.HasValue) {
-                element.style.unityParagraphSpacing = unityParagraphSpacing.Value;
+            if(unityParagraphSpacing.IsNotNull()) {
+                element.style.unityParagraphSpacing = unityParagraphSpacing;
             }
-            if(unitySliceBottom.HasValue) {
-                element.style.unitySliceBottom = unitySliceBottom.Value;
+            if(unitySliceBottom.IsNotNull()) {
+                element.style.unitySliceBottom = unitySliceBottom;
             }
-            if(unitySliceLeft.HasValue) {
-                element.style.unitySliceLeft = unitySliceLeft.Value;
+            if(unitySliceLeft.IsNotNull()) {
+                element.style.unitySliceLeft = unitySliceLeft;
             }
-            if(unitySliceRight.HasValue) {
-                element.style.unitySliceRight = unitySliceRight.Value;
+            if(unitySliceRight.IsNotNull()) {
+                element.style.unitySliceRight = unitySliceRight;
             }
-            if(unitySliceTop.HasValue) {
-                element.style.unitySliceTop = unitySliceTop.Value;
+            if(unitySliceTop.IsNotNull()) {
+                element.style.unitySliceTop = unitySliceTop;
             }
-            if(unityTextAlign.HasValue) {
-                element.style.unityTextAlign = unityTextAlign.Value;
+            if(unityTextAlign.IsNotNull()) {
+                element.style.unityTextAlign = unityTextAlign;
             }
-            if(unityTextOutlineColor.HasValue) {
-                element.style.unityTextOutlineColor = unityTextOutlineColor.Value;
+            if(unityTextOutlineColor.IsNotNull()) {
+                element.style.unityTextOutlineColor = unityTextOutlineColor;
             }
-            if(unityTextOutlineWidth.HasValue) {
-                element.style.unityTextOutlineWidth = unityTextOutlineWidth.Value;
+            if(unityTextOutlineWidth.IsNotNull()) {
+                element.style.unityTextOutlineWidth = unityTextOutlineWidth;
             }
-            if(unityTextOverflowPosition.HasValue) {
-                element.style.unityTextOverflowPosition = unityTextOverflowPosition.Value;
+            if(unityTextOverflowPosition.IsNotNull()) {
+                element.style.unityTextOverflowPosition = unityTextOverflowPosition;
             }
-            if(visibility.HasValue) {
-                element.style.visibility = visibility.Value;
+            if(visibility.IsNotNull()) {
+                element.style.visibility = visibility;
             }
-            if(whiteSpace.HasValue) {
-                element.style.whiteSpace = whiteSpace.Value;
+            if(whiteSpace.IsNotNull()) {
+                element.style.whiteSpace = whiteSpace;
             }
-            if(width.HasValue) {
-                element.style.width = width.Value;
+            if(width.IsNotNull()) {
+                element.style.width = width;
             }
-            if(wordSpacing.HasValue) {
-                element.style.wordSpacing = wordSpacing.Value;
+            if(wordSpacing.IsNotNull()) {
+                element.style.wordSpacing = wordSpacing;
             }
-
-            // TODO: Set inline
-            if (pointerDetection.HasValue)
+            
+            if (pointerDetection.IsNotNull())
             {
-                var value = pointerDetection.Value;
-                PointerDetectionMode detectionMode;
-                switch (value.keyword)
+                var detectionMode = pointerDetection.keyword switch
                 {
-                    case StyleKeyword.Undefined:
-                        detectionMode = value.value;
-                        break;
-                    case StyleKeyword.None:
-                        detectionMode = PointerDetectionMode.Ignore;
-                        break;
-                    default:
-                        detectionMode = PointerDetectionMode.Rect;
-                        break;
-                }
-                
-                if (value.keyword == StyleKeyword.Undefined)
+                    RishStyleKeyword.Undefined => pointerDetection.value,
+                    RishStyleKeyword.None => PointerDetectionMode.Ignore,
+                    _ => PointerDetectionMode.Rect
+                };
+                if (element is IAdvancedPicking advancedPicking)
                 {
-                    if (element is IAdvancedPicking manualRaycast)
-                    {
-                        manualRaycast.Manager.InlinePointerDetection = detectionMode;
-                    }
+                    advancedPicking.Manager.InlinePointerDetection = detectionMode;
                 }
             }
         }
@@ -433,84 +421,86 @@ namespace RishUI
             {
                 throw new ArgumentNullException(nameof(element));
             }
+
+            var nullValue = RishStyleKeyword.Null.ToNative();
             
-            element.style.alignContent = StyleKeyword.Null;
-            element.style.alignItems = StyleKeyword.Null;
-            element.style.alignSelf = StyleKeyword.Null;
-            element.style.backgroundColor = StyleKeyword.Null;
-            element.style.backgroundImage = StyleKeyword.Null;
-            element.style.borderBottomColor = StyleKeyword.Null;
-            element.style.borderBottomLeftRadius = StyleKeyword.Null;
-            element.style.borderBottomRightRadius = StyleKeyword.Null;
-            element.style.borderBottomWidth = StyleKeyword.Null;
-            element.style.borderLeftColor = StyleKeyword.Null;
-            element.style.borderLeftWidth = StyleKeyword.Null;
-            element.style.borderRightColor = StyleKeyword.Null;
-            element.style.borderRightWidth = StyleKeyword.Null;
-            element.style.borderTopColor = StyleKeyword.Null;
-            element.style.borderTopLeftRadius = StyleKeyword.Null;
-            element.style.borderTopRightRadius = StyleKeyword.Null;
-            element.style.borderTopWidth = StyleKeyword.Null;
-            element.style.bottom = StyleKeyword.Null;
-            element.style.color = StyleKeyword.Null;
-            element.style.cursor = StyleKeyword.Null;
-            element.style.display = StyleKeyword.Null;
-            element.style.flexBasis = StyleKeyword.Null;
-            element.style.flexDirection = StyleKeyword.Null;
-            element.style.flexGrow = StyleKeyword.Null;
-            element.style.flexShrink = StyleKeyword.Null;
-            element.style.flexWrap = StyleKeyword.Null;
-            element.style.fontSize = StyleKeyword.Null;
-            element.style.height = StyleKeyword.Null;
-            element.style.justifyContent = StyleKeyword.Null;
-            element.style.left = StyleKeyword.Null;
-            element.style.letterSpacing = StyleKeyword.Null;
-            element.style.marginBottom = StyleKeyword.Null;
-            element.style.marginLeft = StyleKeyword.Null;
-            element.style.marginRight = StyleKeyword.Null;
-            element.style.marginTop = StyleKeyword.Null;
-            element.style.maxHeight = StyleKeyword.Null;
-            element.style.maxWidth = StyleKeyword.Null;
-            element.style.minHeight = StyleKeyword.Null;
-            element.style.minWidth = StyleKeyword.Null;
-            element.style.opacity = StyleKeyword.Null;
-            element.style.overflow = StyleKeyword.Null;
-            element.style.paddingBottom = StyleKeyword.Null;
-            element.style.paddingLeft = StyleKeyword.Null;
-            element.style.paddingRight = StyleKeyword.Null;
-            element.style.paddingTop = StyleKeyword.Null;
-            element.style.position = StyleKeyword.Null;
-            element.style.right = StyleKeyword.Null;
-            element.style.rotate = StyleKeyword.Null;
-            element.style.scale = StyleKeyword.Null;
-            element.style.textOverflow = StyleKeyword.Null;
-            element.style.textShadow = StyleKeyword.Null;
-            element.style.top = StyleKeyword.Null;
-            element.style.transformOrigin = StyleKeyword.Null;
-            element.style.transitionDelay = StyleKeyword.Null;
-            element.style.transitionDuration = StyleKeyword.Null;
-            element.style.transitionProperty = StyleKeyword.Null;
-            element.style.transitionTimingFunction = StyleKeyword.Null;
-            element.style.translate = StyleKeyword.Null;
-            element.style.unityBackgroundImageTintColor = StyleKeyword.Null;
-            element.style.unityBackgroundScaleMode = StyleKeyword.Null;
-            element.style.unityFont = StyleKeyword.Null;
-            element.style.unityFontDefinition = StyleKeyword.Null;
-            element.style.unityFontStyleAndWeight = StyleKeyword.Null;
-            element.style.unityOverflowClipBox = StyleKeyword.Null;
-            element.style.unityParagraphSpacing = StyleKeyword.Null;
-            element.style.unitySliceBottom = StyleKeyword.Null;
-            element.style.unitySliceLeft = StyleKeyword.Null;
-            element.style.unitySliceRight = StyleKeyword.Null;
-            element.style.unitySliceTop = StyleKeyword.Null;
-            element.style.unityTextAlign = StyleKeyword.Null;
-            element.style.unityTextOutlineColor = StyleKeyword.Null;
-            element.style.unityTextOutlineWidth = StyleKeyword.Null;
-            element.style.unityTextOverflowPosition = StyleKeyword.Null;
-            element.style.visibility = StyleKeyword.Null;
-            element.style.whiteSpace = StyleKeyword.Null;
-            element.style.width = StyleKeyword.Null;
-            element.style.wordSpacing = StyleKeyword.Null;
+            element.style.alignContent = nullValue;
+            element.style.alignItems = nullValue;
+            element.style.alignSelf = nullValue;
+            element.style.backgroundColor = nullValue;
+            element.style.backgroundImage = nullValue;
+            element.style.borderBottomColor = nullValue;
+            element.style.borderBottomLeftRadius = nullValue;
+            element.style.borderBottomRightRadius = nullValue;
+            element.style.borderBottomWidth = nullValue;
+            element.style.borderLeftColor = nullValue;
+            element.style.borderLeftWidth = nullValue;
+            element.style.borderRightColor = nullValue;
+            element.style.borderRightWidth = nullValue;
+            element.style.borderTopColor = nullValue;
+            element.style.borderTopLeftRadius = nullValue;
+            element.style.borderTopRightRadius = nullValue;
+            element.style.borderTopWidth = nullValue;
+            element.style.bottom = nullValue;
+            element.style.color = nullValue;
+            element.style.cursor = nullValue;
+            element.style.display = nullValue;
+            element.style.flexBasis = nullValue;
+            element.style.flexDirection = nullValue;
+            element.style.flexGrow = nullValue;
+            element.style.flexShrink = nullValue;
+            element.style.flexWrap = nullValue;
+            element.style.fontSize = nullValue;
+            element.style.height = nullValue;
+            element.style.justifyContent = nullValue;
+            element.style.left = nullValue;
+            element.style.letterSpacing = nullValue;
+            element.style.marginBottom = nullValue;
+            element.style.marginLeft = nullValue;
+            element.style.marginRight = nullValue;
+            element.style.marginTop = nullValue;
+            element.style.maxHeight = nullValue;
+            element.style.maxWidth = nullValue;
+            element.style.minHeight = nullValue;
+            element.style.minWidth = nullValue;
+            element.style.opacity = nullValue;
+            element.style.overflow = nullValue;
+            element.style.paddingBottom = nullValue;
+            element.style.paddingLeft = nullValue;
+            element.style.paddingRight = nullValue;
+            element.style.paddingTop = nullValue;
+            element.style.position = nullValue;
+            element.style.right = nullValue;
+            element.style.rotate = nullValue;
+            element.style.scale = nullValue;
+            element.style.textOverflow = nullValue;
+            element.style.textShadow = nullValue;
+            element.style.top = nullValue;
+            element.style.transformOrigin = nullValue;
+            element.style.transitionDelay = nullValue;
+            element.style.transitionDuration = nullValue;
+            element.style.transitionProperty = nullValue;
+            element.style.transitionTimingFunction = nullValue;
+            element.style.translate = nullValue;
+            element.style.unityBackgroundImageTintColor = nullValue;
+            element.style.unityBackgroundScaleMode = nullValue;
+            element.style.unityFont = nullValue;
+            element.style.unityFontDefinition = nullValue;
+            element.style.unityFontStyleAndWeight = nullValue;
+            element.style.unityOverflowClipBox = nullValue;
+            element.style.unityParagraphSpacing = nullValue;
+            element.style.unitySliceBottom = nullValue;
+            element.style.unitySliceLeft = nullValue;
+            element.style.unitySliceRight = nullValue;
+            element.style.unitySliceTop = nullValue;
+            element.style.unityTextAlign = nullValue;
+            element.style.unityTextOutlineColor = nullValue;
+            element.style.unityTextOutlineWidth = nullValue;
+            element.style.unityTextOverflowPosition = nullValue;
+            element.style.visibility = nullValue;
+            element.style.whiteSpace = nullValue;
+            element.style.width = nullValue;
+            element.style.wordSpacing = nullValue;
             
             if (element is IAdvancedPicking advancedPicking)
             {
@@ -518,244 +508,245 @@ namespace RishUI
             }
         }
 
+        // TODO: Double check usage of Equals functions
         [Comparer]
         public static bool Equals(Style a, Style b)
         {
             return
-                (a.alignContent.HasValue && b.alignContent.HasValue
-                    ? a.alignContent.Value.Equals(b.alignContent.Value)
-                    : a.alignContent.HasValue == b.alignContent.HasValue) &&
-                (a.alignItems.HasValue && b.alignItems.HasValue
-                    ? a.alignItems.Value.Equals(b.alignItems.Value)
-                    : a.alignItems.HasValue == b.alignItems.HasValue) &&
-                (a.alignSelf.HasValue && b.alignSelf.HasValue
-                    ? a.alignSelf.Value.Equals(b.alignSelf.Value)
-                    : a.alignSelf.HasValue == b.alignSelf.HasValue) &&
-                (a.backgroundColor.HasValue && b.backgroundColor.HasValue
-                    ? a.backgroundColor.Value.Equals(b.backgroundColor.Value)
-                    : a.backgroundColor.HasValue == b.backgroundColor.HasValue) &&
-                (a.backgroundImage.HasValue && b.backgroundImage.HasValue
-                    ? a.backgroundImage.Value.Equals(b.backgroundImage.Value)
-                    : a.backgroundImage.HasValue == b.backgroundImage.HasValue) &&
-                (a.borderBottomColor.HasValue && b.borderBottomColor.HasValue
-                    ? a.borderBottomColor.Value.Equals(b.borderBottomColor.Value)
-                    : a.borderBottomColor.HasValue == b.borderBottomColor.HasValue) &&
-                (a.borderBottomLeftRadius.HasValue && b.borderBottomLeftRadius.HasValue
-                    ? a.borderBottomLeftRadius.Value.Equals(b.borderBottomLeftRadius.Value)
-                    : a.borderBottomLeftRadius.HasValue == b.borderBottomLeftRadius.HasValue) &&
-                (a.borderBottomRightRadius.HasValue && b.borderBottomRightRadius.HasValue
-                    ? a.borderBottomRightRadius.Value.Equals(b.borderBottomRightRadius.Value)
-                    : a.borderBottomRightRadius.HasValue == b.borderBottomRightRadius.HasValue) &&
-                (a.borderBottomWidth.HasValue && b.borderBottomWidth.HasValue
-                    ? a.borderBottomWidth.Value.Equals(b.borderBottomWidth.Value)
-                    : a.borderBottomWidth.HasValue == b.borderBottomWidth.HasValue) &&
-                (a.borderLeftColor.HasValue && b.borderLeftColor.HasValue
-                    ? a.borderLeftColor.Value.Equals(b.borderLeftColor.Value)
-                    : a.borderLeftColor.HasValue == b.borderLeftColor.HasValue) &&
-                (a.borderLeftWidth.HasValue && b.borderLeftWidth.HasValue
-                    ? a.borderLeftWidth.Value.Equals(b.borderLeftWidth.Value)
-                    : a.borderLeftWidth.HasValue == b.borderLeftWidth.HasValue) &&
-                (a.borderRightColor.HasValue && b.borderRightColor.HasValue
-                    ? a.borderRightColor.Value.Equals(b.borderRightColor.Value)
-                    : a.borderRightColor.HasValue == b.borderRightColor.HasValue) &&
-                (a.borderRightWidth.HasValue && b.borderRightWidth.HasValue
-                    ? a.borderRightWidth.Value.Equals(b.borderRightWidth.Value)
-                    : a.borderRightWidth.HasValue == b.borderRightWidth.HasValue) &&
-                (a.borderTopColor.HasValue && b.borderTopColor.HasValue
-                    ? a.borderTopColor.Value.Equals(b.borderTopColor.Value)
-                    : a.borderTopColor.HasValue == b.borderTopColor.HasValue) &&
-                (a.borderTopLeftRadius.HasValue && b.borderTopLeftRadius.HasValue
-                    ? a.borderTopLeftRadius.Value.Equals(b.borderTopLeftRadius.Value)
-                    : a.borderTopLeftRadius.HasValue == b.borderTopLeftRadius.HasValue) &&
-                (a.borderTopRightRadius.HasValue && b.borderTopRightRadius.HasValue
-                    ? a.borderTopRightRadius.Value.Equals(b.borderTopRightRadius.Value)
-                    : a.borderTopRightRadius.HasValue == b.borderTopRightRadius.HasValue) &&
-                (a.borderTopWidth.HasValue && b.borderTopWidth.HasValue
-                    ? a.borderTopWidth.Value.Equals(b.borderTopWidth.Value)
-                    : a.borderTopWidth.HasValue == b.borderTopWidth.HasValue) &&
-                (a.bottom.HasValue && b.bottom.HasValue
-                    ? a.bottom.Value.Equals(b.bottom.Value)
-                    : a.bottom.HasValue == b.bottom.HasValue) &&
-                (a.color.HasValue && b.color.HasValue
-                    ? a.color.Value.Equals(b.color.Value)
-                    : a.color.HasValue == b.color.HasValue) &&
-                (a.cursor.HasValue && b.cursor.HasValue
-                    ? a.cursor.Value.Equals(b.cursor.Value)
-                    : a.cursor.HasValue == b.cursor.HasValue) &&
-                (a.display.HasValue && b.display.HasValue
-                    ? a.display.Value.Equals(b.display.Value)
-                    : a.display.HasValue == b.display.HasValue) &&
-                (a.flexBasis.HasValue && b.flexBasis.HasValue
-                    ? a.flexBasis.Value.Equals(b.flexBasis.Value)
-                    : a.flexBasis.HasValue == b.flexBasis.HasValue) &&
-                (a.flexDirection.HasValue && b.flexDirection.HasValue
-                    ? a.flexDirection.Value.Equals(b.flexDirection.Value)
-                    : a.flexDirection.HasValue == b.flexDirection.HasValue) &&
-                (a.flexGrow.HasValue && b.flexGrow.HasValue
-                    ? a.flexGrow.Value.Equals(b.flexGrow.Value)
-                    : a.flexGrow.HasValue == b.flexGrow.HasValue) &&
-                (a.flexShrink.HasValue && b.flexShrink.HasValue
-                    ? a.flexShrink.Value.Equals(b.flexShrink.Value)
-                    : a.flexShrink.HasValue == b.flexShrink.HasValue) &&
-                (a.flexWrap.HasValue && b.flexWrap.HasValue
-                    ? a.flexWrap.Value.Equals(b.flexWrap.Value)
-                    : a.flexWrap.HasValue == b.flexWrap.HasValue) &&
-                (a.fontSize.HasValue && b.fontSize.HasValue
-                    ? a.fontSize.Value.Equals(b.fontSize.Value)
-                    : a.fontSize.HasValue == b.fontSize.HasValue) &&
-                (a.height.HasValue && b.height.HasValue
-                    ? a.height.Value.Equals(b.height.Value)
-                    : a.height.HasValue == b.height.HasValue) &&
-                (a.justifyContent.HasValue && b.justifyContent.HasValue
-                    ? a.justifyContent.Value.Equals(b.justifyContent.Value)
-                    : a.justifyContent.HasValue == b.justifyContent.HasValue) &&
-                (a.left.HasValue && b.left.HasValue
-                    ? a.left.Value.Equals(b.left.Value)
-                    : a.left.HasValue == b.left.HasValue) &&
-                (a.letterSpacing.HasValue && b.letterSpacing.HasValue
-                    ? a.letterSpacing.Value.Equals(b.letterSpacing.Value)
-                    : a.letterSpacing.HasValue == b.letterSpacing.HasValue) &&
-                (a.marginBottom.HasValue && b.marginBottom.HasValue
-                    ? a.marginBottom.Value.Equals(b.marginBottom.Value)
-                    : a.marginBottom.HasValue == b.marginBottom.HasValue) &&
-                (a.marginLeft.HasValue && b.marginLeft.HasValue
-                    ? a.marginLeft.Value.Equals(b.marginLeft.Value)
-                    : a.marginLeft.HasValue == b.marginLeft.HasValue) &&
-                (a.marginRight.HasValue && b.marginRight.HasValue
-                    ? a.marginRight.Value.Equals(b.marginRight.Value)
-                    : a.marginRight.HasValue == b.marginRight.HasValue) &&
-                (a.marginTop.HasValue && b.marginTop.HasValue
-                    ? a.marginTop.Value.Equals(b.marginTop.Value)
-                    : a.marginTop.HasValue == b.marginTop.HasValue) &&
-                (a.maxHeight.HasValue && b.maxHeight.HasValue
-                    ? a.maxHeight.Value.Equals(b.maxHeight.Value)
-                    : a.maxHeight.HasValue == b.maxHeight.HasValue) &&
-                (a.maxWidth.HasValue && b.maxWidth.HasValue
-                    ? a.maxWidth.Value.Equals(b.maxWidth.Value)
-                    : a.maxWidth.HasValue == b.maxWidth.HasValue) &&
-                (a.minHeight.HasValue && b.minHeight.HasValue
-                    ? a.minHeight.Value.Equals(b.minHeight.Value)
-                    : a.minHeight.HasValue == b.minHeight.HasValue) &&
-                (a.minWidth.HasValue && b.minWidth.HasValue
-                    ? a.minWidth.Value.Equals(b.minWidth.Value)
-                    : a.minWidth.HasValue == b.minWidth.HasValue) &&
-                (a.opacity.HasValue && b.opacity.HasValue
-                    ? a.opacity.Value.Equals(b.opacity.Value)
-                    : a.opacity.HasValue == b.opacity.HasValue) &&
-                (a.overflow.HasValue && b.overflow.HasValue
-                    ? a.overflow.Value.Equals(b.overflow.Value)
-                    : a.overflow.HasValue == b.overflow.HasValue) &&
-                (a.paddingBottom.HasValue && b.paddingBottom.HasValue
-                    ? a.paddingBottom.Value.Equals(b.paddingBottom.Value)
-                    : a.paddingBottom.HasValue == b.paddingBottom.HasValue) &&
-                (a.paddingLeft.HasValue && b.paddingLeft.HasValue
-                    ? a.paddingLeft.Value.Equals(b.paddingLeft.Value)
-                    : a.paddingLeft.HasValue == b.paddingLeft.HasValue) &&
-                (a.paddingRight.HasValue && b.paddingRight.HasValue
-                    ? a.paddingRight.Value.Equals(b.paddingRight.Value)
-                    : a.paddingRight.HasValue == b.paddingRight.HasValue) &&
-                (a.paddingTop.HasValue && b.paddingTop.HasValue
-                    ? a.paddingTop.Value.Equals(b.paddingTop.Value)
-                    : a.paddingTop.HasValue == b.paddingTop.HasValue) &&
-                (a.position.HasValue && b.position.HasValue
-                    ? a.position.Value.Equals(b.position.Value)
-                    : a.position.HasValue == b.position.HasValue) &&
-                (a.right.HasValue && b.right.HasValue
-                    ? a.right.Value.Equals(b.right.Value)
-                    : a.right.HasValue == b.right.HasValue) &&
-                (a.rotate.HasValue && b.rotate.HasValue
-                    ? a.rotate.Value.Equals(b.rotate.Value)
-                    : a.rotate.HasValue == b.rotate.HasValue) &&
-                (a.scale.HasValue && b.scale.HasValue
-                    ? a.scale.Value.Equals(b.scale.Value)
-                    : a.scale.HasValue == b.scale.HasValue) &&
-                (a.textOverflow.HasValue && b.textOverflow.HasValue
-                    ? a.textOverflow.Value.Equals(b.textOverflow.Value)
-                    : a.textOverflow.HasValue == b.textOverflow.HasValue) &&
-                (a.textShadow.HasValue && b.textShadow.HasValue
-                    ? a.textShadow.Value.Equals(b.textShadow.Value)
-                    : a.textShadow.HasValue == b.textShadow.HasValue) &&
-                (a.top.HasValue && b.top.HasValue
-                    ? a.top.Value.Equals(b.top.Value)
-                    : a.top.HasValue == b.top.HasValue) &&
-                (a.transformOrigin.HasValue && b.transformOrigin.HasValue
-                    ? a.transformOrigin.Value.Equals(b.transformOrigin.Value)
-                    : a.transformOrigin.HasValue == b.transformOrigin.HasValue) &&
-                (a.transitionDelay.HasValue && b.transitionDelay.HasValue
-                    ? a.transitionDelay.Value.Equals(b.transitionDelay.Value)
-                    : a.transitionDelay.HasValue == b.transitionDelay.HasValue) &&
-                (a.transitionDuration.HasValue && b.transitionDuration.HasValue
-                    ? a.transitionDuration.Value.Equals(b.transitionDuration.Value)
-                    : a.transitionDuration.HasValue == b.transitionDuration.HasValue) &&
-                (a.transitionProperty.HasValue && b.transitionProperty.HasValue
-                    ? a.transitionProperty.Value.Equals(b.transitionProperty.Value)
-                    : a.transitionProperty.HasValue == b.transitionProperty.HasValue) &&
-                (a.transitionTimingFunction.HasValue && b.transitionTimingFunction.HasValue
-                    ? a.transitionTimingFunction.Value.Equals(b.transitionTimingFunction.Value)
-                    : a.transitionTimingFunction.HasValue == b.transitionTimingFunction.HasValue) &&
-                (a.translate.HasValue && b.translate.HasValue
-                    ? a.translate.Value.Equals(b.translate.Value)
-                    : a.translate.HasValue == b.translate.HasValue) &&
-                (a.unityBackgroundImageTintColor.HasValue && b.unityBackgroundImageTintColor.HasValue
-                    ? a.unityBackgroundImageTintColor.Value.Equals(b.unityBackgroundImageTintColor.Value)
-                    : a.unityBackgroundImageTintColor.HasValue == b.unityBackgroundImageTintColor.HasValue) &&
-                (a.unityBackgroundScaleMode.HasValue && b.unityBackgroundScaleMode.HasValue
-                    ? a.unityBackgroundScaleMode.Value.Equals(b.unityBackgroundScaleMode.Value)
-                    : a.unityBackgroundScaleMode.HasValue == b.unityBackgroundScaleMode.HasValue) &&
-                (a.unityFont.HasValue && b.unityFont.HasValue
-                    ? a.unityFont.Value.Equals(b.unityFont.Value)
-                    : a.unityFont.HasValue == b.unityFont.HasValue) &&
-                (a.unityFontDefinition.HasValue && b.unityFontDefinition.HasValue
-                    ? a.unityFontDefinition.Value.Equals(b.unityFontDefinition.Value)
-                    : a.unityFontDefinition.HasValue == b.unityFontDefinition.HasValue) &&
-                (a.unityFontStyleAndWeight.HasValue && b.unityFontStyleAndWeight.HasValue
-                    ? a.unityFontStyleAndWeight.Value.Equals(b.unityFontStyleAndWeight.Value)
-                    : a.unityFontStyleAndWeight.HasValue == b.unityFontStyleAndWeight.HasValue) &&
-                (a.unityOverflowClipBox.HasValue && b.unityOverflowClipBox.HasValue
-                    ? a.unityOverflowClipBox.Value.Equals(b.unityOverflowClipBox.Value)
-                    : a.unityOverflowClipBox.HasValue == b.unityOverflowClipBox.HasValue) &&
-                (a.unityParagraphSpacing.HasValue && b.unityParagraphSpacing.HasValue
-                    ? a.unityParagraphSpacing.Value.Equals(b.unityParagraphSpacing.Value)
-                    : a.unityParagraphSpacing.HasValue == b.unityParagraphSpacing.HasValue) &&
-                (a.unitySliceBottom.HasValue && b.unitySliceBottom.HasValue
-                    ? a.unitySliceBottom.Value.Equals(b.unitySliceBottom.Value)
-                    : a.unitySliceBottom.HasValue == b.unitySliceBottom.HasValue) &&
-                (a.unitySliceLeft.HasValue && b.unitySliceLeft.HasValue
-                    ? a.unitySliceLeft.Value.Equals(b.unitySliceLeft.Value)
-                    : a.unitySliceLeft.HasValue == b.unitySliceLeft.HasValue) &&
-                (a.unitySliceRight.HasValue && b.unitySliceRight.HasValue
-                    ? a.unitySliceRight.Value.Equals(b.unitySliceRight.Value)
-                    : a.unitySliceRight.HasValue == b.unitySliceRight.HasValue) &&
-                (a.unitySliceTop.HasValue && b.unitySliceTop.HasValue
-                    ? a.unitySliceTop.Value.Equals(b.unitySliceTop.Value)
-                    : a.unitySliceTop.HasValue == b.unitySliceTop.HasValue) &&
-                (a.unityTextAlign.HasValue && b.unityTextAlign.HasValue
-                    ? a.unityTextAlign.Value.Equals(b.unityTextAlign.Value)
-                    : a.unityTextAlign.HasValue == b.unityTextAlign.HasValue) &&
-                (a.unityTextOutlineColor.HasValue && b.unityTextOutlineColor.HasValue
-                    ? a.unityTextOutlineColor.Value.Equals(b.unityTextOutlineColor.Value)
-                    : a.unityTextOutlineColor.HasValue == b.unityTextOutlineColor.HasValue) &&
-                (a.unityTextOutlineWidth.HasValue && b.unityTextOutlineWidth.HasValue
-                    ? a.unityTextOutlineWidth.Value.Equals(b.unityTextOutlineWidth.Value)
-                    : a.unityTextOutlineWidth.HasValue == b.unityTextOutlineWidth.HasValue) &&
-                (a.unityTextOverflowPosition.HasValue && b.unityTextOverflowPosition.HasValue
-                    ? a.unityTextOverflowPosition.Value.Equals(b.unityTextOverflowPosition.Value)
-                    : a.unityTextOverflowPosition.HasValue == b.unityTextOverflowPosition.HasValue) &&
-                (a.visibility.HasValue && b.visibility.HasValue
-                    ? a.visibility.Value.Equals(b.visibility.Value)
-                    : a.visibility.HasValue == b.visibility.HasValue) &&
-                (a.whiteSpace.HasValue && b.whiteSpace.HasValue
-                    ? a.whiteSpace.Value.Equals(b.whiteSpace.Value)
-                    : a.whiteSpace.HasValue == b.whiteSpace.HasValue) &&
-                (a.width.HasValue && b.width.HasValue
-                    ? a.width.Value.Equals(b.width.Value)
-                    : a.width.HasValue == b.width.HasValue) &&
-                (a.wordSpacing.HasValue && b.wordSpacing.HasValue
-                    ? a.wordSpacing.Value.Equals(b.wordSpacing.Value)
-                    : a.wordSpacing.HasValue == b.wordSpacing.HasValue) &&
-                (a.pointerDetection.HasValue && b.pointerDetection.HasValue
-                    ? a.pointerDetection.Value.Equals(b.pointerDetection.Value)
-                    : a.pointerDetection.HasValue == b.pointerDetection.HasValue);
+                (a.alignContent.IsNotNull() && b.alignContent.IsNotNull()
+                    ? a.alignContent.value.Equals(b.alignContent.value)
+                    : a.alignContent.IsNotNull() == b.alignContent.IsNotNull()) &&
+                (a.alignItems.IsNotNull() && b.alignItems.IsNotNull()
+                    ? a.alignItems.value.Equals(b.alignItems.value)
+                    : a.alignItems.IsNotNull() == b.alignItems.IsNotNull()) &&
+                (a.alignSelf.IsNotNull() && b.alignSelf.IsNotNull()
+                    ? a.alignSelf.value.Equals(b.alignSelf.value)
+                    : a.alignSelf.IsNotNull() == b.alignSelf.IsNotNull()) &&
+                (a.backgroundColor.IsNotNull() && b.backgroundColor.IsNotNull()
+                    ? a.backgroundColor.value.Equals(b.backgroundColor.value)
+                    : a.backgroundColor.IsNotNull() == b.backgroundColor.IsNotNull()) &&
+                (a.backgroundImage.IsNotNull() && b.backgroundImage.IsNotNull()
+                    ? a.backgroundImage.value.Equals(b.backgroundImage.value)
+                    : a.backgroundImage.IsNotNull() == b.backgroundImage.IsNotNull()) &&
+                (a.borderBottomColor.IsNotNull() && b.borderBottomColor.IsNotNull()
+                    ? a.borderBottomColor.value.Equals(b.borderBottomColor.value)
+                    : a.borderBottomColor.IsNotNull() == b.borderBottomColor.IsNotNull()) &&
+                (a.borderBottomLeftRadius.IsNotNull() && b.borderBottomLeftRadius.IsNotNull()
+                    ? a.borderBottomLeftRadius.value.Equals(b.borderBottomLeftRadius.value)
+                    : a.borderBottomLeftRadius.IsNotNull() == b.borderBottomLeftRadius.IsNotNull()) &&
+                (a.borderBottomRightRadius.IsNotNull() && b.borderBottomRightRadius.IsNotNull()
+                    ? a.borderBottomRightRadius.value.Equals(b.borderBottomRightRadius.value)
+                    : a.borderBottomRightRadius.IsNotNull() == b.borderBottomRightRadius.IsNotNull()) &&
+                (a.borderBottomWidth.IsNotNull() && b.borderBottomWidth.IsNotNull()
+                    ? a.borderBottomWidth.value.Equals(b.borderBottomWidth.value)
+                    : a.borderBottomWidth.IsNotNull() == b.borderBottomWidth.IsNotNull()) &&
+                (a.borderLeftColor.IsNotNull() && b.borderLeftColor.IsNotNull()
+                    ? a.borderLeftColor.value.Equals(b.borderLeftColor.value)
+                    : a.borderLeftColor.IsNotNull() == b.borderLeftColor.IsNotNull()) &&
+                (a.borderLeftWidth.IsNotNull() && b.borderLeftWidth.IsNotNull()
+                    ? a.borderLeftWidth.value.Equals(b.borderLeftWidth.value)
+                    : a.borderLeftWidth.IsNotNull() == b.borderLeftWidth.IsNotNull()) &&
+                (a.borderRightColor.IsNotNull() && b.borderRightColor.IsNotNull()
+                    ? a.borderRightColor.value.Equals(b.borderRightColor.value)
+                    : a.borderRightColor.IsNotNull() == b.borderRightColor.IsNotNull()) &&
+                (a.borderRightWidth.IsNotNull() && b.borderRightWidth.IsNotNull()
+                    ? a.borderRightWidth.value.Equals(b.borderRightWidth.value)
+                    : a.borderRightWidth.IsNotNull() == b.borderRightWidth.IsNotNull()) &&
+                (a.borderTopColor.IsNotNull() && b.borderTopColor.IsNotNull()
+                    ? a.borderTopColor.value.Equals(b.borderTopColor.value)
+                    : a.borderTopColor.IsNotNull() == b.borderTopColor.IsNotNull()) &&
+                (a.borderTopLeftRadius.IsNotNull() && b.borderTopLeftRadius.IsNotNull()
+                    ? a.borderTopLeftRadius.value.Equals(b.borderTopLeftRadius.value)
+                    : a.borderTopLeftRadius.IsNotNull() == b.borderTopLeftRadius.IsNotNull()) &&
+                (a.borderTopRightRadius.IsNotNull() && b.borderTopRightRadius.IsNotNull()
+                    ? a.borderTopRightRadius.value.Equals(b.borderTopRightRadius.value)
+                    : a.borderTopRightRadius.IsNotNull() == b.borderTopRightRadius.IsNotNull()) &&
+                (a.borderTopWidth.IsNotNull() && b.borderTopWidth.IsNotNull()
+                    ? a.borderTopWidth.value.Equals(b.borderTopWidth.value)
+                    : a.borderTopWidth.IsNotNull() == b.borderTopWidth.IsNotNull()) &&
+                (a.bottom.IsNotNull() && b.bottom.IsNotNull()
+                    ? a.bottom.value.Equals(b.bottom.value)
+                    : a.bottom.IsNotNull() == b.bottom.IsNotNull()) &&
+                (a.color.IsNotNull() && b.color.IsNotNull()
+                    ? a.color.value.Equals(b.color.value)
+                    : a.color.IsNotNull() == b.color.IsNotNull()) &&
+                (a.cursor.IsNotNull() && b.cursor.IsNotNull()
+                    ? a.cursor.value.Equals(b.cursor.value)
+                    : a.cursor.IsNotNull() == b.cursor.IsNotNull()) &&
+                (a.display.IsNotNull() && b.display.IsNotNull()
+                    ? a.display.value.Equals(b.display.value)
+                    : a.display.IsNotNull() == b.display.IsNotNull()) &&
+                (a.flexBasis.IsNotNull() && b.flexBasis.IsNotNull()
+                    ? a.flexBasis.value.Equals(b.flexBasis.value)
+                    : a.flexBasis.IsNotNull() == b.flexBasis.IsNotNull()) &&
+                (a.flexDirection.IsNotNull() && b.flexDirection.IsNotNull()
+                    ? a.flexDirection.value.Equals(b.flexDirection.value)
+                    : a.flexDirection.IsNotNull() == b.flexDirection.IsNotNull()) &&
+                (a.flexGrow.IsNotNull() && b.flexGrow.IsNotNull()
+                    ? a.flexGrow.value.Equals(b.flexGrow.value)
+                    : a.flexGrow.IsNotNull() == b.flexGrow.IsNotNull()) &&
+                (a.flexShrink.IsNotNull() && b.flexShrink.IsNotNull()
+                    ? a.flexShrink.value.Equals(b.flexShrink.value)
+                    : a.flexShrink.IsNotNull() == b.flexShrink.IsNotNull()) &&
+                (a.flexWrap.IsNotNull() && b.flexWrap.IsNotNull()
+                    ? a.flexWrap.value.Equals(b.flexWrap.value)
+                    : a.flexWrap.IsNotNull() == b.flexWrap.IsNotNull()) &&
+                (a.fontSize.IsNotNull() && b.fontSize.IsNotNull()
+                    ? a.fontSize.value.Equals(b.fontSize.value)
+                    : a.fontSize.IsNotNull() == b.fontSize.IsNotNull()) &&
+                (a.height.IsNotNull() && b.height.IsNotNull()
+                    ? a.height.value.Equals(b.height.value)
+                    : a.height.IsNotNull() == b.height.IsNotNull()) &&
+                (a.justifyContent.IsNotNull() && b.justifyContent.IsNotNull()
+                    ? a.justifyContent.value.Equals(b.justifyContent.value)
+                    : a.justifyContent.IsNotNull() == b.justifyContent.IsNotNull()) &&
+                (a.left.IsNotNull() && b.left.IsNotNull()
+                    ? a.left.value.Equals(b.left.value)
+                    : a.left.IsNotNull() == b.left.IsNotNull()) &&
+                (a.letterSpacing.IsNotNull() && b.letterSpacing.IsNotNull()
+                    ? a.letterSpacing.value.Equals(b.letterSpacing.value)
+                    : a.letterSpacing.IsNotNull() == b.letterSpacing.IsNotNull()) &&
+                (a.marginBottom.IsNotNull() && b.marginBottom.IsNotNull()
+                    ? a.marginBottom.value.Equals(b.marginBottom.value)
+                    : a.marginBottom.IsNotNull() == b.marginBottom.IsNotNull()) &&
+                (a.marginLeft.IsNotNull() && b.marginLeft.IsNotNull()
+                    ? a.marginLeft.value.Equals(b.marginLeft.value)
+                    : a.marginLeft.IsNotNull() == b.marginLeft.IsNotNull()) &&
+                (a.marginRight.IsNotNull() && b.marginRight.IsNotNull()
+                    ? a.marginRight.value.Equals(b.marginRight.value)
+                    : a.marginRight.IsNotNull() == b.marginRight.IsNotNull()) &&
+                (a.marginTop.IsNotNull() && b.marginTop.IsNotNull()
+                    ? a.marginTop.value.Equals(b.marginTop.value)
+                    : a.marginTop.IsNotNull() == b.marginTop.IsNotNull()) &&
+                (a.maxHeight.IsNotNull() && b.maxHeight.IsNotNull()
+                    ? a.maxHeight.value.Equals(b.maxHeight.value)
+                    : a.maxHeight.IsNotNull() == b.maxHeight.IsNotNull()) &&
+                (a.maxWidth.IsNotNull() && b.maxWidth.IsNotNull()
+                    ? a.maxWidth.value.Equals(b.maxWidth.value)
+                    : a.maxWidth.IsNotNull() == b.maxWidth.IsNotNull()) &&
+                (a.minHeight.IsNotNull() && b.minHeight.IsNotNull()
+                    ? a.minHeight.value.Equals(b.minHeight.value)
+                    : a.minHeight.IsNotNull() == b.minHeight.IsNotNull()) &&
+                (a.minWidth.IsNotNull() && b.minWidth.IsNotNull()
+                    ? a.minWidth.value.Equals(b.minWidth.value)
+                    : a.minWidth.IsNotNull() == b.minWidth.IsNotNull()) &&
+                (a.opacity.IsNotNull() && b.opacity.IsNotNull()
+                    ? a.opacity.value.Equals(b.opacity.value)
+                    : a.opacity.IsNotNull() == b.opacity.IsNotNull()) &&
+                (a.overflow.IsNotNull() && b.overflow.IsNotNull()
+                    ? a.overflow.value.Equals(b.overflow.value)
+                    : a.overflow.IsNotNull() == b.overflow.IsNotNull()) &&
+                (a.paddingBottom.IsNotNull() && b.paddingBottom.IsNotNull()
+                    ? a.paddingBottom.value.Equals(b.paddingBottom.value)
+                    : a.paddingBottom.IsNotNull() == b.paddingBottom.IsNotNull()) &&
+                (a.paddingLeft.IsNotNull() && b.paddingLeft.IsNotNull()
+                    ? a.paddingLeft.value.Equals(b.paddingLeft.value)
+                    : a.paddingLeft.IsNotNull() == b.paddingLeft.IsNotNull()) &&
+                (a.paddingRight.IsNotNull() && b.paddingRight.IsNotNull()
+                    ? a.paddingRight.value.Equals(b.paddingRight.value)
+                    : a.paddingRight.IsNotNull() == b.paddingRight.IsNotNull()) &&
+                (a.paddingTop.IsNotNull() && b.paddingTop.IsNotNull()
+                    ? a.paddingTop.value.Equals(b.paddingTop.value)
+                    : a.paddingTop.IsNotNull() == b.paddingTop.IsNotNull()) &&
+                (a.position.IsNotNull() && b.position.IsNotNull()
+                    ? a.position.value.Equals(b.position.value)
+                    : a.position.IsNotNull() == b.position.IsNotNull()) &&
+                (a.right.IsNotNull() && b.right.IsNotNull()
+                    ? a.right.value.Equals(b.right.value)
+                    : a.right.IsNotNull() == b.right.IsNotNull()) &&
+                (a.rotate.IsNotNull() && b.rotate.IsNotNull()
+                    ? a.rotate.value.Equals(b.rotate.value)
+                    : a.rotate.IsNotNull() == b.rotate.IsNotNull()) &&
+                (a.scale.IsNotNull() && b.scale.IsNotNull()
+                    ? a.scale.value.Equals(b.scale.value)
+                    : a.scale.IsNotNull() == b.scale.IsNotNull()) &&
+                (a.textOverflow.IsNotNull() && b.textOverflow.IsNotNull()
+                    ? a.textOverflow.value.Equals(b.textOverflow.value)
+                    : a.textOverflow.IsNotNull() == b.textOverflow.IsNotNull()) &&
+                (a.textShadow.IsNotNull() && b.textShadow.IsNotNull()
+                    ? a.textShadow.value.Equals(b.textShadow.value)
+                    : a.textShadow.IsNotNull() == b.textShadow.IsNotNull()) &&
+                (a.top.IsNotNull() && b.top.IsNotNull()
+                    ? a.top.value.Equals(b.top.value)
+                    : a.top.IsNotNull() == b.top.IsNotNull()) &&
+                (a.transformOrigin.IsNotNull() && b.transformOrigin.IsNotNull()
+                    ? a.transformOrigin.value.Equals(b.transformOrigin.value)
+                    : a.transformOrigin.IsNotNull() == b.transformOrigin.IsNotNull()) &&
+                (a.transitionDelay.IsNotNull() && b.transitionDelay.IsNotNull()
+                    ? a.transitionDelay.value.Equals(b.transitionDelay.value)
+                    : a.transitionDelay.IsNotNull() == b.transitionDelay.IsNotNull()) &&
+                (a.transitionDuration.IsNotNull() && b.transitionDuration.IsNotNull()
+                    ? a.transitionDuration.value.Equals(b.transitionDuration.value)
+                    : a.transitionDuration.IsNotNull() == b.transitionDuration.IsNotNull()) &&
+                (a.transitionProperty.IsNotNull() && b.transitionProperty.IsNotNull()
+                    ? a.transitionProperty.value.Equals(b.transitionProperty.value)
+                    : a.transitionProperty.IsNotNull() == b.transitionProperty.IsNotNull()) &&
+                (a.transitionTimingFunction.IsNotNull() && b.transitionTimingFunction.IsNotNull()
+                    ? a.transitionTimingFunction.value.Equals(b.transitionTimingFunction.value)
+                    : a.transitionTimingFunction.IsNotNull() == b.transitionTimingFunction.IsNotNull()) &&
+                (a.translate.IsNotNull() && b.translate.IsNotNull()
+                    ? a.translate.value.Equals(b.translate.value)
+                    : a.translate.IsNotNull() == b.translate.IsNotNull()) &&
+                (a.unityBackgroundImageTintColor.IsNotNull() && b.unityBackgroundImageTintColor.IsNotNull()
+                    ? a.unityBackgroundImageTintColor.value.Equals(b.unityBackgroundImageTintColor.value)
+                    : a.unityBackgroundImageTintColor.IsNotNull() == b.unityBackgroundImageTintColor.IsNotNull()) &&
+                (a.unityBackgroundScaleMode.IsNotNull() && b.unityBackgroundScaleMode.IsNotNull()
+                    ? a.unityBackgroundScaleMode.value.Equals(b.unityBackgroundScaleMode.value)
+                    : a.unityBackgroundScaleMode.IsNotNull() == b.unityBackgroundScaleMode.IsNotNull()) &&
+                (a.unityFont.IsNotNull() && b.unityFont.IsNotNull()
+                    ? a.unityFont.value.Equals(b.unityFont.value)
+                    : a.unityFont.IsNotNull() == b.unityFont.IsNotNull()) &&
+                (a.unityFontDefinition.IsNotNull() && b.unityFontDefinition.IsNotNull()
+                    ? a.unityFontDefinition.value.Equals(b.unityFontDefinition.value)
+                    : a.unityFontDefinition.IsNotNull() == b.unityFontDefinition.IsNotNull()) &&
+                (a.unityFontStyleAndWeight.IsNotNull() && b.unityFontStyleAndWeight.IsNotNull()
+                    ? a.unityFontStyleAndWeight.value.Equals(b.unityFontStyleAndWeight.value)
+                    : a.unityFontStyleAndWeight.IsNotNull() == b.unityFontStyleAndWeight.IsNotNull()) &&
+                (a.unityOverflowClipBox.IsNotNull() && b.unityOverflowClipBox.IsNotNull()
+                    ? a.unityOverflowClipBox.value.Equals(b.unityOverflowClipBox.value)
+                    : a.unityOverflowClipBox.IsNotNull() == b.unityOverflowClipBox.IsNotNull()) &&
+                (a.unityParagraphSpacing.IsNotNull() && b.unityParagraphSpacing.IsNotNull()
+                    ? a.unityParagraphSpacing.value.Equals(b.unityParagraphSpacing.value)
+                    : a.unityParagraphSpacing.IsNotNull() == b.unityParagraphSpacing.IsNotNull()) &&
+                (a.unitySliceBottom.IsNotNull() && b.unitySliceBottom.IsNotNull()
+                    ? a.unitySliceBottom.value.Equals(b.unitySliceBottom.value)
+                    : a.unitySliceBottom.IsNotNull() == b.unitySliceBottom.IsNotNull()) &&
+                (a.unitySliceLeft.IsNotNull() && b.unitySliceLeft.IsNotNull()
+                    ? a.unitySliceLeft.value.Equals(b.unitySliceLeft.value)
+                    : a.unitySliceLeft.IsNotNull() == b.unitySliceLeft.IsNotNull()) &&
+                (a.unitySliceRight.IsNotNull() && b.unitySliceRight.IsNotNull()
+                    ? a.unitySliceRight.value.Equals(b.unitySliceRight.value)
+                    : a.unitySliceRight.IsNotNull() == b.unitySliceRight.IsNotNull()) &&
+                (a.unitySliceTop.IsNotNull() && b.unitySliceTop.IsNotNull()
+                    ? a.unitySliceTop.value.Equals(b.unitySliceTop.value)
+                    : a.unitySliceTop.IsNotNull() == b.unitySliceTop.IsNotNull()) &&
+                (a.unityTextAlign.IsNotNull() && b.unityTextAlign.IsNotNull()
+                    ? a.unityTextAlign.value.Equals(b.unityTextAlign.value)
+                    : a.unityTextAlign.IsNotNull() == b.unityTextAlign.IsNotNull()) &&
+                (a.unityTextOutlineColor.IsNotNull() && b.unityTextOutlineColor.IsNotNull()
+                    ? a.unityTextOutlineColor.value.Equals(b.unityTextOutlineColor.value)
+                    : a.unityTextOutlineColor.IsNotNull() == b.unityTextOutlineColor.IsNotNull()) &&
+                (a.unityTextOutlineWidth.IsNotNull() && b.unityTextOutlineWidth.IsNotNull()
+                    ? a.unityTextOutlineWidth.value.Equals(b.unityTextOutlineWidth.value)
+                    : a.unityTextOutlineWidth.IsNotNull() == b.unityTextOutlineWidth.IsNotNull()) &&
+                (a.unityTextOverflowPosition.IsNotNull() && b.unityTextOverflowPosition.IsNotNull()
+                    ? a.unityTextOverflowPosition.value.Equals(b.unityTextOverflowPosition.value)
+                    : a.unityTextOverflowPosition.IsNotNull() == b.unityTextOverflowPosition.IsNotNull()) &&
+                (a.visibility.IsNotNull() && b.visibility.IsNotNull()
+                    ? a.visibility.value.Equals(b.visibility.value)
+                    : a.visibility.IsNotNull() == b.visibility.IsNotNull()) &&
+                (a.whiteSpace.IsNotNull() && b.whiteSpace.IsNotNull()
+                    ? a.whiteSpace.value.Equals(b.whiteSpace.value)
+                    : a.whiteSpace.IsNotNull() == b.whiteSpace.IsNotNull()) &&
+                (a.width.IsNotNull() && b.width.IsNotNull()
+                    ? a.width.value.Equals(b.width.value)
+                    : a.width.IsNotNull() == b.width.IsNotNull()) &&
+                (a.wordSpacing.IsNotNull() && b.wordSpacing.IsNotNull()
+                    ? a.wordSpacing.value.Equals(b.wordSpacing.value)
+                    : a.wordSpacing.IsNotNull() == b.wordSpacing.IsNotNull()) &&
+                (a.pointerDetection.IsNotNull() && b.pointerDetection.IsNotNull()
+                    ? a.pointerDetection.value.Equals(b.pointerDetection.value)
+                    : a.pointerDetection.IsNotNull() == b.pointerDetection.IsNotNull());
         }
     }
 }

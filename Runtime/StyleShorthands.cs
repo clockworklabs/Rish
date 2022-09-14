@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,7 +6,7 @@ using UnityEngine.UIElements;
 namespace RishUI
 {
     
-    public struct StyleFloatsShorthand : IEquatable<StyleFloatsShorthand>
+    public struct StyleFloatsShorthand
     {
         public StyleFloat top;
         public StyleFloat right;
@@ -40,21 +39,10 @@ namespace RishUI
         public static implicit operator StyleFloatsShorthand((StyleFloat, StyleFloat, StyleFloat, StyleFloat) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleFloatsShorthand(Vector4 values) => new (values.x, values.y, values.z, values.w);
 
-        public static bool operator ==(StyleFloatsShorthand lhs, StyleFloatsShorthand rhs) => lhs.top == rhs.top &&
-            lhs.right == rhs.right && lhs.bottom == rhs.bottom && lhs.left == rhs.left;
-
-        public static bool operator !=(StyleFloatsShorthand lhs, StyleFloatsShorthand rhs) => !(lhs == rhs);
-
-        public bool Equals(StyleFloatsShorthand other) => other == this;
-
-        public override bool Equals(object obj) => obj is StyleFloatsShorthand other && Equals(other);
-
-        public override int GetHashCode() => HashCode.Combine(top, right, bottom, left);
-
         public override string ToString() => $"({top}, {right}, {bottom}, {left})";
     }
     
-    public struct StyleLengthsShorthand : IEquatable<StyleLengthsShorthand>
+    public struct StyleLengthsShorthand
     {
         public StyleLength top;
         public StyleLength right;
@@ -108,21 +96,10 @@ namespace RishUI
         public static implicit operator StyleLengthsShorthand((StyleLength, StyleLength, StyleLength, StyleLength) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleLengthsShorthand(Vector4 values) => new (values.x, values.y, values.z, values.w);
 
-        public static bool operator ==(StyleLengthsShorthand lhs, StyleLengthsShorthand rhs) => lhs.top == rhs.top &&
-            lhs.right == rhs.right && lhs.bottom == rhs.bottom && lhs.left == rhs.left;
-
-        public static bool operator !=(StyleLengthsShorthand lhs, StyleLengthsShorthand rhs) => !(lhs == rhs);
-
-        public bool Equals(StyleLengthsShorthand other) => other == this;
-
-        public override bool Equals(object obj) => obj is StyleLengthsShorthand other && Equals(other);
-
-        public override int GetHashCode() => HashCode.Combine(top, right, bottom, left);
-
         public override string ToString() => $"({top}, {right}, {bottom}, {left})";
     }
     
-    public struct StyleColorsShorthand : IEquatable<StyleColorsShorthand>
+    public struct StyleColorsShorthand
     {
         public StyleColor top;
         public StyleColor right;
@@ -152,27 +129,16 @@ namespace RishUI
         public static implicit operator StyleColorsShorthand((Color, Color, Color, Color) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleColorsShorthand((StyleColor, StyleColor, StyleColor, StyleColor) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
 
-        public static bool operator ==(StyleColorsShorthand lhs, StyleColorsShorthand rhs) => lhs.top == rhs.top &&
-            lhs.right == rhs.right && lhs.bottom == rhs.bottom && lhs.left == rhs.left;
-
-        public static bool operator !=(StyleColorsShorthand lhs, StyleColorsShorthand rhs) => !(lhs == rhs);
-
-        public bool Equals(StyleColorsShorthand other) => other == this;
-
-        public override bool Equals(object obj) => obj is StyleColorsShorthand other && Equals(other);
-
-        public override int GetHashCode() => HashCode.Combine(top, right, bottom, left);
-
         public override string ToString() => $"({top}, {right}, {bottom}, {left})";
     }
     
-    public struct StyleFlexShorthand : IEquatable<StyleFlexShorthand>
+    public struct StyleFlexShorthand
     {
         public StyleFloat grow;
         public StyleFloat shrink;
         public StyleLength basis;
 
-        public StyleFlexShorthand(StyleKeyword keyword) : this(keyword, keyword, keyword) { }
+        public StyleFlexShorthand(RishStyleKeyword keyword) : this(keyword, keyword, keyword) { }
         public StyleFlexShorthand(StyleFloat grow) : this(grow, 1, 0) { }
         public StyleFlexShorthand(StyleLength basis) : this(1, 1, basis) { }
         public StyleFlexShorthand(StyleFloat grow, StyleFloat shrink) : this(grow, shrink, default) { }
@@ -184,22 +150,12 @@ namespace RishUI
             this.basis = basis;
         }
 
-        public static implicit operator StyleFlexShorthand(StyleKeyword keyword) => new (keyword);
+        public static implicit operator StyleFlexShorthand(RishStyleKeyword keyword) => new (keyword);
         public static implicit operator StyleFlexShorthand(StyleFloat grow) => new (grow);
         public static implicit operator StyleFlexShorthand(StyleLength basis) => new (basis);
         public static implicit operator StyleFlexShorthand((StyleFloat, StyleFloat) values) => new (values.Item1, values.Item2);
         public static implicit operator StyleFlexShorthand((StyleFloat, StyleLength) values) => new (values.Item1, values.Item2);
         public static implicit operator StyleFlexShorthand((StyleFloat, StyleFloat, StyleLength) values) => new (values.Item1, values.Item2, values.Item3);
-
-        public static bool operator ==(StyleFlexShorthand lhs, StyleFlexShorthand rhs) => lhs.grow == rhs.grow && lhs.shrink == rhs.shrink && lhs.basis == rhs.basis;
-
-        public static bool operator !=(StyleFlexShorthand lhs, StyleFlexShorthand rhs) => !(lhs == rhs);
-
-        public bool Equals(StyleFlexShorthand other) => other == this;
-
-        public override bool Equals(object obj) => obj is StyleFlexShorthand other && Equals(other);
-
-        public override int GetHashCode() => HashCode.Combine(grow, shrink, basis);
 
         public override string ToString() => $"({grow}, {shrink}, {basis})";
     }
@@ -228,14 +184,14 @@ namespace RishUI
         public static implicit operator TransitionDefinition((StylePropertyName, TimeValue, EasingMode) values) => new (values.Item1, values.Item2, values.Item3);
         public static implicit operator TransitionDefinition((StylePropertyName, TimeValue, TimeValue, EasingMode) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
     }
-    public struct StyleTransitionShorthand : IEquatable<StyleTransitionShorthand>
+    public struct StyleTransitionShorthand
     {
         public StyleList<StylePropertyName> property;
         public StyleList<TimeValue> duration;
         public StyleList<TimeValue> delay;
         public StyleList<EasingFunction> easing;
 
-        public StyleTransitionShorthand(StyleKeyword keyword) : this(keyword, keyword, keyword, keyword) { }
+        public StyleTransitionShorthand(RishStyleKeyword keyword) : this(keyword, keyword, keyword, keyword) { }
         public StyleTransitionShorthand(TransitionDefinition definition) : this(
             new List<StylePropertyName> { definition.property },
             new List<TimeValue> { definition.duration },
@@ -368,23 +324,13 @@ namespace RishUI
             this.easing = easing;
         }
 
-        public static implicit operator StyleTransitionShorthand(StyleKeyword keyword) => new (keyword);
+        public static implicit operator StyleTransitionShorthand(RishStyleKeyword keyword) => new (keyword);
         public static implicit operator StyleTransitionShorthand(TransitionDefinition definition) => new (definition);
         public static implicit operator StyleTransitionShorthand((TransitionDefinition, TransitionDefinition) definitions) => new (definitions.Item1, definitions.Item2);
         public static implicit operator StyleTransitionShorthand((TransitionDefinition, TransitionDefinition, TransitionDefinition) definitions) => new (definitions.Item1, definitions.Item2, definitions.Item3);
         public static implicit operator StyleTransitionShorthand((TransitionDefinition, TransitionDefinition, TransitionDefinition, TransitionDefinition) definitions) => new (definitions.Item1, definitions.Item2, definitions.Item3, definitions.Item4);
         public static implicit operator StyleTransitionShorthand((TransitionDefinition, TransitionDefinition, TransitionDefinition, TransitionDefinition, TransitionDefinition) definitions) => new (definitions.Item1, definitions.Item2, definitions.Item3, definitions.Item4, definitions.Item5);
         public static implicit operator StyleTransitionShorthand(List<TransitionDefinition> definitions) => new (definitions);
-
-        public static bool operator ==(StyleTransitionShorthand lhs, StyleTransitionShorthand rhs) => lhs.property == rhs.property && lhs.duration == rhs.duration && lhs.delay == rhs.delay && lhs.easing == rhs.easing;
-
-        public static bool operator !=(StyleTransitionShorthand lhs, StyleTransitionShorthand rhs) => !(lhs == rhs);
-
-        public bool Equals(StyleTransitionShorthand other) => other == this;
-
-        public override bool Equals(object obj) => obj is StyleTransitionShorthand other && Equals(other);
-
-        public override int GetHashCode() => HashCode.Combine(property, duration, delay, easing);
 
         public override string ToString() => $"({property}, {duration}, {delay}, {easing})";
     }
