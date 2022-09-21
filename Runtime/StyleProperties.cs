@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using UnityEngine.UIElements;
 using Cursor = UnityEngine.UIElements.Cursor;
 using Background = UnityEngine.UIElements.Background;
 using VectorImage = UnityEngine.UIElements.VectorImage;
@@ -25,71 +26,21 @@ namespace RishUI
         Initial
     }
     
-    public struct StyleEnum<T> where T : struct, IConvertible
+    public interface IStyleValue<out T>
     {
-        public RishStyleKeyword keyword;
-        public T value;
+        T value { get; }
 
-        public StyleEnum(T v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleEnum(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleEnum(T v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        public bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
-        
-        public static implicit operator StyleEnum<T>(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleEnum<T>(T v) => new(v);
-
-        public static implicit operator UnityEngine.UIElements.StyleEnum<T>(StyleEnum<T> style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => style.value,
-                _ => style.keyword.ToNative()
-            };
-        }
+        RishStyleKeyword keyword { get; }
     }
     
-    public struct StyleColor
+    public readonly struct StyleBackground : IStyleValue<Background>
     {
-        public RishStyleKeyword keyword;
-        public Color value;
-
-        public StyleColor(Color v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleColor(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleColor(Color v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public readonly Background value;
+        Background IStyleValue<Background>.value => value;
         
-        public static implicit operator StyleColor(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleColor(Color v) => new(v);
-
-        public static implicit operator UnityEngine.UIElements.StyleColor(StyleColor style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => style.value,
-                _ => style.keyword.ToNative()
-            };
-        }
-    }
-    
-    public struct StyleBackground
-    {
-        public RishStyleKeyword keyword;
-        public Background value;
-
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Background>.keyword => keyword;
+        
         public StyleBackground(Background v) : this(v, RishStyleKeyword.Undefined) { }
         public StyleBackground(Texture2D v) : this(Background.FromTexture2D(v), RishStyleKeyword.Undefined) { }
         public StyleBackground(RenderTexture v) : this(Background.FromRenderTexture(v), RishStyleKeyword.Undefined) { }
@@ -102,8 +53,8 @@ namespace RishUI
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
         public static implicit operator StyleBackground(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleBackground(Background v) => new(v);
@@ -121,30 +72,34 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleBackground(UnityEngine.UIElements.StyleBackground style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleLength
+    public readonly struct StyleColor : IStyleValue<Color>
     {
-        public RishStyleKeyword keyword;
-        public Length value;
+        public readonly Color value;
+        Color IStyleValue<Color>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Color>.keyword => keyword;
 
-        public StyleLength(Length v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleLength(float v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleLength(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleLength(Length v, RishStyleKeyword keyword)
+        public StyleColor(Color v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleColor(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleColor(Color v, RishStyleKeyword keyword)
         {
             this.keyword = keyword;
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
-        public static implicit operator StyleLength(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleLength(Length v) => new(v);
-        public static implicit operator StyleLength(float v) => new(v);
+        public static implicit operator StyleColor(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleColor(Color v) => new(v);
 
-        public static implicit operator UnityEngine.UIElements.StyleLength(StyleLength style)
+        public static implicit operator UnityEngine.UIElements.StyleColor(StyleColor style)
         {
             return style.keyword switch
             {
@@ -153,72 +108,18 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleColor(UnityEngine.UIElements.StyleColor style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleFloat
+    public readonly struct StyleCursor : IStyleValue<Cursor>
     {
-        public RishStyleKeyword keyword;
-        public float value;
-
-        public StyleFloat(float v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleFloat(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleFloat(float v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public readonly Cursor value;
+        Cursor IStyleValue<Cursor>.value => value;
         
-        public static implicit operator StyleFloat(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleFloat(float v) => new(v);
-        
-        public static implicit operator UnityEngine.UIElements.StyleFloat(StyleFloat style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => style.value,
-                _ => style.keyword.ToNative()
-            };
-        }
-    }
-    
-    public struct StyleInt
-    {
-        public RishStyleKeyword keyword;
-        public int value;
-
-        public StyleInt(int v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleInt(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleInt(int v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
-        
-        public static implicit operator StyleInt(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleInt(int v) => new(v);
-        
-        public static implicit operator UnityEngine.UIElements.StyleInt(StyleInt style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => style.value,
-                _ => style.keyword.ToNative()
-            };
-        }
-    }
-    
-    public struct StyleCursor
-    {
-        public RishStyleKeyword keyword;
-        public Cursor value;
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Cursor>.keyword => keyword;
 
         public StyleCursor(Cursor v) : this(v, RishStyleKeyword.Undefined) { }
         public StyleCursor(RishStyleKeyword keyword) : this(default, keyword) { }
@@ -228,8 +129,8 @@ namespace RishUI
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
         public static implicit operator StyleCursor(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleCursor(Cursor v) => new(v);
@@ -243,92 +144,34 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleCursor(UnityEngine.UIElements.StyleCursor style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleRotate
+    public readonly struct StyleEnum<T> : IStyleValue<T> where T : struct, IConvertible
     {
-        public RishStyleKeyword keyword;
-        public Angle value;
+        public readonly T value;
+        T IStyleValue<T>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<T>.keyword => keyword;
 
-        public StyleRotate(Angle v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleRotate(float v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleRotate(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleRotate(Angle v, RishStyleKeyword keyword)
+        public StyleEnum(T v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleEnum(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleEnum(T v, RishStyleKeyword keyword)
         {
             this.keyword = keyword;
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
-        public static implicit operator StyleRotate(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleRotate(Angle v) => new(v);
-        public static implicit operator StyleRotate(float v) => new(v);
-        
-        public static implicit operator UnityEngine.UIElements.StyleRotate(StyleRotate style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => new Rotate(style.value),
-                _ => style.keyword.ToNative()
-            };
-        }
-    }
-    
-    public struct StyleScale
-    {
-        public RishStyleKeyword keyword;
-        public Vector3 value;
+        public static implicit operator StyleEnum<T>(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleEnum<T>(T v) => new(v);
 
-        public StyleScale(Vector3 v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleScale(float v) : this(new Vector3(v, v, v), RishStyleKeyword.Undefined) { }
-        public StyleScale(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleScale(Vector3 v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
-        
-        public static implicit operator StyleScale(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleScale(Vector3 v) => new(v);
-        public static implicit operator StyleScale(float v) => new(v);
-        
-        public static implicit operator UnityEngine.UIElements.StyleScale(StyleScale style)
-        {
-            return style.keyword switch
-            {
-                RishStyleKeyword.Null => throw new UnityException("Invalid"),
-                RishStyleKeyword.Undefined => new Scale(style.value),
-                _ => style.keyword.ToNative()
-            };
-        }
-    }
-    
-    public struct StyleTextShadow
-    {
-        public RishStyleKeyword keyword;
-        public TextShadow value;
-
-        public StyleTextShadow(TextShadow v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleTextShadow(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleTextShadow(TextShadow v, RishStyleKeyword keyword)
-        {
-            this.keyword = keyword;
-            this.value = v;
-        }
-
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
-        
-        public static implicit operator StyleTextShadow(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleTextShadow(TextShadow v) => new(v);
-        
-        public static implicit operator UnityEngine.UIElements.StyleTextShadow(StyleTextShadow style)
+        public static implicit operator UnityEngine.UIElements.StyleEnum<T>(StyleEnum<T> style)
         {
             return style.keyword switch
             {
@@ -337,28 +180,34 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleEnum<T>(UnityEngine.UIElements.StyleEnum<T> style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleTransformOrigin
+    public readonly struct StyleFloat : IStyleValue<float>
     {
-        public RishStyleKeyword keyword;
-        public TransformOrigin value;
+        public readonly float value;
+        float IStyleValue<float>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<float>.keyword => keyword;
 
-        public StyleTransformOrigin(TransformOrigin v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleTransformOrigin(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleTransformOrigin(TransformOrigin v, RishStyleKeyword keyword)
+        public StyleFloat(float v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleFloat(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleFloat(float v, RishStyleKeyword keyword)
         {
             this.keyword = keyword;
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
-        public static implicit operator StyleTransformOrigin(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleTransformOrigin(TransformOrigin v) => new(v);
+        public static implicit operator StyleFloat(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleFloat(float v) => new(v);
         
-        public static implicit operator UnityEngine.UIElements.StyleTransformOrigin(StyleTransformOrigin style)
+        public static implicit operator UnityEngine.UIElements.StyleFloat(StyleFloat style)
         {
             return style.keyword switch
             {
@@ -367,12 +216,18 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleFloat(UnityEngine.UIElements.StyleFloat style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleFont
+    public readonly struct StyleFont : IStyleValue<Font>
     {
-        public RishStyleKeyword keyword;
-        public Font value;
+        public readonly Font value;
+        Font IStyleValue<Font>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Font>.keyword => keyword;
 
         public StyleFont(Font v) : this(v, RishStyleKeyword.Undefined) { }
         public StyleFont(RishStyleKeyword keyword) : this(default, keyword) { }
@@ -382,8 +237,8 @@ namespace RishUI
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
         public static implicit operator StyleFont(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleFont(Font v) => new(v);
@@ -397,12 +252,18 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleFont(UnityEngine.UIElements.StyleFont style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleFontDefinition
+    public readonly struct StyleFontDefinition : IStyleValue<FontDefinition>
     {
-        public RishStyleKeyword keyword;
-        public FontDefinition value;
+        public readonly FontDefinition value;
+        FontDefinition IStyleValue<FontDefinition>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<FontDefinition>.keyword => keyword;
 
         public StyleFontDefinition(FontDefinition v) : this(v, RishStyleKeyword.Undefined) { }
         public StyleFontDefinition(Font v) : this(FontDefinition.FromFont(v), RishStyleKeyword.Undefined) { }
@@ -414,8 +275,8 @@ namespace RishUI
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
         public static implicit operator StyleFontDefinition(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleFontDefinition(FontDefinition v) => new(v);
@@ -431,28 +292,34 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleFontDefinition(UnityEngine.UIElements.StyleFontDefinition style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleTranslate
+    public readonly struct StyleInt : IStyleValue<int>
     {
-        public RishStyleKeyword keyword;
-        public Translate value;
+        public readonly int value;
+        int IStyleValue<int>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<int>.keyword => keyword;
 
-        public StyleTranslate(Translate v) : this(v, RishStyleKeyword.Undefined) { }
-        public StyleTranslate(RishStyleKeyword keyword) : this(default, keyword) { }
-        private StyleTranslate(Translate v, RishStyleKeyword keyword)
+        public StyleInt(int v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleInt(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleInt(int v, RishStyleKeyword keyword)
         {
             this.keyword = keyword;
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
-        public static implicit operator StyleTranslate(RishStyleKeyword keyword) => new(keyword);
-        public static implicit operator StyleTranslate(Translate v) => new(v);
+        public static implicit operator StyleInt(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleInt(int v) => new(v);
         
-        public static implicit operator UnityEngine.UIElements.StyleTranslate(StyleTranslate style)
+        public static implicit operator UnityEngine.UIElements.StyleInt(StyleInt style)
         {
             return style.keyword switch
             {
@@ -461,12 +328,58 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleInt(UnityEngine.UIElements.StyleInt style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    public struct StyleList<T>
+    public readonly struct StyleLength : IStyleValue<Length>
     {
-        public RishStyleKeyword keyword;
-        public List<T> value;
+        public readonly Length value;
+        Length IStyleValue<Length>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Length>.keyword => keyword;
+
+        public StyleLength(Length v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleLength(float v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleLength(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleLength(Length v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleLength(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleLength(Length v) => new(v);
+        public static implicit operator StyleLength(float v) => new(v);
+
+        public static implicit operator UnityEngine.UIElements.StyleLength(StyleLength style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleLength(UnityEngine.UIElements.StyleLength style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+        public static implicit operator StyleLength(UnityEngine.UIElements.StyleFloat style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleList<T> : IStyleValue<List<T>>
+    {
+        public readonly List<T> value;
+        List<T> IStyleValue<List<T>>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<List<T>>.keyword => keyword;
 
         public StyleList(List<T> v) : this(v, RishStyleKeyword.Undefined) { }
         public StyleList(RishStyleKeyword keyword) : this(default, keyword) { }
@@ -476,8 +389,8 @@ namespace RishUI
             this.value = v;
         }
 
-        internal bool IsNull() => keyword == RishStyleKeyword.Null;
-        internal bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
         
         public static implicit operator StyleList<T>(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleList<T>(List<T> v) => new(v);
@@ -491,18 +404,217 @@ namespace RishUI
                 _ => style.keyword.ToNative()
             };
         }
+
+        public static implicit operator StyleList<T>(UnityEngine.UIElements.StyleList<T> style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleRotate : IStyleValue<Angle>
+    {
+        public readonly Angle value;
+        Angle IStyleValue<Angle>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Angle>.keyword => keyword;
+
+        public StyleRotate(Angle v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleRotate(float v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleRotate(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleRotate(Angle v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleRotate(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleRotate(Angle v) => new(v);
+        public static implicit operator StyleRotate(float v) => new(v);
+        
+        public static implicit operator UnityEngine.UIElements.StyleRotate(StyleRotate style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => new Rotate(style.value),
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleRotate(UnityEngine.UIElements.StyleRotate style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value.angle : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleScale : IStyleValue<Vector3>
+    {
+        public readonly Vector3 value;
+        Vector3 IStyleValue<Vector3>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Vector3>.keyword => keyword;
+
+        public StyleScale(Vector3 v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleScale(float v) : this(new Vector3(v, v, v), RishStyleKeyword.Undefined) { }
+        public StyleScale(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleScale(Vector3 v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleScale(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleScale(Vector3 v) => new(v);
+        public static implicit operator StyleScale(float v) => new(v);
+        
+        public static implicit operator UnityEngine.UIElements.StyleScale(StyleScale style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => new Scale(style.value),
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleScale(UnityEngine.UIElements.StyleScale style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleTextShadow : IStyleValue<TextShadow>
+    {
+        public readonly TextShadow value;
+        TextShadow IStyleValue<TextShadow>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<TextShadow>.keyword => keyword;
+
+        public StyleTextShadow(TextShadow v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleTextShadow(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleTextShadow(TextShadow v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleTextShadow(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleTextShadow(TextShadow v) => new(v);
+        
+        public static implicit operator UnityEngine.UIElements.StyleTextShadow(StyleTextShadow style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleTextShadow(UnityEngine.UIElements.StyleTextShadow style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleTransformOrigin : IStyleValue<TransformOrigin>
+    {
+        public readonly TransformOrigin value;
+        TransformOrigin IStyleValue<TransformOrigin>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<TransformOrigin>.keyword => keyword;
+
+        public StyleTransformOrigin(TransformOrigin v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleTransformOrigin(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleTransformOrigin(TransformOrigin v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleTransformOrigin(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleTransformOrigin(TransformOrigin v) => new(v);
+        
+        public static implicit operator UnityEngine.UIElements.StyleTransformOrigin(StyleTransformOrigin style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleTransformOrigin(UnityEngine.UIElements.StyleTransformOrigin style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleTranslate : IStyleValue<Translate>
+    {
+        public readonly Translate value;
+        Translate IStyleValue<Translate>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<Translate>.keyword => keyword;
+
+        public StyleTranslate(Translate v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleTranslate(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleTranslate(Translate v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleTranslate(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleTranslate(Translate v) => new(v);
+        
+        public static implicit operator UnityEngine.UIElements.StyleTranslate(StyleTranslate style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleTranslate(UnityEngine.UIElements.StyleTranslate style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
     public static class StyleKeywordExtensions {
-        public static UnityEngine.UIElements.StyleKeyword ToNative(this RishStyleKeyword keyword)
+        public static StyleKeyword ToNative(this RishStyleKeyword keyword)
         {
             return keyword switch
             {
-                RishStyleKeyword.Null => UnityEngine.UIElements.StyleKeyword.Null,
-                RishStyleKeyword.Undefined => UnityEngine.UIElements.StyleKeyword.Undefined,
-                RishStyleKeyword.Auto => UnityEngine.UIElements.StyleKeyword.Auto,
-                RishStyleKeyword.None => UnityEngine.UIElements.StyleKeyword.None,
-                RishStyleKeyword.Initial => UnityEngine.UIElements.StyleKeyword.Initial,
+                RishStyleKeyword.Null => StyleKeyword.Null,
+                RishStyleKeyword.Undefined => StyleKeyword.Undefined,
+                RishStyleKeyword.Auto => StyleKeyword.Auto,
+                RishStyleKeyword.None => StyleKeyword.None,
+                RishStyleKeyword.Initial => StyleKeyword.Initial,
+                _ => throw new ArgumentException("Invalid keyword")
+            };
+        }
+        public static RishStyleKeyword FromNative(this StyleKeyword keyword)
+        {
+            return keyword switch
+            {
+                StyleKeyword.Null => RishStyleKeyword.Null,
+                StyleKeyword.Undefined => RishStyleKeyword.Undefined,
+                StyleKeyword.Auto => RishStyleKeyword.Auto,
+                StyleKeyword.None => RishStyleKeyword.None,
+                StyleKeyword.Initial => RishStyleKeyword.Initial,
                 _ => throw new ArgumentException("Invalid keyword")
             };
         }
