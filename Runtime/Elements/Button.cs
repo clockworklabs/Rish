@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
@@ -41,6 +40,7 @@ namespace RishUI.Elements
             return Props.normal;
         }
 
+        // TODO: Support touch screens
         private void OnHoverStart(PointerEnterEvent evt)
         {
             var state = State;
@@ -48,6 +48,7 @@ namespace RishUI.Elements
             State = state;
         }
 
+        // TODO: Support touch screens
         private void OnHoverEnd(PointerLeaveEvent evt)
         {
             var state = State;
@@ -125,6 +126,7 @@ namespace RishUI.Elements
             State = state;
         }
 
+        // TODO: Is this necessary?
         private void OnPointerCancel(PointerCancelEvent evt)
         {
             if (!Listening || PointerId != evt.pointerId)

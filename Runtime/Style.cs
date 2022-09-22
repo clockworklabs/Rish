@@ -156,260 +156,109 @@ namespace RishUI
             }
         }
 
-        private static Style Default = default;
+        private static Style Empty = default;
 
         public void SetInlineStyle(VisualElement element)
         {
-            ResetInlineStyles(element);
-            
-            if (RishUtils.MemCmp(ref this, ref Default))
+            if (RishUtils.MemCmp(ref this, ref Empty))
             {
+                ResetInlineStyles(element);
                 return;
             }
             
-            if(alignContent.IsNotNull()) {
-                element.style.alignContent = alignContent;
-            }
-            if(alignItems.IsNotNull()) {
-                element.style.alignItems = alignItems;
-            }
-            if(alignSelf.IsNotNull()) {
-                element.style.alignSelf = alignSelf;
-            }
-            if(backgroundColor.IsNotNull()) {
-                element.style.backgroundColor = backgroundColor;
-            }
-            if(backgroundImage.IsNotNull()) {
-                element.style.backgroundImage = backgroundImage;
-            }
-            if(borderBottomColor.IsNotNull()) {
-                element.style.borderBottomColor = borderBottomColor;
-            }
-            if(borderBottomLeftRadius.IsNotNull()) {
-                element.style.borderBottomLeftRadius = borderBottomLeftRadius;
-            }
-            if(borderBottomRightRadius.IsNotNull()) {
-                element.style.borderBottomRightRadius = borderBottomRightRadius;
-            }
-            if(borderBottomWidth.IsNotNull()) {
-                element.style.borderBottomWidth = borderBottomWidth;
-            }
-            if(borderLeftColor.IsNotNull()) {
-                element.style.borderLeftColor = borderLeftColor;
-            }
-            if(borderLeftWidth.IsNotNull()) {
-                element.style.borderLeftWidth = borderLeftWidth;
-            }
-            if(borderRightColor.IsNotNull()) {
-                element.style.borderRightColor = borderRightColor;
-            }
-            if(borderRightWidth.IsNotNull()) {
-                element.style.borderRightWidth = borderRightWidth;
-            }
-            if(borderTopColor.IsNotNull()) {
-                element.style.borderTopColor = borderTopColor;
-            }
-            if(borderTopLeftRadius.IsNotNull()) {
-                element.style.borderTopLeftRadius = borderTopLeftRadius;
-            }
-            if(borderTopRightRadius.IsNotNull()) {
-                element.style.borderTopRightRadius = borderTopRightRadius;
-            }
-            if(borderTopWidth.IsNotNull()) {
-                element.style.borderTopWidth = borderTopWidth;
-            }
-            if(bottom.IsNotNull()) {
-                element.style.bottom = bottom;
-            }
-            if(color.IsNotNull()) {
-                element.style.color = color;
-            }
-            if(cursor.IsNotNull()) {
-                element.style.cursor = cursor;
-            }
-            if(display.IsNotNull()) {
-                element.style.display = display;
-            }
-            if(flexBasis.IsNotNull()) {
-                element.style.flexBasis = flexBasis;
-            }
-            if(flexDirection.IsNotNull()) {
-                element.style.flexDirection = flexDirection;
-            }
-            if(flexGrow.IsNotNull()) {
-                element.style.flexGrow = flexGrow;
-            }
-            if(flexShrink.IsNotNull()) {
-                element.style.flexShrink = flexShrink;
-            }
-            if(flexWrap.IsNotNull()) {
-                element.style.flexWrap = flexWrap;
-            }
-            if(fontSize.IsNotNull()) {
-                element.style.fontSize = fontSize;
-            }
-            if(height.IsNotNull()) {
-                element.style.height = height;
-            }
-            if(justifyContent.IsNotNull()) {
-                element.style.justifyContent = justifyContent;
-            }
-            if(left.IsNotNull()) {
-                element.style.left = left;
-            }
-            if(letterSpacing.IsNotNull()) {
-                element.style.letterSpacing = letterSpacing;
-            }
-            if(marginBottom.IsNotNull()) {
-                element.style.marginBottom = marginBottom;
-            }
-            if(marginLeft.IsNotNull()) {
-                element.style.marginLeft = marginLeft;
-            }
-            if(marginRight.IsNotNull()) {
-                element.style.marginRight = marginRight;
-            }
-            if(marginTop.IsNotNull()) {
-                element.style.marginTop = marginTop;
-            }
-            if(maxHeight.IsNotNull()) {
-                element.style.maxHeight = maxHeight;
-            }
-            if(maxWidth.IsNotNull()) {
-                element.style.maxWidth = maxWidth;
-            }
-            if(minHeight.IsNotNull()) {
-                element.style.minHeight = minHeight;
-            }
-            if(minWidth.IsNotNull()) {
-                element.style.minWidth = minWidth;
-            }
-            if(opacity.IsNotNull()) {
-                element.style.opacity = opacity;
-            }
-            if(overflow.IsNotNull()) {
-                element.style.overflow = overflow;
-            }
-            if(paddingBottom.IsNotNull()) {
-                element.style.paddingBottom = paddingBottom;
-            }
-            if(paddingLeft.IsNotNull()) {
-                element.style.paddingLeft = paddingLeft;
-            }
-            if(paddingRight.IsNotNull()) {
-                element.style.paddingRight = paddingRight;
-            }
-            if(paddingTop.IsNotNull()) {
-                element.style.paddingTop = paddingTop;
-            }
-            if(position.IsNotNull()) {
-                element.style.position = position;
-            }
-            if(right.IsNotNull()) {
-                element.style.right = right;
-            }
-            if(rotate.IsNotNull()) {
-                element.style.rotate = rotate;
-            }
-            if(scale.IsNotNull()) {
-                element.style.scale = scale;
-            }
-            if(textOverflow.IsNotNull()) {
-                element.style.textOverflow = textOverflow;
-            }
-            if(textShadow.IsNotNull()) {
-                element.style.textShadow = textShadow;
-            }
-            if(top.IsNotNull()) {
-                element.style.top = top;
-            }
-            if(transformOrigin.IsNotNull()) {
-                element.style.transformOrigin = transformOrigin;
-            }
-            if(transitionDelay.IsNotNull()) {
-                element.style.transitionDelay = transitionDelay;
-            }
-            if(transitionDuration.IsNotNull()) {
-                element.style.transitionDuration = transitionDuration;
-            }
-            if(transitionProperty.IsNotNull()) {
-                element.style.transitionProperty = transitionProperty;
-            }
-            if(transitionTimingFunction.IsNotNull()) {
-                element.style.transitionTimingFunction = transitionTimingFunction;
-            }
-            if(translate.IsNotNull()) {
-                element.style.translate = translate;
-            }
-            if(unityBackgroundImageTintColor.IsNotNull()) {
-                element.style.unityBackgroundImageTintColor = unityBackgroundImageTintColor;
-            }
-            if(unityBackgroundScaleMode.IsNotNull()) {
-                element.style.unityBackgroundScaleMode = unityBackgroundScaleMode;
-            }
-            if(unityFont.IsNotNull()) {
-                element.style.unityFont = unityFont;
-            }
-            if(unityFontDefinition.IsNotNull()) {
-                element.style.unityFontDefinition = unityFontDefinition;
-            }
-            if(unityFontStyleAndWeight.IsNotNull()) {
-                element.style.unityFontStyleAndWeight = unityFontStyleAndWeight;
-            }
-            if(unityOverflowClipBox.IsNotNull()) {
-                element.style.unityOverflowClipBox = unityOverflowClipBox;
-            }
-            if(unityParagraphSpacing.IsNotNull()) {
-                element.style.unityParagraphSpacing = unityParagraphSpacing;
-            }
-            if(unitySliceBottom.IsNotNull()) {
-                element.style.unitySliceBottom = unitySliceBottom;
-            }
-            if(unitySliceLeft.IsNotNull()) {
-                element.style.unitySliceLeft = unitySliceLeft;
-            }
-            if(unitySliceRight.IsNotNull()) {
-                element.style.unitySliceRight = unitySliceRight;
-            }
-            if(unitySliceTop.IsNotNull()) {
-                element.style.unitySliceTop = unitySliceTop;
-            }
-            if(unityTextAlign.IsNotNull()) {
-                element.style.unityTextAlign = unityTextAlign;
-            }
-            if(unityTextOutlineColor.IsNotNull()) {
-                element.style.unityTextOutlineColor = unityTextOutlineColor;
-            }
-            if(unityTextOutlineWidth.IsNotNull()) {
-                element.style.unityTextOutlineWidth = unityTextOutlineWidth;
-            }
-            if(unityTextOverflowPosition.IsNotNull()) {
-                element.style.unityTextOverflowPosition = unityTextOverflowPosition;
-            }
-            if(visibility.IsNotNull()) {
-                element.style.visibility = visibility;
-            }
-            if(whiteSpace.IsNotNull()) {
-                element.style.whiteSpace = whiteSpace;
-            }
-            if(width.IsNotNull()) {
-                element.style.width = width;
-            }
-            if(wordSpacing.IsNotNull()) {
-                element.style.wordSpacing = wordSpacing;
-            }
+            element.style.alignContent = alignContent.IsNotNull() ? alignContent : StyleKeyword.Null;
+            element.style.alignItems = alignItems.IsNotNull() ? alignItems : StyleKeyword.Null;
+            element.style.alignSelf = alignSelf.IsNotNull() ? alignSelf : StyleKeyword.Null;
+            element.style.backgroundColor = backgroundColor.IsNotNull() ? backgroundColor : StyleKeyword.Null;
+            element.style.backgroundImage = backgroundImage.IsNotNull() ? backgroundImage : StyleKeyword.Null;
+            element.style.borderBottomColor = borderBottomColor.IsNotNull() ? borderBottomColor : StyleKeyword.Null;
+            element.style.borderBottomLeftRadius = borderBottomLeftRadius.IsNotNull() ? borderBottomLeftRadius : StyleKeyword.Null;
+            element.style.borderBottomRightRadius = borderBottomRightRadius.IsNotNull() ? borderBottomRightRadius : StyleKeyword.Null;
+            element.style.borderBottomWidth = borderBottomWidth.IsNotNull() ? borderBottomWidth : StyleKeyword.Null;
+            element.style.borderLeftColor = borderLeftColor.IsNotNull() ? borderLeftColor : StyleKeyword.Null;
+            element.style.borderLeftWidth = borderLeftWidth.IsNotNull() ? borderLeftWidth : StyleKeyword.Null;
+            element.style.borderRightColor = borderRightColor.IsNotNull() ? borderRightColor : StyleKeyword.Null;
+            element.style.borderRightWidth = borderRightWidth.IsNotNull() ? borderRightWidth : StyleKeyword.Null;
+            element.style.borderTopColor = borderTopColor.IsNotNull() ? borderTopColor : StyleKeyword.Null;
+            element.style.borderTopLeftRadius = borderTopLeftRadius.IsNotNull() ? borderTopLeftRadius : StyleKeyword.Null;
+            element.style.borderTopRightRadius = borderTopRightRadius.IsNotNull() ? borderTopRightRadius : StyleKeyword.Null;
+            element.style.borderTopWidth = borderTopWidth.IsNotNull() ? borderTopWidth : StyleKeyword.Null;
+            element.style.bottom = bottom.IsNotNull() ? bottom : StyleKeyword.Null;
+            element.style.color = color.IsNotNull() ? color : StyleKeyword.Null;
+            element.style.cursor = cursor.IsNotNull() ? cursor : StyleKeyword.Null;
+            element.style.display = display.IsNotNull() ? display : StyleKeyword.Null;
+            element.style.flexBasis = flexBasis.IsNotNull() ? flexBasis : StyleKeyword.Null;
+            element.style.flexDirection = flexDirection.IsNotNull() ? flexDirection : StyleKeyword.Null;
+            element.style.flexGrow = flexGrow.IsNotNull() ? flexGrow : StyleKeyword.Null;
+            element.style.flexShrink = flexShrink.IsNotNull() ? flexShrink : StyleKeyword.Null;
+            element.style.flexWrap = flexWrap.IsNotNull() ? flexWrap : StyleKeyword.Null;
+            element.style.fontSize = fontSize.IsNotNull() ? fontSize : StyleKeyword.Null;
+            element.style.height = height.IsNotNull() ? height : StyleKeyword.Null;
+            element.style.justifyContent = justifyContent.IsNotNull() ? justifyContent : StyleKeyword.Null;
+            element.style.left = left.IsNotNull() ? left : StyleKeyword.Null;
+            element.style.letterSpacing = letterSpacing.IsNotNull() ? letterSpacing : StyleKeyword.Null;
+            element.style.marginBottom = marginBottom.IsNotNull() ? marginBottom : StyleKeyword.Null;
+            element.style.marginLeft = marginLeft.IsNotNull() ? marginLeft : StyleKeyword.Null;
+            element.style.marginRight = marginRight.IsNotNull() ? marginRight : StyleKeyword.Null;
+            element.style.marginTop = marginTop.IsNotNull() ? marginTop : StyleKeyword.Null;
+            element.style.maxHeight = maxHeight.IsNotNull() ? maxHeight : StyleKeyword.Null;
+            element.style.maxWidth = maxWidth.IsNotNull() ? maxWidth : StyleKeyword.Null;
+            element.style.minHeight = minHeight.IsNotNull() ? minHeight : StyleKeyword.Null;
+            element.style.minWidth = minWidth.IsNotNull() ? minWidth : StyleKeyword.Null;
+            element.style.opacity = opacity.IsNotNull() ? opacity : StyleKeyword.Null;
+            element.style.overflow = overflow.IsNotNull() ? overflow : StyleKeyword.Null;
+            element.style.paddingBottom = paddingBottom.IsNotNull() ? paddingBottom : StyleKeyword.Null;
+            element.style.paddingLeft = paddingLeft.IsNotNull() ? paddingLeft : StyleKeyword.Null;
+            element.style.paddingRight = paddingRight.IsNotNull() ? paddingRight : StyleKeyword.Null;
+            element.style.paddingTop = paddingTop.IsNotNull() ? paddingTop : StyleKeyword.Null;
+            element.style.position = position.IsNotNull() ? position : StyleKeyword.Null;
+            element.style.right = right.IsNotNull() ? right : StyleKeyword.Null;
+            element.style.rotate = rotate.IsNotNull() ? rotate : StyleKeyword.Null;
+            element.style.scale = scale.IsNotNull() ? scale : StyleKeyword.Null;
+            element.style.textOverflow = textOverflow.IsNotNull() ? textOverflow : StyleKeyword.Null;
+            element.style.textShadow = textShadow.IsNotNull() ? textShadow : StyleKeyword.Null;
+            element.style.top = top.IsNotNull() ? top : StyleKeyword.Null;
+            element.style.transformOrigin = transformOrigin.IsNotNull() ? transformOrigin : StyleKeyword.Null;
+            element.style.transitionDelay = transitionDelay.IsNotNull() ? transitionDelay : StyleKeyword.Null;
+            element.style.transitionDuration = transitionDuration.IsNotNull() ? transitionDuration : StyleKeyword.Null;
+            element.style.transitionProperty = transitionProperty.IsNotNull() ? transitionProperty : StyleKeyword.Null;
+            element.style.transitionTimingFunction = transitionTimingFunction.IsNotNull() ? transitionTimingFunction : StyleKeyword.Null;
+            element.style.translate = translate.IsNotNull() ? translate : StyleKeyword.Null;
+            element.style.unityBackgroundImageTintColor = unityBackgroundImageTintColor.IsNotNull() ? unityBackgroundImageTintColor : StyleKeyword.Null;
+            element.style.unityBackgroundScaleMode = unityBackgroundScaleMode.IsNotNull() ? unityBackgroundScaleMode : StyleKeyword.Null;
+            element.style.unityFont = unityFont.IsNotNull() ? unityFont : StyleKeyword.Null;
+            element.style.unityFontDefinition = unityFontDefinition.IsNotNull() ? unityFontDefinition : StyleKeyword.Null;
+            element.style.unityFontStyleAndWeight = unityFontStyleAndWeight.IsNotNull() ? unityFontStyleAndWeight : StyleKeyword.Null;
+            element.style.unityOverflowClipBox = unityOverflowClipBox.IsNotNull() ? unityOverflowClipBox : StyleKeyword.Null;
+            element.style.unityParagraphSpacing = unityParagraphSpacing.IsNotNull() ? unityParagraphSpacing : StyleKeyword.Null;
+            element.style.unitySliceBottom = unitySliceBottom.IsNotNull() ? unitySliceBottom : StyleKeyword.Null;
+            element.style.unitySliceLeft = unitySliceLeft.IsNotNull() ? unitySliceLeft : StyleKeyword.Null;
+            element.style.unitySliceRight = unitySliceRight.IsNotNull() ? unitySliceRight : StyleKeyword.Null;
+            element.style.unitySliceTop = unitySliceTop.IsNotNull() ? unitySliceTop : StyleKeyword.Null;
+            element.style.unityTextAlign = unityTextAlign.IsNotNull() ? unityTextAlign : StyleKeyword.Null;
+            element.style.unityTextOutlineColor = unityTextOutlineColor.IsNotNull() ? unityTextOutlineColor : StyleKeyword.Null;
+            element.style.unityTextOutlineWidth = unityTextOutlineWidth.IsNotNull() ? unityTextOutlineWidth : StyleKeyword.Null;
+            element.style.unityTextOverflowPosition = unityTextOverflowPosition.IsNotNull() ? unityTextOverflowPosition : StyleKeyword.Null;
+            element.style.visibility = visibility.IsNotNull() ? visibility : StyleKeyword.Null;
+            element.style.whiteSpace = whiteSpace.IsNotNull() ? whiteSpace : StyleKeyword.Null;
+            element.style.width = width.IsNotNull() ? width : StyleKeyword.Null;
+            element.style.wordSpacing = wordSpacing.IsNotNull() ? wordSpacing : StyleKeyword.Null;
             
-            if (pointerDetection.IsNotNull())
+            if (element is IAdvancedPicking advancedPicking)
             {
-                var detectionMode = pointerDetection.keyword switch
+                if (pointerDetection.IsNotNull())
                 {
-                    RishStyleKeyword.Undefined => pointerDetection.value,
-                    RishStyleKeyword.None => PointerDetectionMode.Ignore,
-                    _ => PointerDetectionMode.Rect
-                };
-                if (element is IAdvancedPicking advancedPicking)
-                {
+                    var detectionMode = pointerDetection.keyword switch
+                    {
+                        RishStyleKeyword.Undefined => pointerDetection.value,
+                        RishStyleKeyword.None => PointerDetectionMode.Ignore,
+                        _ => PointerDetectionMode.Rect
+                    };
                     advancedPicking.Manager.InlinePointerDetection = detectionMode;
+                }
+                else
+                {
+                    advancedPicking.Manager.InlinePointerDetection = null;
                 }
             }
         }
@@ -421,7 +270,7 @@ namespace RishUI
                 throw new ArgumentNullException(nameof(element));
             }
 
-            var nullValue = RishStyleKeyword.Null.ToNative();
+            const StyleKeyword nullValue = StyleKeyword.Null;
             
             element.style.alignContent = nullValue;
             element.style.alignItems = nullValue;

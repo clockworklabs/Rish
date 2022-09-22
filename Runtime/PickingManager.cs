@@ -18,11 +18,11 @@ namespace RishUI
 
     public class PickingManager
     {
-        private static readonly CustomStyleProperty<string> PointerDetectionPropery = new("--pointer-detection");
+        private static readonly CustomStyleProperty<string> PointerDetectionProperty = new("--pointer-detection");
         
         private VisualElement Element { get; }
         
-        internal PointerDetectionMode? InlinePointerDetection { private get; set; }
+        public PointerDetectionMode? InlinePointerDetection { private get; set; }
         private PointerDetectionMode? StylePointerDetection { get; set; }
         public PointerDetectionMode PointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? (Element.parent is IAdvancedPicking parent ? parent.Manager.PointerDetection : PointerDetectionMode.Rect));
         
@@ -84,7 +84,7 @@ namespace RishUI
         {
             var customStyle = evt.customStyle;
             PointerDetectionMode? mode;
-            if (customStyle.TryGetValue(PointerDetectionPropery, out var pointerDetectionMode))
+            if (customStyle.TryGetValue(PointerDetectionProperty, out var pointerDetectionMode))
             {
                 mode = pointerDetectionMode switch
                 {

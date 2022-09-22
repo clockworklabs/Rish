@@ -154,6 +154,7 @@ namespace RishUI
         void TakeOwnership(NativeArray<Element> children);
     }
 
+    // TODO: Split into partial classes
     public static class Rish
     {
         private static Stack<IOwner> Owners { get; } = new();
