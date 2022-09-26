@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -10,8 +11,8 @@ namespace RishUI
     public class Node : FastPriorityQueueNode, IOwner
     {
         public event Action<Node> OnDirty;
-        private event Action<bool> OnReadyToUnmount;
-        private event Action OnUnmount;
+        private event Action<Node> OnReadyToUnmount;
+        private event Action<Node> OnUnmount;
         
         public Dom Dom { get; }
         private uint ID { get; }
@@ -49,9 +50,12 @@ namespace RishUI
                 {
                     return;
                 }
-                
+
                 _readyToUnmount = value;
-                OnReadyToUnmount?.Invoke(value);
+                if (value)
+                {
+                    OnReadyToUnmount?.Invoke(this);
+                }
             }
         }
         
@@ -63,7 +67,7 @@ namespace RishUI
             Machine = new StateMachine(this);
         }
         
-        public bool IsActive() => Machine.IsActive();
+        public bool IsActive() => Machine.Is<MountedState>();
 
         private bool Contains(Node child) => Children.Contains(child);
 
@@ -98,88 +102,104 @@ namespace RishUI
                 get => _currentState;
                 set
                 {
+                    if (_currentState == value)
+                    {
+                        return;
+                    }
+                    
 #if UNITY_EDITOR
+                    if (value == null)
+                    {
+                        throw new UnityException("State can't be null");
+                    }
+                    
                     // if (_currentState != null)
                     // {
-                    //     Debug.Log($"{Node.Type.Name}: {_currentState.GetType().Name} -> {value.GetType().Name}");
+                    //     Debug.Log($"{Node.ID} ({Node.Type?.FullName}): {_currentState.GetType().Name} -> {value.GetType().Name}");
                     // }
+
+                    switch (_currentState)
+                    {
+                        case ReadyToMountState when value is not MountedState:
+                            throw new UnityException("Invalid transition");
+                        case MountedState when value is not UnmountRequestedState && value is not UnmountedState:
+                            throw new UnityException("Invalid transition");
+                        case UnmountRequestedState when value is not ReadyToUnmountState && value is not UnmountedState:
+                            throw new UnityException("Invalid transition");
+                        case ReadyToUnmountState when value is not UnmountedState:
+                            throw new UnityException("Invalid transition");
+                    }
 #endif
                     
                     _currentState?.Exit();
-
                     _currentState = value;
-                    
                     _currentState?.Enter();
                 }
             }
 
-            private UnmountedState Unmounted { get; }
+            private ReadyToMountState ReadyToMount { get; }
             private MountedState Mounted { get; }
             private UnmountRequestedState UnmountRequested { get; }
             private ReadyToUnmountState ReadyToUnmount { get; }
+            private UnmountedState Unmounted { get; }
             
             private Node Node { get; }
             
             public StateMachine(Node node)
             {
-#if UNITY_EDITOR
-                if (node == null)
-                {
-                    throw new UnityException("Node must be not null");
-                }
-#endif
-                
-                Node = node;
+                Node = node ?? throw new UnityException("Node must be not null");
 
-                Unmounted = new UnmountedState(this, node);
+                ReadyToMount = new ReadyToMountState(this, node);
                 Mounted = new MountedState(this, node);
                 UnmountRequested = new UnmountRequestedState(this, node);
                 ReadyToUnmount = new ReadyToUnmountState(this, node);
+                Unmounted = new UnmountedState(this, node);
 
-                Next();
+                GoTo<ReadyToMountState>();
             }
 
-            public void Next()
+            public void GoTo<T>() where T : State
             {
-                CurrentState = CurrentState switch
-                {
-                    UnmountedState => Mounted,
-                    MountedState => UnmountRequested,
-                    UnmountRequestedState => ReadyToUnmount,
-                    _ => Unmounted
-                };
+                var state = Get<T>();
+
+                CurrentState = state ?? throw new ArgumentException("Invalid state");
             }
 
-            public void GoBack()
+            private State Get<T>() where T : State
             {
-#if UNITY_EDITOR
-                CurrentState = CurrentState switch
-                {
-                    ReadyToUnmountState => UnmountRequested,
-                    _ => throw new UnityException("Invalid")
-                };
-#else
-                CurrentState = UnmountRequested;
-#endif
+                if(ReadyToMount is T) {
+                    return ReadyToMount;
+                }
+                if(Mounted is T) {
+                    return Mounted;
+                }
+                if(UnmountRequested is T) {
+                    return UnmountRequested;
+                }
+                if(ReadyToUnmount is T) {
+                    return ReadyToUnmount;
+                }
+                if(Unmounted is T) {
+                    return Unmounted;
+                }
+
+                return null;
             }
 
-            public void ForceUnmount()
-            {
-#if UNITY_EDITOR
-                CurrentState = CurrentState switch
-                {
-                    ActiveState => Unmounted,
-                    _ => throw new UnityException("Node isn't mounted")
-                };
-#else
-                CurrentState = Unmounted;
-#endif
-            }
-
-            public bool IsActive() => CurrentState is ActiveState;
+            public bool Is<T>() where T : State => CurrentState is T;
+            public string GetCurrent() => CurrentState.GetType().Name;
             
             public void MountAs<T>(Node parent, uint key) where T : VisualElement, new() => CurrentState.MountAs<T>(parent, key);
-            public void Unmount(bool forceUnmount) => CurrentState.Unmount(forceUnmount);
+            public void Unmount(bool forceUnmount)
+            {
+                if (forceUnmount)
+                {
+                    GoTo<UnmountedState>();
+                    return;
+                }
+                
+                CurrentState.Unmount();
+            }
             public void Render() => CurrentState.Render();
             public void SetChildren(Children children) => CurrentState.SetChildren(children);
             public (Node, T) AddChild<T>(uint key) where T : VisualElement, new() => CurrentState.AddChild<T>(key);
@@ -272,15 +292,13 @@ namespace RishUI
                 Dom = node.Dom;
             }
 
-            protected void Transition() => Machine.Next();
-            protected void GoBack() => Machine.GoBack();
-            protected void ForceUnmount() => Machine.ForceUnmount();
-            
+            protected void GoTo<T>() where T : State => Machine.GoTo<T>();
+
             public abstract void Enter();
             public abstract void Exit();
 
             public abstract void MountAs<T>(Node parent, uint key) where T : VisualElement, new();
-            public abstract void Unmount(bool forceUnmount);
+            public abstract void Unmount();
 
             public abstract void Render();
             public abstract void SetChildren(Children children);
@@ -344,45 +362,12 @@ namespace RishUI
             }
         }
 
-        private class UnmountedState : State
+        private class ReadyToMountState : State
         {
-            public UnmountedState(StateMachine machine, Node node) : base(machine, node) { }
+            public ReadyToMountState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void Enter()
             {
-                Parent?.UnmountingChildren.Remove(Node);
-                Node.OnUnmount?.Invoke();
-                
-                if (Children?.Count > 0)
-                {
-                    for (int i = 0, n = Children.Count; i < n; i++)
-                    {
-                        var child = Children[i];
-                        child.Unmount(true);
-                    }
-                }
-                
-                if (UnmountingChildren?.Count > 0)
-                {
-                    for (var i = UnmountingChildren.Count - 1; i >= 0; i--)
-                    {
-                        var child = UnmountingChildren[i];
-                        child.Unmount(true);
-                    }
-                }
-                
-                if (Element != null)
-                {
-                    if (Element is IRishElement rishElement)
-                    {
-                        rishElement.OnDirty -= Node.Dirty;
-                        rishElement.Unmount();
-                    }
-                    
-                    Element.RemoveFromHierarchy();
-                    ElementsPool.Return(Element);
-                }
-
                 Parent = null;
                 Key = 0;
                 Depth = 0;
@@ -392,8 +377,6 @@ namespace RishUI
             
                 Children?.Clear();
                 UnmountingChildren?.Clear();
-            
-                ReleaseOwnedElements();
 
                 Index = 0;
                 Unmounting = false;
@@ -426,10 +409,10 @@ namespace RishUI
                 Element = ElementsPool.Get<T>();
                 Parent?.Element.Add(Element);
                 
-                Transition();
+                GoTo<MountedState>();
             }
 
-            public override void Unmount(bool forceUnmount)
+            public override void Unmount()
             {
                 throw new UnityException("Invalid state. Node is already unmounted.");
             }
@@ -450,11 +433,15 @@ namespace RishUI
             }
         }
 
-        private abstract class ActiveState : State
+        private class MountedState : State
         {
             private bool Rendering { get; set; }
             
-            protected ActiveState(StateMachine machine, Node node) : base(machine, node) { }
+            public MountedState(StateMachine machine, Node node) : base(machine, node) { }
+            
+            public override void Enter() { }
+            
+            public override void Exit() { }
 
             public override void MountAs<T>(Node parent, uint key)
             {
@@ -581,7 +568,7 @@ namespace RishUI
                 return (child, element);
             }
     
-            protected virtual void Clean()
+            private void Clean()
             {
                 var childrenCount = Children?.Count ?? 0;
                 if (childrenCount > 0)
@@ -627,61 +614,45 @@ namespace RishUI
 
                 Rendering = false;
             }
+            
+            public override void Unmount() => GoTo<UnmountRequestedState>();
         }
 
-        private class MountedState : ActiveState
-        {
-            public MountedState(StateMachine machine, Node node) : base(machine, node) { }
-            
-            public override void Enter() { }
-            
-            public override void Exit() { }
-
-            public override void Unmount(bool forceUnmount)
-            {
-                if (forceUnmount)
-                {
-                    ForceUnmount();
-                }
-                else
-                {
-                    Transition();
-                }
-            }
-        }
-
-        private abstract class UnmountingState : ActiveState
+        private abstract class UnmountingState : State
         {
             protected UnmountingState(StateMachine machine, Node node) : base(machine, node) { }
 
-            public override void Unmount(bool forceUnmount)
+            public override void MountAs<T>(Node parent, uint key)
             {
-                if (!forceUnmount)
-                {
-                    OnUnmount();
-                    
-                    return;
-                }
-
-                ForceUnmount();
-            }
-    
-            protected override void Clean()
-            {
-                base.Clean();
-
-                OnRender();
+                throw new UnityException("Invalid state. Node is unmounting.");
             }
 
-            protected abstract void OnUnmount();
-            protected abstract void OnRender();
+            public override void Render()
+            {
+                throw new UnityException("Invalid state. Node is unmounting.");
+            }
+
+            public override void SetChildren(Children children)
+            {
+                throw new UnityException("Invalid state. Node is unmounting.");
+            }
+
+            public override (Node, T) AddChild<T>(uint key)
+            {
+                throw new UnityException("Invalid state. Node is unmounting.");
+            }
+
+            public override void Unmount()
+            {
+                throw new UnityException("Invalid state. Node is already unmounting.");
+            }
         }
 
         private class UnmountRequestedState : UnmountingState
         {
             private bool ElementReady { get; set; }
-            private int UnreadyCount { get; set; }
-            private int UnmountingCount { get; set; }
+            private HashSet<uint> UnreadyElements { get; } = new();
+            private HashSet<uint> UnmountingElements { get; } = new();
             
             private List<Node> ChildrenOnEnter { get; set; }
             private List<Node> UnmountingChildrenOnEnter { get; set; }
@@ -690,9 +661,11 @@ namespace RishUI
             
             public override void Enter()
             {
+                // TODO: Maybe report to a new listener here?
+                
                 ElementReady = false;
                 
-                UnreadyCount = 0;
+                UnreadyElements.Clear();
                 if (Children != null)
                 {
                     ChildrenOnEnter ??= new List<Node>(Children.Capacity);
@@ -703,7 +676,12 @@ namespace RishUI
                         ChildrenOnEnter.Add(child);
                         if (!child.ReadyToUnmount)
                         {
-                            UnreadyCount++;
+                            var childId = child.ID;
+                            if (UnreadyElements.Contains(childId))
+                            {
+                                throw new UnityException("This is very wrong");
+                            }
+                            UnreadyElements.Add(childId);
                         }
                         
                         child.OnReadyToUnmount += ChildReadyToUnmount;
@@ -711,7 +689,7 @@ namespace RishUI
                     }
                 }
 
-                UnmountingCount = 0;
+                UnmountingElements.Clear();
                 if (UnmountingChildren != null)
                 {
                     UnmountingChildrenOnEnter ??= new List<Node>(UnmountingChildren.Capacity);
@@ -720,7 +698,12 @@ namespace RishUI
                     {
                         var child = UnmountingChildren[i];
                         UnmountingChildrenOnEnter.Add(child);
-                        UnmountingCount++;
+                        var childId = child.ID;
+                        if (UnmountingElements.Contains(childId))
+                        {
+                            throw new ArgumentException("This is very wrong");
+                        }
+                        UnmountingElements.Add(childId);
                         child.OnUnmount += ChildUnmounted;
                     }
                 }
@@ -770,18 +753,18 @@ namespace RishUI
             private void TryUnmount()
             {
 #if UNITY_EDITOR
-                if (UnreadyCount < 0 || UnmountingCount < 0)
+                if (UnreadyElements.Count < 0 || UnmountingElements.Count < 0)
                 {
                     throw new UnityException("Invalid state.");
                 }
 #endif
                 
-                if (!ElementReady || UnreadyCount > 0 || UnmountingCount > 0)
+                if (!ElementReady || UnreadyElements.Count > 0 || UnmountingElements.Count > 0)
                 {
                     return;
                 }
                 
-                Transition();
+                GoTo<ReadyToUnmountState>();
             }
 
             private void ElementReadyToUnmount()
@@ -797,33 +780,30 @@ namespace RishUI
                 TryUnmount();
             }
 
-            private void ChildReadyToUnmount(bool ready)
+            private void ChildReadyToUnmount(Node node)
             {
-                if (ready)
+                var nodeId = node.ID;
+                if (!UnreadyElements.Contains(nodeId))
                 {
-                    UnreadyCount--;
-                    
-                    TryUnmount();
+                    throw new UnityException("Child wasn't unready");
                 }
-                else
-                {
-                    UnreadyCount++;
-                }
-            }
 
-            private void ChildUnmounted()
-            {
-                UnmountingCount--;
+                UnreadyElements.Remove(nodeId);
                 
                 TryUnmount();
             }
 
-            protected override void OnUnmount() { }
-
-            protected override void OnRender()
+            private void ChildUnmounted(Node node)
             {
-                Exit();
-                Enter();
+                var nodeId = node.ID;
+                if (UnmountingElements.Contains(nodeId))
+                {
+                    throw new UnityException("Child wasn't unmounting");
+                }
+                
+                UnmountingElements.Remove(nodeId);
+                
+                TryUnmount();
             }
         }
         
@@ -833,33 +813,88 @@ namespace RishUI
             
             public override void Enter()
             {
-                ReadyToUnmount = true;
-
-                TryUnmount();
-            }
-            
-            public override void Exit()
-            {
-                ReadyToUnmount = false;
-            }
-
-            protected override void OnRender()
-            {
-                GoBack();
-            }
-
-            protected override void OnUnmount()
-            {
-                TryUnmount();
-            }
-
-            private void TryUnmount()
-            {
                 var isUnmountingRoot = Parent == null || !Parent.Contains(Node);
                 if (isUnmountingRoot)
                 {
-                    Transition();
+                    GoTo<UnmountedState>();
                 }
+                
+                ReadyToUnmount = true;
+            }
+
+            public override void Exit() { }
+        }
+        
+        private class UnmountedState : State
+        {
+            public UnmountedState(StateMachine machine, Node node) : base(machine, node) { }
+            
+            public override void Enter()
+            {
+                Parent?.UnmountingChildren.Remove(Node);
+                Node.OnUnmount?.Invoke(Node);
+                
+                if (Children?.Count > 0)
+                {
+                    for (var i = Children.Count - 1; i >= 0; i--)
+                    {
+                        var child = Children[i];
+                        child.Machine.GoTo<UnmountedState>();
+                    }
+                }
+
+                if (UnmountingChildren?.Count > 0)
+                {
+                    for (var i = UnmountingChildren.Count - 1; i >= 0; i--)
+                    {
+                        var child = UnmountingChildren[i];
+                        child.Machine.GoTo<UnmountedState>();
+                    }
+                }
+
+                GoTo<ReadyToMountState>();
+            }
+
+            public override void Exit()
+            {
+                if (Element != null)
+                {
+                    if (Element is IRishElement rishElement)
+                    {
+                        rishElement.OnDirty -= Node.Dirty;
+                        rishElement.Unmount();
+                    }
+                    
+                    Element.RemoveFromHierarchy();
+                    ElementsPool.Return(Element);
+                }
+            
+                ReleaseOwnedElements();
+            }
+
+            public override void MountAs<T>(Node parent, uint key)
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void Render()
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void SetChildren(Children children)
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override (Node, T) AddChild<T>(uint key)
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void Unmount()
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
             }
         }
     }
