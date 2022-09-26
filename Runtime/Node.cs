@@ -67,7 +67,7 @@ namespace RishUI
             Machine = new StateMachine(this);
         }
         
-        public bool IsActive() => Machine.Is<MountedState>();
+        public bool IsActive() => Machine.Is<ActiveState>();
 
         private bool Contains(Node child) => Children.Contains(child);
 
@@ -126,7 +126,7 @@ namespace RishUI
                             throw new UnityException("Invalid transition");
                         case UnmountRequestedState when value is not ReadyToUnmountState && value is not UnmountedState:
                             throw new UnityException("Invalid transition");
-                        case ReadyToUnmountState when value is not UnmountedState:
+                        case ReadyToUnmountState when value is not UnmountedState && value is not UnmountRequestedState:
                             throw new UnityException("Invalid transition");
                     }
 #endif
@@ -433,15 +433,11 @@ namespace RishUI
             }
         }
 
-        private class MountedState : State
+        private abstract class ActiveState : State
         {
             private bool Rendering { get; set; }
             
-            public MountedState(StateMachine machine, Node node) : base(machine, node) { }
-            
-            public override void Enter() { }
-            
-            public override void Exit() { }
+            protected ActiveState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void MountAs<T>(Node parent, uint key)
             {
@@ -568,7 +564,7 @@ namespace RishUI
                 return (child, element);
             }
     
-            private void Clean()
+            protected virtual void Clean()
             {
                 var childrenCount = Children?.Count ?? 0;
                 if (childrenCount > 0)
@@ -614,38 +610,31 @@ namespace RishUI
 
                 Rendering = false;
             }
+        }
+
+        private class MountedState : ActiveState
+        {
+            public MountedState(StateMachine machine, Node node) : base(machine, node) { }
+            
+            public override void Enter() { }
+            
+            public override void Exit() { }
             
             public override void Unmount() => GoTo<UnmountRequestedState>();
         }
 
-        private abstract class UnmountingState : State
+        private abstract class UnmountingState : ActiveState
         {
             protected UnmountingState(StateMachine machine, Node node) : base(machine, node) { }
 
-            public override void MountAs<T>(Node parent, uint key)
+            protected override void Clean()
             {
-                throw new UnityException("Invalid state. Node is unmounting.");
+                base.Clean();
+
+                OnRender();
             }
 
-            public override void Render()
-            {
-                throw new UnityException("Invalid state. Node is unmounting.");
-            }
-
-            public override void SetChildren(Children children)
-            {
-                throw new UnityException("Invalid state. Node is unmounting.");
-            }
-
-            public override (Node, T) AddChild<T>(uint key)
-            {
-                throw new UnityException("Invalid state. Node is unmounting.");
-            }
-
-            public override void Unmount()
-            {
-                throw new UnityException("Invalid state. Node is already unmounting.");
-            }
+            protected abstract void OnRender();
         }
 
         private class UnmountRequestedState : UnmountingState
@@ -805,6 +794,14 @@ namespace RishUI
                 
                 TryUnmount();
             }
+
+            public override void Unmount() { }
+
+            protected override void OnRender()
+            {
+                Exit();
+                Enter();
+            }
         }
         
         private class ReadyToUnmountState : UnmountingState
@@ -813,16 +810,25 @@ namespace RishUI
             
             public override void Enter()
             {
-                var isUnmountingRoot = Parent == null || !Parent.Contains(Node);
-                if (isUnmountingRoot)
-                {
-                    GoTo<UnmountedState>();
-                }
+                TryUnmounting();
                 
                 ReadyToUnmount = true;
             }
 
             public override void Exit() { }
+
+            public override void Unmount() => TryUnmounting();
+
+            protected override void OnRender() => GoTo<UnmountRequestedState>();
+
+            private void TryUnmounting()
+            {
+                var isUnmountingRoot = Parent == null || !Parent.Contains(Node);
+                if (isUnmountingRoot)
+                {
+                    GoTo<UnmountedState>();
+                }
+            }
         }
         
         private class UnmountedState : State
