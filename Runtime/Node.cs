@@ -785,7 +785,7 @@ namespace RishUI
             private void ChildUnmounted(Node node)
             {
                 var nodeId = node.ID;
-                if (UnmountingElements.Contains(nodeId))
+                if (!UnmountingElements.Contains(nodeId))
                 {
                     throw new UnityException("Child wasn't unmounting");
                 }
