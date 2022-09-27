@@ -383,7 +383,6 @@ namespace RishUI
                 UnmountingChildren?.Clear();
 
                 Index = 0;
-                Unmounting = false;
                 ReadyToUnmount = false;
             }
 
@@ -655,6 +654,8 @@ namespace RishUI
             private HashSet<uint> UnreadyElements { get; } = new();
             private HashSet<uint> UnmountingElements { get; } = new();
             
+            private bool CanUnmount { get; set; }
+            
             private List<Node> ChildrenOnEnter { get; set; }
             private List<Node> UnmountingChildrenOnEnter { get; set; }
 
@@ -662,9 +663,18 @@ namespace RishUI
             
             public override void Enter()
             {
-                // TODO: Maybe report to a new listener here?
+                CanUnmount = false;
                 
                 ElementReady = false;
+                if (Element is IRishElement rishElement)
+                {
+                    rishElement.OnReadyToUnmount += ElementReadyToUnmount;
+                    rishElement.RequestUnmount();
+                }
+                else
+                {
+                    ElementReadyToUnmount();
+                }
                 
                 UnreadyElements.Clear();
                 if (Children != null)
@@ -708,18 +718,10 @@ namespace RishUI
                         child.OnUnmount += ChildUnmounted;
                     }
                 }
+
+                CanUnmount = true;
                 
-                Unmounting = true;
-                
-                if (Element is IRishElement rishElement)
-                {
-                    rishElement.OnReadyToUnmount += ElementReadyToUnmount;
-                    rishElement.RequestUnmount();
-                }
-                else
-                {
-                    ElementReadyToUnmount();
-                }
+                TryUnmount();
             }
             
             public override void Exit()
@@ -760,7 +762,7 @@ namespace RishUI
                 }
 #endif
                 
-                if (!ElementReady || UnreadyElements.Count > 0 || UnmountingElements.Count > 0)
+                if (!CanUnmount || !ElementReady || UnreadyElements.Count > 0 || UnmountingElements.Count > 0)
                 {
                     return;
                 }
