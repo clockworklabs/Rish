@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
@@ -21,28 +22,15 @@ namespace RishUI
         private const int InitialSize = 32;
         
         private static Dictionary<Type, int> InitialSizes { get; } = new();
-        private static Dictionary<Type, Stack<VisualElement>> Pools { get; } = new();
-        
+        private static Dictionary<Type, Queue<VisualElement>> Pools { get; } = new();
+
         public static T Get<T>() where T : VisualElement, new()
         {
             var type = typeof(T);
             if (!Pools.TryGetValue(type, out var pool))
             {
-                pool = new Stack<VisualElement>();
+                pool = new Queue<VisualElement>();
                 Pools[type] = pool;
-
-                int size;
-                if (Attribute.IsDefined(type, typeof(PoolSizeAttribute)))
-                {
-                    var attribute = (PoolSizeAttribute) Attribute.GetCustomAttribute(type, typeof(PoolSizeAttribute));
-                    size = attribute.count;
-                }
-                else
-                {
-                    size = InitialSize;
-                }
-
-                InitialSizes[type] = size;
             }
             
             if (pool.Count <= 0)
@@ -65,7 +53,7 @@ namespace RishUI
                 Populate<T>(pool, size);
             }
 
-            var element = pool.Pop();
+            var element = pool.Dequeue();
             element.SetEnabled(true);
             
             return element as T;
@@ -83,14 +71,15 @@ namespace RishUI
             {
                 return false;
             }
-            
+
             element.SetEnabled(false);
-            pool.Push(element);
+            element.RemoveFromHierarchy();
+            pool.Enqueue(element);
             
             return true;
         }
         
-        private static void Populate<T>(Stack<VisualElement> pool, int size) where T : VisualElement, new()
+        private static void Populate<T>(Queue<VisualElement> pool, int size) where T : VisualElement, new()
         {
             if (pool == null || size <= 0)
             {
@@ -101,7 +90,7 @@ namespace RishUI
             {
                 var element = new T();
                 element.SetEnabled(false);
-                pool.Push(element);
+                pool.Enqueue(element);
             }
         }
     }

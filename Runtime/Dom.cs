@@ -16,6 +16,7 @@ namespace RishUI
         
         private List<Node> DirtyList { get; } = new (MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new (MaxDirtySize);
+        private List<Node> FreeNodes { get; } = new (MaxDirtySize);
         
         private int CurrentDepth { get; set; }
         
@@ -38,6 +39,8 @@ namespace RishUI
         public void Dispose()
         {
             Root.Unmount(true);
+
+            ReturnFreeNodesToPool();
         }
 
         private void OnDirtyNode(Node node)
@@ -65,9 +68,11 @@ namespace RishUI
 
             DirtyQueue.Enqueue(node, Mathf.Pow(0.99f, node.Depth));
         }
-
+        
         public void Update()
         {
+            ReturnFreeNodesToPool();
+            
             for (int i = 0, n = DirtyList.Count; i < n; i++)
             {
                 var node = DirtyList[i];
@@ -99,15 +104,14 @@ namespace RishUI
             return Pool.Pop();
         }
 
-        public bool ReturnNode(Node node)
+        public void UnmountNode(Node node)
         {
             if (node.Dom != this)
             {
-                return false;
+                throw new UnityException("Node doesn't belong to this dom");
             }
-
-            Pool.Push(node);
-            return true;
+            
+            FreeNodes.Add(node);
         }
 
         private void CreateNodes()
@@ -116,7 +120,20 @@ namespace RishUI
             {
                 var node = new Node(this, NextID++);
                 node.OnDirty += OnDirtyNode;
+                
+                Pool.Push(node);
             }
+        }
+
+        private void ReturnFreeNodesToPool()
+        {
+            for (int i = 0, n = FreeNodes.Count; i < n; i++)
+            {
+                var node = FreeNodes[i];
+                node.Free();
+                Pool.Push(node);
+            }
+            FreeNodes.Clear();
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Priority_Queue;
 using Unity.Collections;
 using UnityEngine;
@@ -14,7 +13,7 @@ namespace RishUI
         private event Action<Node> OnReadyToUnmount;
         private event Action<Node> OnUnmount;
         
-        public Dom Dom { get; }
+        internal Dom Dom { get; }
         private uint ID { get; }
 
         private StateMachine Machine { get; }
@@ -66,6 +65,8 @@ namespace RishUI
 
             Machine = new StateMachine(this);
         }
+
+        internal Node GetChildren(int index) => Children?[index];
         
         public bool IsActive() => Machine.Is<ActiveState>();
 
@@ -93,6 +94,7 @@ namespace RishUI
         public void Render() => Machine.Render();
         public void SetChildren(Children children) => Machine.SetChildren(children);
         public (Node, T) AddChild<T>(uint key) where T : VisualElement, new() => Machine.AddChild<T>(key);
+        public void Free() => Machine.Free();
 
         private class StateMachine
         {
@@ -115,7 +117,7 @@ namespace RishUI
                     
                     // if (_currentState != null)
                     // {
-                    //     Debug.Log($"{Node.ID} ({Node.Type?.FullName}): {_currentState.GetType().Name} -> {value.GetType().Name}");
+                    //     UnityEngine.Debug.Log($"{Node.ID} ({Node.Type?.FullName}): {_currentState.GetType().Name} -> {value.GetType().Name}");
                     // }
 
                     switch (_currentState)
@@ -187,7 +189,6 @@ namespace RishUI
             }
 
             public bool Is<T>() where T : State => CurrentState is T;
-            public string GetCurrent() => CurrentState.GetType().Name;
             
             public void MountAs<T>(Node parent, uint key) where T : VisualElement, new() => CurrentState.MountAs<T>(parent, key);
             public void Unmount(bool forceUnmount)
@@ -203,6 +204,7 @@ namespace RishUI
             public void Render() => CurrentState.Render();
             public void SetChildren(Children children) => CurrentState.SetChildren(children);
             public (Node, T) AddChild<T>(uint key) where T : VisualElement, new() => CurrentState.AddChild<T>(key);
+            public void Free() => CurrentState.Free();
         }
         
         private abstract class State
@@ -303,6 +305,8 @@ namespace RishUI
             public abstract void Render();
             public abstract void SetChildren(Children children);
             public abstract (Node, T) AddChild<T>(uint key) where T : VisualElement, new();
+
+            public abstract void Free();
             
             protected void StartClaimingOwnership() => Rish.RegisterOwner(Node);
             protected void StopClaimingOwnership() => Rish.UnregisterOwner(Node);
@@ -381,8 +385,6 @@ namespace RishUI
                 Index = 0;
                 Unmounting = false;
                 ReadyToUnmount = false;
-                
-                Dom.ReturnNode(Node);
             }
 
             public override void Exit()
@@ -430,6 +432,11 @@ namespace RishUI
             public override (Node, T) AddChild<T>(uint key)
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void Free()
+            {
+                throw new UnityException("Invalid state. Node is ready to be mounted.");
             }
         }
 
@@ -609,6 +616,11 @@ namespace RishUI
                 }
 
                 Rendering = false;
+            }
+
+            public override void Free()
+            {
+                throw new UnityException("Invalid state. Node can't be freed while active.");
             }
         }
 
@@ -857,8 +869,8 @@ namespace RishUI
                         child.Machine.GoTo<UnmountedState>();
                     }
                 }
-
-                GoTo<ReadyToMountState>();
+                
+                Dom.UnmountNode(Node);
             }
 
             public override void Exit()
@@ -871,7 +883,6 @@ namespace RishUI
                         rishElement.Unmount();
                     }
                     
-                    Element.RemoveFromHierarchy();
                     ElementsPool.Return(Element);
                 }
             
@@ -902,6 +913,8 @@ namespace RishUI
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
             }
+
+            public override void Free() => GoTo<ReadyToMountState>();
         }
     }
 }
