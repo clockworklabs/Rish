@@ -22,14 +22,14 @@ namespace RishUI
         private const int InitialSize = 32;
         
         private static Dictionary<Type, int> InitialSizes { get; } = new();
-        private static Dictionary<Type, Queue<VisualElement>> Pools { get; } = new();
+        private static Dictionary<Type, Stack<VisualElement>> Pools { get; } = new();
 
         public static T Get<T>() where T : VisualElement, new()
         {
             var type = typeof(T);
             if (!Pools.TryGetValue(type, out var pool))
             {
-                pool = new Queue<VisualElement>();
+                pool = new Stack<VisualElement>();
                 Pools[type] = pool;
             }
             
@@ -53,7 +53,7 @@ namespace RishUI
                 Populate<T>(pool, size);
             }
 
-            var element = pool.Dequeue();
+            var element = pool.Pop();
             element.SetEnabled(true);
             
             return element as T;
@@ -74,12 +74,12 @@ namespace RishUI
 
             element.SetEnabled(false);
             element.RemoveFromHierarchy();
-            pool.Enqueue(element);
+            pool.Push(element);
             
             return true;
         }
         
-        private static void Populate<T>(Queue<VisualElement> pool, int size) where T : VisualElement, new()
+        private static void Populate<T>(Stack<VisualElement> pool, int size) where T : VisualElement, new()
         {
             if (pool == null || size <= 0)
             {
@@ -90,7 +90,7 @@ namespace RishUI
             {
                 var element = new T();
                 element.SetEnabled(false);
-                pool.Enqueue(element);
+                pool.Push(element);
             }
         }
     }
