@@ -68,14 +68,17 @@ namespace RishUI
             }
 
             _props = value;
-
-            if (dirty)
-            {
-                Setup(Element, value);
-            }
+            
+            Setup(Element, value, dirty);
         }
 
         void IPrimitiveElement<P>.Setup(P props) => SetProps(props, true);
+
+        protected virtual void Setup(T element, P props, bool dirty)
+        {
+            Setup(element, props);
+        }
+        
         protected abstract void Setup(T element, P props);
         
         public sealed override void Blur() => base.Blur();
@@ -156,13 +159,16 @@ namespace RishUI
 
             _props = value;
 
-            if (dirty)
-            {
-                Setup(value);
-            }
+            Setup(value, dirty);
         }
 
         void IPrimitiveElement<P>.Setup(P props) => SetProps(props, true);
+
+        protected virtual void Setup(P props, bool dirty)
+        {
+            Setup(props);
+        }
+        
         protected abstract void Setup(P props);
         
         public sealed override void Blur() => base.Blur();

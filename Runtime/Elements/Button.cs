@@ -1,4 +1,5 @@
 using System;
+using RishUI.Events;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
@@ -10,11 +11,12 @@ namespace RishUI.Elements
 
         public Button()
         {
-            RegisterCallback<PointerEnterEvent>(OnHoverStart);
-            RegisterCallback<PointerLeaveEvent>(OnHoverEnd);
+            RegisterCallback<HoverStartEvent>(OnHoverStart);
+            RegisterCallback<HoverEndEvent>(OnHoverEnd);
+            
             RegisterCallback<PointerDownEvent>(OnPointerDown);
             RegisterCallback<PointerUpEvent>(OnPointerUp);
-            RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
+            // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
             RegisterCallback<PointerCancelEvent>(OnPointerCancel);
             
             // TODO: Add longPress
@@ -40,16 +42,14 @@ namespace RishUI.Elements
             return Props.normal;
         }
 
-        // TODO: Support touch screens
-        private void OnHoverStart(PointerEnterEvent evt)
+        private void OnHoverStart(HoverStartEvent evt)
         {
             var state = State;
             state.hovered = true;
             State = state;
         }
 
-        // TODO: Support touch screens
-        private void OnHoverEnd(PointerLeaveEvent evt)
+        private void OnHoverEnd(HoverEndEvent evt)
         {
             var state = State;
             state.hovered = false;
@@ -71,6 +71,8 @@ namespace RishUI.Elements
             var state = State;
             state.pressed = true;
             State = state;
+            
+            evt.StopPropagation();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -100,31 +102,35 @@ namespace RishUI.Elements
             var state = State;
             state.pressed = false;
             State = state;
+            
+            evt.StopPropagation();
         }
 
         // TODO: Does this work?
-        private void OnPointerStationary(PointerStationaryEvent evt)
-        {
-            if (!Listening || PointerId != evt.pointerId)
-            {
-                return;
-            }
-            
-            this.ReleasePointer(PointerId);
-
-            Listening = false;
-            PointerId = 0;
-            
-            
-            if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-            {
-                Props.secondaryAction?.Invoke();
-            }
-
-            var state = State;
-            state.pressed = false;
-            State = state;
-        }
+        // private void OnPointerStationary(PointerStationaryEvent evt)
+        // {
+        //     if (!Listening || PointerId != evt.pointerId)
+        //     {
+        //         return;
+        //     }
+        //     
+        //     this.ReleasePointer(PointerId);
+        //
+        //     Listening = false;
+        //     PointerId = 0;
+        //     
+        //     
+        //     if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
+        //     {
+        //         Props.secondaryAction?.Invoke();
+        //     }
+        //
+        //     var state = State;
+        //     state.pressed = false;
+        //     State = state;
+        //     
+        //     evt.StopPropagation();
+        // }
 
         // TODO: Is this necessary?
         private void OnPointerCancel(PointerCancelEvent evt)
@@ -134,12 +140,28 @@ namespace RishUI.Elements
                 return;
             }
 
+            this.ReleasePointer(PointerId);
+
             Listening = false;
             PointerId = 0;
             
+            if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
+            {
+                if (evt.button == 1)
+                {
+                    Props.secondaryAction?.Invoke();
+                }
+                else
+                {
+                    Props.action?.Invoke();
+                }
+            }
+
             var state = State;
             state.pressed = false;
             State = state;
+            
+            evt.StopPropagation();
         }
     }
 

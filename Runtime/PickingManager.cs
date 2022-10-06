@@ -10,10 +10,12 @@ namespace RishUI
     
     public enum PointerDetectionMode
     {
+        Inherit,
+        Ignore,
         Rect,
         Alpha,
         ImageAlpha,
-        Ignore
+        ForceIgnore
     }
 
     public class PickingManager
@@ -24,7 +26,19 @@ namespace RishUI
         
         public PointerDetectionMode? InlinePointerDetection { private get; set; }
         private PointerDetectionMode? StylePointerDetection { get; set; }
-        public PointerDetectionMode PointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? (Element.parent is IAdvancedPicking parent ? parent.Manager.PointerDetection : PointerDetectionMode.Rect));
+        private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? PointerDetectionMode.Inherit);
+        public PointerDetectionMode PointerDetection
+        {
+            get {
+                var inherited = Element.parent is IAdvancedPicking parent ? parent.Manager.PointerDetection : PointerDetectionMode.Ignore;
+                if (inherited == PointerDetectionMode.ForceIgnore)
+                {
+                    return PointerDetectionMode.ForceIgnore;
+                }
+                
+                return LocalPointerDetection != PointerDetectionMode.Inherit ? LocalPointerDetection : inherited;
+            }
+        }
         
         private float BackgroundColorAlpha { get; set; }
         private Vector4 BackgroundSlices { get; set; }
@@ -88,11 +102,13 @@ namespace RishUI
             {
                 mode = pointerDetectionMode switch
                 {
-                    "alpha" => PointerDetectionMode.Alpha,
-                    "rect" => PointerDetectionMode.Rect,
-                    "image-alpha" => PointerDetectionMode.ImageAlpha,
+                    "inherit" => PointerDetectionMode.Inherit,
                     "ignore" => PointerDetectionMode.Ignore,
-                    "none" => PointerDetectionMode.Ignore,
+                    "rect" => PointerDetectionMode.Rect,
+                    "alpha" => PointerDetectionMode.Alpha,
+                    "image-alpha" => PointerDetectionMode.ImageAlpha,
+                    "force-ignore" => PointerDetectionMode.ForceIgnore,
+                    "none" => PointerDetectionMode.ForceIgnore,
                     _ => null
                 };
             }
@@ -172,6 +188,8 @@ namespace RishUI
             {
                 return false;
             }
+            
+            // TODO: Check rounded corners
 
             return PointerDetection switch
             {

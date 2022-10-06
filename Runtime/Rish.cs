@@ -69,8 +69,8 @@ namespace RishUI
         private static int _nextId;
         public int ID { get; } = ++_nextId;
         
-        private Node _owner;
-        internal Node Owner
+        private IOwner _owner;
+        internal IOwner Owner
         {
             get => _owner;
             set
@@ -99,9 +99,6 @@ namespace RishUI
             action?.Invoke(ref descriptor);
             return New(descriptor);
         }
-
-        // public abstract Descriptor GetDescriptor();
-        // TODO: Create new element when changing descriptor
 
         public abstract void Invoke(Node node);
 
@@ -191,6 +188,11 @@ namespace RishUI
 
         internal static void ReturnToPool(ElementDefinition definition)
         {
+            if (definition == null)
+            {
+                return;
+            }
+            
             var type = definition.GetType();
             if (!Pools.TryGetValue(type, out var pool))
             {
@@ -224,7 +226,8 @@ namespace RishUI
             {
                 throw new UnityException("There's nobody to claim ownership of this ElementDefinition");
             }
-            
+
+            definition.Owner = owner;
             owner.TakeOwnership(definition);
         }
         private static void OnCreate(NativeArray<Element> children)

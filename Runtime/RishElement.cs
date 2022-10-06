@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,7 +20,7 @@ namespace RishUI
         Element Render();
     }
 
-    public abstract class RishElement<P> : VisualElement, IRishElement, IAdvancedPicking where P : struct
+    public abstract class RishElement<P> : VisualElement, IRishElement, IAdvancedPicking, IOwner where P : struct
     {
         private event Action OnDirty;
         event Action IRishElement.OnDirty
@@ -35,6 +37,7 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
+        // protected event Action OnUnmounted;
         
         private P _preStylingProps;
         private P? _props;
@@ -49,6 +52,12 @@ namespace RishUI
         
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
+        
+        private List<ElementDefinition> OwnedDefinitions { get; set; }
+        private List<ElementDefinition> OwnedDefinitionsBuffer { get; set; }
+        
+        private List<NativeArray<Element>> OwnedChildren { get; set; }
+        private List<NativeArray<Element>> OwnedChildrenBuffer { get; set; }
 
         protected RishElement()
         {
@@ -158,6 +167,8 @@ namespace RishUI
             {
                 listener.ComponentWillUnmount();
             }
+            
+            ReleaseOwnedElements();
         }
 
         Element IRishElement.Render()
@@ -182,6 +193,84 @@ namespace RishUI
             StyledProps.Style(ref props, CustomStyle);
             SetProps(props, false);
         }
+        
+        protected void StartClaimingOwnership()
+        {
+            SwapBuffers();
+            Rish.RegisterOwner(this);
+        }
+        protected void StopClaimingOwnership()
+        {
+            Rish.UnregisterOwner(this);
+            ReleasePreviouslyOwnedElements();
+        }
+
+        void IOwner.TakeOwnership(ElementDefinition definition)
+        {
+            OwnedDefinitions ??= new List<ElementDefinition>();
+            
+            OwnedDefinitions.Add(definition);
+        }
+        void IOwner.TakeOwnership(NativeArray<Element> children)
+        {
+            OwnedChildren ??= new List<NativeArray<Element>>();
+            
+            OwnedChildren.Add(children);
+        }
+        
+        private void SwapBuffers()
+        {
+            if (OwnedDefinitions?.Count > 0)
+            {
+                (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
+            }
+            if (OwnedChildren?.Count > 0)
+            {
+                (OwnedChildren, OwnedChildrenBuffer) = (OwnedChildrenBuffer, OwnedChildren);
+            }
+        }
+
+        private void ReleasePreviouslyOwnedElements()
+        {
+            if (OwnedDefinitionsBuffer?.Count > 0)
+            {
+                for (int i = 0, n = OwnedDefinitionsBuffer.Count; i < n; i++)
+                {
+                    Rish.ReturnToPool(OwnedDefinitionsBuffer[i]);
+                }
+                OwnedDefinitionsBuffer.Clear();
+            }
+                
+            if (OwnedChildrenBuffer?.Count > 0)
+            {
+                for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
+                {
+                    OwnedChildrenBuffer[i].Dispose();
+                }
+                OwnedChildrenBuffer.Clear();
+            }
+        }
+
+        private void ReleaseOwnedElements()
+        {
+            if (OwnedDefinitions?.Count > 0)
+            {
+                for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
+                {
+                    Rish.ReturnToPool(OwnedDefinitions[i]);
+                }
+                OwnedDefinitions.Clear();
+            }
+
+            if (OwnedChildren?.Count > 0)
+            {
+                for (int i = 0, n = OwnedChildren.Count; i < n; i++)
+                {
+                    OwnedChildren[i].Dispose();
+                }
+                OwnedChildren.Clear();
+            }
+        }
 
         public sealed override void Blur() => base.Blur();
         public sealed override VisualElement contentContainer => base.contentContainer;
@@ -189,7 +278,10 @@ namespace RishUI
         public sealed override bool canGrabFocus => base.canGrabFocus;
         protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
 
-        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
+        public override bool ContainsPoint(Vector2 localPoint)
+        {
+            return PickingManager.ContainsPoint(localPoint);
+        }
     }
 
     public abstract class RishElement : RishElement<NoProps>

@@ -74,8 +74,6 @@ namespace RishUI
 
         void IOwner.TakeOwnership(ElementDefinition definition)
         {
-            definition.Owner = this;
-
             OwnedDefinitions ??= new List<ElementDefinition>();
             
             OwnedDefinitions.Add(definition);
@@ -386,20 +384,7 @@ namespace RishUI
                 ReadyToUnmount = false;
             }
 
-            public override void Exit()
-            {
-#if UNITY_EDITOR
-                if (Element == null)
-                {
-                    throw new UnityException("Invalid state. Element should always be set before mounting");
-                }
-#endif
-                if (Element is IRishElement rishElement)
-                {
-                    rishElement.OnDirty += Node.Dirty;
-                    rishElement.Mount();
-                }
-            }
+            public override void Exit() { }
 
             public override void MountAs<T>(Node parent, uint key)
             {
@@ -408,6 +393,8 @@ namespace RishUI
                 Depth = Parent?.Depth + 1 ?? 0;
 
                 Element = ElementsPool.Get<T>();
+                // TODO: Remove
+                Element.userData = Node.ID;
                 Parent?.Element.Add(Element);
                 
                 GoTo<MountedState>();
@@ -626,8 +613,27 @@ namespace RishUI
         private class MountedState : ActiveState
         {
             public MountedState(StateMachine machine, Node node) : base(machine, node) { }
-            
-            public override void Enter() { }
+
+            public override void Enter()
+            {
+#if UNITY_EDITOR
+                if (Element == null)
+                {
+                    throw new UnityException("Invalid state. Element should always be set before mounting");
+                }
+#endif
+                
+                using (var resetEvent = ResetEvent.GetPooled(Element))
+                {
+                    Element.SendEvent(resetEvent);
+                }
+                
+                if (Element is IRishElement rishElement)
+                {
+                    rishElement.OnDirty += Node.Dirty;
+                    rishElement.Mount();
+                }
+            }
             
             public override void Exit() { }
             
