@@ -156,11 +156,177 @@ namespace RishUI
             }
         }
 
-        private static Style Empty = default;
+        private static Style Default = default;
+
+        public static Style ClearStyling = new Style
+        {
+            alignContent = RishStyleKeyword.Initial,
+            alignItems = RishStyleKeyword.Initial,
+            alignSelf = RishStyleKeyword.Initial,
+            backgroundColor = RishStyleKeyword.Initial,
+            backgroundImage = RishStyleKeyword.Initial,
+            borderBottomColor = RishStyleKeyword.Initial,
+            borderBottomLeftRadius = RishStyleKeyword.Initial,
+            borderBottomRightRadius = RishStyleKeyword.Initial,
+            borderBottomWidth = RishStyleKeyword.Initial,
+            borderLeftColor = RishStyleKeyword.Initial,
+            borderLeftWidth = RishStyleKeyword.Initial,
+            borderRightColor = RishStyleKeyword.Initial,
+            borderRightWidth = RishStyleKeyword.Initial,
+            borderTopColor = RishStyleKeyword.Initial,
+            borderTopLeftRadius = RishStyleKeyword.Initial,
+            borderTopRightRadius = RishStyleKeyword.Initial,
+            borderTopWidth = RishStyleKeyword.Initial,
+            bottom = RishStyleKeyword.Initial,
+            // color = RishStyleKeyword.Initial,
+            cursor = RishStyleKeyword.Initial,
+            display = RishStyleKeyword.Initial,
+            flexBasis = RishStyleKeyword.Initial,
+            flexDirection = RishStyleKeyword.Initial,
+            flexGrow = RishStyleKeyword.Initial,
+            flexShrink = RishStyleKeyword.Initial,
+            flexWrap = RishStyleKeyword.Initial,
+            // fontSize = RishStyleKeyword.Initial,
+            height = RishStyleKeyword.Initial,
+            justifyContent = RishStyleKeyword.Initial,
+            left = RishStyleKeyword.Initial,
+            // letterSpacing = RishStyleKeyword.Initial,
+            marginBottom = RishStyleKeyword.Initial,
+            marginLeft = RishStyleKeyword.Initial,
+            marginRight = RishStyleKeyword.Initial,
+            marginTop = RishStyleKeyword.Initial,
+            maxHeight = RishStyleKeyword.Initial,
+            maxWidth = RishStyleKeyword.Initial,
+            minHeight = RishStyleKeyword.Initial,
+            minWidth = RishStyleKeyword.Initial,
+            opacity = RishStyleKeyword.Initial,
+            overflow = RishStyleKeyword.Initial,
+            paddingBottom = RishStyleKeyword.Initial,
+            paddingLeft = RishStyleKeyword.Initial,
+            paddingRight = RishStyleKeyword.Initial,
+            paddingTop = RishStyleKeyword.Initial,
+            position = RishStyleKeyword.Initial,
+            right = RishStyleKeyword.Initial,
+            rotate = 0,
+            scale = 1,
+            textOverflow = RishStyleKeyword.Initial,
+            // textShadow = RishStyleKeyword.Initial,
+            top = RishStyleKeyword.Initial,
+            transformOrigin = RishStyleKeyword.Initial,
+            transitionDelay = RishStyleKeyword.Initial,
+            transitionDuration = RishStyleKeyword.Initial,
+            transitionProperty = RishStyleKeyword.Initial,
+            transitionTimingFunction = RishStyleKeyword.Initial,
+            translate = new Translate(0, 0, 0),
+            unityBackgroundImageTintColor = RishStyleKeyword.Initial,
+            unityBackgroundScaleMode = RishStyleKeyword.Initial,
+            // unityFont = RishStyleKeyword.Initial,
+            // unityFontDefinition = RishStyleKeyword.Initial,
+            // unityFontStyleAndWeight = RishStyleKeyword.Initial,
+            unityOverflowClipBox = RishStyleKeyword.Initial,
+            // unityParagraphSpacing = RishStyleKeyword.Initial,
+            unitySliceBottom = RishStyleKeyword.Initial,
+            unitySliceLeft = RishStyleKeyword.Initial,
+            unitySliceRight = RishStyleKeyword.Initial,
+            unitySliceTop = RishStyleKeyword.Initial,
+            // unityTextAlign = RishStyleKeyword.Initial,
+            // unityTextOutlineColor = RishStyleKeyword.Initial,
+            // unityTextOutlineWidth = RishStyleKeyword.Initial,
+            unityTextOverflowPosition = RishStyleKeyword.Initial,
+            // visibility = RishStyleKeyword.Initial,
+            // whiteSpace = RishStyleKeyword.Initial,
+            width = RishStyleKeyword.Initial,
+            // wordSpacing = RishStyleKeyword.Initial,
+            pointerDetection = RishStyleKeyword.Initial
+        };
+
+        public Style(Style other)
+        {
+            alignContent = other.alignContent;
+            alignItems = other.alignItems;
+            alignSelf = other.alignSelf;
+            backgroundColor = other.backgroundColor;
+            backgroundImage = other.backgroundImage;
+            borderBottomColor = other.borderBottomColor;
+            borderBottomLeftRadius = other.borderBottomLeftRadius;
+            borderBottomRightRadius = other.borderBottomRightRadius;
+            borderBottomWidth = other.borderBottomWidth;
+            borderLeftColor = other.borderLeftColor;
+            borderLeftWidth = other.borderLeftWidth;
+            borderRightColor = other.borderRightColor;
+            borderRightWidth = other.borderRightWidth;
+            borderTopColor = other.borderTopColor;
+            borderTopLeftRadius = other.borderTopLeftRadius;
+            borderTopRightRadius = other.borderTopRightRadius;
+            borderTopWidth = other.borderTopWidth;
+            bottom = other.bottom;
+            color = other.color;
+            cursor = other.cursor;
+            display = other.display;
+            flexBasis = other.flexBasis;
+            flexDirection = other.flexDirection;
+            flexGrow = other.flexGrow;
+            flexShrink = other.flexShrink;
+            flexWrap = other.flexWrap;
+            fontSize = other.fontSize;
+            height = other.height;
+            justifyContent = other.justifyContent;
+            left = other.left;
+            letterSpacing = other.letterSpacing;
+            marginBottom = other.marginBottom;
+            marginLeft = other.marginLeft;
+            marginRight = other.marginRight;
+            marginTop = other.marginTop;
+            maxHeight = other.maxHeight;
+            maxWidth = other.maxWidth;
+            minHeight = other.minHeight;
+            minWidth = other.minWidth;
+            opacity = other.opacity;
+            overflow = other.overflow;
+            paddingBottom = other.paddingBottom;
+            paddingLeft = other.paddingLeft;
+            paddingRight = other.paddingRight;
+            paddingTop = other.paddingTop;
+            position = other.position;
+            right = other.right;
+            rotate = other.rotate;
+            scale = other.scale;
+            textOverflow = other.textOverflow;
+            textShadow = other.textShadow;
+            top = other.top;
+            transformOrigin = other.transformOrigin;
+            transitionDelay = other.transitionDelay;
+            transitionDuration = other.transitionDuration;
+            transitionProperty = other.transitionProperty;
+            transitionTimingFunction = other.transitionTimingFunction;
+            translate = other.translate;
+            unityBackgroundImageTintColor = other.unityBackgroundImageTintColor;
+            unityBackgroundScaleMode = other.unityBackgroundScaleMode;
+            unityFont = other.unityFont;
+            unityFontDefinition = other.unityFontDefinition;
+            unityFontStyleAndWeight = other.unityFontStyleAndWeight;
+            unityOverflowClipBox = other.unityOverflowClipBox;
+            unityParagraphSpacing = other.unityParagraphSpacing;
+            unitySliceBottom = other.unitySliceBottom;
+            unitySliceLeft = other.unitySliceLeft;
+            unitySliceRight = other.unitySliceRight;
+            unitySliceTop = other.unitySliceTop;
+            unityTextAlign = other.unityTextAlign;
+            unityTextOutlineColor = other.unityTextOutlineColor;
+            unityTextOutlineWidth = other.unityTextOutlineWidth;
+            unityTextOverflowPosition = other.unityTextOverflowPosition;
+            visibility = other.visibility;
+            whiteSpace = other.whiteSpace;
+            width = other.width;
+            wordSpacing = other.wordSpacing;
+            pointerDetection = other.pointerDetection;
+        }
+
+        public Style WithLayout(LayoutStyle layoutStyle) => layoutStyle.Combine(this);
 
         public void SetInlineStyle(VisualElement element)
         {
-            if (RishUtils.MemCmp(ref this, ref Empty))
+            if (RishUtils.MemCmp(ref this, ref Default))
             {
                 ResetInlineStyles(element);
                 return;
@@ -261,6 +427,98 @@ namespace RishUI
                     advancedPicking.Manager.InlinePointerDetection = null;
                 }
             }
+        }
+
+        public static Style FromElement(VisualElement element)
+        {
+            if (element == null)
+            {
+                return default;
+            }
+
+            return new Style
+            {
+                alignContent = element.style.alignContent,
+                alignItems = element.style.alignItems,
+                alignSelf = element.style.alignSelf,
+                backgroundColor = element.style.backgroundColor,
+                backgroundImage = element.style.backgroundImage,
+                borderBottomColor = element.style.borderBottomColor,
+                borderBottomLeftRadius = element.style.borderBottomLeftRadius,
+                borderBottomRightRadius = element.style.borderBottomRightRadius,
+                borderBottomWidth = element.style.borderBottomWidth,
+                borderLeftColor = element.style.borderLeftColor,
+                borderLeftWidth = element.style.borderLeftWidth,
+                borderRightColor = element.style.borderRightColor,
+                borderRightWidth = element.style.borderRightWidth,
+                borderTopColor = element.style.borderTopColor,
+                borderTopLeftRadius = element.style.borderTopLeftRadius,
+                borderTopRightRadius = element.style.borderTopRightRadius,
+                borderTopWidth = element.style.borderTopWidth,
+                bottom = element.style.bottom,
+                color = element.style.color,
+                cursor = element.style.cursor,
+                display = element.style.display,
+                flexBasis = element.style.flexBasis,
+                flexDirection = element.style.flexDirection,
+                flexGrow = element.style.flexGrow,
+                flexShrink = element.style.flexShrink,
+                flexWrap = element.style.flexWrap,
+                fontSize = element.style.fontSize,
+                height = element.style.height,
+                justifyContent = element.style.justifyContent,
+                left = element.style.left,
+                letterSpacing = element.style.letterSpacing,
+                marginBottom = element.style.marginBottom,
+                marginLeft = element.style.marginLeft,
+                marginRight = element.style.marginRight,
+                marginTop = element.style.marginTop,
+                maxHeight = element.style.maxHeight,
+                maxWidth = element.style.maxWidth,
+                minHeight = element.style.minHeight,
+                minWidth = element.style.minWidth,
+                opacity = element.style.opacity,
+                overflow = element.style.overflow,
+                paddingBottom = element.style.paddingBottom,
+                paddingLeft = element.style.paddingLeft,
+                paddingRight = element.style.paddingRight,
+                paddingTop = element.style.paddingTop,
+                position = element.style.position,
+                right = element.style.right,
+                rotate = element.style.rotate,
+                scale = element.style.scale,
+                textOverflow = element.style.textOverflow,
+                textShadow = element.style.textShadow,
+                top = element.style.top,
+                transformOrigin = element.style.transformOrigin,
+                transitionDelay = element.style.transitionDelay,
+                transitionDuration = element.style.transitionDuration,
+                transitionProperty = element.style.transitionProperty,
+                transitionTimingFunction = element.style.transitionTimingFunction,
+                translate = element.style.translate,
+                unityBackgroundImageTintColor = element.style.unityBackgroundImageTintColor,
+                unityBackgroundScaleMode = element.style.unityBackgroundScaleMode,
+                unityFont = element.style.unityFont,
+                unityFontDefinition = element.style.unityFontDefinition,
+                unityFontStyleAndWeight = element.style.unityFontStyleAndWeight,
+                unityOverflowClipBox = element.style.unityOverflowClipBox,
+                unityParagraphSpacing = element.style.unityParagraphSpacing,
+                unitySliceBottom = element.style.unitySliceBottom,
+                unitySliceLeft = element.style.unitySliceLeft,
+                unitySliceRight = element.style.unitySliceRight,
+                unitySliceTop = element.style.unitySliceTop,
+                unityTextAlign = element.style.unityTextAlign,
+                unityTextOutlineColor = element.style.unityTextOutlineColor,
+                unityTextOutlineWidth = element.style.unityTextOutlineWidth,
+                unityTextOverflowPosition = element.style.unityTextOverflowPosition,
+                visibility = element.style.visibility,
+                whiteSpace = element.style.whiteSpace,
+                width = element.style.width,
+                wordSpacing = element.style.wordSpacing,
+                pointerDetection = element is IAdvancedPicking advancedPicking && advancedPicking.Manager.InlinePointerDetection.HasValue 
+                    ? advancedPicking.Manager.InlinePointerDetection.Value
+                    : RishStyleKeyword.Null
+            };
         }
 
         private static void ResetInlineStyles(VisualElement element)

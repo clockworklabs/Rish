@@ -24,7 +24,7 @@ namespace RishUI
         
         private VisualElement Element { get; }
         
-        public PointerDetectionMode? InlinePointerDetection { private get; set; }
+        public PointerDetectionMode? InlinePointerDetection { get; set; }
         private PointerDetectionMode? StylePointerDetection { get; set; }
         private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? PointerDetectionMode.Inherit);
         public PointerDetectionMode PointerDetection

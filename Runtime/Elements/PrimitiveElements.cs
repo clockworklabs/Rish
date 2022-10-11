@@ -11,37 +11,89 @@ namespace RishUI.Elements
         protected override void Setup() { }
     }
     
-    public class TransparentDiv : RishVisualElement, IManualStyling
+    public class Transparent : RishVisualElement, IManualStyling
     {
-        private bool Styled { get; set; }
+        void IManualStyling.OnName(string name)
+        {
+            this.name = parent?.name;
+        }
         
-        void IManualStyling.OnClasses(ClassName className) { }
+        void IManualStyling.OnClasses(ClassName className)
+        {
+            className = ClassName.FromElement(parent);
+            className.SetClasses(this);
+        }
 
         void IManualStyling.OnInline(Style style)
         {
-            if (Styled)
-            {
-                return;
-            }
-
-            style = new Style
+            // Set position
+            // Override everything except flexDirection, flexWrap, alignContent, alignItems, justifyContents and padding
+            // Ignore inherited values
+            style = new Style(Style.FromElement(parent))
             {
                 position = Position.Absolute,
                 top = 0,
                 right = 0,
                 bottom = 0,
                 left = 0,
-                pointerDetection = PointerDetectionMode.Ignore
+                pointerDetection = PointerDetectionMode.Ignore,
+
+                backgroundColor = RishStyleKeyword.Initial,
+                backgroundImage = RishStyleKeyword.Initial,
+                borderBottomColor = RishStyleKeyword.Initial,
+                borderBottomLeftRadius = RishStyleKeyword.Initial,
+                borderBottomRightRadius = RishStyleKeyword.Initial,
+                borderBottomWidth = RishStyleKeyword.Initial,
+                borderLeftColor = RishStyleKeyword.Initial,
+                borderLeftWidth = RishStyleKeyword.Initial,
+                borderRightColor = RishStyleKeyword.Initial,
+                borderRightWidth = RishStyleKeyword.Initial,
+                borderTopColor = RishStyleKeyword.Initial,
+                borderTopLeftRadius = RishStyleKeyword.Initial,
+                borderTopRightRadius = RishStyleKeyword.Initial,
+                borderTopWidth = RishStyleKeyword.Initial,
+                cursor = RishStyleKeyword.Initial,
+                display = RishStyleKeyword.Initial,
+                flexBasis = RishStyleKeyword.Initial,
+                flexGrow = RishStyleKeyword.Initial,
+                flexShrink = RishStyleKeyword.Initial,
+                height = RishStyleKeyword.Initial,
+                marginBottom = RishStyleKeyword.Initial,
+                marginLeft = RishStyleKeyword.Initial,
+                marginRight = RishStyleKeyword.Initial,
+                marginTop = RishStyleKeyword.Initial,
+                maxHeight = RishStyleKeyword.Initial,
+                maxWidth = RishStyleKeyword.Initial,
+                minHeight = RishStyleKeyword.Initial,
+                minWidth = RishStyleKeyword.Initial,
+                opacity = RishStyleKeyword.Initial,
+                overflow = RishStyleKeyword.Initial,
+                rotate = 0,
+                scale = 1,
+                textOverflow = RishStyleKeyword.Initial,
+                transformOrigin = RishStyleKeyword.Initial,
+                transitionDelay = RishStyleKeyword.Initial,
+                transitionDuration = RishStyleKeyword.Initial,
+                transitionProperty = RishStyleKeyword.Initial,
+                transitionTimingFunction = RishStyleKeyword.Initial,
+                translate = new Translate(0, 0, 0),
+                unityBackgroundImageTintColor = RishStyleKeyword.Initial,
+                unityBackgroundScaleMode = RishStyleKeyword.Initial,
+                unityOverflowClipBox = RishStyleKeyword.Initial,
+                unitySliceBottom = RishStyleKeyword.Initial,
+                unitySliceLeft = RishStyleKeyword.Initial,
+                unitySliceRight = RishStyleKeyword.Initial,
+                unitySliceTop = RishStyleKeyword.Initial,
+                unityTextOverflowPosition = RishStyleKeyword.Initial,
+                width = RishStyleKeyword.Initial,
             };
             
             style.SetInlineStyle(this);
-
-            Styled = true;
         }
         
         protected override void Setup() { }
     }
-    
+
     // public class Text : PrimitiveWrapper<UIElements.Label, TextProps>
     // {
     //     public Text() : base(false) { }
