@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Priority_Queue;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,8 +18,11 @@ namespace RishUI
         private List<Node> DirtyList { get; } = new (MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new (MaxDirtySize);
         private List<Node> FreeNodes { get; } = new (MaxDirtySize);
-        
+
         private int CurrentDepth { get; set; }
+
+        private List<Element> FreeDefinitions { get; } = new();
+        private List<Children> FreeChildren { get; } = new();
         
         public Dom(UIDocument document, string rootClassName)
         {
@@ -41,7 +45,11 @@ namespace RishUI
             Root.Unmount(true);
 
             ReturnFreeNodesToPool();
+            ReturnFreeElements();
         }
+
+        internal void Free(Element definition) => FreeDefinitions.Add(definition);
+        internal void Free(Children children) => FreeChildren.Add(children);
 
         private void OnDirtyNode(Node node)
         {
@@ -72,6 +80,7 @@ namespace RishUI
         public void Update()
         {
             ReturnFreeNodesToPool();
+            ReturnFreeElements();
             
             for (int i = 0, n = DirtyList.Count; i < n; i++)
             {
@@ -134,6 +143,22 @@ namespace RishUI
                 Pool.Push(node);
             }
             FreeNodes.Clear();
+        }
+
+        private void ReturnFreeElements()
+        {
+            for (int i = 0, n = FreeDefinitions.Count; i < n; i++)
+            {
+                var definition = FreeDefinitions[i];
+                definition.ReturnToPool();
+            }
+            FreeDefinitions.Clear();
+            for (int i = 0, n = FreeChildren.Count; i < n; i++)
+            {
+                var children = FreeChildren[i];
+                children.Dispose();
+            }
+            FreeChildren.Clear();
         }
     }
 }

@@ -42,6 +42,8 @@ namespace RishUI
             
             Rish.GetDefinition(_id).Invoke(node);
         }
+
+        internal void ReturnToPool() => Rish.ReturnToPool(_id);
         
         public static implicit operator Element(ElementDefinition definition) => new()
         {
@@ -147,8 +149,8 @@ namespace RishUI
 
     public interface IOwner
     {
-        void TakeOwnership(ElementDefinition definition);
-        void TakeOwnership(NativeArray<Element> children);
+        void TakeOwnership(Element element);
+        void TakeOwnership(Children children);
     }
 
     // TODO: Split into partial classes
@@ -160,6 +162,8 @@ namespace RishUI
         private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
 
         private static List<ElementDefinition> All { get; } = new();
+        private static int _nextChildrenId;
+        private static Dictionary<int, NativeArray<Element>> AllChildren { get; } = new();
         
         private static T GetFromPool<T>() where T : ElementDefinition, new()
         {
@@ -186,8 +190,9 @@ namespace RishUI
             return element;
         }
 
-        internal static void ReturnToPool(ElementDefinition definition)
+        internal static void ReturnToPool(int id)
         {
+            var definition = GetDefinition(id);
             if (definition == null)
             {
                 return;
@@ -202,7 +207,29 @@ namespace RishUI
             pool.Push(definition);
         }
 
+        internal static void Dispose(int id)
+        {
+            if (!AllChildren.TryGetValue(id, out var children))
+            {
+                return;
+            }
+            
+            Debug.Log($"Dispose {id}");
+            
+            children.Dispose();
+            AllChildren.Remove(id);
+        }
+
         internal static ElementDefinition GetDefinition(int id) => All[id - 1];
+        internal static NativeArray<Element> GetNativeArray(int id)
+        {
+            if (!AllChildren.TryGetValue(id, out var children))
+            {
+                return default;
+            }
+            
+            return children;
+        }
 
         internal static void RegisterOwner(IOwner listener)
         {
@@ -230,7 +257,7 @@ namespace RishUI
             definition.Owner = owner;
             owner.TakeOwnership(definition);
         }
-        private static void OnCreate(NativeArray<Element> children)
+        private static void OnCreate(Children children)
         {
             var owner = Owners.Peek();
             if (owner == null)
@@ -240,26 +267,33 @@ namespace RishUI
             
             owner.TakeOwnership(children);
         }
-        
+
+        private static Children CreateChildren(NativeArray<Element> array)
+        {
+            var id = ++_nextChildrenId;
+            Debug.Log($"Create {id}");
+            AllChildren[id] = array;
+            var children = new Children(id);
+            OnCreate(children);
+
+            return children;
+        }
+
         public static Children Children() => RishUI.Children.Empty;
         public static Children Children(Element child0)
         {
             var array = new NativeArray<Element>(1, Allocator.Persistent);
             array[0] = child0;
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(Element child0, Element child1)
         {
             var array = new NativeArray<Element>(2, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(Element child0, Element child1, Element child2)
         {
@@ -267,10 +301,8 @@ namespace RishUI
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(Element child0, Element child1, Element child2, Element child3)
         {
@@ -279,10 +311,8 @@ namespace RishUI
             array[1] = child1;
             array[2] = child2;
             array[3] = child3;
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(Element child0, Element child1, Element child2, Element child3, Element child4)
         {
@@ -292,10 +322,8 @@ namespace RishUI
             array[2] = child2;
             array[3] = child3;
             array[4] = child4;
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(params Element[] children)
         {
@@ -305,10 +333,8 @@ namespace RishUI
             {
                 array[i] = children[i];
             }
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         public static Children Children(List<Element> children)
         {
@@ -318,10 +344,8 @@ namespace RishUI
             {
                 array[i] = children[i];
             }
-
-            OnCreate(array);
             
-            return array;
+            return CreateChildren(array);
         }
         
         // -------------------------------------------------------------------------------------------------------------

@@ -30,7 +30,12 @@ namespace RishUI
         public PointerDetectionMode PointerDetection
         {
             get {
-                var inherited = Element.parent is IAdvancedPicking parent ? parent.Manager.PointerDetection : PointerDetectionMode.Ignore;
+                if (!Enabled)
+                {
+                    return PointerDetectionMode.Ignore;
+                }
+                
+                var inherited = GetInherited();
                 if (inherited == PointerDetectionMode.ForceIgnore)
                 {
                     return PointerDetectionMode.ForceIgnore;
@@ -39,7 +44,9 @@ namespace RishUI
                 return LocalPointerDetection != PointerDetectionMode.Inherit ? LocalPointerDetection : inherited;
             }
         }
-        
+
+        public bool Enabled { get; private set; } = true;
+
         private float BackgroundColorAlpha { get; set; }
         private Vector4 BackgroundSlices { get; set; }
         private bool NineSliced => BackgroundSlices != Vector4.zero;
@@ -91,6 +98,9 @@ namespace RishUI
             Element.generateVisualContent += OnDirty;
             Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
+
+        public void Enable() => Enabled = true;
+        public void Disable() => Enabled = false;
 
         private void OnDirty(MeshGenerationContext context) => Setup();
         
@@ -352,6 +362,23 @@ namespace RishUI
             }
             
             float Remap(float value, float start1, float stop1, float start2, float stop2) => start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+        }
+
+        private PointerDetectionMode GetInherited()
+        {
+            var parent = Element.parent;
+            while (parent is IAdvancedPicking picking)
+            {
+                var manager = picking.Manager;
+                if (manager.Enabled)
+                {
+                    return manager.PointerDetection;
+                }
+                
+                parent = parent.parent;
+            }
+
+            return PointerDetectionMode.Ignore;
         }
     }
 }

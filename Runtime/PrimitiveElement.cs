@@ -97,7 +97,7 @@ namespace RishUI
     
     public abstract class RishVisualElement : VisualElement, IPrimitiveElement
     {
-        private PickingManager PickingManager { get; }
+        protected PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
 
         protected RishVisualElement()

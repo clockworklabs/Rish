@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Priority_Queue;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -31,11 +30,11 @@ namespace RishUI
         
         private int ChildCount { get; set; }
         
-        private List<ElementDefinition> OwnedDefinitions { get; set; }
-        private List<ElementDefinition> OwnedDefinitionsBuffer { get; set; }
+        private List<Element> OwnedDefinitions { get; set; }
+        private List<Element> OwnedDefinitionsBuffer { get; set; }
         
-        private List<NativeArray<Element>> OwnedChildren { get; set; }
-        private List<NativeArray<Element>> OwnedChildrenBuffer { get; set; }
+        private List<Children> OwnedChildren { get; set; }
+        private List<Children> OwnedChildrenBuffer { get; set; }
         
         private int Index { get; set; } // This is to keep the position for the elements with custom unmounting
         private bool Unmounting { get; set; }
@@ -72,15 +71,16 @@ namespace RishUI
 
         private bool Contains(Node child) => Children.Contains(child);
 
-        void IOwner.TakeOwnership(ElementDefinition definition)
+        void IOwner.TakeOwnership(Element definition)
         {
-            OwnedDefinitions ??= new List<ElementDefinition>();
+            OwnedDefinitions ??= new List<Element>();
             
             OwnedDefinitions.Add(definition);
         }
-        void IOwner.TakeOwnership(NativeArray<Element> children)
+        void IOwner.TakeOwnership(Children children)
         {
-            OwnedChildren ??= new List<NativeArray<Element>>();
+            Debug.Log($"{ID} ({Type}): Take ownership of {children.ID}");
+            OwnedChildren ??= new List<Children>();
             
             OwnedChildren.Add(children);
         }
@@ -249,23 +249,23 @@ namespace RishUI
                 set => Node.ChildCount = value;
             }
         
-            private List<ElementDefinition> OwnedDefinitions
+            private List<Element> OwnedDefinitions
             {
                 get => Node.OwnedDefinitions;
                 set => Node.OwnedDefinitions = value;
             }
-            private List<ElementDefinition> OwnedDefinitionsBuffer
+            private List<Element> OwnedDefinitionsBuffer
             {
                 get => Node.OwnedDefinitionsBuffer;
                 set => Node.OwnedDefinitionsBuffer = value;
             }
         
-            private List<NativeArray<Element>> OwnedChildren
+            private List<Children> OwnedChildren
             {
                 get => Node.OwnedChildren;
                 set => Node.OwnedChildren = value;
             }
-            private List<NativeArray<Element>> OwnedChildrenBuffer
+            private List<Children> OwnedChildrenBuffer
             {
                 get => Node.OwnedChildrenBuffer;
                 set => Node.OwnedChildrenBuffer = value;
@@ -327,7 +327,7 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedDefinitionsBuffer.Count; i < n; i++)
                     {
-                        Rish.ReturnToPool(OwnedDefinitionsBuffer[i]);
+                        Dom.Free(OwnedDefinitionsBuffer[i]);
                     }
                     OwnedDefinitionsBuffer.Clear();
                 }
@@ -336,7 +336,8 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
                     {
-                        OwnedChildrenBuffer[i].Dispose();
+                        Debug.Log($"{Node.ID}: Release {OwnedChildrenBuffer[i].ID}");
+                        Dom.Free(OwnedChildrenBuffer[i]);
                     }
                     OwnedChildrenBuffer.Clear();
                 }
@@ -348,7 +349,7 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
                     {
-                        Rish.ReturnToPool(OwnedDefinitions[i]);
+                        Dom.Free(OwnedDefinitions[i]);
                     }
                     OwnedDefinitions.Clear();
                 }
@@ -357,7 +358,8 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedChildren.Count; i < n; i++)
                     {
-                        OwnedChildren[i].Dispose();
+                        Debug.Log($"{Node.ID}: Release {OwnedChildren[i].ID}");
+                        Dom.Free(OwnedChildren[i]);
                     }
                     OwnedChildren.Clear();
                 }
@@ -439,12 +441,14 @@ namespace RishUI
             
             public override void Render()
             {
-#if UNITY_EDITOR
                 if (Element is not IRishElement rishElement)
                 {
+#if UNITY_EDITOR
                     throw new UnityException("Only RishElements can render");
-                }
+#else
+                    return;
 #endif
+                }
                 
                 SwapBuffers();
                 
@@ -631,7 +635,7 @@ namespace RishUI
                 if (Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty += Node.Dirty;
-                    rishElement.Mount();
+                    rishElement.Mount(Dom);
                 }
             }
             

@@ -13,7 +13,7 @@ namespace RishUI
         event Action OnDirty;
         event Action OnReadyToUnmount;
         
-        void Mount();
+        void Mount(Dom dom);
         void RequestUnmount();
         void Unmount();
 
@@ -37,7 +37,8 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
-        // protected event Action OnUnmounted;
+        
+        private Dom CurrentDom { get; set; }
         
         private P _preStylingProps;
         private P? _props;
@@ -53,11 +54,11 @@ namespace RishUI
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
         
-        private List<ElementDefinition> OwnedDefinitions { get; set; }
-        private List<ElementDefinition> OwnedDefinitionsBuffer { get; set; }
+        private List<Element> OwnedDefinitions { get; set; }
+        private List<Element> OwnedDefinitionsBuffer { get; set; }
         
-        private List<NativeArray<Element>> OwnedChildren { get; set; }
-        private List<NativeArray<Element>> OwnedChildrenBuffer { get; set; }
+        private List<Children> OwnedChildren { get; set; }
+        private List<Children> OwnedChildrenBuffer { get; set; }
 
         protected RishElement()
         {
@@ -112,8 +113,10 @@ namespace RishUI
         protected PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
 
-        void IRishElement.Mount()
+        void IRishElement.Mount(Dom dom)
         {
+            CurrentDom = dom;
+            
             if (this is ICustomComponent customComponent)
             {
                 customComponent.Restart();
@@ -205,15 +208,15 @@ namespace RishUI
             ReleasePreviouslyOwnedElements();
         }
 
-        void IOwner.TakeOwnership(ElementDefinition definition)
+        void IOwner.TakeOwnership(Element definition)
         {
-            OwnedDefinitions ??= new List<ElementDefinition>();
+            OwnedDefinitions ??= new List<Element>();
             
             OwnedDefinitions.Add(definition);
         }
-        void IOwner.TakeOwnership(NativeArray<Element> children)
+        void IOwner.TakeOwnership(Children children)
         {
-            OwnedChildren ??= new List<NativeArray<Element>>();
+            OwnedChildren ??= new List<Children>();
             
             OwnedChildren.Add(children);
         }
@@ -236,7 +239,7 @@ namespace RishUI
             {
                 for (int i = 0, n = OwnedDefinitionsBuffer.Count; i < n; i++)
                 {
-                    Rish.ReturnToPool(OwnedDefinitionsBuffer[i]);
+                    CurrentDom.Free(OwnedDefinitionsBuffer[i]);
                 }
                 OwnedDefinitionsBuffer.Clear();
             }
@@ -245,7 +248,7 @@ namespace RishUI
             {
                 for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
                 {
-                    OwnedChildrenBuffer[i].Dispose();
+                    CurrentDom.Free(OwnedChildrenBuffer[i]);
                 }
                 OwnedChildrenBuffer.Clear();
             }
@@ -257,7 +260,7 @@ namespace RishUI
             {
                 for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
                 {
-                    Rish.ReturnToPool(OwnedDefinitions[i]);
+                    CurrentDom.Free(OwnedDefinitions[i]);
                 }
                 OwnedDefinitions.Clear();
             }
@@ -266,7 +269,7 @@ namespace RishUI
             {
                 for (int i = 0, n = OwnedChildren.Count; i < n; i++)
                 {
-                    OwnedChildren[i].Dispose();
+                    CurrentDom.Free(OwnedChildren[i]);
                 }
                 OwnedChildren.Clear();
             }

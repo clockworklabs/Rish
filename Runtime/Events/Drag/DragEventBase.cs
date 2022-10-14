@@ -12,7 +12,6 @@ namespace RishUI.Events
         public int pressedButtons { get; private set; }
         public Vector3 position { get; private set; }
         public Vector3 localPosition { get; private set; }
-        // TODO: This is in screen space and if the player is scaled doesn't work properly
         public Vector3 deltaPosition { get; private set; }
         public float deltaTime { get; private set; }
         public int clickCount { get; private set; }
@@ -44,7 +43,7 @@ namespace RishUI.Events
             bubbles = true;
         }
         
-        public static T GetPooled(IPointerEvent pointerEvent)
+        public static T GetPooled(IPointerEvent pointerEvent, bool bubbles = true, bool tricklesDown = true)
         {
             var pooled = EventBase<T>.GetPooled();
             pooled.pointerId = pointerEvent.pointerId;
@@ -70,6 +69,9 @@ namespace RishUI.Events
             pooled.commandKey = pointerEvent.commandKey;
             pooled.altKey = pointerEvent.altKey;
             pooled.actionKey = pointerEvent.actionKey;
+
+            pooled.tricklesDown = tricklesDown;
+            pooled.bubbles = bubbles;
             
             return pooled;
         }

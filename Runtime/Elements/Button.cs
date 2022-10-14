@@ -195,26 +195,11 @@ namespace RishUI.Elements
         }
 
         [Comparer]
-        public static bool Equals(ButtonProps a, ButtonProps b) => RishUtils.CompareUnmanaged<Unmanaged>(a, b);
-
-        private struct Unmanaged
-        {
-            private bool interactable;
-        
-            private Element normal;
-            private Element hovered;
-            private Element pressed;
-            private Element disabled;
-
-            public static implicit operator Unmanaged(ButtonProps managed) => new()
-            {
-                interactable = managed.interactable,
-                normal = managed.normal,
-                hovered = managed.hovered,
-                pressed = managed.pressed,
-                disabled = managed.disabled
-            };
-        }
+        public static bool Equals(ButtonProps a, ButtonProps b) => a.interactable == b.interactable &&
+                                                                   RishUtils.CompareUnmanaged<Element>(a.normal, b.normal) &&
+                                                                   RishUtils.CompareUnmanaged<Element>(a.hovered,                                                                       b.hovered) &&
+                                                                   RishUtils.CompareUnmanaged<Element>(a.pressed, b.pressed) &&
+                                                                   RishUtils.CompareUnmanaged<Element>(a.disabled, b.disabled);
     }
 
     public struct ButtonState

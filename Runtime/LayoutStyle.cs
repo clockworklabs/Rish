@@ -103,190 +103,127 @@ namespace RishUI
             width = style.width;
         }
 
-        public Style Combine(Style style) => new Style
+        public Style Combine(Style style)
         {
-            alignContent = alignContent,
-            alignItems = alignItems,
-            alignSelf = alignSelf,
-            backgroundColor = style.backgroundColor,
-            backgroundImage = style.backgroundImage,
-            borderBottomColor = style.borderBottomColor,
-            borderBottomLeftRadius = style.borderBottomLeftRadius,
-            borderBottomRightRadius = style.borderBottomRightRadius,
-            borderBottomWidth = style.borderBottomWidth,
-            borderLeftColor = style.borderLeftColor,
-            borderLeftWidth = style.borderLeftWidth,
-            borderRightColor = style.borderRightColor,
-            borderRightWidth = style.borderRightWidth,
-            borderTopColor = style.borderTopColor,
-            borderTopLeftRadius = style.borderTopLeftRadius,
-            borderTopRightRadius = style.borderTopRightRadius,
-            borderTopWidth = style.borderTopWidth,
-            bottom = bottom,
-            color = style.color,
-            cursor = style.cursor,
-            display = style.display,
-            flexBasis = flexBasis,
-            flexDirection = flexDirection,
-            flexGrow = flexGrow,
-            flexShrink = flexShrink,
-            flexWrap = flexWrap,
-            fontSize = style.fontSize,
-            height = height,
-            justifyContent = justifyContent,
-            left = left,
-            letterSpacing = style.letterSpacing,
-            marginBottom = marginBottom,
-            marginLeft = marginLeft,
-            marginRight = marginRight,
-            marginTop = marginTop,
-            maxHeight = maxHeight,
-            maxWidth = maxWidth,
-            minHeight = minHeight,
-            minWidth = minWidth,
-            opacity = style.opacity,
-            overflow = style.overflow,
-            paddingBottom = paddingBottom,
-            paddingLeft = paddingLeft,
-            paddingRight = paddingRight,
-            paddingTop = paddingTop,
-            position = position,
-            right = right,
-            rotate = rotate,
-            scale = scale,
-            textOverflow = style.textOverflow,
-            textShadow = style.textShadow,
-            top = top,
-            transformOrigin = transformOrigin,
-            transitionDelay = style.transitionDelay,
-            transitionDuration = style.transitionDuration,
-            transitionProperty = style.transitionProperty,
-            transitionTimingFunction = style.transitionTimingFunction,
-            translate = translate,
-            unityBackgroundImageTintColor = style.unityBackgroundImageTintColor,
-            unityBackgroundScaleMode = style.unityBackgroundScaleMode,
-            unityFont = style.unityFont,
-            unityFontDefinition = style.unityFontDefinition,
-            unityFontStyleAndWeight = style.unityFontStyleAndWeight,
-            unityOverflowClipBox = style.unityOverflowClipBox,
-            unityParagraphSpacing = style.unityParagraphSpacing,
-            unitySliceBottom = style.unitySliceBottom,
-            unitySliceLeft = style.unitySliceLeft,
-            unitySliceRight = style.unitySliceRight,
-            unitySliceTop = style.unitySliceTop,
-            unityTextAlign = style.unityTextAlign,
-            unityTextOutlineColor = style.unityTextOutlineColor,
-            unityTextOutlineWidth = style.unityTextOutlineWidth,
-            unityTextOverflowPosition = style.unityTextOverflowPosition,
-            visibility = style.visibility,
-            whiteSpace = style.whiteSpace,
-            width = width,
-            wordSpacing = style.wordSpacing,
-            pointerDetection = style.pointerDetection,
-        };
-        
-        public static implicit operator Style(LayoutStyle layout)
-        {
-            var style = Style.ClearStyling;
+            var layoutStyle = (Style)this;
             
-            if(layout.alignContent.IsNotNull()) {
-                style.alignContent = layout.alignContent;
-            }
-            if(layout.alignItems.IsNotNull()) {
-                style.alignItems = layout.alignItems;
-            }
-            if(layout.alignSelf.IsNotNull()) {
-                style.alignSelf = layout.alignSelf;
-            }
-            if(layout.bottom.IsNotNull()) {
-                style.bottom = layout.bottom;
-            }
-            if(layout.flexBasis.IsNotNull()) {
-                style.flexBasis = layout.flexBasis;
-            }
-            if(layout.flexDirection.IsNotNull()) {
-                style.flexDirection = layout.flexDirection;
-            }
-            if(layout.flexGrow.IsNotNull()) {
-                style.flexGrow = layout.flexGrow;
-            }
-            if(layout.flexShrink.IsNotNull()) {
-                style.flexShrink = layout.flexShrink;
-            }
-            if(layout.flexWrap.IsNotNull()) {
-                style.flexWrap = layout.flexWrap;
-            }
-            if(layout.height.IsNotNull()) {
-                style.height = layout.height;
-            }
-            if(layout.justifyContent.IsNotNull()) {
-                style.justifyContent = layout.justifyContent;
-            }
-            if(layout.left.IsNotNull()) {
-                style.left = layout.left;
-            }
-            if(layout.marginBottom.IsNotNull()) {
-                style.marginBottom = layout.marginBottom;
-            }
-            if(layout.marginLeft.IsNotNull()) {
-                style.marginLeft = layout.marginLeft;
-            }
-            if(layout.marginRight.IsNotNull()) {
-                style.marginRight = layout.marginRight;
-            }
-            if(layout.marginTop.IsNotNull()) {
-                style.marginTop = layout.marginTop;
-            }
-            if(layout.maxHeight.IsNotNull()) {
-                style.maxHeight = layout.maxHeight;
-            }
-            if(layout.maxWidth.IsNotNull()) {
-                style.maxWidth = layout.maxWidth;
-            }
-            if(layout.minHeight.IsNotNull()) {
-                style.minHeight = layout.minHeight;
-            }
-            if(layout.minWidth.IsNotNull()) {
-                style.minWidth = layout.minWidth;
-            }
-            if(layout.paddingBottom.IsNotNull()) {
-                style.paddingBottom = layout.paddingBottom;
-            }
-            if(layout.paddingLeft.IsNotNull()) {
-                style.paddingLeft = layout.paddingLeft;
-            }
-            if(layout.paddingRight.IsNotNull()) {
-                style.paddingRight = layout.paddingRight;
-            }
-            if(layout.paddingTop.IsNotNull()) {
-                style.paddingTop = layout.paddingTop;
-            }
-            if(layout.position.IsNotNull()) {
-                style.position = layout.position;
-            }
-            if(layout.right.IsNotNull()) {
-                style.right = layout.right;
-            }
-            if(layout.rotate.IsNotNull()) {
-                style.rotate = layout.rotate;
-            }
-            if(layout.scale.IsNotNull()) {
-                style.scale = layout.scale;
-            }
-            if(layout.top.IsNotNull()) {
-                style.top = layout.top;
-            }
-            if(layout.transformOrigin.IsNotNull()) {
-                style.transformOrigin = layout.transformOrigin;
-            }
-            if(layout.translate.IsNotNull()) {
-                style.translate = layout.translate;
-            }
-            if(layout.width.IsNotNull()) {
-                style.width = layout.width;
-            }
-
-            return style;
+            return new Style
+            {
+                alignContent = layoutStyle.alignContent,
+                alignItems = layoutStyle.alignItems,
+                alignSelf = layoutStyle.alignSelf,
+                backgroundColor = style.backgroundColor,
+                backgroundImage = style.backgroundImage,
+                borderBottomColor = style.borderBottomColor,
+                borderBottomLeftRadius = style.borderBottomLeftRadius,
+                borderBottomRightRadius = style.borderBottomRightRadius,
+                borderBottomWidth = style.borderBottomWidth,
+                borderLeftColor = style.borderLeftColor,
+                borderLeftWidth = style.borderLeftWidth,
+                borderRightColor = style.borderRightColor,
+                borderRightWidth = style.borderRightWidth,
+                borderTopColor = style.borderTopColor,
+                borderTopLeftRadius = style.borderTopLeftRadius,
+                borderTopRightRadius = style.borderTopRightRadius,
+                borderTopWidth = style.borderTopWidth,
+                bottom = layoutStyle.bottom,
+                color = style.color,
+                cursor = style.cursor,
+                display = style.display,
+                flexBasis = layoutStyle.flexBasis,
+                flexDirection = layoutStyle.flexDirection,
+                flexGrow = layoutStyle.flexGrow,
+                flexShrink = layoutStyle.flexShrink,
+                flexWrap = layoutStyle.flexWrap,
+                fontSize = style.fontSize,
+                height = layoutStyle.height,
+                justifyContent = layoutStyle.justifyContent,
+                left = layoutStyle.left,
+                letterSpacing = style.letterSpacing,
+                marginBottom = layoutStyle.marginBottom,
+                marginLeft = layoutStyle.marginLeft,
+                marginRight = layoutStyle.marginRight,
+                marginTop = layoutStyle.marginTop,
+                maxHeight = layoutStyle.maxHeight,
+                maxWidth = layoutStyle.maxWidth,
+                minHeight = layoutStyle.minHeight,
+                minWidth = layoutStyle.minWidth,
+                opacity = style.opacity,
+                overflow = style.overflow,
+                paddingBottom = layoutStyle.paddingBottom,
+                paddingLeft = layoutStyle.paddingLeft,
+                paddingRight = layoutStyle.paddingRight,
+                paddingTop = layoutStyle.paddingTop,
+                position = layoutStyle.position,
+                right = layoutStyle.right,
+                rotate = layoutStyle.rotate,
+                scale = layoutStyle.scale,
+                textOverflow = style.textOverflow,
+                textShadow = style.textShadow,
+                top = layoutStyle.top,
+                transformOrigin = transformOrigin,
+                transitionDelay = style.transitionDelay,
+                transitionDuration = style.transitionDuration,
+                transitionProperty = style.transitionProperty,
+                transitionTimingFunction = style.transitionTimingFunction,
+                translate = layoutStyle.translate,
+                unityBackgroundImageTintColor = style.unityBackgroundImageTintColor,
+                unityBackgroundScaleMode = style.unityBackgroundScaleMode,
+                unityFont = style.unityFont,
+                unityFontDefinition = style.unityFontDefinition,
+                unityFontStyleAndWeight = style.unityFontStyleAndWeight,
+                unityOverflowClipBox = style.unityOverflowClipBox,
+                unityParagraphSpacing = style.unityParagraphSpacing,
+                unitySliceBottom = style.unitySliceBottom,
+                unitySliceLeft = style.unitySliceLeft,
+                unitySliceRight = style.unitySliceRight,
+                unitySliceTop = style.unitySliceTop,
+                unityTextAlign = style.unityTextAlign,
+                unityTextOutlineColor = style.unityTextOutlineColor,
+                unityTextOutlineWidth = style.unityTextOutlineWidth,
+                unityTextOverflowPosition = style.unityTextOverflowPosition,
+                visibility = style.visibility,
+                whiteSpace = style.whiteSpace,
+                width = layoutStyle.width,
+                wordSpacing = style.wordSpacing,
+                pointerDetection = style.pointerDetection,
+            };
         }
+        
+        public static implicit operator Style(LayoutStyle layout) => new Style
+        {
+            alignContent = layout.alignContent.IsNotNull() ? layout.alignContent : RishStyleKeyword.Initial,
+            alignItems = layout.alignItems.IsNotNull() ? layout.alignItems : RishStyleKeyword.Initial,
+            alignSelf = layout.alignSelf.IsNotNull() ? layout.alignSelf : RishStyleKeyword.Initial,
+            bottom = layout.bottom.IsNotNull() ? layout.bottom : RishStyleKeyword.Initial,
+            flexBasis = layout.flexBasis.IsNotNull() ? layout.flexBasis : RishStyleKeyword.Initial,
+            flexDirection = layout.flexDirection.IsNotNull() ? layout.flexDirection : RishStyleKeyword.Initial,
+            flexGrow = layout.flexGrow.IsNotNull() ? layout.flexGrow : RishStyleKeyword.Initial,
+            flexShrink = layout.flexShrink.IsNotNull() ? layout.flexShrink : RishStyleKeyword.Initial,
+            flexWrap = layout.flexWrap.IsNotNull() ? layout.flexWrap : RishStyleKeyword.Initial,
+            height = layout.height.IsNotNull() ? layout.height : RishStyleKeyword.Initial,
+            justifyContent = layout.justifyContent.IsNotNull() ? layout.justifyContent : RishStyleKeyword.Initial,
+            left = layout.left.IsNotNull() ? layout.left : RishStyleKeyword.Initial,
+            marginBottom = layout.marginBottom.IsNotNull() ? layout.marginBottom : RishStyleKeyword.Initial,
+            marginLeft = layout.marginLeft.IsNotNull() ? layout.marginLeft : RishStyleKeyword.Initial,
+            marginRight = layout.marginRight.IsNotNull() ? layout.marginRight : RishStyleKeyword.Initial,
+            marginTop = layout.marginTop.IsNotNull() ? layout.marginTop : RishStyleKeyword.Initial,
+            maxHeight = layout.maxHeight.IsNotNull() ? layout.maxHeight : RishStyleKeyword.Initial,
+            maxWidth = layout.maxWidth.IsNotNull() ? layout.maxWidth : RishStyleKeyword.Initial,
+            minHeight = layout.minHeight.IsNotNull() ? layout.minHeight : RishStyleKeyword.Initial,
+            minWidth = layout.minWidth.IsNotNull() ? layout.minWidth : RishStyleKeyword.Initial,
+            paddingBottom = layout.paddingBottom.IsNotNull() ? layout.paddingBottom : RishStyleKeyword.Initial,
+            paddingLeft = layout.paddingLeft.IsNotNull() ? layout.paddingLeft : RishStyleKeyword.Initial,
+            paddingRight = layout.paddingRight.IsNotNull() ? layout.paddingRight : RishStyleKeyword.Initial,
+            paddingTop = layout.paddingTop.IsNotNull() ? layout.paddingTop : RishStyleKeyword.Initial,
+            position = layout.position.IsNotNull() ? layout.position : RishStyleKeyword.Initial,
+            right = layout.right.IsNotNull() ? layout.right : RishStyleKeyword.Initial,
+            rotate = layout.rotate.IsNotNull() ? layout.rotate : 0,
+            scale = layout.scale.IsNotNull() ? layout.scale : 1,
+            top = layout.top.IsNotNull() ? layout.top : RishStyleKeyword.Initial,
+            transformOrigin = layout.transformOrigin.IsNotNull() ? layout.transformOrigin : new TransformOrigin(new Length(50, LengthUnit.Percent), new Length(50, LengthUnit.Percent), 0),
+            translate = layout.translate.IsNotNull() ? layout.translate : new Translate(0, 0, 0),
+            width = layout.width.IsNotNull() ? layout.width : RishStyleKeyword.Initial
+        };
     }
 }

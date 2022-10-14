@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using RishUI.Deprecated.Components;
+#if UNITY_EDITOR
 using UnityEditorInternal;
+#endif
 using UnityEngine;
 
 namespace RishUI.Deprecated
@@ -67,10 +69,16 @@ namespace RishUI.Deprecated
 
     internal struct RootComponentProps
     {
+#if UNITY_EDITOR
         public AssemblyDefinitionAsset assemblyDefinition;
+#endif
         public string rootClassname;
 
         [Comparer]
-        private bool Equals(RootComponentProps a, RootComponentProps b) => a.assemblyDefinition == b.assemblyDefinition && a.rootClassname == b.rootClassname;
+        private bool Equals(RootComponentProps a, RootComponentProps b) => 
+#if UNITY_EDITOR
+            a.assemblyDefinition == b.assemblyDefinition && 
+#endif
+            a.rootClassname == b.rootClassname;
     }
 }
