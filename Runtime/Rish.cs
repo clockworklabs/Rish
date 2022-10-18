@@ -29,9 +29,11 @@ namespace RishUI
             return definition;
         }
 
-        public Element New(Descriptor descriptor) => GetDefinition().New(descriptor);
+        public Element New(Descriptor descriptor) => Valid ? GetDefinition().New(descriptor) : Null;
 
-        public Element New(RefAction<Descriptor> action) => GetDefinition().New(action);
+        public Element New(RefAction<Descriptor> action) => Valid ? GetDefinition().New(action) : Null;
+
+        public Element Copy() => Valid ? GetDefinition().Copy() : Null;
 
         internal void Invoke(Node node)
         {
@@ -92,6 +94,8 @@ namespace RishUI
         {
             Owner = null;
         }
+
+        public Element Copy() => New(Descriptor);
         
         public abstract Element New(Descriptor descriptor);
 
@@ -103,7 +107,6 @@ namespace RishUI
         }
 
         public abstract void Invoke(Node node);
-
         public abstract bool Equals(ElementDefinition other);
     }
 
@@ -214,8 +217,6 @@ namespace RishUI
                 return;
             }
             
-            Debug.Log($"Dispose {id}");
-            
             children.Dispose();
             AllChildren.Remove(id);
         }
@@ -271,7 +272,6 @@ namespace RishUI
         private static Children CreateChildren(NativeArray<Element> array)
         {
             var id = ++_nextChildrenId;
-            Debug.Log($"Create {id}");
             AllChildren[id] = array;
             var children = new Children(id);
             OnCreate(children);
@@ -327,7 +327,11 @@ namespace RishUI
         }
         public static Children Children(params Element[] children)
         {
-            var length = children.Length;
+            var length = children?.Length ?? 0;
+            if (length <= 0)
+            {
+                return Children();
+            }
             var array = new NativeArray<Element>(length, Allocator.Persistent);
             for (var i = 0; i < length; i++)
             {
@@ -338,11 +342,30 @@ namespace RishUI
         }
         public static Children Children(List<Element> children)
         {
-            var length = children.Count;
+            var length = children?.Count ?? 0;
+            if (length <= 0)
+            {
+                return Children();
+            }
             var array = new NativeArray<Element>(length, Allocator.Persistent);
             for (var i = 0; i < length; i++)
             {
                 array[i] = children[i];
+            }
+            
+            return CreateChildren(array);
+        }
+        private static Children CopyChildren(Children children)
+        {
+            var length = children.Valid ? children.Count : 0;
+            if (length <= 0)
+            {
+                return Children();
+            }
+            var array = new NativeArray<Element>(length, Allocator.Persistent);
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = children[i].Copy();
             }
             
             return CreateChildren(array);
@@ -1431,15 +1454,7 @@ namespace RishUI
                 Element = function;
             }
 
-            public override Element New(Descriptor descriptor)
-            {
-                var element = GetFromPool<FunctionalDefinition>();
-                element.Factory(descriptor, Element);
-            
-                OnCreate(element);
-
-                return element;
-            }
+            public override Element New(Descriptor descriptor) => Rish.Create(Element, descriptor);
 
             public override void Invoke(Node node)
             {
@@ -1479,15 +1494,7 @@ namespace RishUI
                 Props = props;
             }
 
-            public override Element New(Descriptor descriptor)
-            {
-                var element = GetFromPool<FunctionalDefinition<P>>();
-                element.Factory(descriptor, Element, Props);
-            
-                OnCreate(element);
-
-                return element;
-            }
+            public override Element New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Props);
 
             public override void Invoke(Node node)
             {
@@ -1526,15 +1533,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override Element New(Descriptor descriptor)
-            {
-                var element = GetFromPool<PrimitiveDefinition<T>>();
-                element.Factory(descriptor, Children);
-            
-                OnCreate(element);
-
-                return element;
-            }
+            public override Element New(Descriptor descriptor) => Rish.Create<T>(descriptor, Rish.CopyChildren(Children));
 
             public override void Invoke(Node node)
             {
@@ -1576,15 +1575,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override Element New(Descriptor descriptor)
-            {
-                var element = GetFromPool<PrimitiveDefinition<T, P>>();
-                element.Factory(descriptor, Props, Children);
-            
-                OnCreate(element);
-
-                return element;
-            }
+            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Props, Rish.CopyChildren(Children));
 
             public override void Invoke(Node node)
             {
@@ -1624,15 +1615,7 @@ namespace RishUI
                 Props = props;
             }
 
-            public override Element New(Descriptor descriptor)
-            {
-                var element = GetFromPool<RishDefinition<T, P>>();
-                element.Factory(descriptor, Props);
-            
-                OnCreate(element);
-
-                return element;
-            }
+            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Props);
 
             public override void Invoke(Node node)
             {

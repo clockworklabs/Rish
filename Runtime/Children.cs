@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using UnityEngine;
 
 namespace RishUI
 {
@@ -11,20 +12,20 @@ namespace RishUI
 
         private int _id;
 
-        public int ID => _id;
-
         public bool Valid => _id > 0;
 
-        // private NativeArray<Element> _array;
+#if UNITY_EDITOR
         private NativeArray<Element>.ReadOnly _readOnlyArray;
-
-        // public int Count => GetReadOnly().Length;
-        public int Count => _readOnlyArray.Length;
+#endif
+        
+        public int Count => GetReadOnly().Length;
 
         public Children(int id)
         {
             _id = id;
+#if UNITY_EDITOR
             _readOnlyArray = Rish.GetNativeArray(_id).AsReadOnly();
+#endif
         }
 
         private NativeArray<Element> GetNativeArray()
@@ -41,8 +42,7 @@ namespace RishUI
 
         private NativeArray<Element>.ReadOnly GetReadOnly() => GetNativeArray().AsReadOnly();
 
-        // public Element this[int index] => GetReadOnly()[index];
-        public Element this[int index] => _readOnlyArray[index];
+        public Element this[int index] => GetReadOnly()[index];
 
         internal void Dispose()
         {
@@ -54,14 +54,13 @@ namespace RishUI
             Rish.Dispose(_id);
         }
 
-        // public NativeArray<Element>.ReadOnly.Enumerator GetEnumerator() => GetReadOnly().GetEnumerator();
-        public NativeArray<Element>.ReadOnly.Enumerator GetEnumerator() => _readOnlyArray.GetEnumerator();
+        public NativeArray<Element>.ReadOnly.Enumerator GetEnumerator() => GetReadOnly().GetEnumerator();
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
         [Comparer]
         public static bool Equals(Children a, Children b)
-        {   
+        {
             var aSet = a.Valid;
             var bSet = b.Valid;
             if (aSet ^ bSet)
@@ -69,22 +68,26 @@ namespace RishUI
                 return false;
             }
             
-            // var aArray = a.GetReadOnly();
-            // var bArray = b.GetReadOnly();
-            var aArray = a._readOnlyArray;
-            var bArray = b._readOnlyArray;
+// #if UNITY_EDITOR
+//             var aArray = a._readOnlyArray;
+//             var bArray = b._readOnlyArray;
+// #else
+            var aArray = a.GetReadOnly();
+            var bArray = b.GetReadOnly();
+// #endif
 
-            // var aCreated = aArray.IsCreated;
-            // var bCreated = bArray.IsCreated;
-            // if (aCreated ^ bCreated)
-            // {
-            //     return false;
-            // }
-            //
-            // if (!aCreated)
-            // {
-            //     return true;
-            // }
+            var aCreated = aArray.IsCreated;
+            var bCreated = bArray.IsCreated;
+            if (aCreated ^ bCreated)
+            {
+                Debug.LogError("One of the arrays was disposed. It should never happen.");
+                return false;
+            }
+            
+            if (!aCreated)
+            {
+                return true;
+            }
             
             var count = aArray.Length;
             if (count != bArray.Length)

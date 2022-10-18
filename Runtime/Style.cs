@@ -614,7 +614,6 @@ namespace RishUI
             }
         }
 
-        // TODO: Double check usage of Equals functions
         [Comparer]
         public static bool Equals(Style a, Style b)
         {

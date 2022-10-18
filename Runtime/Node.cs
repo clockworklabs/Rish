@@ -79,7 +79,6 @@ namespace RishUI
         }
         void IOwner.TakeOwnership(Children children)
         {
-            Debug.Log($"{ID} ({Type}): Take ownership of {children.ID}");
             OwnedChildren ??= new List<Children>();
             
             OwnedChildren.Add(children);
@@ -336,7 +335,6 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
                     {
-                        Debug.Log($"{Node.ID}: Release {OwnedChildrenBuffer[i].ID}");
                         Dom.Free(OwnedChildrenBuffer[i]);
                     }
                     OwnedChildrenBuffer.Clear();
@@ -358,7 +356,6 @@ namespace RishUI
                 {
                     for (int i = 0, n = OwnedChildren.Count; i < n; i++)
                     {
-                        Debug.Log($"{Node.ID}: Release {OwnedChildren[i].ID}");
                         Dom.Free(OwnedChildren[i]);
                     }
                     OwnedChildren.Clear();
