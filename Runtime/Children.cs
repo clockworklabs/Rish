@@ -4,13 +4,11 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public struct Children : IEquatable<Children>
+    public readonly struct Children : IEquatable<Children>
     {
-        private static int _nextId;
-        
         public static Children Empty => new ();
 
-        private uint _id;
+        private readonly uint _id;
 
         public bool Valid => _id > 0;
         
@@ -62,23 +60,22 @@ namespace RishUI
             {
                 return false;
             }
+            if (!aSet)
+            {
+                return true;
+            }
 
             var aArray = a.GetReadOnly();
             var bArray = b.GetReadOnly();
 
             var aCreated = aArray.IsCreated;
             var bCreated = bArray.IsCreated;
-            if (aCreated ^ bCreated)
+            if (!aCreated || !bCreated)
             {
                 #if UNITY_EDITOR
-                Debug.LogError("One of the arrays was disposed. It should never happen.");
+                Debug.LogError("Disposed Children. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
                 #endif
                 return false;
-            }
-            
-            if (!aCreated)
-            {
-                return true;
             }
             
             var count = aArray.Length;
@@ -89,7 +86,7 @@ namespace RishUI
 
             for (var i = 0; i < count; i++)
             {
-                if (!aArray[i].Equals(bArray[i]))
+                if (!RishUtils.Compare<Element>(aArray[i], bArray[i]))
                 {
                     return false;
                 }

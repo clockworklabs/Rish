@@ -8,26 +8,22 @@ namespace RishUI
 {
     public delegate void RefAction<T>(ref T value) where T : struct;
 
-    public struct Element : IEquatable<Element>
+    public readonly struct Element : IEquatable<Element>
     {
-        private int _id;
+        private readonly uint _id;
 
         public bool Valid => _id > 0;
         
-        public static Element Null => new ();
+        public static Element Null => new();
 
         public Descriptor Descriptor => GetDefinition().Descriptor; 
 
-        private ElementDefinition GetDefinition()
+        public Element(uint id)
         {
-            var definition = Rish.GetDefinition(_id);
-            if (definition == null)
-            {
-                throw new UnityException("Invalid element");
-            }
-
-            return definition;
+            _id = id;
         }
+
+        private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);
 
         public Element New(Descriptor descriptor) => Valid ? GetDefinition().New(descriptor) : Null;
 
@@ -41,17 +37,21 @@ namespace RishUI
             {
                 return;
             }
+
+            var definition = GetDefinition();
+            if (definition == null)
+            {
+#if UNITY_EDITOR
+                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
+#endif
+                return;
+            }
             
-            Rish.GetDefinition(_id).Invoke(node);
+            definition.Invoke(node);
         }
 
         internal void ReturnToPool() => Rish.ReturnToPool(_id);
-        
-        public static implicit operator Element(ElementDefinition definition) => new()
-        {
-            _id = definition.ID
-        };
-        
+
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
 
         [Comparer]
@@ -63,37 +63,31 @@ namespace RishUI
             {
                 return false;
             }
+            if (!aSet)
+            {
+                return true;
+            }
+            
+            var aDefinition = a.GetDefinition();
+            var bDefinition = b.GetDefinition();
 
-            return !aSet || Rish.GetDefinition(a._id).Equals(Rish.GetDefinition(b._id));
+            var aInUse = aDefinition != null;
+            var bInUse = bDefinition != null;
+            if (!aInUse || !bInUse)
+            {
+#if UNITY_EDITOR
+                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
+#endif
+                return false;
+            }
+
+            return aDefinition.Equals(bDefinition);
         }
     }
     
     public abstract class ElementDefinition : IEquatable<ElementDefinition>
     {
-        private static int _nextId;
-        public int ID { get; } = ++_nextId;
-        
-        private IOwner _owner;
-        internal IOwner Owner
-        {
-            get => _owner;
-            set
-            {
-                if (_owner != null && value != null)
-                {
-                    throw new UnityException("ElementSetup already has an owner");
-                }
-
-                _owner = value;
-            }
-        }
-        
         public Descriptor Descriptor { get; protected set; }
-
-        internal void Restart()
-        {
-            Owner = null;
-        }
 
         public Element Copy() => New(Descriptor);
         
@@ -166,10 +160,36 @@ namespace RishUI
 
         // TODO: Replicate ActiveChildren so we know when an Element was "disposed" (so we can warn properly)
         private static uint _nextElementId;
-        // private static List<ElementDefinition> All { get; } = new();
-        private static Dictionary<uint, ElementDefinition> ActiveElements { get; } = new();
+        private static uint DefinitionId
+        {
+            get
+            {
+                if (_nextElementId == uint.MaxValue)
+                {
+                    _nextElementId = 0;
+                }
+                _nextElementId += 1;
+
+                return _nextElementId;
+            }
+        }
+        private static Dictionary<uint, ElementDefinition> DefinitionsInUse { get; } = new();
+        
         private static uint _nextChildrenId;
-        private static Dictionary<uint, NativeArray<Element>> ActiveChildren { get; } = new();
+        private static uint ChildrenId
+        {
+            get
+            {
+                if (_nextChildrenId == uint.MaxValue)
+                {
+                    _nextChildrenId = 0;
+                }
+                _nextChildrenId += 1;
+
+                return _nextChildrenId;
+            }
+        }
+        private static Dictionary<uint, NativeArray<Element>> ArraysInUse { get; } = new();
         
         private static T GetFromPool<T>() where T : ElementDefinition, new()
         {
@@ -184,22 +204,18 @@ namespace RishUI
             if (pool.Count < 1)
             {
                 element = new T();
-                // All.Add(element);
             }
             else
             {
                 element = (T)pool.Pop();
             }
-
-            element.Restart();
             
             return element;
         }
 
-        internal static void ReturnToPool(int id)
+        internal static void ReturnToPool(uint id)
         {
-            var definition = GetDefinition(id);
-            if (definition == null)
+            if (!DefinitionsInUse.TryGetValue(id, out var definition))
             {
                 return;
             }
@@ -211,29 +227,22 @@ namespace RishUI
             }
             
             pool.Push(definition);
+            DefinitionsInUse.Remove(id);
         }
 
         internal static void Dispose(uint id)
         {
-            if (!ActiveChildren.TryGetValue(id, out var children))
+            if (!ArraysInUse.TryGetValue(id, out var children))
             {
                 return;
             }
             
             children.Dispose();
-            ActiveChildren.Remove(id);
+            ArraysInUse.Remove(id);
         }
 
-        internal static ElementDefinition GetDefinition(int id) => All[id - 1];
-        internal static NativeArray<Element> GetNativeArray(uint id)
-        {
-            if (!ActiveChildren.TryGetValue(id, out var children))
-            {
-                return default;
-            }
-            
-            return children;
-        }
+        internal static ElementDefinition GetDefinition(uint id) => DefinitionsInUse.TryGetValue(id, out var children) ? children : null;
+        internal static NativeArray<Element> GetNativeArray(uint id) => ArraysInUse.TryGetValue(id, out var children) ? children : default;
 
         internal static void RegisterOwner(IOwner listener)
         {
@@ -250,7 +259,16 @@ namespace RishUI
             Owners.Pop();
         }
 
-        private static void OnCreate(ElementDefinition definition)
+        private static Element CreateElement(ElementDefinition definition)
+        {
+            var id = DefinitionId;
+            DefinitionsInUse[id] = definition;
+            var element = new Element(id);
+            OnCreate(element);
+
+            return element;
+        }
+        private static void OnCreate(Element element)
         {
             var owner = Owners.Peek();
             if (owner == null)
@@ -258,8 +276,17 @@ namespace RishUI
                 throw new UnityException("There's nobody to claim ownership of this ElementDefinition");
             }
 
-            definition.Owner = owner;
-            owner.TakeOwnership(definition);
+            owner.TakeOwnership(element);
+        }
+
+        private static Children CreateChildren(NativeArray<Element> array)
+        {
+            var id = ChildrenId;
+            ArraysInUse[id] = array;
+            var children = new Children(id);
+            OnCreate(children);
+
+            return children;
         }
         private static void OnCreate(Children children)
         {
@@ -270,16 +297,6 @@ namespace RishUI
             }
             
             owner.TakeOwnership(children);
-        }
-
-        private static Children CreateChildren(NativeArray<Element> array)
-        {
-            var id = _nextChildrenId == uint.MaxValue ? 0 : ++_nextChildrenId;
-            ActiveChildren[id] = array;
-            var children = new Children(id);
-            OnCreate(children);
-
-            return children;
         }
 
         public static Children Children() => RishUI.Children.Empty;
@@ -467,9 +484,7 @@ namespace RishUI
             var element = GetFromPool<FunctionalDefinition>();
             element.Factory(descriptor, functionElement);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
         
         
@@ -722,9 +737,7 @@ namespace RishUI
             var element = GetFromPool<FunctionalDefinition<P>>();
             element.Factory(descriptor, functionElement, props);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
         
         
@@ -824,9 +837,7 @@ namespace RishUI
             var element = GetFromPool<PrimitiveDefinition<T>>();
             element.Factory(descriptor, children ?? RishUI.Children.Empty);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
 
 
@@ -1080,9 +1091,7 @@ namespace RishUI
             var element = GetFromPool<PrimitiveDefinition<T, P>>();
             element.Factory(descriptor, props, children ?? RishUI.Children.Empty);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
         
         
@@ -1182,9 +1191,7 @@ namespace RishUI
             var element = GetFromPool<RishDefinition<T, NoProps>>();
             element.Factory(descriptor, default);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
 
         // 0/5 -> 1
@@ -1435,9 +1442,7 @@ namespace RishUI
             var element = GetFromPool<RishDefinition<T, P>>();
             element.Factory(descriptor, props);
             
-            OnCreate(element);
-
-            return element;
+            return CreateElement(element);
         }
 
 
