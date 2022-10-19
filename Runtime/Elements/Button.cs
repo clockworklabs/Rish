@@ -165,7 +165,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct ButtonProps
+    public struct ButtonProps : ICopy<ButtonProps>
     {
         public bool interactable;
         
@@ -195,11 +195,34 @@ namespace RishUI.Elements
         }
 
         [Comparer]
-        public static bool Equals(ButtonProps a, ButtonProps b) => a.interactable == b.interactable &&
-                                                                   RishUtils.CompareUnmanaged<Element>(a.normal, b.normal) &&
-                                                                   RishUtils.CompareUnmanaged<Element>(a.hovered,                                                                       b.hovered) &&
-                                                                   RishUtils.CompareUnmanaged<Element>(a.pressed, b.pressed) &&
-                                                                   RishUtils.CompareUnmanaged<Element>(a.disabled, b.disabled);
+        public static bool Equals(ButtonProps a, ButtonProps b) =>
+            a.interactable == b.interactable && RishUtils.CompareUnmanaged<Element>(a.normal, b.normal) &&
+            RishUtils.CompareUnmanaged<Element>(a.hovered, b.hovered) &&
+            RishUtils.CompareUnmanaged<Element>(a.pressed, b.pressed) &&
+            RishUtils.CompareUnmanaged<Element>(a.disabled, b.disabled);
+
+        [Copy]
+        public static ButtonProps Copy(ButtonProps props) => new()
+        {
+            interactable = props.interactable,
+            action = props.action,
+            secondaryAction = props.secondaryAction,
+            normal = props.normal.Copy(),
+            hovered = props.hovered.Copy(),
+            pressed = props.pressed.Copy(),
+            disabled = props.disabled.Copy()
+        };
+
+        ButtonProps ICopy<ButtonProps>.Copy() => new()
+        {
+            interactable = interactable,
+            action = action,
+            secondaryAction = secondaryAction,
+            normal = normal.Copy(),
+            hovered = hovered.Copy(),
+            pressed = pressed.Copy(),
+            disabled = disabled.Copy()
+        };
     }
 
     public struct ButtonState

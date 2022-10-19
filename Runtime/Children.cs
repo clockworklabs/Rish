@@ -10,23 +10,18 @@ namespace RishUI
         
         public static Children Empty => new ();
 
-        private int _id;
+        private uint _id;
 
         public bool Valid => _id > 0;
-
-#if UNITY_EDITOR
-        private NativeArray<Element>.ReadOnly _readOnlyArray;
-#endif
         
         public int Count => GetReadOnly().Length;
 
-        public Children(int id)
+        public Children(uint id)
         {
             _id = id;
-#if UNITY_EDITOR
-            _readOnlyArray = Rish.GetNativeArray(_id).AsReadOnly();
-#endif
         }
+
+        public Children Copy() => Rish.CopyChildren(this);
 
         private NativeArray<Element> GetNativeArray()
         {
@@ -67,20 +62,17 @@ namespace RishUI
             {
                 return false;
             }
-            
-// #if UNITY_EDITOR
-//             var aArray = a._readOnlyArray;
-//             var bArray = b._readOnlyArray;
-// #else
+
             var aArray = a.GetReadOnly();
             var bArray = b.GetReadOnly();
-// #endif
 
             var aCreated = aArray.IsCreated;
             var bCreated = bArray.IsCreated;
             if (aCreated ^ bCreated)
             {
+                #if UNITY_EDITOR
                 Debug.LogError("One of the arrays was disposed. It should never happen.");
+                #endif
                 return false;
             }
             

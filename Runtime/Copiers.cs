@@ -1,24 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class ComparerAttribute : PreserveAttribute { }
+    public class CopyAttribute : PreserveAttribute { }
+
+    public interface ICopy<out T> where T : struct
+    {
+        T Copy();
+    }
     
-    public static class Comparers
+    public static class Copiers
     {
         private static Dictionary<Type, MethodInfo> Methods { get; }
         private static Dictionary<Type, Delegate> Delegates { get; } = new();
 
         public static int Count => Methods.Count;
 
-        private delegate bool Comparer<in T>(T first, T second);
+        private delegate T Copier<T>(T first);
 
-        static Comparers()
+        static Copiers()
         {
             Methods = new Dictionary<Type, MethodInfo>(200);
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -34,7 +38,7 @@ namespace RishUI
                     {
                         continue;
                     }
-                    var method = GetComparer(type);
+                    var method = GetCopier(type);
                     if (method != null)
                     {
                         Methods.Add(type, method);
@@ -43,13 +47,16 @@ namespace RishUI
             }
         }
 
-        public static bool Compare<T>(T first, T second) where T : struct
+        public static T Copy<T>(T element) where T : struct
         {
-            var comparer = GetDelegate<T>();
-            return comparer?.Invoke(first, second) ?? false;
+            return element is ICopy<T> copier ? copier.Copy() : element;
+            
+            //
+            // var copier = GetDelegate<T>();
+            // return copier?.Invoke(element) ?? element;
         }
 
-        private static Comparer<T> GetDelegate<T>() where T : struct
+        private static Copier<T> GetDelegate<T>() where T : struct
         {
             var type = typeof(T);
             if (!Delegates.TryGetValue(type, out var comparer))
@@ -62,33 +69,32 @@ namespace RishUI
                 
                 if (type.IsGenericType)
                 {
-                    var concreteMethod = GetComparer(type);
+                    var concreteMethod = GetCopier(type);
                     if (concreteMethod == null)
                     {
                         return null;
                     }
 
-                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, concreteMethod);
+                    comparer = Delegate.CreateDelegate(typeof(Copier<T>), null, concreteMethod);
                 }
                 else
                 {
-                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
+                    comparer = Delegate.CreateDelegate(typeof(Copier<T>), null, method);
                 }
 
                 Delegates.Add(type, comparer);
             }
 
-            return (Comparer<T>) comparer;
+            return (Copier<T>) comparer;
         }
 
-        private static MethodInfo GetComparer(Type type)
+        private static MethodInfo GetCopier(Type type)
         {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
-                if (parameters.Length == 2 && method.ReturnType == typeof(bool) && 
-                    parameters[0].ParameterType == type && parameters[1].ParameterType == type
-                    && Attribute.IsDefined(method, typeof(ComparerAttribute)))
+                if (parameters.Length == 1 && method.ReturnType == type && 
+                    parameters[0].ParameterType == type && Attribute.IsDefined(method, typeof(CopyAttribute)))
                 {
                     return method;
                 }

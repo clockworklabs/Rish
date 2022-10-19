@@ -164,9 +164,12 @@ namespace RishUI
         private const int InitialPoolSize = 64;
         private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
 
-        private static List<ElementDefinition> All { get; } = new();
-        private static int _nextChildrenId;
-        private static Dictionary<int, NativeArray<Element>> AllChildren { get; } = new();
+        // TODO: Replicate ActiveChildren so we know when an Element was "disposed" (so we can warn properly)
+        private static uint _nextElementId;
+        // private static List<ElementDefinition> All { get; } = new();
+        private static Dictionary<uint, ElementDefinition> ActiveElements { get; } = new();
+        private static uint _nextChildrenId;
+        private static Dictionary<uint, NativeArray<Element>> ActiveChildren { get; } = new();
         
         private static T GetFromPool<T>() where T : ElementDefinition, new()
         {
@@ -181,7 +184,7 @@ namespace RishUI
             if (pool.Count < 1)
             {
                 element = new T();
-                All.Add(element);
+                // All.Add(element);
             }
             else
             {
@@ -210,21 +213,21 @@ namespace RishUI
             pool.Push(definition);
         }
 
-        internal static void Dispose(int id)
+        internal static void Dispose(uint id)
         {
-            if (!AllChildren.TryGetValue(id, out var children))
+            if (!ActiveChildren.TryGetValue(id, out var children))
             {
                 return;
             }
             
             children.Dispose();
-            AllChildren.Remove(id);
+            ActiveChildren.Remove(id);
         }
 
         internal static ElementDefinition GetDefinition(int id) => All[id - 1];
-        internal static NativeArray<Element> GetNativeArray(int id)
+        internal static NativeArray<Element> GetNativeArray(uint id)
         {
-            if (!AllChildren.TryGetValue(id, out var children))
+            if (!ActiveChildren.TryGetValue(id, out var children))
             {
                 return default;
             }
@@ -271,8 +274,8 @@ namespace RishUI
 
         private static Children CreateChildren(NativeArray<Element> array)
         {
-            var id = ++_nextChildrenId;
-            AllChildren[id] = array;
+            var id = _nextChildrenId == uint.MaxValue ? 0 : ++_nextChildrenId;
+            ActiveChildren[id] = array;
             var children = new Children(id);
             OnCreate(children);
 
@@ -355,7 +358,7 @@ namespace RishUI
             
             return CreateChildren(array);
         }
-        private static Children CopyChildren(Children children)
+        internal static Children CopyChildren(Children children)
         {
             var length = children.Valid ? children.Count : 0;
             if (length <= 0)
@@ -1494,7 +1497,7 @@ namespace RishUI
                 Props = props;
             }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Props);
+            public override Element New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Copiers.Copy(Props));
 
             public override void Invoke(Node node)
             {
@@ -1533,7 +1536,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<T>(descriptor, Rish.CopyChildren(Children));
+            public override Element New(Descriptor descriptor) => Rish.Create<T>(descriptor, Children.Copy());
 
             public override void Invoke(Node node)
             {
@@ -1575,7 +1578,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Props, Rish.CopyChildren(Children));
+            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Copiers.Copy(Props), Children.Copy());
 
             public override void Invoke(Node node)
             {
@@ -1615,7 +1618,7 @@ namespace RishUI
                 Props = props;
             }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Props);
+            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Copiers.Copy(Props));
 
             public override void Invoke(Node node)
             {
