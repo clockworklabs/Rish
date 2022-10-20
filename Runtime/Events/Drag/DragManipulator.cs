@@ -277,6 +277,7 @@ namespace RishUI.Events
 
                 public void Copy(IPointerEvent pointerEvent)
                 {
+                    // TODO: This doesn't work properly on Mac (position is wrong because the app has the wrong size for whatever reason)
                     // TODO: Test in build
                     #if UNITY_EDITOR
                     var dp = Valid ? pointerEvent.position - position : Vector3.zero;
