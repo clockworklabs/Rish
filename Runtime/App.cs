@@ -13,7 +13,7 @@ namespace RishUI
     }
     
     [PoolSize(1)]
-    public class App : RishElement<AppProps>, IManualStyling, IPropsListener
+    public class App : RishElement<AppProps>, IPropsListener
     {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
         private HotReloader HotReloader { get; set; }
@@ -60,24 +60,6 @@ namespace RishUI
             UserApp = app;
             
             Dirty();
-        }
-
-        void IManualStyling.OnName(string name) { }
-
-        void IManualStyling.OnClasses(ClassName className) { }
-
-        void IManualStyling.OnInline(Style style)
-        {
-            style = new LayoutStyle
-            {
-                position = Position.Absolute,
-                top = 0,
-                right = 0,
-                bottom = 0,
-                left = 0
-            };
-            
-            style.SetInlineStyle(this);
         }
     }
 

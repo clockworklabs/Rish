@@ -30,6 +30,15 @@ namespace RishUI
             node.MountAs<App>(null, 0);
 
             var appElement = (App) node.Element;
+            var style = new Style
+            {
+                position = Position.Absolute,
+                top = 0,
+                right = 0,
+                bottom = 0,
+                left = 0
+            };
+            style.SetInlineStyle(appElement);
             appElement.Props = new AppProps
             {
                 rootClassName = rootClassName
