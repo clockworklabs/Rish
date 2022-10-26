@@ -520,13 +520,13 @@ namespace RishUI
                             index = i;
                             break;
                         }
-    #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-                        if (other.Type.FullName == type.FullName)
-                        {
-                            index = i;
-                            break;
-                        }
-    #endif
+    // #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+    //                     if (other.Type.FullName == type.FullName)
+    //                     {
+    //                         index = i;
+    //                         break;
+    //                     }
+    // #endif
                     }
     
                     child = index >= 0 ? Children[index] : null;
