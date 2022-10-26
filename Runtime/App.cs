@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace RishUI
 {
@@ -16,7 +15,7 @@ namespace RishUI
     public class App : RishElement<AppProps>, IPropsListener
     {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-        private HotReloader HotReloader { get; set; }
+        // private HotReloader HotReloader { get; set; }
 #endif
 
         private IApp UserApp { get; set; }
@@ -38,10 +37,10 @@ namespace RishUI
         
         void IPropsListener.PropsWillChange()
         {
-#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-            HotReloader?.Dispose();
-            HotReloader = null;
-#endif
+// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+//             HotReloader?.Dispose();
+//             HotReloader = null;
+// #endif
         }
 
         protected override Element Render()

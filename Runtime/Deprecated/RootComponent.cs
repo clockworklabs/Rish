@@ -12,7 +12,7 @@ namespace RishUI.Deprecated
     internal class RootComponent : RishComponent<RootComponentProps>, IPropsListener
     {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-        private HotReloader HotReloader { get; set; }
+        // private HotReloader HotReloader { get; set; }
 #endif
         
         private AppComponent App { get; set; }
@@ -20,23 +20,23 @@ namespace RishUI.Deprecated
         
         void IPropsListener.PropsDidChange()
         {
-#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-            HotReloader?.Dispose();
-            
-            HotReloader = new HotReloader(Props.assemblyDefinition);
-            HotReloader.OnSuccessfulCompilation += SetAppComponent;
-#else
+// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+//             HotReloader?.Dispose();
+//             
+//             HotReloader = new HotReloader(Props.assemblyDefinition);
+//             HotReloader.OnSuccessfulCompilation += SetAppComponent;
+// #else
             var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassname) != null);
             SetAppComponent(asm);
-#endif
+// #endif
         }
         
         void IPropsListener.PropsWillChange()
         {
-#if UNITY_EDITOR && RISH_HOT_RELOAD_READY
-            HotReloader?.Dispose();
-            HotReloader = null;
-#endif
+// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+//             HotReloader?.Dispose();
+//             HotReloader = null;
+// #endif
         }
 
         protected override RishElement Render()
