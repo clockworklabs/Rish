@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -190,6 +193,98 @@ namespace RishUI
             }
         }
         private static Dictionary<uint, NativeArray<Element>> ArraysInUse { get; } = new();
+        
+#if UNITY_EDITOR
+        static Rish()
+        {
+            ShowWarnings();
+        }
+
+        private static void ShowWarnings()
+        {
+            var playerAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Select(asm => asm.name).ToArray();
+            var types = AppDomain.CurrentDomain.GetAssemblies().Where(ShouldIncludeAssembly).SelectMany(asm => asm.GetTypes()).Where(type => {
+                if (type.IsGenericType)
+                {
+                    return false;
+                }
+
+                var baseType = type.BaseType;
+                if (baseType is not { IsGenericType: true })
+                {
+                    return false;
+                }
+                
+                var genericBaseType = baseType.GetGenericTypeDefinition();
+                return genericBaseType == typeof(RishElement<>) || genericBaseType == typeof(RishElement<,>);
+            }).SelectMany(type =>
+            {
+                var baseType = type.BaseType;
+                var genericArguments = baseType.GenericTypeArguments;
+                return genericArguments.Length switch
+                {
+                    1 => new[] { genericArguments[0] },
+                    2 => new[] { genericArguments[0], genericArguments[1] },
+                    _ => throw new UnityException("Invalid type")
+                };
+            }).ToArray();
+            
+            ShowComparersWarnings(types);
+            ShowCopyWarnings(types);
+            
+            bool ShouldIncludeAssembly(System.Reflection.Assembly asm)
+            {
+                if (asm.IsDynamic)
+                {
+                    return true;
+                }
+
+                var name = asm.GetName().Name;
+                return !name.Contains("Unity") && playerAssemblies.Contains(name);
+            }
+        }
+
+        private static void ShowComparersWarnings(Type[] types)
+        {
+            foreach (var type in types)
+            {
+                if (Comparers.Contains(type))
+                {
+                    continue;
+                }
+                
+                if (!UnsafeUtility.IsUnmanaged(type))
+                {
+                    Debug.LogWarning($"{type.FullName} is managed and needs a Comparer");
+                }
+                else
+                {
+                    var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (fields.Any(field => field.FieldType == typeof(Element) || field.FieldType == typeof(Children)))
+                    {
+                        Debug.LogWarning($"{type.FullName} has at least one Element or Children field and needs a Comparer");
+                    }
+                }
+            }
+        }
+
+        private static void ShowCopyWarnings(Type[] types)
+        {
+            foreach (var type in types)
+            {
+                if (Copiers.Contains(type))
+                {
+                    continue;
+                }
+
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (fields.Any(field => field.FieldType == typeof(Element) || field.FieldType == typeof(Children)))
+                {
+                    Debug.LogWarning($"{type.FullName} has at least one Element or Children field and needs a Copier");
+                }
+            }
+        }
+#endif
         
         private static T GetFromPool<T>() where T : ElementDefinition, new()
         {

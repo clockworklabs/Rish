@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine.Scripting;
 
@@ -49,11 +50,11 @@ namespace RishUI
 
         public static T Copy<T>(T element) where T : struct
         {
-            return element is ICopy<T> copier ? copier.Copy() : element;
+            // return element is ICopy<T> copier ? copier.Copy() : element;
             
             //
-            // var copier = GetDelegate<T>();
-            // return copier?.Invoke(element) ?? element;
+            var copier = GetDelegate<T>();
+            return copier?.Invoke(element) ?? element;
         }
 
         private static Copier<T> GetDelegate<T>() where T : struct
@@ -103,6 +104,19 @@ namespace RishUI
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type) => Methods.ContainsKey(type);
+        internal static bool Contains(Type type) => type.GetInterfaces().Any(iType =>
+        {
+            if (!iType.IsGenericType)
+            {
+                return false;
+            }
+
+            if (iType.GetGenericTypeDefinition() != typeof(ICopy<>))
+            {
+                return false;
+            }
+
+            return iType.GetGenericArguments()[0] == type;
+        }) || Methods.ContainsKey(type);
     }
 }
