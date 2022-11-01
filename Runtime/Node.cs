@@ -464,19 +464,22 @@ namespace RishUI
 
             public override void SetChildren(Children children)
             {
-#if UNITY_EDITOR
-                if (Element is RishElement)
+                var clean = !Rendering;
+
+                if (clean)
                 {
-                    throw new UnityException("RishElements can't have multiple children");
+                    Clear();
                 }
-#endif
-                
-                Clear();
+
                 for(int i = 0, n = children.Count; i < n; i++)
                 {
                     children[i].Invoke(Node);
                 }
-                Clean();
+                
+                if (clean)
+                {
+                    Clean();
+                }
             }
             
             private void Clear()

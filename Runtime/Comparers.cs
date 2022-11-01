@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -82,20 +83,34 @@ namespace RishUI
 
         private static MethodInfo GetComparer(Type type)
         {
+            var isGeneric = type.IsGenericType;
+            var targetType = isGeneric ? type.GetGenericTypeDefinition() : type;
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
-                if (parameters.Length == 2 && method.ReturnType == typeof(bool) && 
-                    parameters[0].ParameterType == type && parameters[1].ParameterType == type
-                    && Attribute.IsDefined(method, typeof(ComparerAttribute)))
+                if (parameters.Length != 2 || method.ReturnType != typeof(bool) || !Attribute.IsDefined(method, typeof(ComparerAttribute)))
                 {
-                    return method;
+                    continue;
                 }
+
+                var par0 = isGeneric
+                    ? parameters[0].ParameterType.GetGenericTypeDefinition()
+                    : parameters[0].ParameterType;
+                var par1 = isGeneric
+                    ? parameters[1].ParameterType.GetGenericTypeDefinition()
+                    : parameters[1].ParameterType;
+
+                if (par0 != targetType || par1 != targetType)
+                {
+                    continue;
+                } 
+
+                return method;
             }
             return null;
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type) => Methods.ContainsKey(type);
+        internal static bool Contains(Type type) => Methods.ContainsKey(type.IsGenericType ? type.GetGenericTypeDefinition() : type);
     }
 }

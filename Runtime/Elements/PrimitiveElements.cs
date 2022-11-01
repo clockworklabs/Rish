@@ -151,6 +151,47 @@ namespace RishUI.Elements
         }
     }
     
+    public class ActualImage : UnityEngine.UIElements.Image, IPrimitiveElement<ImageProps>
+    {
+        private PickingManager PickingManager { get; }
+        PickingManager IAdvancedPicking.Manager => PickingManager;
+
+        public ActualImage()
+        {
+            PickingManager = new PickingManager(this);
+        }
+        
+        void IPrimitiveElement<ImageProps>.Setup(ImageProps props)
+        {
+            if (props.sprite != null)
+            {
+                sprite = props.sprite;
+                vectorImage = null;
+                image = null;
+            } else if (props.vectorImage != null)
+            {
+                sprite = null;
+                vectorImage = props.vectorImage;
+                image = null;
+            } else if (props.texture != null)
+            {
+                sprite = null;
+                vectorImage = null;
+                image = props.texture;
+            } else if (props.renderTexture != null)
+            {
+                sprite = null;
+                vectorImage = null;
+                image = props.renderTexture;
+            }
+
+            tintColor = props.tintColor.Value;
+            scaleMode = props.scaleMode;
+        }
+        
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
+    }
+    
     public struct ImageProps
     {
         public Sprite sprite;
