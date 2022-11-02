@@ -73,7 +73,7 @@ namespace RishUI
             var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
                 
             var propsListener = this as IPropsListener;
-            if (propsSet)
+            if (dirty)
             {
                 propsListener?.PropsWillChange();
             }
@@ -85,8 +85,11 @@ namespace RishUI
             }
 
             _props = value;
-                
-            propsListener?.PropsDidChange();
+
+            if (!propsSet || dirty)
+            {
+                propsListener?.PropsDidChange();
+            }
 
             if (dirty)
             {
@@ -106,7 +109,7 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
-        protected PickingManager PickingManager { get; }
+        private PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
 
         void IRishElement.Mount(Dom dom)
