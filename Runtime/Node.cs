@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Priority_Queue;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -32,9 +34,6 @@ namespace RishUI
         
         private List<Element> OwnedDefinitions { get; set; }
         private List<Element> OwnedDefinitionsBuffer { get; set; }
-        
-        private List<Children> OwnedChildren { get; set; }
-        private List<Children> OwnedChildrenBuffer { get; set; }
         
         private int Index { get; set; } // This is to keep the position for the elements with custom unmounting
         private bool Unmounting { get; set; }
@@ -77,19 +76,13 @@ namespace RishUI
             
             OwnedDefinitions.Add(definition);
         }
-        void IOwner.TakeOwnership(Children children)
-        {
-            OwnedChildren ??= new List<Children>();
-            
-            OwnedChildren.Add(children);
-        }
 
         private void Dirty() => OnDirty?.Invoke(this);
         
         public void MountAs<T>(Node parent, uint key) where T : VisualElement, new() => Machine.MountAs<T>(parent, key);
         public void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
         public void Render() => Machine.Render();
-        public void SetChildren(Children children) => Machine.SetChildren(children);
+        public void RenderPrimitive(Element element) => Machine.RenderPrimitive(element);
         public (Node, T) AddChild<T>(uint key) where T : VisualElement, new() => Machine.AddChild<T>(key);
         public void Free() => Machine.Free();
 
@@ -199,7 +192,7 @@ namespace RishUI
                 CurrentState.Unmount();
             }
             public void Render() => CurrentState.Render();
-            public void SetChildren(Children children) => CurrentState.SetChildren(children);
+            public void RenderPrimitive(Element element) => CurrentState.RenderPrimitive(element);
             public (Node, T) AddChild<T>(uint key) where T : VisualElement, new() => CurrentState.AddChild<T>(key);
             public void Free() => CurrentState.Free();
         }
@@ -258,18 +251,7 @@ namespace RishUI
                 get => Node.OwnedDefinitionsBuffer;
                 set => Node.OwnedDefinitionsBuffer = value;
             }
-        
-            private List<Children> OwnedChildren
-            {
-                get => Node.OwnedChildren;
-                set => Node.OwnedChildren = value;
-            }
-            private List<Children> OwnedChildrenBuffer
-            {
-                get => Node.OwnedChildrenBuffer;
-                set => Node.OwnedChildrenBuffer = value;
-            }
-            
+
             protected int Index
             {
                 set => Node.Index = value;
@@ -300,7 +282,7 @@ namespace RishUI
             public abstract void Unmount();
 
             public abstract void Render();
-            public abstract void SetChildren(Children children);
+            public abstract void RenderPrimitive(Element element);
             public abstract (Node, T) AddChild<T>(uint key) where T : VisualElement, new();
 
             public abstract void Free();
@@ -314,10 +296,6 @@ namespace RishUI
                 {
                     (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
                 }
-                if (OwnedChildren?.Count > 0)
-                {
-                    (OwnedChildren, OwnedChildrenBuffer) = (OwnedChildrenBuffer, OwnedChildren);
-                }
             }
 
             protected void ReleasePreviouslyOwnedElements()
@@ -330,15 +308,6 @@ namespace RishUI
                     }
                     OwnedDefinitionsBuffer.Clear();
                 }
-                
-                if (OwnedChildrenBuffer?.Count > 0)
-                {
-                    for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
-                    {
-                        Dom.Free(OwnedChildrenBuffer[i]);
-                    }
-                    OwnedChildrenBuffer.Clear();
-                }
             }
 
             protected void ReleaseOwnedElements()
@@ -350,15 +319,6 @@ namespace RishUI
                         Dom.Free(OwnedDefinitions[i]);
                     }
                     OwnedDefinitions.Clear();
-                }
-
-                if (OwnedChildren?.Count > 0)
-                {
-                    for (int i = 0, n = OwnedChildren.Count; i < n; i++)
-                    {
-                        Dom.Free(OwnedChildren[i]);
-                    }
-                    OwnedChildren.Clear();
                 }
             }
         }
@@ -409,7 +369,7 @@ namespace RishUI
                 throw new UnityException("Invalid state. Node is unmounted.");
             }
 
-            public override void SetChildren(Children children)
+            public override void RenderPrimitive(Element element)
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
             }
@@ -461,25 +421,23 @@ namespace RishUI
                 
                 ReleasePreviouslyOwnedElements();
             }
-
-            public override void SetChildren(Children children)
+            
+            public override void RenderPrimitive(Element element)
             {
-                var clean = !Rendering;
-
-                if (clean)
+                if (Element is IRishElement)
                 {
-                    Clear();
-                }
-
-                for(int i = 0, n = children.Count; i < n; i++)
-                {
-                    children[i].Invoke(Node);
+#if UNITY_EDITOR
+                    throw new UnityException("Only primitive Elements can render this way");
+#else
+                    return;
+#endif
                 }
                 
-                if (clean)
-                {
-                    Clean();
-                }
+                Clear();
+
+                element.Invoke(Node);
+                
+                Clean();
             }
             
             private void Clear()
@@ -911,7 +869,7 @@ namespace RishUI
                 throw new UnityException("Invalid state. Node is unmounted.");
             }
 
-            public override void SetChildren(Children children)
+            public override void RenderPrimitive(Element element)
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
             }

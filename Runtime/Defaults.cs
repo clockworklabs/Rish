@@ -8,7 +8,7 @@ namespace RishUI
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DefaultAttribute : PreserveAttribute { }
     
-    public class Defaults
+    public static class Defaults
     {
         private static Dictionary<Type, object> Values { get; }
         private static HashSet<Type> GenericTypes { get; }
@@ -19,33 +19,24 @@ namespace RishUI
         {
             Values = new Dictionary<Type, object>(200);
             GenericTypes = new HashSet<Type>();
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var type in Rish.PlayerTypes)
             {
-                // TODO: Improve performance
-                // if (Rish.ShouldIgnoreAssembly(asm))
-                // {
-                //     continue;
-                // }
-
-                foreach (var type in asm.GetTypes())
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                foreach (var property in properties)
                 {
-                    var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    foreach (var property in properties)
+                    if (property.PropertyType == type && Attribute.IsDefined(property, typeof(DefaultAttribute)))
                     {
-                        if (property.PropertyType == type && Attribute.IsDefined(property, typeof(DefaultAttribute)))
+                        if (type.IsGenericType)
                         {
-                            if (type.IsGenericType)
+                            GenericTypes.Add(type);
+                        }
+                        else
+                        {
+                            var val = property.GetValue(null);
+                            if (val != null)
                             {
-                                GenericTypes.Add(type);
-                            }
-                            else
-                            {
-                                var val = property.GetValue(null);
-                                if (val != null)
-                                {
-                                    Values.Add(type, val);
-                                    break;
-                                }
+                                Values.Add(type, val);
+                                break;
                             }
                         }
                     }

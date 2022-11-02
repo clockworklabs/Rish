@@ -353,7 +353,7 @@ namespace RishUI
             return CreateElement(element);
         }
 
-        private class RishDefinition<T, P> : ElementDefinition where T : RishElement<P>, new() where P : struct
+        private class RishDefinition<T, P> : NodeElementDefinition where T : RishElement<P>, new() where P : struct
         {
             private P Props { get; set; }
 
@@ -362,6 +362,8 @@ namespace RishUI
                 Descriptor = descriptor;
                 Props = props;
             }
+
+            public override void Dispose() { }
 
             public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Copiers.Copy(Props));
 

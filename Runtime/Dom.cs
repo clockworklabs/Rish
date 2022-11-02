@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Priority_Queue;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,7 +21,6 @@ namespace RishUI
         private int CurrentDepth { get; set; }
 
         private List<Element> FreeDefinitions { get; } = new();
-        private List<Children> FreeChildren { get; } = new();
         
         public Dom(UIDocument document, string rootClassName)
         {
@@ -58,7 +56,6 @@ namespace RishUI
         }
 
         internal void Free(Element definition) => FreeDefinitions.Add(definition);
-        internal void Free(Children children) => FreeChildren.Add(children);
 
         private void OnDirtyNode(Node node)
         {
@@ -162,12 +159,6 @@ namespace RishUI
                 definition.ReturnToPool();
             }
             FreeDefinitions.Clear();
-            for (int i = 0, n = FreeChildren.Count; i < n; i++)
-            {
-                var children = FreeChildren[i];
-                children.Dispose();
-            }
-            FreeChildren.Clear();
         }
     }
 }

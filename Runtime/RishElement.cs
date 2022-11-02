@@ -55,9 +55,6 @@ namespace RishUI
         
         private List<Element> OwnedDefinitions { get; set; }
         private List<Element> OwnedDefinitionsBuffer { get; set; }
-        
-        private List<Children> OwnedChildren { get; set; }
-        private List<Children> OwnedChildrenBuffer { get; set; }
 
         protected RishElement()
         {
@@ -213,22 +210,12 @@ namespace RishUI
             
             OwnedDefinitions.Add(definition);
         }
-        void IOwner.TakeOwnership(Children children)
-        {
-            OwnedChildren ??= new List<Children>();
-            
-            OwnedChildren.Add(children);
-        }
         
         private void SwapBuffers()
         {
             if (OwnedDefinitions?.Count > 0)
             {
                 (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
-            }
-            if (OwnedChildren?.Count > 0)
-            {
-                (OwnedChildren, OwnedChildrenBuffer) = (OwnedChildrenBuffer, OwnedChildren);
             }
         }
 
@@ -242,15 +229,6 @@ namespace RishUI
                 }
                 OwnedDefinitionsBuffer.Clear();
             }
-                
-            if (OwnedChildrenBuffer?.Count > 0)
-            {
-                for (int i = 0, n = OwnedChildrenBuffer.Count; i < n; i++)
-                {
-                    CurrentDom.Free(OwnedChildrenBuffer[i]);
-                }
-                OwnedChildrenBuffer.Clear();
-            }
         }
 
         private void ReleaseOwnedElements()
@@ -262,15 +240,6 @@ namespace RishUI
                     CurrentDom.Free(OwnedDefinitions[i]);
                 }
                 OwnedDefinitions.Clear();
-            }
-
-            if (OwnedChildren?.Count > 0)
-            {
-                for (int i = 0, n = OwnedChildren.Count; i < n; i++)
-                {
-                    CurrentDom.Free(OwnedChildren[i]);
-                }
-                OwnedChildren.Clear();
             }
         }
 

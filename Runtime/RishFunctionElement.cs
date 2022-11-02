@@ -357,7 +357,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- SETUPS --------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private class FunctionalDefinition : ElementDefinition
+        private class FunctionalDefinition : NodeElementDefinition
         {
             private FunctionElement Element { get; set; }
             
@@ -366,6 +366,8 @@ namespace RishUI
                 Descriptor = descriptor;
                 Element = function;
             }
+
+            public override void Dispose() { }
 
             public override Element New(Descriptor descriptor) => Rish.Create(Element, descriptor);
 
@@ -395,7 +397,7 @@ namespace RishUI
             }
         }
 
-        private class FunctionalDefinition<P> : ElementDefinition where P : struct
+        private class FunctionalDefinition<P> : NodeElementDefinition where P : struct
         {
             private FunctionElement<P> Element { get; set; }
             private P Props { get; set; }
@@ -406,6 +408,8 @@ namespace RishUI
                 Element = function;
                 Props = props;
             }
+
+            public override void Dispose() { }
 
             public override Element New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Copiers.Copy(Props));
 

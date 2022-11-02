@@ -34,32 +34,57 @@ namespace RishUI
         }
         private static Dictionary<uint, ElementDefinition> DefinitionsInUse { get; } = new();
         
-        private static uint _nextChildrenId;
-        private static uint ChildrenId
-        {
-            get
-            {
-                if (_nextChildrenId == uint.MaxValue)
-                {
-                    _nextChildrenId = 0;
-                }
-                _nextChildrenId += 1;
-
-                return _nextChildrenId;
-            }
-        }
-        private static Dictionary<uint, NativeArray<Element>> ArraysInUse { get; } = new();
+        // private static uint _nextChildrenId;
+        // private static uint ChildrenId
+        // {
+        //     get
+        //     {
+        //         if (_nextChildrenId == uint.MaxValue)
+        //         {
+        //             _nextChildrenId = 0;
+        //         }
+        //         _nextChildrenId += 1;
+        //
+        //         return _nextChildrenId;
+        //     }
+        // }
+        // private static Dictionary<uint, NativeArray<Element>> ArraysInUse { get; } = new();
         
 #if UNITY_EDITOR
         static Rish()
         {
             ShowWarnings();
         }
+         
+        private static Type[] _playerTypes;
+        internal static Type[] PlayerTypes
+        {
+            get
+            {
+                if (_playerTypes == null)
+                {
+                    var playerAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Select(asm => asm.name).ToArray();
+                    _playerTypes = AppDomain.CurrentDomain.GetAssemblies().Where(ShouldIncludeAssembly).SelectMany(asm => asm.GetTypes()).ToArray();
+                    
+                    bool ShouldIncludeAssembly(Assembly asm)
+                    {
+                        if (asm.IsDynamic)
+                        {
+                            return true;
+                        }
+
+                        var name = asm.GetName().Name;
+                        return !name.Contains("Unity") && playerAssemblies.Contains(name);
+                    }
+                }
+
+                return _playerTypes;
+            }
+        }
 
         private static void ShowWarnings()
         {
-            var playerAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Select(asm => asm.name).ToArray();
-            var types = AppDomain.CurrentDomain.GetAssemblies().Where(ShouldIncludeAssembly).SelectMany(asm => asm.GetTypes()).Where(type => {
+            var types = PlayerTypes.Where(type => {
                 var baseType = type.BaseType;
                 if (baseType is not { IsGenericType: true })
                 {
@@ -82,17 +107,6 @@ namespace RishUI
             
             ShowComparersWarnings(types);
             ShowCopyWarnings(types);
-            
-            bool ShouldIncludeAssembly(System.Reflection.Assembly asm)
-            {
-                if (asm.IsDynamic)
-                {
-                    return true;
-                }
-
-                var name = asm.GetName().Name;
-                return !name.Contains("Unity") && playerAssemblies.Contains(name);
-            }
         }
 
         private static void ShowComparersWarnings(Type[] types)
@@ -111,9 +125,9 @@ namespace RishUI
                 else
                 {
                     var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (fields.Any(field => field.FieldType == typeof(Element) || field.FieldType == typeof(Children)))
+                    if (fields.Any(field => field.FieldType == typeof(Element)))
                     {
-                        Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a Comparer");
+                        Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Comparer");
                     }
                 }
             }
@@ -129,9 +143,9 @@ namespace RishUI
                 }
 
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (fields.Any(field => field.FieldType == typeof(Element) || field.FieldType == typeof(Children)))
+                if (fields.Any(field => field.FieldType == typeof(Element)))
                 {
-                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a Copier");
+                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Copier");
                 }
             }
         }
@@ -173,24 +187,101 @@ namespace RishUI
             {
                 throw new UnityException($"{type} is an invalid element type. No pool found.");
             }
-            
+
+            definition.Dispose();
             pool.Push(definition);
             DefinitionsInUse.Remove(id);
         }
 
-        internal static void Dispose(uint id)
+        // internal static void Dispose(uint id)
+        // {
+        //     if (!ArraysInUse.TryGetValue(id, out var children))
+        //     {
+        //         return;
+        //     }
+        //     
+        //     children.Dispose();
+        //     ArraysInUse.Remove(id);
+        // }
+
+        internal static ElementDefinition GetDefinition(uint id) => DefinitionsInUse.TryGetValue(id, out var definition) ? definition : null;
+        // internal static NativeArray<Element> GetNativeArray(uint id) => ArraysInUse.TryGetValue(id, out var children) ? children : default;
+
+        internal static int GetLength(uint id)
         {
-            if (!ArraysInUse.TryGetValue(id, out var children))
+            var definition = GetDefinition(id);
+            if (definition == null)
             {
-                return;
+                return 0;
             }
-            
-            children.Dispose();
-            ArraysInUse.Remove(id);
+
+            if (definition is ChildrenDefinition children)
+            {
+                return children.Length;
+            }
+
+            return 1;
         }
 
-        internal static ElementDefinition GetDefinition(uint id) => DefinitionsInUse.TryGetValue(id, out var children) ? children : null;
-        internal static NativeArray<Element> GetNativeArray(uint id) => ArraysInUse.TryGetValue(id, out var children) ? children : default;
+        internal static Descriptor GetDescriptor(uint id, int index)
+        {
+            if (index < 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            var definition = GetDefinition(id);
+            if (definition == null)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            
+            if (definition is ChildrenDefinition children)
+            {
+                if (index >= children.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+                return children.GetDescriptor(index);
+            }
+            
+            if (index > 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            return (definition as NodeElementDefinition)?.Descriptor ?? default;
+        }
+
+        internal static Element SetDescriptor(uint id, int index, Descriptor descriptor)
+        {
+            if (index < 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            var definition = GetDefinition(id);
+            if (definition == null)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            
+            if (definition is ChildrenDefinition children)
+            {
+                if (index >= children.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+                return children.SetDescriptor(index, descriptor);
+            }
+            
+            if (index > 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            return (definition as NodeElementDefinition)?.New(descriptor) ?? default;
+        }
 
         internal static void RegisterOwner(IOwner listener)
         {
@@ -227,55 +318,55 @@ namespace RishUI
             owner.TakeOwnership(element);
         }
 
-        private static Children CreateChildren(NativeArray<Element> array)
-        {
-            var id = ChildrenId;
-            ArraysInUse[id] = array;
-            var children = new Children(id);
-            OnCreate(children);
+        // private static Children CreateChildren(NativeArray<Element> array)
+        // {
+        //     var id = ChildrenId;
+        //     ArraysInUse[id] = array;
+        //     var children = new Children(id);
+        //     OnCreate(children);
+        //
+        //     return children;
+        // }
+        // private static void OnCreate(Children children)
+        // {
+        //     var owner = Owners.Peek();
+        //     if (owner == null)
+        //     {
+        //         throw new UnityException("There's nobody to claim ownership of this NativeArray<Element>");
+        //     }
+        //     
+        //     owner.TakeOwnership(children);
+        // }
 
-            return children;
-        }
-        private static void OnCreate(Children children)
-        {
-            var owner = Owners.Peek();
-            if (owner == null)
-            {
-                throw new UnityException("There's nobody to claim ownership of this NativeArray<Element>");
-            }
-            
-            owner.TakeOwnership(children);
-        }
-
-        public static Element Container(Children? children)
-        {
-            var element = GetFromPool<ContainerDefinition>();
-            element.Factory(children ?? RishUI.Children.Empty);
-            
-            return CreateElement(element);
-        }
-
-        private class ContainerDefinition : ElementDefinition
-        {
-            private Children Children { get; set; }
-            
-            public void Factory(Children children)
-            {
-                Children = children;
-            }
-
-            public override Element New(Descriptor descriptor) => Rish.Container(Children.Copy());
-
-            public override void Invoke(Node node)
-            {
-                node.SetChildren(Children);
-            }
-
-            public override bool Equals(ElementDefinition other)
-            {
-                return other is ContainerDefinition otherDefinition && RishUtils.Compare<Children>(Children, otherDefinition.Children);
-            }
-        }
+        // public static Element Container(Children? children)
+        // {
+        //     var element = GetFromPool<ContainerDefinition>();
+        //     element.Factory(children ?? RishUI.Children.Empty);
+        //     
+        //     return CreateElement(element);
+        // }
+        //
+        // private class ContainerDefinition : ElementDefinition
+        // {
+        //     private Children Children { get; set; }
+        //     
+        //     public void Factory(Children children)
+        //     {
+        //         Children = children;
+        //     }
+        //
+        //     public override Element New(Descriptor descriptor) => Rish.Container(Children.Copy());
+        //
+        //     public override void Invoke(Node node)
+        //     {
+        //         node.SetChildren(Children);
+        //     }
+        //
+        //     public override bool Equals(ElementDefinition other)
+        //     {
+        //         return other is ContainerDefinition otherDefinition && RishUtils.Compare<Children>(Children, otherDefinition.Children);
+        //     }
+        // }
         
         public static T RefProps<T>(RefAction<T> func) where T : struct => RefProps(Defaults.GetValue<T>(), func);
         public static T RefProps<T>(T d, RefAction<T> func) where T : struct

@@ -26,24 +26,16 @@ namespace RishUI
         static Copiers()
         {
             Methods = new Dictionary<Type, MethodInfo>(200);
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var type in Rish.PlayerTypes)
             {
-                // if (Rish.ShouldIgnoreAssembly(asm))
-                // {
-                //     continue;
-                // }
-
-                foreach (var type in asm.GetTypes())
+                if (!type.IsValueType)
                 {
-                    if (!type.IsValueType)
-                    {
-                        continue;
-                    }
-                    var method = GetCopier(type);
-                    if (method != null)
-                    {
-                        Methods.Add(type, method);
-                    }
+                    continue;
+                }
+                var method = GetCopier(type);
+                if (method != null)
+                {
+                    Methods.Add(type, method);
                 }
             }
         }

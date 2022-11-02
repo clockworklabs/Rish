@@ -11,7 +11,7 @@ namespace RishUI
         
         public static Element Null => new();
 
-        public Descriptor Descriptor => GetDefinition().Descriptor; 
+        // public Descriptor Descriptor => GetDefinition().Descriptor;
 
         public Element(uint id)
         {
@@ -20,9 +20,9 @@ namespace RishUI
 
         private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);
 
-        public Element New(Descriptor descriptor) => Valid ? GetDefinition().New(descriptor) : Null;
-
-        public Element New(RefAction<Descriptor> action) => Valid ? GetDefinition().New(action) : Null;
+        public int Length => Valid ? Rish.GetLength(_id) : 0;
+        public Descriptor GetDescriptor(int index) => Valid ? Rish.GetDescriptor(_id, index) : default;
+        public Element SetDescriptor(int index, Descriptor descriptor) => Valid ? Rish.SetDescriptor(_id, index, descriptor) : Null;
 
         public Element Copy() => Valid ? GetDefinition().Copy() : Null;
 
@@ -37,7 +37,7 @@ namespace RishUI
             if (definition == null)
             {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
+                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element fields.");
 #endif
                 return;
             }
@@ -71,7 +71,7 @@ namespace RishUI
             if (!aInUse || !bInUse)
             {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
+                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element fields.");
 #endif
                 return false;
             }
