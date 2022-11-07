@@ -276,7 +276,7 @@ namespace RishUI.Elements
         public float right;
         public float bottom;
         public float left;
-
+    
         public Margins(float scalar) : this(scalar, scalar, scalar, scalar) { }
         public Margins(Vector2 vector) : this(vector.x, vector.y, vector.x, vector.y) { }
         public Margins((float, float) vector) : this(vector.Item1, vector.Item2, vector.Item1, vector.Item2) { }
@@ -285,7 +285,7 @@ namespace RishUI.Elements
         public Margins(Vector4 vector) : this(vector.x, vector.y, vector.z, vector.w) { }
         public Margins((float, float, float, float) vector) : this(vector.Item1, vector.Item2, vector.Item3, vector.Item4) { }
         public Margins(Margins margins) : this(margins.top, margins.right, margins.bottom, margins.left) { }
-
+    
         private Margins(float top, float right, float bottom, float left)
         {
             this.top = top;
@@ -293,18 +293,18 @@ namespace RishUI.Elements
             this.bottom = bottom;
             this.left = left;
         }
-
+    
         public bool IsZero() => Mathf.Approximately(top, 0) && Mathf.Approximately(right, 0) &&
                                 Mathf.Approximately(bottom, 0) && Mathf.Approximately(left, 0);
-
+    
         public readonly bool IsValid() =>
             !float.IsNaN(top) && !float.IsInfinity(top) &&
             !float.IsNaN(right) && !float.IsInfinity(right) &&
             !float.IsNaN(bottom) && !float.IsInfinity(bottom) &&
             !float.IsNaN(left) && !float.IsInfinity(left);
-
+    
         public override string ToString() => $"{top} - {right} - {bottom} - {left}";
-
+    
         public static implicit operator Margins(Vector4 vector) => new(vector);
         public static implicit operator Margins((float, float, float, float) vector) => new(vector);
         public static implicit operator Margins(Vector3 vector) => new(vector);
@@ -312,7 +312,7 @@ namespace RishUI.Elements
         public static implicit operator Margins(Vector2 vector) => new(vector);
         public static implicit operator Margins((float, float) vector) => new(vector);
         public static implicit operator Margins(float scalar) => new(scalar);
-
+    
         public static Margins operator -(Margins margins) => new Margins
         {
             top = -margins.top,
