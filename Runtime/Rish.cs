@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -10,7 +9,6 @@ namespace RishUI
 {
     public delegate void RefAction<T>(ref T value) where T : struct;
 
-    // TODO: Split into partial classes
     public static partial class Rish
     {
         private static Stack<IOwner> Owners { get; } = new();
@@ -33,22 +31,6 @@ namespace RishUI
             }
         }
         private static Dictionary<uint, ElementDefinition> DefinitionsInUse { get; } = new();
-        
-        // private static uint _nextChildrenId;
-        // private static uint ChildrenId
-        // {
-        //     get
-        //     {
-        //         if (_nextChildrenId == uint.MaxValue)
-        //         {
-        //             _nextChildrenId = 0;
-        //         }
-        //         _nextChildrenId += 1;
-        //
-        //         return _nextChildrenId;
-        //     }
-        // }
-        // private static Dictionary<uint, NativeArray<Element>> ArraysInUse { get; } = new();
         
 #if UNITY_EDITOR
         static Rish()
@@ -193,19 +175,7 @@ namespace RishUI
             DefinitionsInUse.Remove(id);
         }
 
-        // internal static void Dispose(uint id)
-        // {
-        //     if (!ArraysInUse.TryGetValue(id, out var children))
-        //     {
-        //         return;
-        //     }
-        //     
-        //     children.Dispose();
-        //     ArraysInUse.Remove(id);
-        // }
-
         internal static ElementDefinition GetDefinition(uint id) => DefinitionsInUse.TryGetValue(id, out var definition) ? definition : null;
-        // internal static NativeArray<Element> GetNativeArray(uint id) => ArraysInUse.TryGetValue(id, out var children) ? children : default;
 
         internal static int GetLength(uint id)
         {
@@ -317,56 +287,6 @@ namespace RishUI
 
             owner.TakeOwnership(element);
         }
-
-        // private static Children CreateChildren(NativeArray<Element> array)
-        // {
-        //     var id = ChildrenId;
-        //     ArraysInUse[id] = array;
-        //     var children = new Children(id);
-        //     OnCreate(children);
-        //
-        //     return children;
-        // }
-        // private static void OnCreate(Children children)
-        // {
-        //     var owner = Owners.Peek();
-        //     if (owner == null)
-        //     {
-        //         throw new UnityException("There's nobody to claim ownership of this NativeArray<Element>");
-        //     }
-        //     
-        //     owner.TakeOwnership(children);
-        // }
-
-        // public static Element Container(Children? children)
-        // {
-        //     var element = GetFromPool<ContainerDefinition>();
-        //     element.Factory(children ?? RishUI.Children.Empty);
-        //     
-        //     return CreateElement(element);
-        // }
-        //
-        // private class ContainerDefinition : ElementDefinition
-        // {
-        //     private Children Children { get; set; }
-        //     
-        //     public void Factory(Children children)
-        //     {
-        //         Children = children;
-        //     }
-        //
-        //     public override Element New(Descriptor descriptor) => Rish.Container(Children.Copy());
-        //
-        //     public override void Invoke(Node node)
-        //     {
-        //         node.SetChildren(Children);
-        //     }
-        //
-        //     public override bool Equals(ElementDefinition other)
-        //     {
-        //         return other is ContainerDefinition otherDefinition && RishUtils.Compare<Children>(Children, otherDefinition.Children);
-        //     }
-        // }
         
         public static T RefProps<T>(RefAction<T> func) where T : struct => RefProps(Defaults.GetValue<T>(), func);
         public static T RefProps<T>(T d, RefAction<T> func) where T : struct
