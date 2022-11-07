@@ -374,20 +374,6 @@ namespace RishUI
             public override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<FunctionalElement>(Descriptor.key);
-                
-                if (element is IManualStyling customElement)
-                {
-                    customElement.OnName(Descriptor.name);
-                    customElement.OnClasses(Descriptor.className);
-                    customElement.OnInline(Descriptor.style);
-                }
-                else
-                {
-                    element.name = Descriptor.name;
-                    Descriptor.className.SetClasses(element);
-                    Descriptor.style.SetInlineStyle(element);
-                }
-                
                 element.Delegate = Element;
             }
 
@@ -416,20 +402,6 @@ namespace RishUI
             public override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<FunctionalElement<P>>(Descriptor.key);
-                
-                if (element is IManualStyling customElement)
-                {
-                    customElement.OnName(Descriptor.name);
-                    customElement.OnClasses(Descriptor.className);
-                    customElement.OnInline(Descriptor.style);
-                }
-                else
-                {
-                    element.name = Descriptor.name;
-                    Descriptor.className.SetClasses(element);
-                    Descriptor.style.SetInlineStyle(element);
-                }
-                
                 element.Delegate = Element;
                 element.Props = Props;
             }

@@ -21,14 +21,14 @@ namespace RishUI
         private const int InitialSize = 32;
         
         private static Dictionary<Type, int> InitialSizes { get; } = new();
-        private static Dictionary<Type, Stack<VisualElement>> Pools { get; } = new();
+        private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
 
-        public static T Get<T>() where T : VisualElement, new()
+        public static T Get<T>() where T : class, IElement, new()
         {
             var type = typeof(T);
             if (!Pools.TryGetValue(type, out var pool))
             {
-                pool = new Stack<VisualElement>();
+                pool = new Stack<IElement>();
                 Pools[type] = pool;
             }
             
@@ -53,12 +53,15 @@ namespace RishUI
             }
 
             var element = pool.Pop();
-            element.SetEnabled(true);
-            
+            if (element is VisualElement visualElement)
+            {
+                visualElement.SetEnabled(true);
+            }
+
             return element as T;
         }
 
-        public static bool Return(VisualElement element)
+        public static bool Return(IElement element)
         {
             if (element == null)
             {
@@ -71,14 +74,17 @@ namespace RishUI
                 return false;
             }
 
-            element.SetEnabled(false);
-            element.RemoveFromHierarchy();
+            if (element is VisualElement visualElement)
+            {
+                visualElement.SetEnabled(false);
+                visualElement.RemoveFromHierarchy();
+            }
             pool.Push(element);
             
             return true;
         }
         
-        private static void Populate<T>(Stack<VisualElement> pool, int size) where T : VisualElement, new()
+        private static void Populate<T>(Stack<IElement> pool, int size) where T : IElement, new()
         {
             if (pool == null || size <= 0)
             {
@@ -88,7 +94,10 @@ namespace RishUI
             for (var j = 0; j < size; j++)
             {
                 var element = new T();
-                element.SetEnabled(false);
+                if (element is VisualElement visualElement)
+                {
+                    visualElement.SetEnabled(false);
+                }
                 pool.Push(element);
             }
         }

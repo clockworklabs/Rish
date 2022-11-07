@@ -11,13 +11,13 @@ namespace RishUI.Elements
 
         public Button()
         {
-            RegisterCallback<HoverStartEvent>(OnHoverStart);
-            RegisterCallback<HoverEndEvent>(OnHoverEnd);
-            
-            RegisterCallback<PointerDownEvent>(OnPointerDown);
-            RegisterCallback<PointerUpEvent>(OnPointerUp);
-            // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
-            RegisterCallback<PointerCancelEvent>(OnPointerCancel);
+            // RegisterCallback<HoverStartEvent>(OnHoverStart);
+            // RegisterCallback<HoverEndEvent>(OnHoverEnd);
+            //
+            // RegisterCallback<PointerDownEvent>(OnPointerDown);
+            // RegisterCallback<PointerUpEvent>(OnPointerUp);
+            // // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
+            // RegisterCallback<PointerCancelEvent>(OnPointerCancel);
             
             // TODO: Add longPress
         }
@@ -66,7 +66,7 @@ namespace RishUI.Elements
             Listening = true;
             PointerId = evt.pointerId;
             
-            this.CapturePointer(PointerId);
+            // this.CapturePointer(PointerId);
 
             var state = State;
             state.pressed = true;
@@ -82,22 +82,22 @@ namespace RishUI.Elements
                 return;
             }
             
-            this.ReleasePointer(PointerId);
+            // this.ReleasePointer(PointerId);
 
             Listening = false;
             PointerId = 0;
             
-            if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-            {
-                if (evt.button == 1)
-                {
-                    Props.secondaryAction?.Invoke();
-                }
-                else
-                {
-                    Props.action?.Invoke();
-                }
-            }
+            // if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
+            // {
+            //     if (evt.button == 1)
+            //     {
+            //         Props.secondaryAction?.Invoke();
+            //     }
+            //     else
+            //     {
+            //         Props.action?.Invoke();
+            //     }
+            // }
 
             var state = State;
             state.pressed = false;
@@ -140,22 +140,22 @@ namespace RishUI.Elements
                 return;
             }
 
-            this.ReleasePointer(PointerId);
+            // this.ReleasePointer(PointerId);
 
             Listening = false;
             PointerId = 0;
             
-            if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-            {
-                if (evt.button == 1)
-                {
-                    Props.secondaryAction?.Invoke();
-                }
-                else
-                {
-                    Props.action?.Invoke();
-                }
-            }
+            // if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
+            // {
+            //     if (evt.button == 1)
+            //     {
+            //         Props.secondaryAction?.Invoke();
+            //     }
+            //     else
+            //     {
+            //         Props.action?.Invoke();
+            //     }
+            // }
 
             var state = State;
             state.pressed = false;

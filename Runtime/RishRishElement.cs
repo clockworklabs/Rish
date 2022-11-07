@@ -370,25 +370,7 @@ namespace RishUI
             public override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<T>(Descriptor.key);
-                
-                if (element is IManualStyling customElement)
-                {
-                    customElement.OnName(Descriptor.name);
-                    customElement.OnClasses(Descriptor.className);
-                    customElement.OnInline(Descriptor.style);
-                }
-                else
-                {
-                    element.name = Descriptor.name;
-                    Descriptor.className.SetClasses(element);
-                    Descriptor.style.SetInlineStyle(element);
-                }
-
-                var props = Props;
-                
-                element.Props = props;
-                
-                // TODO: Add event to report visit (in case Render isn't triggered)
+                element.Props = Props;
             }
 
             public override bool Equals(ElementDefinition other)

@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Graphs;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace RishUI
 {
     public struct NoProps { }
 
-    internal interface IRishElement
+    internal interface IRishElement : IElement
     {
         event Action OnDirty;
         event Action OnReadyToUnmount;
         
-        void Mount(Dom dom);
+        void Mount(Node node);
         void RequestUnmount();
         void Unmount();
 
         Element Render();
     }
 
-    public abstract class RishElement<P> : VisualElement, IRishElement, IAdvancedPicking, IOwner where P : struct
+    public abstract class RishElement<P> : IRishElement where P : struct
     {
         private event Action OnDirty;
         event Action IRishElement.OnDirty
@@ -27,7 +27,7 @@ namespace RishUI
             add => OnDirty += value;
             remove => OnDirty -= value;
         }
-
+        
         private event Action OnReadyToUnmount;
         event Action IRishElement.OnReadyToUnmount
         {
@@ -36,38 +36,37 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
+
+        private ElementsOwner ElementsOwner { get; } = new();
         
-        private Dom CurrentDom { get; set; }
+        private Node Node { get; set; }
+        protected uint ID => Node.ID;
         
-        private P _preStylingProps;
         private P? _props;
         public P Props
         {
             get => _props.Value;
-            internal set => SetProps(value, true);
+            internal set => SetProps(value);
         }
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
-        
-        private bool ContainsStyledProps { get; }
-        private ICustomStyle CustomStyle { get; set; }
-        
-        private List<Element> OwnedDefinitions { get; set; }
-        private List<Element> OwnedDefinitionsBuffer { get; set; }
 
-        protected RishElement()
+        protected T GetFirstAncestorOfType<T>() where T : class, IElement, new()
         {
-            ContainsStyledProps = StyledProps.Register<P>();
-            if (ContainsStyledProps)
+            var parent = Node.Parent;
+            while (parent != null)
             {
-                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+                if (parent.Element is T element)
+                {
+                    return element;
+                }
             }
 
-            PickingManager = new PickingManager(this);
+            return null;
         }
 
-        private void SetProps(P value, bool external)
+        private void SetProps(P value)
         {
             var propsSet = _props.HasValue;
             var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
@@ -76,12 +75,6 @@ namespace RishUI
             if (dirty)
             {
                 propsListener?.PropsWillChange();
-            }
-
-            if (ContainsStyledProps && external)
-            {
-                _preStylingProps = value;
-                StyledProps.Style(ref value, CustomStyle);
             }
 
             _props = value;
@@ -109,19 +102,15 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
-        private PickingManager PickingManager { get; }
-        PickingManager IAdvancedPicking.Manager => PickingManager;
-
-        void IRishElement.Mount(Dom dom)
+        void IRishElement.Mount(Node node)
         {
-            CurrentDom = dom;
-            
             if (this is ICustomComponent customComponent)
             {
                 customComponent.Restart();
             }
 
-            CustomStyle = null;
+            Node = node;
+            
             _props = null;
             OnMounted?.Invoke();
             
@@ -170,7 +159,7 @@ namespace RishUI
                 listener.ComponentWillUnmount();
             }
             
-            ReleaseOwnedElements();
+            ElementsOwner.ReleaseAll();
         }
 
         Element IRishElement.Render()
@@ -186,76 +175,9 @@ namespace RishUI
         }
 
         protected abstract Element Render();
-        
-        private void OnCustomStyle(CustomStyleResolvedEvent evt)
-        {
-            CustomStyle = evt.customStyle;
 
-            var props = _preStylingProps;
-            StyledProps.Style(ref props, CustomStyle);
-            SetProps(props, false);
-        }
-        
-        protected void StartClaimingOwnership()
-        {
-            SwapBuffers();
-            Rish.RegisterOwner(this);
-        }
-        protected void StopClaimingOwnership()
-        {
-            Rish.UnregisterOwner(this);
-            ReleasePreviouslyOwnedElements();
-        }
-
-        void IOwner.TakeOwnership(Element definition)
-        {
-            OwnedDefinitions ??= new List<Element>();
-            
-            OwnedDefinitions.Add(definition);
-        }
-        
-        private void SwapBuffers()
-        {
-            if (OwnedDefinitions?.Count > 0)
-            {
-                (OwnedDefinitions, OwnedDefinitionsBuffer) = (OwnedDefinitionsBuffer, OwnedDefinitions);
-            }
-        }
-
-        private void ReleasePreviouslyOwnedElements()
-        {
-            if (OwnedDefinitionsBuffer?.Count > 0)
-            {
-                for (int i = 0, n = OwnedDefinitionsBuffer.Count; i < n; i++)
-                {
-                    CurrentDom.Free(OwnedDefinitionsBuffer[i]);
-                }
-                OwnedDefinitionsBuffer.Clear();
-            }
-        }
-
-        private void ReleaseOwnedElements()
-        {
-            if (OwnedDefinitions?.Count > 0)
-            {
-                for (int i = 0, n = OwnedDefinitions.Count; i < n; i++)
-                {
-                    CurrentDom.Free(OwnedDefinitions[i]);
-                }
-                OwnedDefinitions.Clear();
-            }
-        }
-
-        public sealed override void Blur() => base.Blur();
-        public sealed override VisualElement contentContainer => base.contentContainer;
-        public sealed override FocusController focusController => base.focusController;
-        public sealed override bool canGrabFocus => base.canGrabFocus;
-        protected sealed override Vector2 DoMeasure(float desiredWidth, MeasureMode widthMode, float desiredHeight, MeasureMode heightMode) => base.DoMeasure(desiredWidth, widthMode, desiredHeight, heightMode);
-
-        public override bool ContainsPoint(Vector2 localPoint)
-        {
-            return PickingManager.ContainsPoint(localPoint);
-        }
+        protected void StartClaimingOwnership() => ElementsOwner.StartClaimingOwnership();
+        protected void StopClaimingOwnership() => ElementsOwner.StopClaimingOwnership();
     }
 
     public abstract class RishElement : RishElement<NoProps>

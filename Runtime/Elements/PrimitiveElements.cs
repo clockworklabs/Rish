@@ -110,7 +110,7 @@ namespace RishUI.Elements
     //     }
     // }
     
-    public class Text : UIElements.Label, IPrimitiveElement<TextProps>
+    public class Text : UIElements.Label, IDOMElement<TextProps>
     {
         private PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
@@ -120,7 +120,7 @@ namespace RishUI.Elements
             PickingManager = new PickingManager(this);
         }
         
-        void IPrimitiveElement<TextProps>.Setup(TextProps props)
+        void IDOMElement<TextProps>.Setup(TextProps props)
         {
             text = props.text.Value;
         }
@@ -151,7 +151,7 @@ namespace RishUI.Elements
         }
     }
     
-    public class ActualImage : UnityEngine.UIElements.Image, IPrimitiveElement<ImageProps>
+    public class ActualImage : UnityEngine.UIElements.Image, IDOMElement<ImageProps>
     {
         private PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
@@ -161,7 +161,7 @@ namespace RishUI.Elements
             PickingManager = new PickingManager(this);
         }
         
-        void IPrimitiveElement<ImageProps>.Setup(ImageProps props)
+        void IDOMElement<ImageProps>.Setup(ImageProps props)
         {
             if (props.sprite != null)
             {

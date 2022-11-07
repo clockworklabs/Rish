@@ -43,10 +43,7 @@ namespace RishUI
 // #endif
         }
 
-        protected override Element Render()
-        {
-            return UserApp?.GetRoot() ?? Element.Null;
-        }
+        protected override Element Render() => UserApp?.GetRoot() ?? Element.Null;
 
         private void SetApp(Assembly assembly)
         {

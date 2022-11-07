@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
         [SerializeField]
@@ -13,14 +14,18 @@ namespace RishUI
         private string _rootClassName;
         private string RootClassName => _rootClassName;
         
-        private Dom Dom { get; set; }
+        private Tree Tree { get; set; }
         
         private void Start()
         {
             var document = gameObject.GetComponent<UIDocument>();
             if (document == null)
             {
-                document = gameObject.AddComponent<UIDocument>();
+                throw new UnityException("RishRoot requires UIDocument");
+            }
+            if (document.panelSettings == null)
+            {
+                throw new UnityException("RishRoot requires UIDocument to have Panel Settings set");
             }
 
             foreach (var styleSheet in StyleSheets)
@@ -28,17 +33,17 @@ namespace RishUI
                 document.rootVisualElement.styleSheets.Add(styleSheet);
             }
             
-            Dom = new Dom(document, RootClassName);
+            Tree = new Tree(document, RootClassName);
         }
 
         private void OnDestroy()
         {
-            Dom.Dispose();
+            Tree.Dispose();
         }
 
         private void LateUpdate()
         {
-            Dom.Update();
+            Tree.Update();
         }
     }
 }
