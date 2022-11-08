@@ -39,7 +39,7 @@ namespace RishUI.Events
             target.UnregisterCallback<PointerCaptureEvent>(OnMouseCaptured);
         }
 
-        protected override void Reset()
+        protected override void OnReset()
         {
             Pressed.Clear();
 

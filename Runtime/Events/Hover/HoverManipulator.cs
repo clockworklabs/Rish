@@ -26,7 +26,7 @@ namespace RishUI.Events
             target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
         }
 
-        protected override void Reset()
+        protected override void OnReset()
         {
             Pointers.Clear();
         }
@@ -47,8 +47,7 @@ namespace RishUI.Events
             }
             
             using var pooled = HoverEventBase<HoverStartEvent>.GetPooled(evt);
-            pooled.target = target;
-            target.SendEvent(pooled);
+            SendEvent(pooled);
         }
 
         private void OnPointerLeave(PointerLeaveEvent evt)
@@ -67,8 +66,7 @@ namespace RishUI.Events
             }
             
             using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(evt);
-            pooled.target = target;
-            target.SendEvent(pooled);
+            SendEvent(pooled);
         }
 
         // TODO: Stop hovering if pointer is captured

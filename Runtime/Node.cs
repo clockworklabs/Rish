@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Priority_Queue;
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,6 +25,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         public uint ID { get; }
         private ElementsOwner ElementsOwner { get; }
+        internal ManipulatorsManager Manipulators { get; }
         private StateMachine Machine { get; }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -58,6 +60,17 @@ namespace RishUI
         private int ChildCount { get; set; }
         private List<Node> VirtualChildren { get; set; }
         private List<Node> UnmountingChildren { get; set; }
+        internal IEnumerable<Node> Children
+        {
+            get
+            {
+                var n = VirtualChildren?.Count ?? 0;
+                for (var i = 0; i < n; i++)
+                {
+                    yield return VirtualChildren[i];
+                }
+            }
+        }
 
         private int _virtualIndex;
         private int VirtualIndex
@@ -198,6 +211,7 @@ namespace RishUI
         {
             ID = id;
             ElementsOwner = new ElementsOwner();
+            Manipulators = new ManipulatorsManager(this);
             Machine = new StateMachine(this);
         }
         
@@ -546,6 +560,8 @@ namespace RishUI
 
                 Node.VirtualIndex = 0;
                 Node.ReadyToUnmount = false;
+                
+                Node.Manipulators.OnUnmounted();
             }
 
             public override void Exit() { }
@@ -562,6 +578,8 @@ namespace RishUI
                 {
                     Node.DOMParent?.Add(domElement);
                 }
+                
+                Node.Manipulators.OnMounted();
 
                 GoTo<MountedState>();
 

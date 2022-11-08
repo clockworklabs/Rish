@@ -39,7 +39,7 @@ namespace RishUI.Events
             target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
         }
 
-        protected override void Reset()
+        protected override void OnReset()
         {
             for (int i = 0, n = Pointers.Length; i < n; i++)
             {

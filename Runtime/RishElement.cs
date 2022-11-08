@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Graphs;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Manipulator = RishUI.Events.Manipulator;
 
 namespace RishUI
 {
@@ -17,6 +18,8 @@ namespace RishUI
         void Unmount();
 
         Element Render();
+
+        IEnumerable<Manipulator> Manipulators { get; }
     }
 
     public abstract class RishElement<P> : IRishElement where P : struct
@@ -38,6 +41,18 @@ namespace RishUI
         protected internal event Action OnMounted;
 
         private ElementsOwner ElementsOwner { get; } = new();
+        private List<Manipulator> Manipulators { get; set; }
+        IEnumerable<Manipulator> IRishElement.Manipulators
+        {
+            get
+            {
+                var n = Manipulators?.Count ?? 0;
+                for (var i = 0; i < n; i++)
+                {
+                    yield return Manipulators[i];
+                }
+            }
+        }
         
         private Node Node { get; set; }
         protected uint ID => Node.ID;
@@ -116,6 +131,11 @@ namespace RishUI
             
             UnmountRequested = false;
             ReadyToUnmount = false;
+
+            foreach (var manipulator in Manipulators)
+            {
+                manipulator.Reset();
+            }
             
             if (this is IMountingListener listener)
             {
@@ -160,6 +180,7 @@ namespace RishUI
             }
             
             ElementsOwner.ReleaseAll();
+            Node = null;
         }
 
         Element IRishElement.Render()
@@ -178,6 +199,56 @@ namespace RishUI
 
         protected void StartClaimingOwnership() => ElementsOwner.StartClaimingOwnership();
         protected void StopClaimingOwnership() => ElementsOwner.StopClaimingOwnership();
+
+        protected void AddManipulator(Manipulator manipulator)
+        {
+            if (manipulator.Owner != null)
+            {
+                throw new UnityException("Manipulator already has an owner");
+            }
+
+            manipulator.Reset();
+            manipulator.Owner = this;
+            
+            Manipulators.Add(manipulator);
+            Node?.Manipulators.AddManipulator(manipulator);
+        }
+        
+        protected void RemoveManipulator(Manipulator manipulator)
+        {
+            if (manipulator.Owner != this)
+            {
+                throw new UnityException("Manipulator doesn't belong to this element");
+            }
+
+            manipulator.Owner = null;
+            
+            Manipulators.Remove(manipulator);
+            Node?.Manipulators.RemoveManipulator(manipulator);
+        }
+
+        // protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback)
+        //     where TEventType : EventBase<TEventType>, new()
+        // {
+        //     if (this.m_CallbackRegistry == null)
+        //         this.m_CallbackRegistry = new EventCallbackRegistry();
+        //     this.m_CallbackRegistry.RegisterCallback<TEventType>(callback, useTrickleDown);
+        //     GlobalCallbackRegistry.RegisterListeners<TEventType>(this, (Delegate) callback, useTrickleDown);
+        // }
+        //
+        // protected void UnregisterCallback<TEventType>(EventCallback<TEventType> callback)
+        //     where TEventType : EventBase<TEventType>, new()
+        // {
+        //     if (this.m_CallbackRegistry == null)
+        //         this.m_CallbackRegistry = new EventCallbackRegistry();
+        //     this.m_CallbackRegistry.RegisterCallback<TEventType>(callback, useTrickleDown);
+        //     GlobalCallbackRegistry.RegisterListeners<TEventType>(this, (Delegate) callback, useTrickleDown);
+        // }
+
+        internal void OnEvent<T>(T evt) where T : EventBase<T>, new()
+        {
+            
+        }
     }
 
     public abstract class RishElement : RishElement<NoProps>
