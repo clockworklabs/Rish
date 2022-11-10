@@ -33,7 +33,7 @@ namespace RishUI.Events
             bubbles = true;
         }
         
-        public static T GetPooled(IPointerEvent pointerEvent)
+        public static T GetPooled(IPointerEvent pointerEvent, VisualElement target)
         {
             var pooled = EventBase<T>.GetPooled();
             pooled.pointerId = pointerEvent.pointerId;
@@ -41,6 +41,8 @@ namespace RishUI.Events
             pooled.isPrimary = pointerEvent.isPrimary;
             pooled.position = pointerEvent.position;
             pooled.localPosition = pointerEvent.localPosition;
+            
+            pooled.target = target;
 
             return pooled;
         }

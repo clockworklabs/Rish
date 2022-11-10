@@ -135,7 +135,6 @@ namespace RishUI.Bootstrap.Elements
 
         public Type type;
         public FixedString64Bytes address;
-        [StyledProp("--props-tint-color", 1, 1, 1, 1)]
         public Color? tintColor { get; set; }
         public ScaleMode scaleMode;
     }

@@ -99,7 +99,7 @@ namespace RishUI
             var element = GetFromPool<RishDefinition<T, NoProps>>();
             element.Factory(descriptor, default);
             
-            return CreateElement(element);
+            return CreateChildren(element).ToElement();
         }
 
         // 0/5 -> 1
@@ -350,7 +350,7 @@ namespace RishUI
             var element = GetFromPool<RishDefinition<T, P>>();
             element.Factory(descriptor, props);
             
-            return CreateElement(element);
+            return CreateChildren(element).ToElement();
         }
 
         private class RishDefinition<T, P> : NodeElementDefinition where T : RishElement<P>, new() where P : struct
@@ -365,7 +365,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Copiers.Copy(Props));
+            public override Children New(Descriptor descriptor) => Rish.Create<T, P>(descriptor, Copiers.Copy(Props));
 
             public override void Invoke(Node node)
             {

@@ -96,7 +96,7 @@ namespace RishUI
             var element = GetFromPool<FunctionalDefinition>();
             element.Factory(descriptor, functionElement);
             
-            return CreateElement(element);
+            return CreateChildren(element).ToElement();
         }
         
         // 0/5 -> 1
@@ -347,7 +347,7 @@ namespace RishUI
             var element = GetFromPool<FunctionalDefinition<P>>();
             element.Factory(descriptor, functionElement, props);
             
-            return CreateElement(element);
+            return CreateChildren(element).ToElement();
         }
 
 
@@ -369,7 +369,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Element New(Descriptor descriptor) => Rish.Create(Element, descriptor);
+            public override Children New(Descriptor descriptor) => Rish.Create(Element, descriptor);
 
             public override void Invoke(Node node)
             {
@@ -397,7 +397,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Element New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Copiers.Copy(Props));
+            public override Children New(Descriptor descriptor) => Rish.Create<P>(Element, descriptor, Copiers.Copy(Props));
 
             public override void Invoke(Node node)
             {

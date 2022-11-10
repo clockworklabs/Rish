@@ -6,34 +6,34 @@ namespace RishUI
 {
     public static partial class Rish
     {
-        public static Element Children() => Element.Null;
-        public static Element Children(Element child0)
+        public static Children Children() => RishUI.Children.Null;
+        public static Children Children(Children child0)
         {
-            var array = new NativeArray<Element>(1, Allocator.Persistent);
+            var array = new NativeArray<Children>(1, Allocator.Persistent);
             array[0] = child0;
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1)
+        public static Children Children(Children child0, Children child1)
         {
-            var array = new NativeArray<Element>(2, Allocator.Persistent);
+            var array = new NativeArray<Children>(2, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2)
+        public static Children Children(Children child0, Children child1, Children child2)
         {
-            var array = new NativeArray<Element>(3, Allocator.Persistent);
+            var array = new NativeArray<Children>(3, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3)
         {
-            var array = new NativeArray<Element>(4, Allocator.Persistent);
+            var array = new NativeArray<Children>(4, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -41,9 +41,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4)
         {
-            var array = new NativeArray<Element>(5, Allocator.Persistent);
+            var array = new NativeArray<Children>(5, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -52,9 +52,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5)
         {
-            var array = new NativeArray<Element>(6, Allocator.Persistent);
+            var array = new NativeArray<Children>(6, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -64,9 +64,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6)
         {
-            var array = new NativeArray<Element>(7, Allocator.Persistent);
+            var array = new NativeArray<Children>(7, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -77,9 +77,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7)
         {
-            var array = new NativeArray<Element>(8, Allocator.Persistent);
+            var array = new NativeArray<Children>(8, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -91,9 +91,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8)
         {
-            var array = new NativeArray<Element>(9, Allocator.Persistent);
+            var array = new NativeArray<Children>(9, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -106,9 +106,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9)
         {
-            var array = new NativeArray<Element>(10, Allocator.Persistent);
+            var array = new NativeArray<Children>(10, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -122,9 +122,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10)
         {
-            var array = new NativeArray<Element>(11, Allocator.Persistent);
+            var array = new NativeArray<Children>(11, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -139,9 +139,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11)
         {
-            var array = new NativeArray<Element>(12, Allocator.Persistent);
+            var array = new NativeArray<Children>(12, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -157,9 +157,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12)
         {
-            var array = new NativeArray<Element>(13, Allocator.Persistent);
+            var array = new NativeArray<Children>(13, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -176,9 +176,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13)
         {
-            var array = new NativeArray<Element>(14, Allocator.Persistent);
+            var array = new NativeArray<Children>(14, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -196,9 +196,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14)
         {
-            var array = new NativeArray<Element>(15, Allocator.Persistent);
+            var array = new NativeArray<Children>(15, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -217,9 +217,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14, Children child15)
         {
-            var array = new NativeArray<Element>(16, Allocator.Persistent);
+            var array = new NativeArray<Children>(16, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -239,9 +239,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14, Children child15, Children child16)
         {
-            var array = new NativeArray<Element>(17, Allocator.Persistent);
+            var array = new NativeArray<Children>(17, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -262,9 +262,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14, Children child15, Children child16, Children child17)
         {
-            var array = new NativeArray<Element>(18, Allocator.Persistent);
+            var array = new NativeArray<Children>(18, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -286,9 +286,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14, Children child15, Children child16, Children child17, Children child18)
         {
-            var array = new NativeArray<Element>(19, Allocator.Persistent);
+            var array = new NativeArray<Children>(19, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -311,9 +311,9 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(Element child0, Element child1, Element child2, Element child3, Element child4, Element child5, Element child6, Element child7, Element child8, Element child9, Element child10, Element child11, Element child12, Element child13, Element child14, Element child15, Element child16, Element child17, Element child18, Element child19)
+        public static Children Children(Children child0, Children child1, Children child2, Children child3, Children child4, Children child5, Children child6, Children child7, Children child8, Children child9, Children child10, Children child11, Children child12, Children child13, Children child14, Children child15, Children child16, Children child17, Children child18, Children child19)
         {
-            var array = new NativeArray<Element>(20, Allocator.Persistent);
+            var array = new NativeArray<Children>(20, Allocator.Persistent);
             array[0] = child0;
             array[1] = child1;
             array[2] = child2;
@@ -337,14 +337,14 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(params Element[] children)
+        public static Children Children(params Children[] children)
         {
             var length = children?.Length ?? 0;
             if (length <= 0)
             {
                 return Children();
             }
-            var array = new NativeArray<Element>(length, Allocator.Persistent);
+            var array = new NativeArray<Children>(length, Allocator.Persistent);
             for (var i = 0; i < length; i++)
             {
                 array[i] = children[i];
@@ -352,14 +352,14 @@ namespace RishUI
             
             return Create(array);
         }
-        public static Element Children(List<Element> children)
+        public static Children Children(List<Children> children)
         {
             var length = children?.Count ?? 0;
             if (length <= 0)
             {
                 return Children();
             }
-            var array = new NativeArray<Element>(length, Allocator.Persistent);
+            var array = new NativeArray<Children>(length, Allocator.Persistent);
             for (var i = 0; i < length; i++)
             {
                 array[i] = children[i];
@@ -367,17 +367,17 @@ namespace RishUI
             
             return Create(array);
         }
-        private static Element Create(NativeArray<Element> children)
+        private static Children Create(NativeArray<Children> children)
         {
             var element = GetFromPool<ChildrenDefinition>();
             element.Factory(children);
             
-            return CreateElement(element);
+            return CreateChildren(element);
         }
         
         private class ChildrenDefinition : ElementDefinition
         {
-            private NativeArray<Element> Children { get; set; }
+            private NativeArray<Children> Children { get; set; }
 
             internal int Length
             {
@@ -414,7 +414,7 @@ namespace RishUI
                 
                 return default;
             }
-            internal Element SetDescriptor(int index, Descriptor descriptor)
+            internal Children SetDescriptor(int index, Descriptor descriptor)
             {
                 for (int i = 0, n = Children.Length; i < n; i++)
                 {
@@ -431,7 +431,7 @@ namespace RishUI
                 return default;
             }
 
-            public void Factory(NativeArray<Element> children)
+            public void Factory(NativeArray<Children> children)
             {
                 Children = children;
             }
@@ -441,14 +441,14 @@ namespace RishUI
                 Children.Dispose();
             }
 
-            public override Element Copy()
+            public override Children Copy()
             {
                 var length = Children.IsCreated ? Children.Length : 0;
                 if (length <= 0)
                 {
-                    return Element.Null;
+                    return RishUI.Children.Null;
                 }
-                var array = new NativeArray<Element>(length, Allocator.Persistent);
+                var array = new NativeArray<Children>(length, Allocator.Persistent);
                 for (var i = 0; i < length; i++)
                 {
                     array[i] = Children[i].Copy();
@@ -498,7 +498,7 @@ namespace RishUI
     
                 for (var i = 0; i < count; i++)
                 {
-                    if (!RishUtils.Compare<Element>(a[i], b[i]))
+                    if (!RishUtils.Compare<Children>(a[i], b[i]))
                     {
                         return false;
                     }

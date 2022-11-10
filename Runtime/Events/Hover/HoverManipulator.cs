@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
@@ -46,8 +47,8 @@ namespace RishUI.Events
                 return;
             }
             
-            using var pooled = HoverEventBase<HoverStartEvent>.GetPooled(evt);
-            SendEvent(pooled);
+            using var pooled = HoverEventBase<HoverStartEvent>.GetPooled(evt, target);
+            target.SendEvent(pooled);
         }
 
         private void OnPointerLeave(PointerLeaveEvent evt)
@@ -65,8 +66,8 @@ namespace RishUI.Events
                 return;
             }
             
-            using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(evt);
-            SendEvent(pooled);
+            using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(evt, target);
+            target.SendEvent(pooled);
         }
 
         // TODO: Stop hovering if pointer is captured

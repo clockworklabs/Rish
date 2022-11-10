@@ -5,13 +5,13 @@ namespace RishUI
 {
     public interface IOwner
     {
-        void TakeOwnership(Element element);
+        void TakeOwnership(Children element);
     }
 
     public class ElementsOwner : IOwner
     {
-        private List<Element> Owned { get; set; }
-        private List<Element> Buffer { get; set; }
+        private List<Children> Owned { get; set; }
+        private List<Children> Buffer { get; set; }
         
         public void StartClaimingOwnership()
         {
@@ -26,9 +26,9 @@ namespace RishUI
             ReleaseBuffer();
         }
         
-        void IOwner.TakeOwnership(Element element)
+        void IOwner.TakeOwnership(Children element)
         {
-            Owned ??= new List<Element>();
+            Owned ??= new List<Children>();
             
             Owned.Add(element);
         }

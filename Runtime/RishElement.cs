@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using log4net.Util;
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Manipulator = RishUI.Events.Manipulator;
@@ -20,6 +22,7 @@ namespace RishUI
         Element Render();
 
         IEnumerable<Manipulator> Manipulators { get; }
+        IEnumerable<ICallbackWrapper> Callbacks { get; }
     }
 
     public abstract class RishElement<P> : IRishElement where P : struct
@@ -53,6 +56,18 @@ namespace RishUI
                 }
             }
         }
+        private List<ICallbackWrapper> Callbacks { get; set; }
+        IEnumerable<ICallbackWrapper> IRishElement.Callbacks
+        {
+            get
+            {
+                var n = Callbacks?.Count ?? 0;
+                for (var i = 0; i < n; i++)
+                {
+                    yield return Callbacks[i];
+                }
+            }
+        }
         
         private Node Node { get; set; }
         protected uint ID => Node.ID;
@@ -80,6 +95,9 @@ namespace RishUI
 
             return null;
         }
+
+        VisualElement IElement.GetDOMChild() => GetDOMChild();
+        private VisualElement GetDOMChild() => Node?.GetDOMChild().VisualElement;
 
         private void SetProps(P value)
         {
@@ -132,11 +150,14 @@ namespace RishUI
             UnmountRequested = false;
             ReadyToUnmount = false;
 
-            foreach (var manipulator in Manipulators)
+            if (Manipulators != null)
             {
-                manipulator.Reset();
+                foreach (var manipulator in Manipulators)
+                {
+                    manipulator.Reset();
+                }
             }
-            
+
             if (this is IMountingListener listener)
             {
                 listener.ComponentDidMount();
@@ -209,13 +230,20 @@ namespace RishUI
 
             manipulator.Reset();
             manipulator.Owner = this;
+
+            Manipulators ??= new List<Manipulator>(3);
             
             Manipulators.Add(manipulator);
-            Node?.Manipulators.AddManipulator(manipulator);
+            Node?.EventSystem.AddManipulator(manipulator);
         }
         
         protected void RemoveManipulator(Manipulator manipulator)
         {
+            if (Manipulators == null)
+            {
+                return;
+            }
+            
             if (manipulator.Owner != this)
             {
                 throw new UnityException("Manipulator doesn't belong to this element");
@@ -224,31 +252,53 @@ namespace RishUI
             manipulator.Owner = null;
             
             Manipulators.Remove(manipulator);
-            Node?.Manipulators.RemoveManipulator(manipulator);
+            Node?.EventSystem.RemoveManipulator(manipulator);
         }
 
-        // protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback)
-        //     where TEventType : EventBase<TEventType>, new()
-        // {
-        //     if (this.m_CallbackRegistry == null)
-        //         this.m_CallbackRegistry = new EventCallbackRegistry();
-        //     this.m_CallbackRegistry.RegisterCallback<TEventType>(callback, useTrickleDown);
-        //     GlobalCallbackRegistry.RegisterListeners<TEventType>(this, (Delegate) callback, useTrickleDown);
-        // }
-        //
-        // protected void UnregisterCallback<TEventType>(EventCallback<TEventType> callback)
-        //     where TEventType : EventBase<TEventType>, new()
-        // {
-        //     if (this.m_CallbackRegistry == null)
-        //         this.m_CallbackRegistry = new EventCallbackRegistry();
-        //     this.m_CallbackRegistry.RegisterCallback<TEventType>(callback, useTrickleDown);
-        //     GlobalCallbackRegistry.RegisterListeners<TEventType>(this, (Delegate) callback, useTrickleDown);
-        // }
-
-        internal void OnEvent<T>(T evt) where T : EventBase<T>, new()
+        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
         {
+            var wrapper = CallbacksPool.Get(callback);
+
+            Callbacks ??= new List<ICallbackWrapper>(3);
             
+            Callbacks.Add(wrapper);
+            Node?.EventSystem.AddCallback(wrapper);
         }
+
+        protected void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
+        {
+            if (Callbacks == null)
+            {
+                return;
+            }
+
+            for (var i = Callbacks.Count - 1; i >= 0; i--)
+            {
+                var wrapper = Callbacks[i];
+                if (!wrapper.Wraps(callback)) continue;
+                CallbacksPool.Return(wrapper);
+                Callbacks.RemoveAt(i);
+            }
+        }
+
+        public void CapturePointer(int pointerId) => GetDOMChild()?.CapturePointer(pointerId);
+        public void ReleasePointer(int pointerId) => GetDOMChild()?.ReleasePointer(pointerId);
+        public void CaptureMouse() => GetDOMChild()?.CaptureMouse();
+        public void ReleaseMouse() => GetDOMChild()?.ReleaseMouse();
+        public bool ContainsPoint(Vector2 localPoint) => GetDOMChild()?.ContainsPoint(localPoint) ?? false;
+        
+        public Rect WorldToLocal(Rect rect) => GetDOMChild()?.WorldToLocal(rect) ?? default;
+        public Vector2 WorldToLocal(Vector2 point) => GetDOMChild()?.WorldToLocal(point) ?? default;
+        public Rect LocalToWorld(Rect rect) => GetDOMChild()?.LocalToWorld(rect) ?? default;
+        public Vector2 LocalToWorld(Vector2 point) => GetDOMChild()?.LocalToWorld(point) ?? default;
+        public Rect ChangeCoordinatesTo(IElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other.GetDOMChild(), rect) ?? default;
+        public Vector2 ChangeCoordinatesTo(IElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other.GetDOMChild(), point) ?? default;
+        public Rect ChangeCoordinatesTo(VisualElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other, rect) ?? default;
+        public Vector2 ChangeCoordinatesTo(VisualElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other, point) ?? default;
+
+        // Rect IElement.layout => layout;
+        // TODO: Rename
+        public Rect layout => GetDOMChild()?.layout ?? default;
     }
 
     public abstract class RishElement : RishElement<NoProps>

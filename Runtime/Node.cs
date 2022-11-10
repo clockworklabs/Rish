@@ -25,7 +25,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         public uint ID { get; }
         private ElementsOwner ElementsOwner { get; }
-        internal ManipulatorsManager Manipulators { get; }
+        internal EventSystem EventSystem { get; }
         private StateMachine Machine { get; }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace RishUI
 #if UNITY_EDITOR
         private bool Rendering { get; set; }
 #endif
-        private int ChildCount { get; set; }
+        internal int ChildCount { get; private set; }
         private List<Node> VirtualChildren { get; set; }
         private List<Node> UnmountingChildren { get; set; }
         internal IEnumerable<Node> Children
@@ -72,34 +72,22 @@ namespace RishUI
             }
         }
 
-        private int _virtualIndex;
+        private int _virtualIndex = -1;
         private int VirtualIndex
         {
             get => _virtualIndex;
             set
             {
                 _virtualIndex = value;
-
+                
+                if (value < 0)
+                {
+                    return;
+                }
+                
                 UpdateRealIndices();
-
-                // TODO: Update real index of DOMElements
-                // RealIndex = GetRealIndex();
             }
         }
-        // private int _realIndex;
-        // private int RealIndex
-        // {
-        //     get => _realIndex;
-        //     set
-        //     {
-        //         _realIndex = value;
-        //
-        //         if (Element is VisualElement visualElement)
-        //         {
-        //             // TODO: Update position
-        //         }
-        //     }
-        // }
         
         private bool _readyToUnmount;
         private bool ReadyToUnmount
@@ -126,8 +114,8 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         private Type Type => Element.GetType();
         private bool IsRoot => Element is App && Parent == null;
-        private bool IsInDOM => Element is IDOMElement;
-        private VisualElement VisualElement => Element as VisualElement;
+        private bool IsInDOM => Element is VisualElement;
+        internal VisualElement VisualElement => Element as VisualElement;
 
         private Node GetPreviousSibling() => VirtualIndex <= 0 ? null : Parent.VirtualChildren[VirtualIndex - 1];
         
@@ -204,6 +192,16 @@ namespace RishUI
                 }
             }
         }
+
+        public Node GetDOMChild()
+        {
+            if (IsInDOM)
+            {
+                return this;
+            }
+
+            return VirtualChildren?.Count > 0 ? VirtualChildren[0].GetDOMChild() : null;
+        }
         
         public bool IsActive() => Machine.IsIn<ActiveState>();
 
@@ -211,7 +209,7 @@ namespace RishUI
         {
             ID = id;
             ElementsOwner = new ElementsOwner();
-            Manipulators = new ManipulatorsManager(this);
+            EventSystem = new EventSystem(this);
             Machine = new StateMachine(this);
         }
         
@@ -252,7 +250,7 @@ namespace RishUI
             ElementsOwner.StopClaimingOwnership();
         }
 
-        internal void AttachElement(Element element)
+        internal void AttachElement(Children element)
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -365,10 +363,10 @@ namespace RishUI
                 
                 VirtualChildren.Add(child);
             }
-
-            child.VirtualIndex = ChildCount;
             
             var element = child.Element as T;
+
+            child.VirtualIndex = ChildCount;
             
             var targetIndex = ChildCount;
             if (targetIndex < index)
@@ -558,10 +556,10 @@ namespace RishUI
                 Node.VirtualChildren?.Clear();
                 Node.UnmountingChildren?.Clear();
 
-                Node.VirtualIndex = 0;
+                Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
                 
-                Node.Manipulators.OnUnmounted();
+                Node.EventSystem.OnUnmounted();
             }
 
             public override void Exit() { }
@@ -579,7 +577,7 @@ namespace RishUI
                     Node.DOMParent?.Add(domElement);
                 }
                 
-                Node.Manipulators.OnMounted();
+                Node.EventSystem.OnMounted();
 
                 GoTo<MountedState>();
 

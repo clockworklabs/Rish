@@ -11,13 +11,15 @@ namespace RishUI.Elements
 
         public Button()
         {
-            // RegisterCallback<HoverStartEvent>(OnHoverStart);
-            // RegisterCallback<HoverEndEvent>(OnHoverEnd);
-            //
-            // RegisterCallback<PointerDownEvent>(OnPointerDown);
-            // RegisterCallback<PointerUpEvent>(OnPointerUp);
-            // // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
-            // RegisterCallback<PointerCancelEvent>(OnPointerCancel);
+            AddManipulator(new HoverManipulator());
+            
+            RegisterCallback<HoverStartEvent>(OnHoverStart);
+            RegisterCallback<HoverEndEvent>(OnHoverEnd);
+            
+            RegisterCallback<PointerDownEvent>(OnPointerDown);
+            RegisterCallback<PointerUpEvent>(OnPointerUp);
+            // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
+            RegisterCallback<PointerCancelEvent>(OnPointerCancel);
             
             // TODO: Add longPress
         }
@@ -66,7 +68,8 @@ namespace RishUI.Elements
             Listening = true;
             PointerId = evt.pointerId;
             
-            // this.CapturePointer(PointerId);
+            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
+            CapturePointer(PointerId);
 
             var state = State;
             state.pressed = true;
@@ -82,22 +85,24 @@ namespace RishUI.Elements
                 return;
             }
             
-            // this.ReleasePointer(PointerId);
+            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
+            ReleasePointer(PointerId);
 
             Listening = false;
             PointerId = 0;
             
-            // if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-            // {
-            //     if (evt.button == 1)
-            //     {
-            //         Props.secondaryAction?.Invoke();
-            //     }
-            //     else
-            //     {
-            //         Props.action?.Invoke();
-            //     }
-            // }
+            // TODO: Is it necessary?
+            if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+            {
+                if (evt.button == 1)
+                {
+                    Props.secondaryAction?.Invoke();
+                }
+                else
+                {
+                    Props.action?.Invoke();
+                }
+            }
 
             var state = State;
             state.pressed = false;
@@ -140,22 +145,24 @@ namespace RishUI.Elements
                 return;
             }
 
-            // this.ReleasePointer(PointerId);
+            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
+            ReleasePointer(PointerId);
 
             Listening = false;
             PointerId = 0;
             
-            // if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-            // {
-            //     if (evt.button == 1)
-            //     {
-            //         Props.secondaryAction?.Invoke();
-            //     }
-            //     else
-            //     {
-            //         Props.action?.Invoke();
-            //     }
-            // }
+            // TODO: Is it necessary?
+            if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+            {
+                if (evt.button == 1)
+                {
+                    Props.secondaryAction?.Invoke();
+                }
+                else
+                {
+                    Props.action?.Invoke();
+                }
+            }
 
             var state = State;
             state.pressed = false;

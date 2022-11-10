@@ -107,7 +107,7 @@ namespace RishUI
                 else
                 {
                     var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (fields.Any(field => field.FieldType == typeof(Element)))
+                    if (fields.Any(field => field.FieldType == typeof(Children)))
                     {
                         Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Comparer");
                     }
@@ -125,7 +125,7 @@ namespace RishUI
                 }
 
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (fields.Any(field => field.FieldType == typeof(Element)))
+                if (fields.Any(field => field.FieldType == typeof(Children)))
                 {
                     Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Copier");
                 }
@@ -223,7 +223,7 @@ namespace RishUI
             return (definition as NodeElementDefinition)?.Descriptor ?? default;
         }
 
-        internal static Element SetDescriptor(uint id, int index, Descriptor descriptor)
+        internal static Children SetDescriptor(uint id, int index, Descriptor descriptor)
         {
             if (index < 0)
             {
@@ -268,16 +268,16 @@ namespace RishUI
             Owners.Pop();
         }
 
-        private static Element CreateElement(ElementDefinition definition)
+        private static Children CreateChildren(ElementDefinition definition)
         {
             var id = DefinitionId;
             DefinitionsInUse[id] = definition;
-            var element = new Element(id);
+            var element = new Children(id);
             OnCreate(element);
 
             return element;
         }
-        private static void OnCreate(Element element)
+        private static void OnCreate(Children element)
         {
             var owner = Owners.Peek();
             if (owner == null)

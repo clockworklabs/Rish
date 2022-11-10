@@ -4,6 +4,7 @@ using NativeManipulator = UnityEngine.UIElements.Manipulator;
 
 namespace RishUI.Events
 {
+    
     public abstract class Manipulator
     {
         internal IRishElement Owner { get; set; }
@@ -36,7 +37,6 @@ namespace RishUI.Events
         protected abstract void RegisterCallbacks();
         protected abstract void UnregisterCallbacks();
 
-        // TODO: Call when Owner gets mounted and Manipulator gets added
         internal void Reset() => OnReset();
         protected abstract void OnReset();
 
@@ -50,12 +50,6 @@ namespace RishUI.Events
             target = visualElement;
         }
 
-        public void SendEvent(EventBase evt)
-        {
-            // TODO: Do we even need this?
-            // target.SendEvent(evt);
-            
-            // TODO: Call event in RishElement
-        }
+        // protected void SendEvent<T>(T evt) where T : EventBase<T>, new() => Owner?.OnEvent(evt);
     }
 }

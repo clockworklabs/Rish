@@ -11,72 +11,23 @@ namespace RishUI
         
         public static Element Null => new();
 
-        // public Descriptor Descriptor => GetDefinition().Descriptor;
-
-        public Element(uint id)
+        internal Element(uint id)
         {
             _id = id;
         }
 
         private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);
 
-        public int Length => Valid ? Rish.GetLength(_id) : 0;
-        public Descriptor GetDescriptor(int index) => Valid ? Rish.GetDescriptor(_id, index) : default;
-        public Element SetDescriptor(int index, Descriptor descriptor) => Valid ? Rish.SetDescriptor(_id, index, descriptor) : Null;
+        // public Descriptor GetDescriptor() => Valid ? Rish.GetDescriptor(_id, 0) : default;
+        // public Element SetDescriptor(Descriptor descriptor) => Valid ? Rish.SetDescriptor(_id, 0, descriptor).ToElement() : Null;
 
-        public Element Copy() => Valid ? GetDefinition().Copy() : Null;
+        public Element Copy() => !Valid ? Null : GetDefinition().Copy().ToElement();
 
-        internal void Invoke(Node node)
-        {
-            if (!Valid)
-            {
-                return;
-            }
-
-            var definition = GetDefinition();
-            if (definition == null)
-            {
-#if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element fields.");
-#endif
-                return;
-            }
-            
-            definition.Invoke(node);
-        }
-
-        internal void ReturnToPool() => Rish.ReturnToPool(_id);
+        public static implicit operator Children(Element element) => new Children(element._id);
 
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
 
         [Comparer]
-        private static bool Equals(Element a, Element b)
-        {
-            var aSet = a.Valid;
-            var bSet = b.Valid;
-            if (aSet ^ bSet)
-            {
-                return false;
-            }
-            if (!aSet)
-            {
-                return true;
-            }
-            
-            var aDefinition = a.GetDefinition();
-            var bDefinition = b.GetDefinition();
-
-            var aInUse = aDefinition != null;
-            var bInUse = bDefinition != null;
-            if (!aInUse || !bInUse)
-            {
-#if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element fields.");
-#endif
-                return false;
-            }
-
-            return aDefinition.Equals(bDefinition);
-        }
+        private static bool Equals(Element a, Element b) => RishUtils.Compare<Children>(a, b);
     }
 }

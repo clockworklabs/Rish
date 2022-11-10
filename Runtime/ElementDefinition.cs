@@ -4,7 +4,7 @@ namespace RishUI
 {
     public abstract class ElementDefinition : IEquatable<ElementDefinition>
     {
-        public abstract Element Copy();
+        public abstract Children Copy();
         public abstract void Dispose();
 
         public abstract void Invoke(Node node);
@@ -15,11 +15,11 @@ namespace RishUI
     {
         public Descriptor Descriptor { get; protected set; }
 
-        public override Element Copy() => New(Descriptor);
+        public override Children Copy() => New(Descriptor);
         
-        public abstract Element New(Descriptor descriptor);
+        public abstract Children New(Descriptor descriptor);
 
-        public Element New(RefAction<Descriptor> action)
+        public Children New(RefAction<Descriptor> action)
         {
             var descriptor = Descriptor;
             action?.Invoke(ref descriptor);
