@@ -15,7 +15,7 @@ namespace RishUI
 
     public abstract class RishVisualElement : VisualElement, IDOMElement
     {
-        Rect IElement.layout => layout;
+        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         protected PickingManager PickingManager { get; }
@@ -44,7 +44,7 @@ namespace RishUI
         private bool ContainsStyledProps { get; }
         private ICustomStyle CustomStyle { get; set; }
         
-        Rect IElement.layout => layout;
+        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }

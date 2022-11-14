@@ -184,74 +184,74 @@ namespace RishUI
             {
                 return 0;
             }
-
+        
             if (definition is ChildrenDefinition children)
             {
                 return children.Length;
             }
-
+        
             return 1;
         }
 
-        internal static Descriptor GetDescriptor(uint id, int index)
-        {
-            if (index < 0)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            var definition = GetDefinition(id);
-            if (definition == null)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            
-            if (definition is ChildrenDefinition children)
-            {
-                if (index >= children.Length)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-
-                return children.GetDescriptor(index);
-            }
-            
-            if (index > 0)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            return (definition as NodeElementDefinition)?.Descriptor ?? default;
-        }
-
-        internal static Children SetDescriptor(uint id, int index, Descriptor descriptor)
-        {
-            if (index < 0)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            var definition = GetDefinition(id);
-            if (definition == null)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            
-            if (definition is ChildrenDefinition children)
-            {
-                if (index >= children.Length)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-
-                return children.SetDescriptor(index, descriptor);
-            }
-            
-            if (index > 0)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            return (definition as NodeElementDefinition)?.New(descriptor) ?? default;
-        }
+        // internal static DOMDescriptor GetDescriptor(uint id, int index)
+        // {
+        //     if (index < 0)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //     var definition = GetDefinition(id);
+        //     if (definition == null)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //     
+        //     if (definition is ChildrenDefinition children)
+        //     {
+        //         if (index >= children.Length)
+        //         {
+        //             throw new IndexOutOfRangeException();
+        //         }
+        //
+        //         return children.GetDescriptor(index);
+        //     }
+        //     
+        //     if (index > 0)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //
+        //     return (definition as NodeElementDefinition)?.Descriptor ?? default;
+        // }
+        //
+        // internal static Children SetDescriptor(uint id, int index, DOMDescriptor descriptor)
+        // {
+        //     if (index < 0)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //     var definition = GetDefinition(id);
+        //     if (definition == null)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //     
+        //     if (definition is ChildrenDefinition children)
+        //     {
+        //         if (index >= children.Length)
+        //         {
+        //             throw new IndexOutOfRangeException();
+        //         }
+        //
+        //         return children.SetDescriptor(index, descriptor);
+        //     }
+        //     
+        //     if (index > 0)
+        //     {
+        //         throw new IndexOutOfRangeException();
+        //     }
+        //
+        //     return (definition as NodeElementDefinition)?.New(descriptor) ?? default;
+        // }
 
         internal static void RegisterOwner(IOwner listener)
         {

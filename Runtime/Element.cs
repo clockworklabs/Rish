@@ -1,11 +1,11 @@
 using System;
-using UnityEngine;
 
 namespace RishUI
 {
-    public readonly struct Element : IEquatable<Element>
+    public struct Element : IEquatable<Element>
     {
         private readonly uint _id;
+        private uint _key;
 
         public bool Valid => _id > 0;
         
@@ -14,6 +14,7 @@ namespace RishUI
         internal Element(uint id)
         {
             _id = id;
+            _key = 0;
         }
 
         private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);

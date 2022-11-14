@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using log4net.Util;
 using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -91,6 +90,8 @@ namespace RishUI
                 {
                     return element;
                 }
+
+                parent = parent.Parent;
             }
 
             return null;
@@ -298,7 +299,7 @@ namespace RishUI
 
         // Rect IElement.layout => layout;
         // TODO: Rename
-        public Rect layout => GetDOMChild()?.layout ?? default;
+        public Rect contentRect => GetDOMChild()?.contentRect ?? default;
     }
 
     public abstract class RishElement : RishElement<NoProps>

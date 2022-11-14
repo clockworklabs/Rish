@@ -42,7 +42,7 @@ namespace RishUI.Events
 
         internal void SetTarget(VisualElement visualElement)
         {
-            if (target != null)
+            if (target != null && visualElement != null)
             {
                 throw new UnityException("Manipulator already has a target");
             }

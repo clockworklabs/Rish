@@ -19,8 +19,8 @@ namespace RishUI
         private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);
 
         public int Length => Valid ? Rish.GetLength(_id) : 0;
-        public Descriptor GetDescriptor(int index) => Valid ? Rish.GetDescriptor(_id, index) : default;
-        public Children SetDescriptor(int index, Descriptor descriptor) => Valid ? Rish.SetDescriptor(_id, index, descriptor) : Null;
+        // public DOMDescriptor GetDescriptor(int index) => Valid ? Rish.GetDescriptor(_id, index) : default;
+        // public Children SetDescriptor(int index, DOMDescriptor descriptor) => Valid ? Rish.SetDescriptor(_id, index, descriptor) : Null;
 
         public Children Copy() => Valid ? GetDefinition().Copy() : Null;
 
@@ -32,7 +32,7 @@ namespace RishUI
             {
                 return;
             }
-
+            
             var definition = GetDefinition();
             if (definition == null)
             {

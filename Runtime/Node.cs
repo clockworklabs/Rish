@@ -114,7 +114,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         private Type Type => Element.GetType();
         private bool IsRoot => Element is App && Parent == null;
-        private bool IsInDOM => Element is VisualElement;
+        internal bool IsInDOM => Element is VisualElement;
         internal VisualElement VisualElement => Element as VisualElement;
 
         private Node GetPreviousSibling() => VirtualIndex <= 0 ? null : Parent.VirtualChildren[VirtualIndex - 1];
@@ -300,14 +300,13 @@ namespace RishUI
             if (childrenCount > 0)
             {
                 UnmountingChildren ??= new List<Node>(VirtualChildren.Capacity);
-                for (var i = ChildCount; i < childrenCount; i++)
+                for (var i = childrenCount - 1; i >= ChildCount; i--)
                 {
                     var child = VirtualChildren[i];
+                    VirtualChildren.RemoveAt(i);
                     UnmountingChildren.Add(child);
                     child.Unmount(false);
                 }
-                
-                VirtualChildren.RemoveRange(ChildCount, childrenCount - ChildCount);
             }
             
             OnClean?.Invoke();
@@ -558,8 +557,6 @@ namespace RishUI
 
                 Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
-                
-                Node.EventSystem.OnUnmounted();
             }
 
             public override void Exit() { }
@@ -869,6 +866,8 @@ namespace RishUI
 
             public override void Enter()
             {
+                Node.EventSystem.OnUnmounted();
+                
                 Node.Parent?.UnmountingChildren.Remove(Node);
                 Node.OnUnmount?.Invoke(Node);
 

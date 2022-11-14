@@ -387,49 +387,49 @@ namespace RishUI
                     {
                         return 0;
                     }
-
+            
                     var count = 0;
                     for (int i = 0, n = Children.Length; i < n; i++)
                     {
                         count += Children[i].Length;
                     }
-
+            
                     return count;
                 }
             }
 
-            internal Descriptor GetDescriptor(int index)
-            {
-                for (int i = 0, n = Children.Length; i < n; i++)
-                {
-                    var child = Children[i];
-                    var length = child.Length;
-                    if (index < length)
-                    {
-                        return child.GetDescriptor(index);
-                    }
-
-                    index -= length;
-                }
-                
-                return default;
-            }
-            internal Children SetDescriptor(int index, Descriptor descriptor)
-            {
-                for (int i = 0, n = Children.Length; i < n; i++)
-                {
-                    var child = Children[i];
-                    var length = child.Length;
-                    if (index < length)
-                    {
-                        return child.SetDescriptor(index, descriptor);
-                    }
-
-                    index -= length;
-                }
-                
-                return default;
-            }
+            // internal DOMDescriptor GetDescriptor(int index)
+            // {
+            //     for (int i = 0, n = Children.Length; i < n; i++)
+            //     {
+            //         var child = Children[i];
+            //         var length = child.Length;
+            //         if (index < length)
+            //         {
+            //             return child.GetDescriptor(index);
+            //         }
+            //
+            //         index -= length;
+            //     }
+            //     
+            //     return default;
+            // }
+            // internal Children SetDescriptor(int index, DOMDescriptor descriptor)
+            // {
+            //     for (int i = 0, n = Children.Length; i < n; i++)
+            //     {
+            //         var child = Children[i];
+            //         var length = child.Length;
+            //         if (index < length)
+            //         {
+            //             return child.SetDescriptor(index, descriptor);
+            //         }
+            //
+            //         index -= length;
+            //     }
+            //     
+            //     return default;
+            // }
 
             public void Factory(NativeArray<Children> children)
             {

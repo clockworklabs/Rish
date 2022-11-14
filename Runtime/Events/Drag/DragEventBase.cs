@@ -43,7 +43,7 @@ namespace RishUI.Events
             bubbles = true;
         }
         
-        public static T GetPooled(IPointerEvent pointerEvent, bool bubbles = true, bool tricklesDown = true)
+        public static T GetPooled(IPointerEvent pointerEvent, VisualElement target, bool bubbles = true, bool tricklesDown = true)
         {
             var pooled = EventBase<T>.GetPooled();
             pooled.pointerId = pointerEvent.pointerId;
@@ -69,6 +69,8 @@ namespace RishUI.Events
             pooled.commandKey = pointerEvent.commandKey;
             pooled.altKey = pointerEvent.altKey;
             pooled.actionKey = pointerEvent.actionKey;
+
+            pooled.target = target;
 
             pooled.tricklesDown = tricklesDown;
             pooled.bubbles = bubbles;

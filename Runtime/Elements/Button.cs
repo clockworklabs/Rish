@@ -26,22 +26,25 @@ namespace RishUI.Elements
         
         protected override Element Render()
         {
+            Element element;
             if (!Props.interactable)
             {
-                return Props.disabled.Valid 
+                element = Props.disabled.Valid 
                     ? Props.disabled 
                     : Props.normal;
-            }
-            if(State.pressed && Props.pressed.Valid)
+            } else if(State.pressed && Props.pressed.Valid)
             {
-                return Props.pressed;
-            }
-            if(State.hovered && Props.hovered.Valid)
+                element = Props.pressed;
+            } else if(State.hovered && Props.hovered.Valid)
             {
-                return Props.hovered;
+                element = Props.hovered;
+            }
+            else
+            {
+                element = Props.normal;
             }
 
-            return Props.normal;
+            return Rish.Create<Div>(Props.descriptor, (Children) element);
         }
 
         private void OnHoverStart(HoverStartEvent evt)
@@ -68,7 +71,6 @@ namespace RishUI.Elements
             Listening = true;
             PointerId = evt.pointerId;
             
-            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
             CapturePointer(PointerId);
 
             var state = State;
@@ -85,7 +87,6 @@ namespace RishUI.Elements
                 return;
             }
             
-            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
             ReleasePointer(PointerId);
 
             Listening = false;
@@ -145,7 +146,6 @@ namespace RishUI.Elements
                 return;
             }
 
-            // TODO: This can lead to problems if the VisualElement changes (on hover or when pressed)
             ReleasePointer(PointerId);
 
             Listening = false;
@@ -174,6 +174,8 @@ namespace RishUI.Elements
 
     public struct ButtonProps : ICopy<ButtonProps>
     {
+        public DOMDescriptor descriptor;
+        
         public bool interactable;
         
         public Action action;
@@ -192,6 +194,7 @@ namespace RishUI.Elements
 
         public ButtonProps(ButtonProps other)
         {
+            descriptor = other.descriptor;
             interactable = other.interactable;
             action = other.action;
             secondaryAction = other.secondaryAction;
@@ -203,14 +206,17 @@ namespace RishUI.Elements
 
         [Comparer]
         public static bool Equals(ButtonProps a, ButtonProps b) =>
-            a.interactable == b.interactable && RishUtils.CompareUnmanaged<Element>(a.normal, b.normal) &&
-            RishUtils.CompareUnmanaged<Element>(a.hovered, b.hovered) &&
-            RishUtils.CompareUnmanaged<Element>(a.pressed, b.pressed) &&
-            RishUtils.CompareUnmanaged<Element>(a.disabled, b.disabled);
+            a.interactable == b.interactable &&
+            RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
+            RishUtils.Compare<Element>(a.normal, b.normal) &&
+            RishUtils.Compare<Element>(a.hovered, b.hovered) &&
+            RishUtils.Compare<Element>(a.pressed, b.pressed) &&
+            RishUtils.Compare<Element>(a.disabled, b.disabled);
 
         [Copy]
         public static ButtonProps Copy(ButtonProps props) => new()
         {
+            descriptor = props.descriptor,
             interactable = props.interactable,
             action = props.action,
             secondaryAction = props.secondaryAction,
@@ -222,6 +228,7 @@ namespace RishUI.Elements
 
         ButtonProps ICopy<ButtonProps>.Copy() => new()
         {
+            descriptor = descriptor,
             interactable = interactable,
             action = action,
             secondaryAction = secondaryAction,

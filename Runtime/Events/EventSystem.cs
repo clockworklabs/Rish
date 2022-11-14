@@ -25,32 +25,40 @@ namespace RishUI.Events
                 AddCallbacks(rishElement.Callbacks);
             }
             
-            AddManipulators(Node.Parent?.EventSystem.Manipulators);
-            AddCallbacks(Node.Parent?.EventSystem.Callbacks);
+            if (!Node.Parent?.IsInDOM ?? false)
+            {
+                AddManipulators(Node.Parent?.EventSystem.Manipulators);
+                AddCallbacks(Node.Parent?.EventSystem.Callbacks);
+            }
         }
 
         public void OnUnmounted()
         {
-            if (Manipulators == null)
+            if (Manipulators != null)
             {
-                return;
+                if (Element is VisualElement)
+                {
+                    foreach (var manipulator in Manipulators)
+                    {
+                        manipulator.SetTarget(null);
+                    }
+                }
+            
+                Manipulators.Clear();
             }
             
-            if (Element is VisualElement)
+            if (Callbacks != null)
             {
-                foreach (var manipulator in Manipulators)
+                if (Element is VisualElement)
                 {
-                    manipulator.SetTarget(null);
+                    foreach (var callback in Callbacks)
+                    {
+                        callback.SetTarget(null);
+                    }
                 }
-                
-                foreach (var callback in Callbacks)
-                {
-                    callback.SetTarget(null);
-                }
-            }
             
-            Manipulators.Clear();
-            Callbacks.Clear();
+                Callbacks.Clear();
+            }
         }
 
         public void AddManipulator(Manipulator manipulator)

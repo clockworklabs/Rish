@@ -27,7 +27,7 @@ namespace RishUI
         public PointerDetectionMode? InlinePointerDetection { get; set; }
         private PointerDetectionMode? StylePointerDetection { get; set; }
         private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? PointerDetectionMode.Inherit);
-        public PointerDetectionMode PointerDetection
+        private PointerDetectionMode PointerDetection
         {
             get {
                 if (!Enabled)
@@ -45,7 +45,7 @@ namespace RishUI
             }
         }
 
-        public bool Enabled { get; private set; } = true;
+        private bool Enabled { get; set; } = true;
 
         private float BackgroundColorAlpha { get; set; }
         private Vector4 BackgroundSlices { get; set; }
@@ -198,7 +198,7 @@ namespace RishUI
             {
                 return false;
             }
-            
+
             // TODO: Check rounded corners
 
             return PointerDetection switch

@@ -19,6 +19,11 @@ namespace RishUI.Events
 
         protected override void RegisterCallbacks()
         {
+            for (int i = 0, n = Pointers.Length; i < n; i++)
+            {
+                Pointers[i].SetTarget(target);
+            }
+            
             target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             target.RegisterCallback<PointerDownEvent>(OnPointerDown);
@@ -43,7 +48,7 @@ namespace RishUI.Events
         {
             for (int i = 0, n = Pointers.Length; i < n; i++)
             {
-                Pointers[i].Reset(target);
+                Pointers[i].Reset();
             }
         }
 
@@ -74,16 +79,19 @@ namespace RishUI.Events
                 Bubbles = bubbles;
             }
             
-            public void Reset(VisualElement target)
+            public void Reset()
             {
                 LastEvent.Reset();
-                
-                Target = target;
                 
                 Hovering = false;
                 Pressed = false;
                 Dragging = false;
                 Captured = false;
+            }
+            
+            public void SetTarget(VisualElement target)
+            {
+                Target = target;
             }
 
             public void OnEnter(PointerEnterEvent evt)
@@ -200,8 +208,7 @@ namespace RishUI.Events
                 
                 Dragging = true;
                 
-                using var pooled = DragEventBase<DragStartEvent>.GetPooled(LastEvent, Bubbles, TricklesDown);
-                pooled.target = Target;
+                using var pooled = DragEventBase<DragStartEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
 
@@ -218,8 +225,7 @@ namespace RishUI.Events
                 }
 #endif
                 
-                using var pooled = DragEventBase<DragEvent>.GetPooled(LastEvent, Bubbles, TricklesDown);
-                pooled.target = Target;
+                using var pooled = DragEventBase<DragEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
 
@@ -240,8 +246,7 @@ namespace RishUI.Events
                 Pressed = false;
                 Dragging = false;
                 
-                using var pooled = DragEventBase<DragEndEvent>.GetPooled(LastEvent, Bubbles, TricklesDown);
-                pooled.target = Target;
+                using var pooled = DragEventBase<DragEndEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
 

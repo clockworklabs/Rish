@@ -112,7 +112,7 @@ namespace RishUI.Elements
     
     public class Text : UIElements.Label, IDOMElement<TextProps>
     {
-        Rect IElement.layout => layout;
+        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
@@ -156,7 +156,7 @@ namespace RishUI.Elements
     
     public class ActualImage : UnityEngine.UIElements.Image, IDOMElement<ImageProps>
     {
-        Rect IElement.layout => layout;
+        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
@@ -259,22 +259,22 @@ namespace RishUI.Elements
         }
     }
     
-    public class ExtraMargins : RishVisualElement<Margins>
-    {
-        protected override void Setup(Margins props)
-        {
-            Debug.Log("This doesn't get called every time");
-            style.position = Position.Absolute;
-            style.top = -props.top;
-            style.right = -props.right;
-            style.bottom = -props.bottom;
-            style.left = -props.left;
-            style.marginTop = props.top;
-            style.marginRight = props.right;
-            style.marginBottom = props.bottom;
-            style.marginLeft = props.left;
-        }
-    }
+    // public class ExtraMargins : RishVisualElement<Margins>
+    // {
+    //     protected override void Setup(Margins props)
+    //     {
+    //         Debug.Log("This doesn't get called every time");
+    //         style.position = Position.Absolute;
+    //         style.top = -props.top;
+    //         style.right = -props.right;
+    //         style.bottom = -props.bottom;
+    //         style.left = -props.left;
+    //         style.marginTop = props.top;
+    //         style.marginRight = props.right;
+    //         style.marginBottom = props.bottom;
+    //         style.marginLeft = props.left;
+    //     }
+    // }
     
     public struct Margins
     {

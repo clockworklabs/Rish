@@ -48,7 +48,7 @@ namespace RishUI.Events
         bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback) => ReferenceEquals(Callback, callback);
         void ICallbackWrapper.SetTarget(VisualElement visualElement)
         {
-            if (target != null)
+            if (target != null && visualElement != null)
             {
                 throw new UnityException("CallbackWrapper already has a target");
             }

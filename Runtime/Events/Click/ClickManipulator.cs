@@ -125,7 +125,7 @@ namespace RishUI.Events
                 return;
             }
             
-            Reset();
+            OnReset();
         }
 
         private struct Button
