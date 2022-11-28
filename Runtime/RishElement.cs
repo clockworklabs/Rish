@@ -81,17 +81,14 @@ namespace RishUI
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
 
-        protected T GetFirstAncestorOfType<T>() where T : class, IElement, new()
+        protected T GetFirstAncestorOfType<T>() where T : class
         {
-            var parent = Node.Parent;
-            while (parent != null)
+            for (var parent = Node.Parent; parent != null; parent = parent.Parent)
             {
                 if (parent.Element is T element)
                 {
                     return element;
                 }
-
-                parent = parent.Parent;
             }
 
             return null;
@@ -300,6 +297,9 @@ namespace RishUI
         // Rect IElement.layout => layout;
         // TODO: Rename
         public Rect contentRect => GetDOMChild()?.contentRect ?? default;
+
+        public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
+        public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
     }
 
     public abstract class RishElement : RishElement<NoProps>

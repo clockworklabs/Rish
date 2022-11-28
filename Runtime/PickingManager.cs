@@ -23,9 +23,36 @@ namespace RishUI
         private static readonly CustomStyleProperty<string> PointerDetectionProperty = new("--pointer-detection");
         
         private VisualElement Element { get; }
-        
-        public PointerDetectionMode? InlinePointerDetection { get; set; }
-        private PointerDetectionMode? StylePointerDetection { get; set; }
+
+        private PointerDetectionMode? _inlinePointerDetection;
+        public PointerDetectionMode? InlinePointerDetection
+        {
+            get => _inlinePointerDetection;
+            set
+            {
+                _inlinePointerDetection = value;
+
+                if (value != null)
+                {
+                    Setup();
+                }
+            }
+        }
+
+        private PointerDetectionMode? _stylePointerDetection;
+        private PointerDetectionMode? StylePointerDetection
+        {
+            get => _stylePointerDetection;
+            set
+            {
+                _stylePointerDetection = value;
+
+                if (value != null)
+                {
+                    Setup();
+                }
+            }
+        }
         private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? PointerDetectionMode.Inherit);
         private PointerDetectionMode PointerDetection
         {
@@ -133,7 +160,7 @@ namespace RishUI
 
         private void Setup()
         {
-            if (PointerDetection == PointerDetectionMode.Ignore)
+            if (PointerDetection is PointerDetectionMode.Ignore or PointerDetectionMode.ForceIgnore)
             {
                 Element.pickingMode = PickingMode.Ignore;
                 return;

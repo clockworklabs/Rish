@@ -418,8 +418,9 @@ namespace RishUI
                     {
                         RishStyleKeyword.Undefined => pointerDetection.value,
                         RishStyleKeyword.None => PointerDetectionMode.Ignore,
-                        _ => PointerDetectionMode.Rect
+                        _ => PointerDetectionMode.Inherit
                     };
+                    
                     advancedPicking.Manager.InlinePointerDetection = detectionMode;
                 }
             }
