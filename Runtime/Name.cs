@@ -4,7 +4,7 @@ namespace RishUI
 {
     public readonly struct Name
     {
-        private readonly FixedString128Bytes _name;
+        private readonly FixedString32Bytes _name;
         public string Value => _name.Value;
 
         public Name(string name)
