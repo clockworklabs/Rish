@@ -141,6 +141,7 @@ namespace RishUI
             }
 
             Node = node;
+            ElementsOwner.Init(Node.Tree);
             
             _props = null;
             OnMounted?.Invoke();
@@ -297,6 +298,7 @@ namespace RishUI
         // Rect IElement.layout => layout;
         // TODO: Rename
         public Rect contentRect => GetDOMChild()?.contentRect ?? default;
+        public Rect layout => GetDOMChild()?.layout ?? default;
 
         public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);

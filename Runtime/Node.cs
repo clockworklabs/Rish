@@ -31,7 +31,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes when mounted ------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private Tree Tree { get; set; }
+        internal Tree Tree { get; private set; }
         private uint Key { get; set; }
         internal IElement Element { get; private set; }
         private Node _parent;
@@ -618,6 +618,8 @@ namespace RishUI
                 // {
                 //     Element.SendEvent(resetEvent);
                 // }
+                
+                Node.ElementsOwner.Init(Node.Tree);
 
                 if (Node.Element is IRishElement rishElement)
                 {

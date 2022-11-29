@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    
     public struct StyleFloatsShorthand
     {
         public StyleFloat top;

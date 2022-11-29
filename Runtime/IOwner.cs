@@ -13,16 +13,47 @@ namespace RishUI
         private List<Children> Owned { get; set; }
         private List<Children> Buffer { get; set; }
         
+        private Tree Tree { get; set; }
+        private bool Claiming { set; get; }
+
+        public void Init(Tree tree)
+        {
+#if UNITY_EDITOR
+            if (Tree != null)
+            {
+                throw new UnityException("Was already initialized");
+            }
+#endif
+            
+            Tree = tree;
+        }
+        
         public void StartClaimingOwnership()
         {
-            SwapBuffers();
+#if UNITY_EDITOR
+            if (Claiming)
+            {
+                throw new UnityException("Already claiming ownership");
+            }
+#endif
             
+            Claiming = true;
+            
+            SwapBuffers();
             Rish.RegisterOwner(this);
         }
         public void StopClaimingOwnership()
         {
-            Rish.UnregisterOwner(this);
+#if UNITY_EDITOR
+            if (!Claiming)
+            {
+                throw new UnityException("Wasn't claiming ownership");
+            }
+#endif
 
+            Claiming = false;
+            
+            Rish.UnregisterOwner(this);
             ReleaseBuffer();
         }
         
@@ -47,7 +78,7 @@ namespace RishUI
             {
                 for (int i = 0, n = Buffer.Count; i < n; i++)
                 {
-                    Buffer[i].ReturnToPool();
+                    Tree.Release(Buffer[i]);
                 }
                 Buffer.Clear();
             }
@@ -55,16 +86,23 @@ namespace RishUI
 
         public void ReleaseAll()
         {
+#if UNITY_EDITOR
+            if (Tree == null)
+            {
+                throw new UnityException("Wasn't initialized");
+            }
+            
             if (Buffer?.Count > 0)
             {
                 throw new UnityException("Error");
             }
+#endif
             
             if (Owned?.Count > 0)
             {
                 for (int i = 0, n = Owned.Count; i < n; i++)
                 {
-                    Owned[i].ReturnToPool();
+                    Tree.Release(Owned[i]);
                 }
                 Owned.Clear();
             }
