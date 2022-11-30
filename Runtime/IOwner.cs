@@ -106,6 +106,8 @@ namespace RishUI
                 }
                 Owned.Clear();
             }
+
+            Tree = null;
         }
     }
 }

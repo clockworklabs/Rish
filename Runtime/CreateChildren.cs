@@ -398,39 +398,6 @@ namespace RishUI
                 }
             }
 
-            // internal DOMDescriptor GetDescriptor(int index)
-            // {
-            //     for (int i = 0, n = Children.Length; i < n; i++)
-            //     {
-            //         var child = Children[i];
-            //         var length = child.Length;
-            //         if (index < length)
-            //         {
-            //             return child.GetDescriptor(index);
-            //         }
-            //
-            //         index -= length;
-            //     }
-            //     
-            //     return default;
-            // }
-            // internal Children SetDescriptor(int index, DOMDescriptor descriptor)
-            // {
-            //     for (int i = 0, n = Children.Length; i < n; i++)
-            //     {
-            //         var child = Children[i];
-            //         var length = child.Length;
-            //         if (index < length)
-            //         {
-            //             return child.SetDescriptor(index, descriptor);
-            //         }
-            //
-            //         index -= length;
-            //     }
-            //     
-            //     return default;
-            // }
-
             public void Factory(NativeArray<Children> children)
             {
                 Children = children;

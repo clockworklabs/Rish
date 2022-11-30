@@ -16,8 +16,8 @@ namespace RishUI
         private List<Node> DirtyList { get; } = new(MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new(MaxDirtySize);
 
-        private List<(Children, int)> ReleasedChildren { get; set; } = new(MaxDirtySize);
-        // private List<Children> ReleasedChildrenBuffer { get; set; } = new(MaxDirtySize);
+        private List<Children> ReleasedChildren { get; set; } = new(MaxDirtySize);
+        private List<Children> ReleasedChildrenBuffer { get; set; } = new(MaxDirtySize);
 
         private uint CurrentDepth { get; set; }
 
@@ -76,19 +76,13 @@ namespace RishUI
                 node.Render();
             }
 
-            // (ReleasedChildren, ReleasedChildrenBuffer) = (ReleasedChildrenBuffer, ReleasedChildren);
+            (ReleasedChildren, ReleasedChildrenBuffer) = (ReleasedChildrenBuffer, ReleasedChildren);
 
-            for (var i = ReleasedChildren.Count - 1; i >= 0; i--)
+            for (int i = 0, n = ReleasedChildren.Count; i < n; i++)
             {
-                var (children, frame) = ReleasedChildren[i];
-                if (Time.frameCount - frame < 3)
-                {
-                    continue;
-                }
-                
-                children.ReturnToPool();
-                ReleasedChildren.RemoveAtSwapBack(i);
+                ReleasedChildren[i].ReturnToPool();
             }
+            ReleasedChildren.Clear();
         }
 
         public void Dispose()
@@ -97,21 +91,20 @@ namespace RishUI
 
             for (int i = 0, n = ReleasedChildren.Count; i < n; i++)
             {
-                var (children, _) = ReleasedChildren[i];
-                children.ReturnToPool();
+                ReleasedChildren[i].ReturnToPool();
             }
             ReleasedChildren.Clear();
             
-            // for (int i = 0, n = ReleasedChildrenBuffer.Count; i < n; i++)
-            // {
-            //     ReleasedChildrenBuffer[i].ReturnToPool();
-            // }
-            // ReleasedChildrenBuffer.Clear();
+            for (int i = 0, n = ReleasedChildrenBuffer.Count; i < n; i++)
+            {
+                ReleasedChildrenBuffer[i].ReturnToPool();
+            }
+            ReleasedChildrenBuffer.Clear();
         }
 
         internal void Release(Children children)
         {
-            ReleasedChildren.Add((children, Time.frameCount));
+            ReleasedChildren.Add(children);
         }
     }
 }

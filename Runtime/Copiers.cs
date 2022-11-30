@@ -42,11 +42,11 @@ namespace RishUI
 
         public static T Copy<T>(T element) where T : struct
         {
-            // return element is ICopy<T> copier ? copier.Copy() : element;
+            return element is ICopy<T> copier ? copier.Copy() : element;
             
             //
-            var copier = GetDelegate<T>();
-            return copier?.Invoke(element) ?? element;
+            // var copier = GetDelegate<T>();
+            // return copier?.Invoke(element) ?? element;
         }
 
         private static Copier<T> GetDelegate<T>() where T : struct
