@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace RishUI
 {
     public static partial class Rish
@@ -30,20 +33,49 @@ namespace RishUI
 
         private class RishDefinition<T, P> : VirtualElementDefinition where T : RishElement<P>, new() where P : struct
         {
+            public override Type Type => typeof(T);
+            
             private P Props { get; set; }
+
+            private List<Children> References { get; } = new();
 
             public void Factory(uint key, P props)
             {
                 Key = key;
                 Props = props;
+                
+                References.Clear();
+                if (Props is IReferenceHolder holder)
+                {
+                    holder.GetReferences(References);
+                }
             }
 
-            public override Children New(uint key) => Rish.Create<T, P>(key, Copiers.Copy(Props));
+            public override Children New(uint key) => Rish.Create<T, P>(key, Props);
 
             public override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<T>(Key);
                 element.Props = Props;
+            }
+
+            internal override int RegisterReference(IOwner owner)
+            {
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(owner);
+                }
+
+                return base.RegisterReference(owner);
+            }
+            internal override int UnregisterReference(IOwner owner)
+            {
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(owner);
+                }
+
+                return base.UnregisterReference(owner);
             }
 
             public override bool Equals(ElementDefinition other)

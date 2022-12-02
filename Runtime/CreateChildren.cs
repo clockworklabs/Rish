@@ -408,22 +408,6 @@ namespace RishUI
                 Children.Dispose();
             }
 
-            public override Children Copy()
-            {
-                var length = Children.IsCreated ? Children.Length : 0;
-                if (length <= 0)
-                {
-                    return RishUI.Children.Null;
-                }
-                var array = new NativeArray<Children>(length, Allocator.Persistent);
-                for (var i = 0; i < length; i++)
-                {
-                    array[i] = Children[i].Copy();
-                }
-
-                return Rish.Create(array);
-            }
-
             public override void Invoke(Node node)
             {
                 var length = Children.IsCreated ? Children.Length : 0;
@@ -436,6 +420,27 @@ namespace RishUI
                 {
                     Children[i].Invoke(node);
                 }
+            }
+
+            internal override int RegisterReference(IOwner owner)
+            {
+                var length = Children.IsCreated ? Children.Length : 0;
+                for (var i = 0; i < length; i++)
+                {
+                    Children[i].RegisterReference(owner);
+                }
+
+                return base.RegisterReference(owner);
+            }
+            internal override int UnregisterReference(IOwner owner)
+            {
+                var length = Children.IsCreated ? Children.Length : 0;
+                for (var i = 0; i < length; i++)
+                {
+                    Children[i].UnregisterReference(owner);
+                }
+
+                return base.UnregisterReference(owner);
             }
 
             public override bool Equals(ElementDefinition other)

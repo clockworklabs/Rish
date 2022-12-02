@@ -20,8 +20,6 @@ namespace RishUI
 
         public int Length => Valid ? Rish.GetLength(_id) : 0;
 
-        public Children Copy() => Valid ? GetDefinition().Copy() : Null;
-
         internal Element ToElement() => new Element(_id);
 
         internal void Invoke(Node node)
@@ -43,7 +41,8 @@ namespace RishUI
             definition.Invoke(node);
         }
 
-        internal void ReturnToPool() => Rish.ReturnToPool(_id);
+        internal void RegisterReference(IOwner owner) => Rish.RegisterReferenceTo(_id, owner);
+        internal void UnregisterReference(IOwner owner) => Rish.UnregisterReferenceTo(_id, owner);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
@@ -65,7 +64,15 @@ namespace RishUI
             var bDefinition = b.GetDefinition();
 
             var aInUse = aDefinition != null;
+            if (!aInUse)
+            {
+                Debug.LogError($"Element {a._id} was disposed");
+            }
             var bInUse = bDefinition != null;
+            if (!bInUse)
+            {
+                Debug.LogError($"Element {b._id} was disposed");
+            }
             if (!aInUse || !bInUse)
             {
 #if UNITY_EDITOR

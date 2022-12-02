@@ -7,9 +7,8 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public class Node : FastPriorityQueueNode
+    public class Node : FastPriorityQueueNode, IOwner
     {
-        // public event Action<Node> OnDirty;
         private event Action OnClean;
         private event Action<Node> OnReadyToUnmount; // TODO: Maybe uint?
         private event Action<Node> OnUnmount; // TODO: Maybe uint?
@@ -24,14 +23,13 @@ namespace RishUI
         // --- Never changes -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         public uint ID { get; }
-        private ElementsOwner ElementsOwner { get; }
         internal EventSystem EventSystem { get; }
         private StateMachine Machine { get; }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes when mounted ------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        internal Tree Tree { get; private set; }
+        private Tree Tree { get; set; }
         private uint Key { get; set; }
         internal IElement Element { get; private set; }
         private Node _parent;
@@ -112,12 +110,14 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- Derived -------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private Type Type => Element.GetType();
+        private Type Type => Element?.GetType();
         private bool IsRoot => Element is App && Parent == null;
         internal bool IsInDOM => Element is VisualElement;
         internal VisualElement VisualElement => Element as VisualElement;
 
         private Node GetPreviousSibling() => VirtualIndex <= 0 ? null : Parent.VirtualChildren[VirtualIndex - 1];
+
+        uint IOwner.GetID() => ID;
         
         private bool IsRealTree()
         {
@@ -208,7 +208,6 @@ namespace RishUI
         private Node(uint id)
         {
             ID = id;
-            ElementsOwner = new ElementsOwner();
             EventSystem = new EventSystem(this);
             Machine = new StateMachine(this);
         }
@@ -229,6 +228,28 @@ namespace RishUI
 
         public void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
+        // TODO: Move
+        private Children _reference;
+        private Children Reference
+        {
+            set
+            {
+                if (_reference.Valid)
+                {
+                    Debug.Log($"Unregister node {ID} ({Type}) references");
+                    // _reference.UnregisterReference(this);
+                }
+
+                _reference = value;
+                
+                if (value.Valid)
+                {
+                    Debug.Log($"Register node {ID} ({Type}) references");
+                    // _reference.RegisterReference(this);
+                }
+            }
+        }
+        
         internal void Render()
         {
 #if UNITY_EDITOR
@@ -243,11 +264,7 @@ namespace RishUI
             }
 #endif
 
-            ElementsOwner.StartClaimingOwnership();
-
             AttachElement(rishElement.Render());
-            
-            ElementsOwner.StopClaimingOwnership();
         }
 
         internal void AttachElement(Children element)
@@ -265,7 +282,8 @@ namespace RishUI
 #endif
             
             Clear();
-            
+
+            Reference = element;
             element.Invoke(this);
             
             Clean();
@@ -378,9 +396,12 @@ namespace RishUI
             return (child, element);
         }
 
-        private void Dirty() => Tree.Dirty(this);
+        private void Dirty(bool forceThisFrame) => Tree.Dirty(this, forceThisFrame);
+        private void Free() => Tree.NodeFreed(this);
 
         private bool Contains(Node child) => VirtualChildren.Contains(child);
+
+        internal void ReturnToPool() => ReturnNodeToPool(this);
 
         private static Node GetNodeFromPool(Tree tree)
         {
@@ -557,6 +578,8 @@ namespace RishUI
 
                 Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
+
+                Node.Reference = default;
             }
 
             public override void Exit() { }
@@ -613,13 +636,6 @@ namespace RishUI
                     throw new UnityException("Invalid state. Element should always be set before mounting");
                 }
 #endif
-
-                // using (var resetEvent = ResetEvent.GetPooled(Node.Element))
-                // {
-                //     Element.SendEvent(resetEvent);
-                // }
-                
-                Node.ElementsOwner.Init(Node.Tree);
 
                 if (Node.Element is IRishElement rishElement)
                 {
@@ -890,8 +906,8 @@ namespace RishUI
                         child.Machine.GoTo<UnmountedState>();
                     }
                 }
-                
-                ReturnNodeToPool(Node);
+
+                Node.Free();
 
                 GoTo<ReadyToMountState>();
             }
@@ -909,8 +925,6 @@ namespace RishUI
 
                     ElementsPool.Return(element);
                 }
-
-                Node.ElementsOwner.ReleaseAll();
             }
 
             public override T MountAs<T>(Node parent, uint key)

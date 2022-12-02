@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -320,6 +321,8 @@ namespace RishUI
         
         private class DOMElementDefinition<T> : SingleElementDefinition where T : VisualElement, IDOMElement, new()
         {
+            public override Type Type => typeof(T);
+            
             private DOMDescriptor Descriptor { get; set; }
             private Children Children { get; set; }
 
@@ -332,7 +335,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Children New(uint key) => Rish.Create<T>(key, Descriptor, Children.Copy());
+            public override Children New(uint key) => Rish.Create<T>(key, Descriptor, Children);
 
             public override void Invoke(Node node)
             {
@@ -347,6 +350,19 @@ namespace RishUI
                 child.AttachElement(Children);
             }
 
+            internal override int RegisterReference(IOwner owner)
+            {
+                Children.RegisterReference(owner);
+
+                return base.RegisterReference(owner);
+            }
+            internal override int UnregisterReference(IOwner owner)
+            {
+                Children.UnregisterReference(owner);
+
+                return base.UnregisterReference(owner);
+            }
+
             public override bool Equals(ElementDefinition other)
             {
                 return other is DOMElementDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<DOMDescriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
@@ -355,6 +371,8 @@ namespace RishUI
 
         private class DOMElementDefinition<T, P> : SingleElementDefinition where T: VisualElement, IDOMElement<P>, new() where P : struct
         {
+            public override Type Type => typeof(T);
+            
             private DOMDescriptor Descriptor { get; set; }
             private P Props { get; set; }
             private Children Children { get; set; }
@@ -369,7 +387,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Children New(uint key) => Rish.Create<T, P>(key, Descriptor, Copiers.Copy(Props), Children.Copy());
+            public override Children New(uint key) => Rish.Create<T, P>(key, Descriptor, Props, Children);
 
             public override void Invoke(Node node)
             {
@@ -382,6 +400,19 @@ namespace RishUI
                 element.Setup(Props);
                 
                 child.AttachElement(Children);
+            }
+
+            internal override int RegisterReference(IOwner owner)
+            {
+                Children.RegisterReference(owner);
+
+                return base.RegisterReference(owner);
+            }
+            internal override int UnregisterReference(IOwner owner)
+            {
+                Children.UnregisterReference(owner);
+
+                return base.UnregisterReference(owner);
             }
 
             public override bool Equals(ElementDefinition other)

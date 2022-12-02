@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace RishUI
 {
     public static partial class Rish
@@ -36,6 +39,8 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         private class FunctionalDefinition : SingleElementDefinition
         {
+            public override Type Type => null;
+            
             private FunctionElement Element { get; set; }
             
             public void Factory(uint key, FunctionElement function)
@@ -62,25 +67,54 @@ namespace RishUI
 
         private class FunctionalDefinition<P> : SingleElementDefinition where P : struct
         {
+            public override Type Type => null;
+            
             private FunctionElement<P> Element { get; set; }
             private P Props { get; set; }
+
+            private List<Children> References { get; } = new();
 
             public void Factory(uint key, FunctionElement<P> function, P props)
             {
                 Key = key;
                 Element = function;
                 Props = props;
+                
+                References.Clear();
+                if (Props is IReferenceHolder holder)
+                {
+                    holder.GetReferences(References);
+                }
             }
 
             public override void Dispose() { }
 
-            public override Children New(uint key) => Rish.Create<P>(Element, key, Copiers.Copy(Props));
+            public override Children New(uint key) => Rish.Create<P>(Element, key, Props);
 
             public override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<FunctionalElement<P>>(Key);
                 element.Delegate = Element;
                 element.Props = Props;
+            }
+
+            internal override int RegisterReference(IOwner owner)
+            {
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(owner);
+                }
+
+                return base.RegisterReference(owner);
+            }
+            internal override int UnregisterReference(IOwner owner)
+            {
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(owner);
+                }
+
+                return base.UnregisterReference(owner);
             }
 
             public override bool Equals(ElementDefinition other)

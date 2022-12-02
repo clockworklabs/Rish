@@ -1,14 +1,47 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace RishUI
 {
     public abstract class ElementDefinition : IEquatable<ElementDefinition>
     {
-        public abstract Children Copy();
+        private HashSet<uint> References { get; } = new();
+        internal int ReferencesCount => References.Count;
+
         public abstract void Dispose();
 
         public abstract void Invoke(Node node);
         public abstract bool Equals(ElementDefinition other);
+
+        internal virtual int RegisterReference(IOwner owner)
+        {
+            var id = owner.GetID();
+            if (References.Contains(id))
+            {
+                // throw new UnityException("Element {id} already owns this reference");
+                Debug.LogError($"Element {id} already owns this reference");
+                return ReferencesCount;
+            }
+
+            References.Add(id);
+
+            return ReferencesCount;
+        }
+        internal virtual int UnregisterReference(IOwner owner)
+        {
+            var id = owner.GetID();
+            if (!References.Contains(id))
+            {
+                // throw new UnityException("Element {id} doesn't own this reference");
+                Debug.LogError($"Element {id} doesn't own this reference");
+                return ReferencesCount;
+            }
+
+            References.Remove(id);
+
+            return ReferencesCount;
+        }
     }
     
     // public abstract class NodeElementDefinition : ElementDefinition
@@ -30,8 +63,7 @@ namespace RishUI
     public abstract class SingleElementDefinition : ElementDefinition
     {
         public uint Key { get; protected set; }
-
-        public sealed override Children Copy() => New(Key);
+        public abstract Type Type { get; }
         
         public abstract Children New(uint key);
 

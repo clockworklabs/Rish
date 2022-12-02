@@ -20,8 +20,6 @@ namespace RishUI
 
         private IApp UserApp { get; set; }
         
-        
-        
         void IPropsListener.PropsDidChange()
         {
 // #if UNITY_EDITOR && RISH_HOT_RELOAD_READY

@@ -11,7 +11,7 @@ namespace RishUI
 
     internal interface IRishElement : IElement
     {
-        event Action OnDirty;
+        event Action<bool> OnDirty;
         event Action OnReadyToUnmount;
         
         void Mount(Node node);
@@ -24,10 +24,10 @@ namespace RishUI
         IEnumerable<ICallbackWrapper> Callbacks { get; }
     }
 
-    public abstract class RishElement<P> : IRishElement where P : struct
+    public abstract class RishElement<P> : IRishElement, IOwner where P : struct
     {
-        private event Action OnDirty;
-        event Action IRishElement.OnDirty
+        private event Action<bool> OnDirty;
+        event Action<bool> IRishElement.OnDirty
         {
             add => OnDirty += value;
             remove => OnDirty -= value;
@@ -41,8 +41,8 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
+        protected internal event Action OnUmounted;
 
-        private ElementsOwner ElementsOwner { get; } = new();
         private List<Manipulator> Manipulators { get; set; }
         IEnumerable<Manipulator> IRishElement.Manipulators
         {
@@ -69,7 +69,7 @@ namespace RishUI
         }
         
         private Node Node { get; set; }
-        protected uint ID => Node.ID;
+        protected uint ID => Node?.ID ?? 0;
         
         private P? _props;
         public P Props
@@ -80,6 +80,8 @@ namespace RishUI
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
+
+        private List<Children> References { get; } = new();
 
         protected T GetFirstAncestorOfType<T>() where T : class
         {
@@ -95,7 +97,7 @@ namespace RishUI
         }
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
-        private VisualElement GetDOMChild() => Node?.GetDOMChild().VisualElement;
+        private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;
 
         private void SetProps(P value)
         {
@@ -108,7 +110,25 @@ namespace RishUI
                 propsListener?.PropsWillChange();
             }
 
+            if (References.Count > 0)
+            {
+                Debug.Log($"Unregister {ID} ({typeof(P)}) references");
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+            }
+            References.Clear();
             _props = value;
+            if (value is IReferenceHolder holder)
+            {
+                holder.GetReferences(References);
+                Debug.Log($"Register {ID} ({typeof(P)}) references");
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(this);
+                }
+            }
 
             if (!propsSet || dirty)
             {
@@ -121,7 +141,7 @@ namespace RishUI
             }
         }
 
-        protected void Dirty() => OnDirty?.Invoke();
+        protected void Dirty(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
@@ -133,6 +153,8 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
+        uint IOwner.GetID() => ID;
+
         void IRishElement.Mount(Node node)
         {
             if (this is ICustomComponent customComponent)
@@ -141,7 +163,6 @@ namespace RishUI
             }
 
             Node = node;
-            ElementsOwner.Init(Node.Tree);
             
             _props = null;
             OnMounted?.Invoke();
@@ -198,9 +219,20 @@ namespace RishUI
             {
                 listener.ComponentWillUnmount();
             }
+
+            if (References.Count > 0)
+            {
+                Debug.Log($"Unregister {ID} ({typeof(P)}) references");
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+            }
+            References.Clear();
             
-            ElementsOwner.ReleaseAll();
             Node = null;
+            
+            OnUmounted?.Invoke();
         }
 
         Element IRishElement.Render()
@@ -212,13 +244,11 @@ namespace RishUI
             }
 #endif
             
+            Debug.Log($"Rendering {GetType().Name}");
             return Render();
         }
 
         protected abstract Element Render();
-
-        protected void StartClaimingOwnership() => ElementsOwner.StartClaimingOwnership();
-        protected void StopClaimingOwnership() => ElementsOwner.StopClaimingOwnership();
 
         protected void AddManipulator(Manipulator manipulator)
         {
@@ -326,8 +356,26 @@ namespace RishUI
             set
             {
                 var dirty = !RishUtils.Compare<S>(value, _state);
-                
+
+                if (References.Count > 0)
+                {
+                    Debug.Log($"Unregister {ID} ({typeof(S)}) references");
+                    foreach (var reference in References)
+                    {
+                        reference.UnregisterReference(this);
+                    }
+                }
+                References.Clear();
                 _state = value;
+                if (value is IReferenceHolder holder)
+                {
+                    holder.GetReferences(References);
+                    Debug.Log($"Register {ID} ({typeof(S)}) references");
+                    foreach (var reference in References)
+                    {
+                        reference.RegisterReference(this);
+                    }
+                }
 
                 if (dirty)
                 {
@@ -335,15 +383,32 @@ namespace RishUI
                 }
             }
         }
+
+        private List<Children> References { get; } = new();
         
         protected RishElement()
         {
             OnMounted += SetDefaultState;
+            OnUmounted += UnregisterReferences; // For references
         }
 
         private void SetDefaultState()
         {
             State = Defaults.GetValue<S>();
+        }
+
+        private void UnregisterReferences()
+        {
+            if (References.Count > 0)
+            {
+                Debug.Log($"Unregister {ID} ({typeof(S)}) references");
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+
+                References.Clear();
+            }
         }
 
         protected void SetState(RefAction<S> action)

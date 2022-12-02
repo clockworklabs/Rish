@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Priority_Queue;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,10 +15,9 @@ namespace RishUI
         private List<Node> DirtyList { get; } = new(MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new(MaxDirtySize);
 
-        private List<Children> ReleasedChildren { get; set; } = new(MaxDirtySize);
-        private List<Children> ReleasedChildrenBuffer { get; set; } = new(MaxDirtySize);
-
         private uint CurrentDepth { get; set; }
+
+        private List<Node> FreeNodes { get; } = new();
 
         public Tree(UIDocument document, string rootClassName)
         {
@@ -27,9 +25,13 @@ namespace RishUI
             RootNode = Node.CreateRoot(this, rootClassName);
         }
 
-        public void Dirty(Node node)
+        public void Dirty(Node node, bool forceThisFrame)
         {
-            if (node.Depth <= CurrentDepth)
+            if (node.IsInDOM)
+            {
+                Debug.LogError("This node should not get dirty");
+            }
+            if (!forceThisFrame && node.Depth <= CurrentDepth)
             {
                 DirtyList.Add(node);
                 return;
@@ -76,35 +78,27 @@ namespace RishUI
                 node.Render();
             }
 
-            (ReleasedChildren, ReleasedChildrenBuffer) = (ReleasedChildrenBuffer, ReleasedChildren);
-
-            for (int i = 0, n = ReleasedChildren.Count; i < n; i++)
-            {
-                ReleasedChildren[i].ReturnToPool();
-            }
-            ReleasedChildren.Clear();
+            ReturnFreeNodesToPool();
         }
 
         public void Dispose()
         {
             RootNode.Unmount(true);
-
-            for (int i = 0, n = ReleasedChildren.Count; i < n; i++)
-            {
-                ReleasedChildren[i].ReturnToPool();
-            }
-            ReleasedChildren.Clear();
-            
-            for (int i = 0, n = ReleasedChildrenBuffer.Count; i < n; i++)
-            {
-                ReleasedChildrenBuffer[i].ReturnToPool();
-            }
-            ReleasedChildrenBuffer.Clear();
+            ReturnFreeNodesToPool();
         }
 
-        internal void Release(Children children)
+        internal void NodeFreed(Node node)
         {
-            ReleasedChildren.Add(children);
+            FreeNodes.Add(node);
+        }
+
+        private void ReturnFreeNodesToPool()
+        {
+            for (int i = 0, n = FreeNodes.Count; i < n; i++)
+            {
+                FreeNodes[i].ReturnToPool();
+            }
+            FreeNodes.Clear();
         }
     }
 }

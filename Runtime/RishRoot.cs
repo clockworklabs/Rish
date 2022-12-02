@@ -39,11 +39,15 @@ namespace RishUI
         private void OnDestroy()
         {
             Tree.Dispose();
+            
+            Rish.CleanGarbage();
         }
 
         private void LateUpdate()
         {
             Tree.Update();
+            
+            Rish.CleanGarbage();
         }
     }
 }

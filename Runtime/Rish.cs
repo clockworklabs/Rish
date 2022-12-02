@@ -11,8 +11,6 @@ namespace RishUI
 
     public static partial class Rish
     {
-        private static Stack<IOwner> Owners { get; } = new();
-        
         private const int InitialPoolSize = 64;
         private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
 
@@ -117,9 +115,10 @@ namespace RishUI
 
         private static void ShowCopyWarnings(Type[] types)
         {
+            var interfaceType = typeof(IReferenceHolder);
             foreach (var type in types)
             {
-                if (Copiers.Contains(type))
+                if(interfaceType.IsAssignableFrom(type))
                 {
                     continue;
                 }
@@ -157,11 +156,17 @@ namespace RishUI
             return element;
         }
 
-        internal static void ReturnToPool(uint id)
+        private static void ReturnToPool(uint id)
         {
-            if (!DefinitionsInUse.TryGetValue(id, out var definition))
+            var definition = GetDefinition(id);
+            if (definition == null)
             {
                 return;
+            }
+
+            if (definition.ReferencesCount > 0)
+            {
+                throw new UnityException("Element isn't ready to be returned to the pool.");
             }
             
             var type = definition.GetType();
@@ -170,6 +175,8 @@ namespace RishUI
                 throw new UnityException($"{type} is an invalid element type. No pool found.");
             }
 
+            Debug.Log($"Cleaned garbage: {id}");
+            
             definition.Dispose();
             pool.Push(definition);
             DefinitionsInUse.Remove(id);
@@ -180,92 +187,127 @@ namespace RishUI
         internal static int GetLength(uint id)
         {
             var definition = GetDefinition(id);
-            if (definition == null)
+            return definition switch
             {
-                return 0;
-            }
-        
-            if (definition is ChildrenDefinition children)
-            {
-                return children.Length;
-            }
-        
-            return 1;
+                null => 0,
+                ChildrenDefinition children => children.Length,
+                _ => 1
+            };
         }
 
-        // internal static DOMDescriptor GetDescriptor(uint id, int index)
-        // {
-        //     if (index < 0)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //     var definition = GetDefinition(id);
-        //     if (definition == null)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //     
-        //     if (definition is ChildrenDefinition children)
-        //     {
-        //         if (index >= children.Length)
-        //         {
-        //             throw new IndexOutOfRangeException();
-        //         }
-        //
-        //         return children.GetDescriptor(index);
-        //     }
-        //     
-        //     if (index > 0)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //
-        //     return (definition as NodeElementDefinition)?.Descriptor ?? default;
-        // }
-        //
-        // internal static Children SetDescriptor(uint id, int index, DOMDescriptor descriptor)
-        // {
-        //     if (index < 0)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //     var definition = GetDefinition(id);
-        //     if (definition == null)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //     
-        //     if (definition is ChildrenDefinition children)
-        //     {
-        //         if (index >= children.Length)
-        //         {
-        //             throw new IndexOutOfRangeException();
-        //         }
-        //
-        //         return children.SetDescriptor(index, descriptor);
-        //     }
-        //     
-        //     if (index > 0)
-        //     {
-        //         throw new IndexOutOfRangeException();
-        //     }
-        //
-        //     return (definition as NodeElementDefinition)?.New(descriptor) ?? default;
-        // }
+        private static HashSet<uint> GarbageSet { get; } = new(InitialPoolSize);
+        private static List<uint> Garbage { get; } = new(InitialPoolSize);
 
-        internal static void RegisterOwner(IOwner listener)
+        internal static void CleanGarbage()
         {
-            Owners.Push(listener);
-        }
-
-        internal static void UnregisterOwner(IOwner listener)
-        {
-            if (Owners.Peek() != listener)
+            for (int i = 0, n = Garbage.Count; i < n; i++)
             {
-                throw new UnityException("You're not the current subscriber. This should never happen.");
+                ReturnToPool(Garbage[i]);
             }
             
-            Owners.Pop();
+            GarbageSet.Clear();
+            Garbage.Clear();
+        }
+
+        private static void AddGarbage(uint id)
+        {
+            if (GarbageSet.Contains(id))
+            {
+                return;
+            }
+
+            var definition = GetDefinition(id);
+            var type = definition switch
+            {
+                null => "Null",
+                ChildrenDefinition => "Children",
+                SingleElementDefinition def => def.Type.Name,
+                _ => "Unknown"
+            };
+
+            Debug.Log($"{id} ({type}) is garbage");
+
+            GarbageSet.Add(id);
+            Garbage.Add(id);
+        }
+
+        private static void RemoveGarbage(uint id)
+        {
+            if (!GarbageSet.Contains(id))
+            {
+                return;
+            }
+
+            var definition = GetDefinition(id);
+            var type = definition switch
+            {
+                null => "Null",
+                ChildrenDefinition => "Children",
+                SingleElementDefinition def => def.Type.Name,
+                _ => "Unknown"
+            };
+            
+            Debug.Log($"{id} ({type}) isn't garbage anymore");
+
+            GarbageSet.Remove(id);
+            Garbage.Remove(id);
+        }
+
+        internal static void RegisterReferenceTo(uint id, IOwner owner)
+        {
+            if (id == 0)
+            {
+                return;
+            }
+            var definition = GetDefinition(id);
+            if (definition == null)
+            {
+                Debug.Log($"INVALID REGISTER.");
+                return;
+            }
+            
+            var type = definition switch
+            {
+                null => "Null",
+                ChildrenDefinition => "Children",
+                SingleElementDefinition def => def.Type.Name,
+                _ => "Unknown"
+            };
+            
+            Debug.Log($"Register reference to {id} ({type})");
+            
+            if (definition.RegisterReference(owner) == 1)
+            {
+                RemoveGarbage(id);
+            }
+        }
+        internal static void UnregisterReferenceTo(uint id, IOwner owner)
+        {
+            if (id == 0)
+            {
+                return;
+            }
+            var definition = GetDefinition(id);
+            if (definition == null)
+            {
+                Debug.Log($"INVALID UNREGISTER.");
+                return;
+            }
+            
+            var type = definition switch
+            {
+                null => "Null",
+                ChildrenDefinition => "Children",
+                SingleElementDefinition def => def.Type.Name,
+                _ => "Unknown"
+            };
+            
+            Debug.Log($"Unregister reference to {id} ({type})");
+            
+            if (definition.UnregisterReference(owner) <= 0)
+            {
+                AddGarbage(id);
+            }
         }
 
         private static Children CreateChildren(ElementDefinition definition)
@@ -273,19 +315,9 @@ namespace RishUI
             var id = DefinitionId;
             DefinitionsInUse[id] = definition;
             var element = new Children(id);
-            OnCreate(element);
+            AddGarbage(id);
 
             return element;
-        }
-        private static void OnCreate(Children element)
-        {
-            var owner = Owners.Peek();
-            if (owner == null)
-            {
-                throw new UnityException("There's nobody to claim ownership of this ElementDefinition");
-            }
-
-            owner.TakeOwnership(element);
         }
         
         public static T RefProps<T>(RefAction<T> func) where T : struct => RefProps(Defaults.GetValue<T>(), func);

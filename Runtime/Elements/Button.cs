@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using RishUI.Events;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
@@ -172,7 +174,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct ButtonProps : ICopy<ButtonProps>
+    public struct ButtonProps : IReferenceHolder
     {
         public DOMDescriptor descriptor;
         
@@ -205,38 +207,37 @@ namespace RishUI.Elements
         }
 
         [Comparer]
-        public static bool Equals(ButtonProps a, ButtonProps b) =>
-            a.interactable == b.interactable &&
-            RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
-            RishUtils.Compare<Element>(a.normal, b.normal) &&
-            RishUtils.Compare<Element>(a.hovered, b.hovered) &&
-            RishUtils.Compare<Element>(a.pressed, b.pressed) &&
-            RishUtils.Compare<Element>(a.disabled, b.disabled);
-
-        [Copy]
-        public static ButtonProps Copy(ButtonProps props) => new()
+        public static bool Equals(ButtonProps a, ButtonProps b)
         {
-            descriptor = props.descriptor,
-            interactable = props.interactable,
-            action = props.action,
-            secondaryAction = props.secondaryAction,
-            normal = props.normal.Copy(),
-            hovered = props.hovered.Copy(),
-            pressed = props.pressed.Copy(),
-            disabled = props.disabled.Copy()
-        };
+            return a.interactable == b.interactable &&
+                RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
+                RishUtils.Compare<Element>(a.normal, b.normal) &&
+                RishUtils.Compare<Element>(a.hovered, b.hovered) &&
+                RishUtils.Compare<Element>(a.pressed, b.pressed) &&
+                RishUtils.Compare<Element>(a.disabled, b.disabled);
+        }
 
-        ButtonProps ICopy<ButtonProps>.Copy() => new()
+        // void IReferenceHolder.RegisterReferences()
+        // {
+        //     normal.RegisterReference();
+        //     hovered.RegisterReference();
+        //     pressed.RegisterReference();
+        //     disabled.RegisterReference();
+        // }
+        // void IReferenceHolder.UnregisterReferences()
+        // {
+        //     normal.UnregisterReference();
+        //     hovered.UnregisterReference();
+        //     pressed.UnregisterReference();
+        //     disabled.UnregisterReference();
+        // }
+        void IReferenceHolder.GetReferences(List<Children> references)
         {
-            descriptor = descriptor,
-            interactable = interactable,
-            action = action,
-            secondaryAction = secondaryAction,
-            normal = normal.Copy(),
-            hovered = hovered.Copy(),
-            pressed = pressed.Copy(),
-            disabled = disabled.Copy()
-        };
+            references.Add(normal);
+            references.Add(hovered);
+            references.Add(pressed);
+            references.Add(disabled);
+        }
     }
 
     public struct ButtonState
