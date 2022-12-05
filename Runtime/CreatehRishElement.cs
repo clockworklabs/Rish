@@ -37,18 +37,14 @@ namespace RishUI
             
             private P Props { get; set; }
 
-            private List<Children> References { get; } = new();
+            private References References { get; set; }
 
             public void Factory(uint key, P props)
             {
                 Key = key;
                 Props = props;
                 
-                References.Clear();
-                if (Props is IReferenceHolder holder)
-                {
-                    holder.GetReferences(References);
-                }
+                References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
             }
 
             public override Children New(uint key) => Rish.Create<T, P>(key, Props);

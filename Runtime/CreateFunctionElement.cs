@@ -72,19 +72,15 @@ namespace RishUI
             private FunctionElement<P> Element { get; set; }
             private P Props { get; set; }
 
-            private List<Children> References { get; } = new();
+            private References References { get; set; }
 
             public void Factory(uint key, FunctionElement<P> function, P props)
             {
                 Key = key;
                 Element = function;
                 Props = props;
-                
-                References.Clear();
-                if (Props is IReferenceHolder holder)
-                {
-                    holder.GetReferences(References);
-                }
+
+                References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
             }
 
             public override void Dispose() { }

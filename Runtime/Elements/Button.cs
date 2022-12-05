@@ -174,7 +174,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct ButtonProps : IReferenceHolder
+    public struct ButtonProps : IReferencesHolder
     {
         public DOMDescriptor descriptor;
         
@@ -217,27 +217,7 @@ namespace RishUI.Elements
                 RishUtils.Compare<Element>(a.disabled, b.disabled);
         }
 
-        // void IReferenceHolder.RegisterReferences()
-        // {
-        //     normal.RegisterReference();
-        //     hovered.RegisterReference();
-        //     pressed.RegisterReference();
-        //     disabled.RegisterReference();
-        // }
-        // void IReferenceHolder.UnregisterReferences()
-        // {
-        //     normal.UnregisterReference();
-        //     hovered.UnregisterReference();
-        //     pressed.UnregisterReference();
-        //     disabled.UnregisterReference();
-        // }
-        void IReferenceHolder.GetReferences(List<Children> references)
-        {
-            references.Add(normal);
-            references.Add(hovered);
-            references.Add(pressed);
-            references.Add(disabled);
-        }
+        References IReferencesHolder.GetReferences() => (normal, hovered, pressed, disabled);
     }
 
     public struct ButtonState

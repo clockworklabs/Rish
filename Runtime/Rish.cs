@@ -86,7 +86,7 @@ namespace RishUI
             }).Where(type => !type.IsGenericParameter).ToArray();
             
             ShowComparersWarnings(types);
-            ShowCopyWarnings(types);
+            ShowReferencesWarnings(types);
         }
 
         private static void ShowComparersWarnings(Type[] types)
@@ -107,15 +107,15 @@ namespace RishUI
                     var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                     if (fields.Any(field => field.FieldType == typeof(Children)))
                     {
-                        Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Comparer");
+                        Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a Comparer");
                     }
                 }
             }
         }
 
-        private static void ShowCopyWarnings(Type[] types)
+        private static void ShowReferencesWarnings(Type[] types)
         {
-            var interfaceType = typeof(IReferenceHolder);
+            var interfaceType = typeof(IReferencesHolder);
             foreach (var type in types)
             {
                 if(interfaceType.IsAssignableFrom(type))
@@ -126,7 +126,7 @@ namespace RishUI
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (fields.Any(field => field.FieldType == typeof(Children)))
                 {
-                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element field and needs a Copier");
+                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a to implement IReferencesHolder");
                 }
             }
         }

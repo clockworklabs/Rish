@@ -81,7 +81,7 @@ namespace RishUI
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
 
-        private List<Children> References { get; } = new();
+        private References References { get; set; }
 
         protected T GetFirstAncestorOfType<T>() where T : class
         {
@@ -118,11 +118,12 @@ namespace RishUI
                     reference.UnregisterReference(this);
                 }
             }
-            References.Clear();
+
+            References = default;
             _props = value;
-            if (value is IReferenceHolder holder)
+            if (value is IReferencesHolder holder)
             {
-                holder.GetReferences(References);
+                References = holder.GetReferences();
                 Debug.Log($"Register {ID} ({typeof(P)}) references");
                 foreach (var reference in References)
                 {
@@ -228,7 +229,8 @@ namespace RishUI
                     reference.UnregisterReference(this);
                 }
             }
-            References.Clear();
+
+            References = default;
             
             Node = null;
             
@@ -365,11 +367,11 @@ namespace RishUI
                         reference.UnregisterReference(this);
                     }
                 }
-                References.Clear();
+                References = default;
                 _state = value;
-                if (value is IReferenceHolder holder)
+                if (value is IReferencesHolder holder)
                 {
-                    holder.GetReferences(References);
+                    References = holder.GetReferences();
                     Debug.Log($"Register {ID} ({typeof(S)}) references");
                     foreach (var reference in References)
                     {
@@ -384,7 +386,7 @@ namespace RishUI
             }
         }
 
-        private List<Children> References { get; } = new();
+        private References References { get; set; }
         
         protected RishElement()
         {
@@ -407,7 +409,7 @@ namespace RishUI
                     reference.UnregisterReference(this);
                 }
 
-                References.Clear();
+                References = default;
             }
         }
 
