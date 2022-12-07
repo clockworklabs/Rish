@@ -367,6 +367,21 @@ namespace RishUI
             
             return Create(array);
         }
+        public static Children Children(List<Element> children)
+        {
+            var length = children?.Count ?? 0;
+            if (length <= 0)
+            {
+                return Children();
+            }
+            var array = new NativeArray<Children>(length, Allocator.Persistent);
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = children[i];
+            }
+            
+            return Create(array);
+        }
         private static Children Create(NativeArray<Children> children)
         {
             var element = GetFromPool<ChildrenDefinition>();
