@@ -174,8 +174,6 @@ namespace RishUI
             {
                 throw new UnityException($"{type} is an invalid element type. No pool found.");
             }
-
-            Debug.Log($"Cleaned garbage: {id}");
             
             definition.Dispose();
             pool.Push(definition);
@@ -217,15 +215,6 @@ namespace RishUI
             }
 
             var definition = GetDefinition(id);
-            var type = definition switch
-            {
-                null => "Null",
-                ChildrenDefinition => "Children",
-                SingleElementDefinition def => def.Type.Name,
-                _ => "Unknown"
-            };
-
-            Debug.Log($"{id} ({type}) is garbage");
 
             GarbageSet.Add(id);
             Garbage.Add(id);
@@ -239,15 +228,6 @@ namespace RishUI
             }
 
             var definition = GetDefinition(id);
-            var type = definition switch
-            {
-                null => "Null",
-                ChildrenDefinition => "Children",
-                SingleElementDefinition def => def.Type.Name,
-                _ => "Unknown"
-            };
-            
-            Debug.Log($"{id} ({type}) isn't garbage anymore");
 
             GarbageSet.Remove(id);
             Garbage.Remove(id);
@@ -262,19 +242,8 @@ namespace RishUI
             var definition = GetDefinition(id);
             if (definition == null)
             {
-                Debug.Log($"INVALID REGISTER.");
                 return;
             }
-            
-            var type = definition switch
-            {
-                null => "Null",
-                ChildrenDefinition => "Children",
-                SingleElementDefinition def => def.Type.Name,
-                _ => "Unknown"
-            };
-            
-            Debug.Log($"Register reference to {id} ({type})");
             
             if (definition.RegisterReference(owner) == 1)
             {
@@ -290,19 +259,8 @@ namespace RishUI
             var definition = GetDefinition(id);
             if (definition == null)
             {
-                Debug.Log($"INVALID UNREGISTER.");
                 return;
             }
-            
-            var type = definition switch
-            {
-                null => "Null",
-                ChildrenDefinition => "Children",
-                SingleElementDefinition def => def.Type.Name,
-                _ => "Unknown"
-            };
-            
-            Debug.Log($"Unregister reference to {id} ({type})");
             
             if (definition.UnregisterReference(owner) <= 0)
             {

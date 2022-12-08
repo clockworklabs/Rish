@@ -228,28 +228,6 @@ namespace RishUI
 
         public void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
-        // TODO: Move
-        private Children _reference;
-        private Children Reference
-        {
-            set
-            {
-                if (_reference.Valid)
-                {
-                    Debug.Log($"Unregister node {ID} ({Type}) references");
-                    // _reference.UnregisterReference(this);
-                }
-
-                _reference = value;
-                
-                if (value.Valid)
-                {
-                    Debug.Log($"Register node {ID} ({Type}) references");
-                    // _reference.RegisterReference(this);
-                }
-            }
-        }
-        
         internal void Render()
         {
 #if UNITY_EDITOR
@@ -283,7 +261,6 @@ namespace RishUI
             
             Clear();
 
-            Reference = element;
             element.Invoke(this);
             
             Clean();
@@ -578,8 +555,6 @@ namespace RishUI
 
                 Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
-
-                Node.Reference = default;
             }
 
             public override void Exit() { }

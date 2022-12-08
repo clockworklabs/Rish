@@ -112,7 +112,6 @@ namespace RishUI
 
             if (References.Count > 0)
             {
-                Debug.Log($"Unregister {ID} ({typeof(P)}) references");
                 foreach (var reference in References)
                 {
                     reference.UnregisterReference(this);
@@ -124,7 +123,6 @@ namespace RishUI
             if (value is IReferencesHolder holder)
             {
                 References = holder.GetReferences();
-                Debug.Log($"Register {ID} ({typeof(P)}) references");
                 foreach (var reference in References)
                 {
                     reference.RegisterReference(this);
@@ -223,7 +221,6 @@ namespace RishUI
 
             if (References.Count > 0)
             {
-                Debug.Log($"Unregister {ID} ({typeof(P)}) references");
                 foreach (var reference in References)
                 {
                     reference.UnregisterReference(this);
@@ -246,7 +243,6 @@ namespace RishUI
             }
 #endif
             
-            Debug.Log($"Rendering {GetType().Name}");
             return Render();
         }
 
@@ -361,7 +357,6 @@ namespace RishUI
 
                 if (References.Count > 0)
                 {
-                    Debug.Log($"Unregister {ID} ({typeof(S)}) references");
                     foreach (var reference in References)
                     {
                         reference.UnregisterReference(this);
@@ -372,7 +367,6 @@ namespace RishUI
                 if (value is IReferencesHolder holder)
                 {
                     References = holder.GetReferences();
-                    Debug.Log($"Register {ID} ({typeof(S)}) references");
                     foreach (var reference in References)
                     {
                         reference.RegisterReference(this);
@@ -403,7 +397,6 @@ namespace RishUI
         {
             if (References.Count > 0)
             {
-                Debug.Log($"Unregister {ID} ({typeof(S)}) references");
                 foreach (var reference in References)
                 {
                     reference.UnregisterReference(this);
