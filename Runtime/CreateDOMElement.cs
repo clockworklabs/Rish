@@ -307,7 +307,8 @@ namespace RishUI
         }, props, children);
         // Descriptor
         public static Element Create<T, P>(DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(0, descriptor, Defaults.GetValue<P>(), children);
-        public static Element Create<T, P>(DOMDescriptor descriptor, RefAction<P> props, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(0, descriptor, RefProps(props), children);
+        public static Element Create<T, P>(DOMDescriptor descriptor, RefAction<P> props, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(descriptor, RefProps(props), children);
+        public static Element Create<T, P>(DOMDescriptor descriptor, P props, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(0, descriptor, props, children);
         public static Element Create<T, P>(uint key, DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(key, descriptor, Defaults.GetValue<P>(), children);
         public static Element Create<T, P>(uint key, DOMDescriptor descriptor, RefAction<P> props, Children? children = null) where T : VisualElement, IDOMElement<P>, new() where P : struct => Create<T, P>(key, descriptor, RefProps(props), children);
         // Descriptor
