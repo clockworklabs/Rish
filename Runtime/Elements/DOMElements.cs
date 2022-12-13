@@ -110,7 +110,7 @@ namespace RishUI.Elements
     //     }
     // }
     
-    public class Text : UIElements.Label, IDOMElement<TextProps>
+    public class Label : UIElements.Label, IDOMElement<LabelProps>
     {
         Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
@@ -118,22 +118,76 @@ namespace RishUI.Elements
         private PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
 
-        public Text()
+        private Vector2 WidthRange { get; set; }
+        private Vector2 HeightRange { get; set; }
+
+        public Label()
         {
             PickingManager = new PickingManager(this);
+            
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
         
-        void IDOMElement<TextProps>.Setup(TextProps props)
+        void IDOMElement<LabelProps>.Setup(LabelProps props)
         {
+            WidthRange = props.widthRange;
+            HeightRange = props.heightRange;
             text = props.text.Value;
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            var current = layout.size;
+            
+            var maxWidth = Mathf.Max(WidthRange.x, WidthRange.y);
+            if (Mathf.Approximately(maxWidth, 0f))
+            {
+                maxWidth = 0;
+            }
+            var minWidth = Mathf.Min(WidthRange.x, WidthRange.y);
+            var maxHeight = Mathf.Max(HeightRange.x, HeightRange.y);
+            if (Mathf.Approximately(maxHeight, 0f))
+            {
+                maxHeight = 0;
+            }
+            var minHeight = Mathf.Min(HeightRange.x, HeightRange.y);
+            var preferredSize = MeasureTextSize(text, maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
+            if (preferredSize.x < minWidth)
+            {
+                preferredSize.x = minWidth;
+            }
+            if (preferredSize.y < minHeight)
+            {
+                preferredSize.y = minHeight;
+            }
+
+            if (maxWidth <= 0 && current.x > preferredSize.x)
+            {
+                preferredSize.x = current.x;
+            }
+            if (maxHeight <= 0 && current.y > preferredSize.y)
+            {
+                preferredSize.y = current.y;
+            }
+
+            if (!Mathf.Approximately(current.x, preferredSize.x))
+            {
+                style.width = preferredSize.x;
+            }
+            if (!Mathf.Approximately(current.y, preferredSize.y))
+            {
+                style.height = preferredSize.y;
+            }
         }
         
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
-    public struct TextProps
+    public struct LabelProps
     {
         public FixedString4096Bytes text;
+        public Vector2 widthRange;
+        public Vector2 heightRange;
     }
     
     public class Image : RishVisualElement<ImageProps>

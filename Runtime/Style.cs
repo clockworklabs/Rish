@@ -66,7 +66,7 @@ namespace RishUI
         public StyleTranslate translate;
         public StyleColor unityBackgroundImageTintColor;
         public StyleEnum<ScaleMode> unityBackgroundScaleMode;
-        public StyleFont unityFont;
+        public StyleFont unityFont; // TODO: Maybe remove this so we don't have references?
         public StyleFontDefinition unityFontDefinition;
         public StyleEnum<FontStyle> unityFontStyleAndWeight;
         public StyleEnum<OverflowClipBox> unityOverflowClipBox;
