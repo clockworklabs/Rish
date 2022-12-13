@@ -130,27 +130,26 @@ namespace RishUI.Elements
         
         void IDOMElement<LabelProps>.Setup(LabelProps props)
         {
-            WidthRange = props.widthRange;
-            HeightRange = props.heightRange;
+            var minWidth = Mathf.Max(0, Mathf.Min(props.widthRange.x, props.widthRange.y));
+            var maxWidth = Mathf.Max(0, Mathf.Max(props.widthRange.x, props.widthRange.y));
+            var minHeight = Mathf.Max(0, Mathf.Min(props.heightRange.x, props.heightRange.y));
+            var maxHeight = Mathf.Max(0, Mathf.Max(props.heightRange.x, props.heightRange.y));
+            WidthRange = new Vector2(minWidth, maxWidth);
+            HeightRange = new Vector2(minHeight, maxHeight);
             text = props.text.Value;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
             var current = layout.size;
-            
-            var maxWidth = Mathf.Max(WidthRange.x, WidthRange.y);
-            if (Mathf.Approximately(maxWidth, 0f))
+
+            var (minWidth, maxWidth) = (WidthRange.x, WidthRange.y);
+            var (minHeight, maxHeight) = (HeightRange.x, HeightRange.y);
+            if (maxWidth == 0 && maxHeight == 0)
             {
-                maxWidth = 0;
+                // return;
+                maxWidth = parent.layout.width;
             }
-            var minWidth = Mathf.Min(WidthRange.x, WidthRange.y);
-            var maxHeight = Mathf.Max(HeightRange.x, HeightRange.y);
-            if (Mathf.Approximately(maxHeight, 0f))
-            {
-                maxHeight = 0;
-            }
-            var minHeight = Mathf.Min(HeightRange.x, HeightRange.y);
             var preferredSize = MeasureTextSize(text, maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
             if (preferredSize.x < minWidth)
             {
@@ -161,23 +160,31 @@ namespace RishUI.Elements
                 preferredSize.y = minHeight;
             }
 
-            if (maxWidth <= 0 && current.x > preferredSize.x)
-            {
-                preferredSize.x = current.x;
-            }
-            if (maxHeight <= 0 && current.y > preferredSize.y)
-            {
-                preferredSize.y = current.y;
-            }
+            // if (maxWidth <= 0 && current.x > preferredSize.x)
+            // {
+            //     preferredSize.x = current.x;
+            // }
+            // if (maxHeight <= 0 && current.y > preferredSize.y)
+            // {
+            //     preferredSize.y = current.y;
+            // }
+
+            Debug.Log($"Preferred: {preferredSize}");
 
             if (!Mathf.Approximately(current.x, preferredSize.x))
             {
+                Debug.Log($"Width: {preferredSize.x}");
                 style.width = preferredSize.x;
+                // style.maxWidth = preferredSize.x;
             }
             if (!Mathf.Approximately(current.y, preferredSize.y))
             {
+                Debug.Log($"Height: {preferredSize.y}");
                 style.height = preferredSize.y;
+                // style.maxHeight = preferredSize.y;
             }
+
+            // MarkDirtyRepaint();
         }
         
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
