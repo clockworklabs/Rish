@@ -235,12 +235,11 @@ namespace RishUI
             {
                 throw new UnityException("Node isn't mounted");
             }
-
+#endif
             if (Element is not IRishElement rishElement)
             {
                 throw new UnityException("Only RishElements can render");
             }
-#endif
 
             AttachElement(rishElement.Render());
         }

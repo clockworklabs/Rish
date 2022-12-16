@@ -29,12 +29,6 @@ namespace RishUI
             }
         }
         private static Dictionary<uint, ElementDefinition> DefinitionsInUse { get; } = new();
-        
-#if UNITY_EDITOR
-        static Rish()
-        {
-            ShowWarnings();
-        }
          
         private static Type[] _playerTypes;
         internal static Type[] PlayerTypes
@@ -43,7 +37,9 @@ namespace RishUI
             {
                 if (_playerTypes == null)
                 {
+#if UNITY_EDITOR
                     var playerAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Select(asm => asm.name).ToArray();
+#endif
                     _playerTypes = AppDomain.CurrentDomain.GetAssemblies().Where(ShouldIncludeAssembly).SelectMany(asm => asm.GetTypes()).ToArray();
                     
                     bool ShouldIncludeAssembly(Assembly asm)
@@ -54,12 +50,23 @@ namespace RishUI
                         }
 
                         var name = asm.GetName().Name;
+#if UNITY_EDITOR
                         return !name.Contains("Unity") && playerAssemblies.Contains(name);
+#else
+                        return !name.Contains("Unity");
+#endif
                     }
+
                 }
 
                 return _playerTypes;
             }
+        }
+        
+#if UNITY_EDITOR
+        static Rish()
+        {
+            ShowWarnings();
         }
 
         private static void ShowWarnings()
