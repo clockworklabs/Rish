@@ -122,19 +122,16 @@ namespace RishUI.Elements
         private Vector2 WidthRange { get; set; }
         private Vector2 HeightRange { get; set; }
 
-        private TextGenerator Generator { get; } = new();
-
         public Label()
         {
             PickingManager = new PickingManager(this);
             
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-            this.generateVisualContent += GenerateVisualContent;
-            RegisterCallback<PointerDownEvent>(OnPointerDown);
         }
         
         void IDOMElement<LabelProps>.Setup(LabelProps props)
         {
+            
             var minWidth = Mathf.Max(0, Mathf.Min(props.widthRange.x, props.widthRange.y));
             var maxWidth = Mathf.Max(0, Mathf.Max(props.widthRange.x, props.widthRange.y));
             var minHeight = Mathf.Max(0, Mathf.Min(props.heightRange.x, props.heightRange.y));
@@ -144,22 +141,9 @@ namespace RishUI.Elements
             text = props.text.Value;
         }
 
-        private void OnPointerDown(PointerDownEvent _)
-        {
-            SetSize();
-        }
-
-        private void GenerateVisualContent(MeshGenerationContext obj)
-        {
-            // Debug.Log("Dirty");
-            // SetSize();
-        }
-
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
             SetSize();
-
-            MarkDirtyRepaint();
         }
 
         private void SetSize()
@@ -170,15 +154,10 @@ namespace RishUI.Elements
             var (minHeight, maxHeight) = (HeightRange.x, HeightRange.y);
             if (maxWidth == 0 && maxHeight == 0)
             {
-                // return;
-                maxWidth = parent.layout.width;
+                return;
             }
             
-            var handleValue = typeof(TextElement).GetField("m_TextHandle", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
-            Debug.Log($"{handleValue}: {handleValue != null}");
-            Debug.Log(text);
-            var preferredSize = MeasureTextSize(text, maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
-            // var preferredSize = DoMeasure(maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
+            var preferredSize = DoMeasure(maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
             if (preferredSize.x < minWidth)
             {
                 preferredSize.x = minWidth;
@@ -197,59 +176,16 @@ namespace RishUI.Elements
             //     preferredSize.y = current.y;
             // }
 
-            // GetPreferredSize();
-
-            Debug.Log($"Preferred: {preferredSize}");
-
             if (!Mathf.Approximately(current.x, preferredSize.x))
             {
-                Debug.Log($"Width: {preferredSize.x}");
                 style.width = preferredSize.x;
                 // style.maxWidth = preferredSize.x;
             }
             if (!Mathf.Approximately(current.y, preferredSize.y))
             {
-                Debug.Log($"Height: {preferredSize.y}");
                 style.height = preferredSize.y;
                 // style.maxHeight = preferredSize.y;
             }
-        }
-
-        private Vector2 GetPreferredSize()
-        {
-            var current = parent.layout.size;
-            
-            var settings = new TextGenerationSettings
-            {
-                // alignByGeometry = true,
-                color = resolvedStyle.color,
-                font = resolvedStyle.unityFont ? resolvedStyle.unityFont : resolvedStyle.unityFontDefinition.font ? resolvedStyle.unityFontDefinition.font : resolvedStyle.unityFontDefinition.fontAsset.sourceFontFile, // TODO
-                fontSize = Mathf.RoundToInt(resolvedStyle.fontSize),
-                fontStyle = resolvedStyle.unityFontStyleAndWeight,
-                generateOutOfBounds = true,
-                generationExtents = current,
-                horizontalOverflow = resolvedStyle.textOverflow == TextOverflow.Ellipsis ? HorizontalWrapMode.Wrap : HorizontalWrapMode.Overflow,
-                lineSpacing = 1, // TODO 
-                // pivot = Vector2.zero,
-                resizeTextForBestFit = false,
-                // resizeTextMaxSize = 0,
-                // resizeTextMinSize = 0,
-                richText = true,
-                scaleFactor = 1, // TODO
-                // textAnchor = TextAnchor.LowerCenter,
-                updateBounds = true,
-                verticalOverflow = VerticalWrapMode.Overflow
-            };
-            // Debug.Log(JsonUtility.ToJson(settings));
-            
-            Generator.Invalidate();
-            // Generator.Populate(text, settings);
-            
-            var preferredSize = new Vector2(Generator.GetPreferredWidth(text, settings), Generator.GetPreferredHeight(text, settings));
-            
-            Debug.Log(preferredSize);
-        
-            return preferredSize;
         }
         
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);

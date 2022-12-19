@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using RishUI.Elements;
 using Unity.Collections;
 using UnityEngine;
 
@@ -12,7 +13,11 @@ namespace RishUI
     }
     
     [PoolSize(1)]
+#if UNITY_EDITOR
+    public class App : RishElement<AppProps, AppState>, IPropsListener
+#else
     public class App : RishElement<AppProps>, IPropsListener
+#endif
     {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
         // private HotReloader HotReloader { get; set; }
@@ -41,7 +46,20 @@ namespace RishUI
 // #endif
         }
 
-        protected override Element Render() => UserApp?.GetRoot() ?? Element.Null;
+        protected override Element Render()
+        {
+#if UNITY_EDITOR
+            if (!State.ready)
+            {
+                var state = State;
+                state.ready = true;
+                State = state;
+                return Rish.Create<Label, LabelProps>();
+            }
+#endif
+            
+            return UserApp?.GetRoot() ?? Element.Null;
+        }
 
         private void SetApp(Assembly assembly)
         {
@@ -61,4 +79,11 @@ namespace RishUI
     {
         public FixedString64Bytes rootClassName;
     }
+
+#if UNITY_EDITOR
+    public struct AppState
+    {
+        public bool ready;
+    }
+#endif
 }
