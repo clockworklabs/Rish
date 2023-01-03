@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Button : RishElement<ButtonProps, ButtonState>
+    public class Button : RishElement<ButtonProps, ButtonState>, ICustomComponent
     {
         private bool Listening { get; set; }
         private int PointerId { get; set; }
@@ -22,6 +22,12 @@ namespace RishUI.Elements
             RegisterCallback<PointerCancelEvent>(OnPointerCancel);
             
             // TODO: Add longPress
+        }
+
+        void ICustomComponent.Restart()
+        {
+            Listening = false;
+            PointerId = 0;
         }
         
         protected override Element Render()

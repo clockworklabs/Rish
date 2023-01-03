@@ -119,26 +119,38 @@ namespace RishUI.Elements
         private PickingManager PickingManager { get; }
         PickingManager IAdvancedPicking.Manager => PickingManager;
 
-        private Vector2 WidthRange { get; set; }
-        private Vector2 HeightRange { get; set; }
+        private LengthRange? WidthRange { get; set; }
+        private LengthRange? HeightRange { get; set; }
+        
+        private VisualElement Parent { get; set; }
 
         public Label()
         {
             PickingManager = new PickingManager(this);
             
+            RegisterCallback<AttachToPanelEvent>(OnMounted);
+            RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
+            
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
-        
+
         void IDOMElement<LabelProps>.Setup(LabelProps props)
         {
-            
-            var minWidth = Mathf.Max(0, Mathf.Min(props.widthRange.x, props.widthRange.y));
-            var maxWidth = Mathf.Max(0, Mathf.Max(props.widthRange.x, props.widthRange.y));
-            var minHeight = Mathf.Max(0, Mathf.Min(props.heightRange.x, props.heightRange.y));
-            var maxHeight = Mathf.Max(0, Mathf.Max(props.heightRange.x, props.heightRange.y));
-            WidthRange = new Vector2(minWidth, maxWidth);
-            HeightRange = new Vector2(minHeight, maxHeight);
+            WidthRange = props.widthRange;
+            HeightRange = props.heightRange;
             text = props.text.Value;
+        }
+
+        private void OnMounted(AttachToPanelEvent evt)
+        {
+            Parent = parent;
+            Parent?.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        }
+
+        private void OnUnmounted(DetachFromPanelEvent evt)
+        {
+            Parent?.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            Parent = null;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
@@ -148,16 +160,19 @@ namespace RishUI.Elements
 
         private void SetSize()
         {
-            var current = layout.size;
-
-            var (minWidth, maxWidth) = (WidthRange.x, WidthRange.y);
-            var (minHeight, maxHeight) = (HeightRange.x, HeightRange.y);
-            if (maxWidth == 0 && maxHeight == 0)
+            if (!WidthRange.HasValue && !HeightRange.HasValue)
             {
                 return;
             }
             
-            var preferredSize = DoMeasure(maxWidth, maxWidth <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, maxHeight <= 0 ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
+            var current = layout.size;
+
+            var parentSize = parent.layout.size;
+
+            var (minWidth, maxWidth) = WidthRange?.ToSize(parentSize.x) ?? (0, parentSize.x);
+            var (minHeight, maxHeight) = HeightRange?.ToSize(parentSize.y) ?? (0, parentSize.y);
+            
+            var preferredSize = DoMeasure(maxWidth, !WidthRange.HasValue ? MeasureMode.Undefined : Mathf.Approximately(minWidth, maxWidth) ? MeasureMode.Exactly : MeasureMode.AtMost, maxHeight, !HeightRange.HasValue ? MeasureMode.Undefined : Mathf.Approximately(minHeight, maxHeight) ? MeasureMode.Exactly : MeasureMode.AtMost);
             if (preferredSize.x < minWidth)
             {
                 preferredSize.x = minWidth;
@@ -166,15 +181,6 @@ namespace RishUI.Elements
             {
                 preferredSize.y = minHeight;
             }
-
-            // if (maxWidth <= 0 && current.x > preferredSize.x)
-            // {
-            //     preferredSize.x = current.x;
-            // }
-            // if (maxHeight <= 0 && current.y > preferredSize.y)
-            // {
-            //     preferredSize.y = current.y;
-            // }
 
             if (!Mathf.Approximately(current.x, preferredSize.x))
             {
@@ -194,8 +200,8 @@ namespace RishUI.Elements
     public struct LabelProps
     {
         public FixedString4096Bytes text;
-        public Vector2 widthRange;
-        public Vector2 heightRange;
+        public LengthRange? widthRange;
+        public LengthRange? heightRange;
     }
     
     public class Image : RishVisualElement<ImageProps>

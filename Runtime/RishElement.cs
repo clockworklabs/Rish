@@ -282,9 +282,9 @@ namespace RishUI
             Node?.EventSystem.RemoveManipulator(manipulator);
         }
 
-        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
+        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback, bool trickleDown = false) where TEventType : EventBase<TEventType>, new()
         {
-            var wrapper = CallbacksPool.Get(callback);
+            var wrapper = CallbacksPool.Get(callback, trickleDown);
 
             Callbacks ??= new List<ICallbackWrapper>(3);
             

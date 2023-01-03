@@ -13,6 +13,7 @@ namespace RishUI.Events
 
     internal class CallbackWrapper<T> : ICallbackWrapper where T : EventBase<T>, new()
     {
+        private TrickleDown TrickleDown { get; set; }
         private EventCallback<T> Callback { get; set; }
         
         private VisualElement _target;
@@ -40,9 +41,10 @@ namespace RishUI.Events
             }
         }
 
-        public void Setup(EventCallback<T> callback)
+        public void Setup(EventCallback<T> callback, bool trickleDown)
         {
             Callback = callback;
+            TrickleDown = trickleDown ? TrickleDown.TrickleDown : TrickleDown.NoTrickleDown;
         }
 
         bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback) => ReferenceEquals(Callback, callback);
@@ -56,15 +58,15 @@ namespace RishUI.Events
             target = visualElement;
         }
 
-        private void Register() => target.RegisterCallback(Callback);
-        private void Unregister() => target.UnregisterCallback(Callback);
+        private void Register() => target.RegisterCallback(Callback, TrickleDown);
+        private void Unregister() => target.UnregisterCallback(Callback, TrickleDown);
     }
 
     internal static class CallbacksPool
     {
         private static Dictionary<Type, Stack<ICallbackWrapper>> Pools { get; } = new();
         
-        public static ICallbackWrapper Get<T>(EventCallback<T> callback) where T : EventBase<T>, new()
+        public static ICallbackWrapper Get<T>(EventCallback<T> callback, bool trickleDown) where T : EventBase<T>, new()
         {
             var type = typeof(CallbackWrapper<T>);
             if (!Pools.TryGetValue(type, out var pool))
@@ -74,7 +76,7 @@ namespace RishUI.Events
             }
 
             var wrapper = pool.Count <= 0 ? new CallbackWrapper<T>() : (CallbackWrapper<T>) pool.Pop();
-            wrapper.Setup(callback);
+            wrapper.Setup(callback, trickleDown);
             
             return wrapper;
         }
