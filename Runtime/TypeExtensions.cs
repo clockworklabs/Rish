@@ -5,8 +5,8 @@ namespace RishUI
 {
     internal static class TypeExtensions
     {
-        public static readonly Type VisualElementType = typeof(VisualElement);
-        public static readonly Type RishElementType = typeof(RishElement);
+        private static readonly Type VisualElementType = typeof(VisualElement);
+        private static readonly Type RishElementType = typeof(RishElement);
 
         public static bool IsVisualElement<T>() => IsVisualElement(typeof(T));
         public static bool IsVisualElement(this Type type) => type.IsSubclassOf(VisualElementType);

@@ -19,9 +19,7 @@ namespace RishUI
             var id = owner.GetID();
             if (References.Contains(id))
             {
-                // throw new UnityException("Element {id} already owns this reference");
-                Debug.LogError($"Element {id} already owns this reference");
-                return ReferencesCount;
+                throw new UnityException($"Element {id} already owns this reference");
             }
 
             References.Add(id);
@@ -33,9 +31,7 @@ namespace RishUI
             var id = owner.GetID();
             if (!References.Contains(id))
             {
-                // throw new UnityException("Element {id} doesn't own this reference");
-                Debug.LogError($"Element {id} doesn't own this reference");
-                return ReferencesCount;
+                throw new UnityException($"Element {id} doesn't own this reference");
             }
 
             References.Remove(id);
@@ -43,22 +39,6 @@ namespace RishUI
             return ReferencesCount;
         }
     }
-    
-    // public abstract class NodeElementDefinition : ElementDefinition
-    // {
-    //     public DOMDescriptor Descriptor { get; protected set; }
-    //
-    //     public override Children Copy() => New(Descriptor);
-    //     
-    //     public abstract Children New(DOMDescriptor descriptor);
-    //
-    //     public Children New(RefAction<DOMDescriptor> action)
-    //     {
-    //         var descriptor = Descriptor;
-    //         action?.Invoke(ref descriptor);
-    //         return New(descriptor);
-    //     }
-    // }
     
     public abstract class SingleElementDefinition : ElementDefinition
     {

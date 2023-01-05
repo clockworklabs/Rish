@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Button : RishElement<ButtonProps, ButtonState>, ICustomComponent
+    public class Button : RishBaseElement<ButtonProps, ButtonState>, ICustomComponent
     {
         private bool Listening { get; set; }
         private int PointerId { get; set; }

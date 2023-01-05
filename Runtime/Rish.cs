@@ -39,6 +39,24 @@ namespace RishUI
                 {
 #if UNITY_EDITOR
                     var playerAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Select(asm => asm.name).ToArray();
+#else
+                    var assembliesToIgnore = new[] {
+                        "Unity.",
+                        "UnityEngine",
+                        "UnityEditor",
+                        "mscorlib",
+                        "System",
+                        "bee,",
+                        "unityplastic,",
+                        "NSubstitute,",
+                        "nunit",
+                        "AWSSDK",
+                        "Newtonsoft",
+                        "Mono.",
+                        "Microsoft.",
+                        "Google.",
+                        "log4net",
+                    };
 #endif
                     _playerTypes = AppDomain.CurrentDomain.GetAssemblies().Where(ShouldIncludeAssembly).SelectMany(asm => asm.GetTypes()).ToArray();
                     
@@ -53,7 +71,15 @@ namespace RishUI
 #if UNITY_EDITOR
                         return !name.Contains("Unity") && playerAssemblies.Contains(name);
 #else
-                        return !name.Contains("Unity");
+                        foreach (var ignored in assembliesToIgnore)
+                        {
+                            if (name.StartsWith(ignored))
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
 #endif
                     }
 
@@ -69,18 +95,14 @@ namespace RishUI
             ShowWarnings();
         }
 
+        // TODO: Some types will not get warnings
+        //       For example Props:
+        //         GenericType<P> : RishElement<P> where P : struct { }
+        //         NotGenericType : GenericType<Props> { }
+        //         struct Props { string referenceType }
         private static void ShowWarnings()
         {
-            var types = PlayerTypes.Where(type => {
-                var baseType = type.BaseType;
-                if (baseType is not { IsGenericType: true })
-                {
-                    return false;
-                }
-                
-                var genericBaseType = baseType.GetGenericTypeDefinition();
-                return genericBaseType == typeof(RishElement<>) || genericBaseType == typeof(RishElement<,>);
-            }).SelectMany(type =>
+            var types = PlayerTypes.Where(IsRishElement).SelectMany(type =>
             {
                 var baseType = type.BaseType;
                 var genericArguments = baseType.GenericTypeArguments;
@@ -94,6 +116,19 @@ namespace RishUI
             
             ShowComparersWarnings(types);
             ShowReferencesWarnings(types);
+
+            bool IsRishElement(Type type)
+            {
+                var baseType = type.BaseType;
+                if (baseType is not { IsGenericType: true })
+                {
+                    return false;
+                }
+
+                var genericBaseType = baseType.GetGenericTypeDefinition();
+                return genericBaseType == typeof(RishBaseElement<>) || genericBaseType == typeof(RishBaseElement<,>) ||
+                       genericBaseType == typeof(RishElement<>) || genericBaseType == typeof(RishElement<,>);
+            }
         }
 
         private static void ShowComparersWarnings(Type[] types)

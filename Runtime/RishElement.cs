@@ -24,7 +24,7 @@ namespace RishUI
         IEnumerable<ICallbackWrapper> Callbacks { get; }
     }
 
-    public abstract class RishElement<P> : IRishElement, IOwner where P : struct
+    public abstract class RishBaseElement<P> : IRishElement, IOwner where P : struct
     {
         private event Action<bool> OnDirty;
         event Action<bool> IRishElement.OnDirty
@@ -332,20 +332,7 @@ namespace RishUI
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
     }
 
-    public abstract class RishElement : RishElement<NoProps>
-    {
-        protected RishElement()
-        {
-            OnMounted += SetDefaultProps;
-        }
-
-        private void SetDefaultProps()
-        {
-            Props = default;
-        }
-    }
-
-    public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
+    public abstract class RishBaseElement<P, S> : RishBaseElement<P> where P : struct where S : struct
     {
         private S _state;
         protected S State
@@ -372,7 +359,7 @@ namespace RishUI
                         reference.RegisterReference(this);
                     }
                 }
-
+ 
                 if (dirty)
                 {
                     Dirty();
@@ -382,7 +369,7 @@ namespace RishUI
 
         private References References { get; set; }
         
-        protected RishElement()
+        protected RishBaseElement()
         {
             OnMounted += SetDefaultState;
             OnUmounted += UnregisterReferences; // For references
@@ -414,17 +401,37 @@ namespace RishUI
         }
     }
 
+    public abstract class RishElement : RishBaseElement<NoProps>
+    {
+        protected RishElement()
+        {
+            OnMounted += SetDefaultProps;
+        }
+
+        private void SetDefaultProps()
+        {
+            Props = default;
+        }
+    }
+
+    public abstract class RishElement<P> : RishBaseElement<P> where P : unmanaged { }
+    public abstract class RishElement<P, S> : RishBaseElement<P, S> where P : unmanaged where S : unmanaged { }
+    
+    
+    // public abstract class RishNastyElement<P> : RishBaseElement<P> where P : struct, IComparer { }
+    // public abstract class RishNastyElement<P, S> : RishBaseElement<P, S> where P : struct, IComparer where S : struct, IComparer { }
+
     public delegate Element FunctionElement();
     public delegate Element FunctionElement<P>(P props) where P : struct;
 
-    public class FunctionalElement : RishElement
+    internal class FunctionalElement : RishElement
     {
         internal FunctionElement Delegate { private get; set; }
 
         protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
-    public class FunctionalElement<P> : RishElement<P> where P : struct
+    internal class FunctionalElement<P> : RishBaseElement<P> where P : struct
     {
         internal FunctionElement<P> Delegate { private get; set; }
 
