@@ -328,6 +328,15 @@ namespace RishUI
         public Rect contentRect => GetDOMChild()?.contentRect ?? default;
         public Rect layout => GetDOMChild()?.layout ?? default;
 
+        public Rect parentContentRect
+        {
+            get
+            {
+                var parent = GetFirstAncestorOfType<VisualElement>();
+                return parent?.LocalToWorld(parent.contentRect) ?? default;
+            }
+        }
+
         public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
     }
