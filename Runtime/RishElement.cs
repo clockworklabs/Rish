@@ -83,6 +83,14 @@ namespace RishUI
 
         private References References { get; set; }
 
+        private InputTrackingManipulator TrackingManipulator { get; }
+
+        protected RishBaseElement()
+        {
+            TrackingManipulator = new InputTrackingManipulator();
+            AddManipulator(TrackingManipulator);
+        }
+
         protected T GetFirstAncestorOfType<T>() where T : class
         {
             for (var parent = Node.Parent; parent != null; parent = parent.Parent)
@@ -177,6 +185,8 @@ namespace RishUI
                 }
             }
 
+            TrackingManipulator.App = GetFirstAncestorOfType<App>();
+
             if (this is IMountingListener listener)
             {
                 listener.ComponentDidMount();
@@ -228,7 +238,7 @@ namespace RishUI
             }
 
             References = default;
-            
+            TrackingManipulator.App = null;
             Node = null;
             
             OnUmounted?.Invoke();

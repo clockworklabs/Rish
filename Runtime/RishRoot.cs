@@ -49,5 +49,16 @@ namespace RishUI
             
             Rish.CleanGarbage();
         }
+
+        public bool HasAnyPointerOver() => Tree.HasAnyPointerOver();
+        public bool HasAnyPointerDown() => Tree.HasAnyPointerDown();
+
+        public bool HasPointerOver(int pointerId) => Tree.HasPointerOver(pointerId);
+        public bool HasPointerDown(int pointerId) => Tree.HasPointerDown(pointerId);
+        
+#if UNITY_EDITOR
+        public int PointerOverCount => Tree.PointerOverCount;
+        public int PointerDownCount => Tree.PointerDownCount;
+#endif
     }
 }

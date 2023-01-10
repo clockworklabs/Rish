@@ -15,7 +15,6 @@ namespace RishUI.Events
             target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
             target.RegisterCallback<PointerCaptureEvent>(OnPointerCaptured);
-            target.RegisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
         }
 
         protected override void UnregisterCallbacks()
@@ -24,7 +23,6 @@ namespace RishUI.Events
             target.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
             target.UnregisterCallback<PointerCaptureEvent>(OnPointerCaptured);
-            target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
         }
 
         protected override void OnReset()
@@ -32,7 +30,10 @@ namespace RishUI.Events
             Pointers.Clear();
         }
 
-        private void OnPointerEnter(PointerEnterEvent evt)
+        private void OnPointerEnter(PointerEnterEvent evt) => AddPointer(evt);
+        private void OnPointerLeave(PointerLeaveEvent evt) => RemovePointer(evt);
+
+        private void AddPointer(IPointerEvent evt)
         {
             var pointerId = evt.pointerId;
             if (Pointers.Contains(pointerId))
@@ -51,7 +52,7 @@ namespace RishUI.Events
             target.SendEvent(pooled);
         }
 
-        private void OnPointerLeave(PointerLeaveEvent evt)
+        private void RemovePointer(IPointerEvent evt)
         {
             var pointerId = evt.pointerId;
             if (!Pointers.Contains(pointerId))
@@ -70,14 +71,70 @@ namespace RishUI.Events
             target.SendEvent(pooled);
         }
 
-        // TODO: Stop hovering if pointer is captured
+        private void RemovePointer(int pointerId, IEventHandler target)
+        {
+            using var pooled = PointerEvent.GetPooled(pointerId, target);
+
+            RemovePointer(pooled);
+        }
+
         private void OnPointerCaptured(PointerCaptureEvent evt)
         {
+            var evtTarget = evt.target;
+            if (evtTarget == target) return;
             
+            RemovePointer(evt.pointerId, evtTarget);
         }
-        private void OnPointerReleased(PointerCaptureOutEvent evt)
+        
+        private class PointerEvent : EventBase<PointerEvent>, IPointerEvent
         {
+            public int pointerId { get; private set; }
+            public string pointerType { get; }
+            public bool isPrimary { get; }
+            public int button { get; }
+            public int pressedButtons { get; }
+            public Vector3 position { get; }
+            public Vector3 localPosition { get; }
+            public Vector3 deltaPosition { get; }
+            public float deltaTime { get; }
+            public int clickCount { get; }
+            public float pressure { get; }
+            public float tangentialPressure { get; }
+            public float altitudeAngle { get; }
+            public float azimuthAngle { get; }
+            public float twist { get; }
+            public Vector2 radius { get; }
+            public Vector2 radiusVariance { get; }
+            public EventModifiers modifiers { get; }
+            public bool shiftKey { get; }
+            public bool ctrlKey { get; }
+            public bool commandKey { get; }
+            public bool altKey { get; }
+            public bool actionKey { get; }
+
+            public PointerEvent() => LocalInit();
+
+            protected override void Init()
+            {
+                base.Init();
+                LocalInit();
+            }
+
+            private void LocalInit()
+            {
+                tricklesDown = true;
+                bubbles = true;
+            }
+        
+            public static PointerEvent GetPooled(int pointerId, IEventHandler target)
+            {
+                var pooled = EventBase<PointerEvent>.GetPooled();
+                pooled.pointerId = pointerId;
             
+                pooled.target = target;
+
+                return pooled;
+            }
         }
     }
 }

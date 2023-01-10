@@ -11,6 +11,7 @@ namespace RishUI
 
         public VisualElement RootVisualElement { get; }
         private Node RootNode { get; }
+        private App RootApp => RootNode.Element as App;
 
         private List<Node> DirtyList { get; } = new(MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new(MaxDirtySize);
@@ -100,5 +101,16 @@ namespace RishUI
             }
             FreeNodes.Clear();
         }
+
+        internal bool HasAnyPointerOver() => RootApp?.HasAnyPointerOver() ?? false;
+        internal bool HasAnyPointerDown() => RootApp?.HasAnyPointerDown() ?? false;
+
+        internal bool HasPointerOver(int pointerId) => RootApp?.HasPointerOver(pointerId) ?? false;
+        internal bool HasPointerDown(int pointerId) => RootApp?.HasPointerDown(pointerId) ?? false;
+        
+#if UNITY_EDITOR
+        internal int PointerOverCount => RootApp?.PointerOverCount ?? 0;
+        internal int PointerDownCount => RootApp?.PointerDownCount ?? 0;
+#endif
     }
 }
