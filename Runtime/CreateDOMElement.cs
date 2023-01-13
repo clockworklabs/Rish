@@ -1,4 +1,5 @@
 using System;
+using RishUI.Events;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -341,12 +342,17 @@ namespace RishUI
             public override void Invoke(Node node)
             {
                 var (child, element) = node.AddChild<T>(Key);
+
+                element.visible = false;
                 
                 element.name = Descriptor.name;
                 Descriptor.className.SetClasses(element);
                 Descriptor.style.SetInlineStyle(element);
                 
                 element.Setup();
+
+                using var evt = SetupEvent.GetPooled(element);
+                element.SendEvent(evt);
                 
                 child.AttachElement(Children);
             }

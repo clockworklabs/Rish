@@ -8,7 +8,7 @@ namespace RishUI.Events
         private Node Node { get; }
         private IElement Element => Node.Element;
         
-        private List<Manipulator> Manipulators { get; set; }
+        private List<RishManipulator> Manipulators { get; set; }
         private List<ICallbackWrapper> Callbacks { get; set; }
         
         
@@ -61,9 +61,9 @@ namespace RishUI.Events
             }
         }
 
-        public void AddManipulator(Manipulator manipulator)
+        public void AddManipulator(RishManipulator manipulator)
         {
-            Manipulators ??= new List<Manipulator>(5);
+            Manipulators ??= new List<RishManipulator>(5);
             Manipulators.Add(manipulator);
             
             if (Element is VisualElement visualElement)
@@ -79,7 +79,7 @@ namespace RishUI.Events
             }
         }
 
-        public void RemoveManipulator(Manipulator manipulator)
+        public void RemoveManipulator(RishManipulator manipulator)
         {
             Manipulators.Remove(manipulator);
             
@@ -131,7 +131,7 @@ namespace RishUI.Events
             }
         }
 
-        private void AddManipulators(IEnumerable<Manipulator> manipulators)
+        private void AddManipulators(IEnumerable<RishManipulator> manipulators)
         {
             if (manipulators == null)
             {

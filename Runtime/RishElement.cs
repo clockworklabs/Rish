@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Manipulator = RishUI.Events.Manipulator;
 
 namespace RishUI
 {
@@ -20,7 +19,7 @@ namespace RishUI
 
         Element Render();
 
-        IEnumerable<Manipulator> Manipulators { get; }
+        IEnumerable<RishManipulator> Manipulators { get; }
         IEnumerable<ICallbackWrapper> Callbacks { get; }
     }
 
@@ -43,8 +42,8 @@ namespace RishUI
         protected internal event Action OnMounted;
         protected internal event Action OnUmounted;
 
-        private List<Manipulator> Manipulators { get; set; }
-        IEnumerable<Manipulator> IRishElement.Manipulators
+        private List<RishManipulator> Manipulators { get; set; }
+        IEnumerable<RishManipulator> IRishElement.Manipulators
         {
             get
             {
@@ -148,7 +147,9 @@ namespace RishUI
             }
         }
 
-        protected void Dirty(bool forceThisFrame = false) => OnDirty?.Invoke(forceThisFrame);
+        protected void Dirty() => Dirty(false);
+        protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
+        
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
@@ -258,7 +259,7 @@ namespace RishUI
 
         protected abstract Element Render();
 
-        protected void AddManipulator(Manipulator manipulator)
+        protected void AddManipulator(RishManipulator manipulator)
         {
             if (manipulator.Owner != null)
             {
@@ -268,13 +269,13 @@ namespace RishUI
             manipulator.Reset();
             manipulator.Owner = this;
 
-            Manipulators ??= new List<Manipulator>(3);
+            Manipulators ??= new List<RishManipulator>(3);
             
             Manipulators.Add(manipulator);
             Node?.EventSystem.AddManipulator(manipulator);
         }
         
-        protected void RemoveManipulator(Manipulator manipulator)
+        protected void RemoveManipulator(RishManipulator manipulator)
         {
             if (Manipulators == null)
             {
@@ -320,6 +321,16 @@ namespace RishUI
 
         public void CapturePointer(int pointerId) => GetDOMChild()?.CapturePointer(pointerId);
         public void ReleasePointer(int pointerId) => GetDOMChild()?.ReleasePointer(pointerId);
+        // public void ReleasePointer(int pointerId)
+        // {
+        //     var child = GetDOMChild();
+        //     if (child == null || !child.HasPointerCapture(pointerId))
+        //     {
+        //         return;
+        //     }
+        //
+        //     child.ReleasePointer(pointerId);
+        // }
         public void CaptureMouse() => GetDOMChild()?.CaptureMouse();
         public void ReleaseMouse() => GetDOMChild()?.ReleaseMouse();
         public bool ContainsPoint(Vector2 localPoint) => GetDOMChild()?.ContainsPoint(localPoint) ?? false;

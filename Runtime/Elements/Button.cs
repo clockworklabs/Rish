@@ -50,7 +50,7 @@ namespace RishUI.Elements
                 element = Props.normal;
             }
 
-            return Rish.Create<Div>(Props.descriptor, (Children) element);
+            return element;
         }
 
         private void OnHoverStart(HoverStartEvent evt)
@@ -83,7 +83,7 @@ namespace RishUI.Elements
             state.pressed = true;
             State = state;
             
-            evt.StopPropagation();
+            // evt.StopPropagation();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -180,8 +180,6 @@ namespace RishUI.Elements
 
     public struct ButtonProps : IReferencesHolder
     {
-        public DOMDescriptor descriptor;
-        
         public bool interactable;
         
         public Action action;
@@ -200,7 +198,6 @@ namespace RishUI.Elements
 
         public ButtonProps(ButtonProps other)
         {
-            descriptor = other.descriptor;
             interactable = other.interactable;
             action = other.action;
             secondaryAction = other.secondaryAction;
@@ -214,7 +211,6 @@ namespace RishUI.Elements
         public static bool Equals(ButtonProps a, ButtonProps b)
         {
             return a.interactable == b.interactable &&
-                RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
                 RishUtils.Compare<Element>(a.normal, b.normal) &&
                 RishUtils.Compare<Element>(a.hovered, b.hovered) &&
                 RishUtils.Compare<Element>(a.pressed, b.pressed) &&

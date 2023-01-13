@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class HoverManipulator : Manipulator
+    public class HoverManipulator : RishManipulator
     {
         private HashSet<int> Pointers { get; } = new();
         private int Count => Pointers.Count;

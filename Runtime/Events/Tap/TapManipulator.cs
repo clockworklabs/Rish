@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace RishUI.Events
 {
     // TODO
-    public class TapManipulator : Manipulator
+    public class TapManipulator : RishManipulator
     {
         private HashSet<int> Pressed { get; } = new();
         private Pointer[] Pointers { get; }

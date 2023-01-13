@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    internal class InputTrackingManipulator : Manipulator
+    internal class InputTrackingManipulator : RishManipulator
     {
         private HashSet<int> HoveredPointers { get; } = new();
         private HashSet<int> PressedPointers { get; } = new();

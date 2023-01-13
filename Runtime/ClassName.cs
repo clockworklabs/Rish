@@ -8,9 +8,6 @@ namespace RishUI
 {
     public readonly struct ClassName
     {
-        private readonly int _count;
-        public int Count => _count;
-        
         // It can go up to 14 elements (index 13)
         private readonly FixedString32Bytes _element0;
         private readonly FixedString32Bytes _element1;
@@ -26,6 +23,9 @@ namespace RishUI
         // private readonly FixedString32Bytes _element11;
         // private readonly FixedString32Bytes _element12;
         // private readonly FixedString32Bytes _element13;
+        
+        private readonly int _count;
+        public int Count => _count;
 
         public ClassName(string class0)
         {
@@ -272,11 +272,42 @@ namespace RishUI
             var copy = this;
             ClassName result = default;
 
-            var stride = 5;
-            UnsafeUtility.MemCpy(UnsafeUtility.AddressOf(ref result), UnsafeUtility.AddressOf(ref copy), stride);
-            UnsafeUtility.MemCpyStride(UnsafeUtility.AddressOf(ref result), stride, UnsafeUtility.AddressOf(ref className), 0, UnsafeUtility.SizeOf<ClassName>() - stride, 1);
+            var resultPtr = new IntPtr(UnsafeUtility.AddressOf(ref result));
+            var copyPtr = UnsafeUtility.AddressOf(ref copy);
+            var classNamePtr = UnsafeUtility.AddressOf(ref className);
+
+            var size = 32 * copy.Count;
+            UnsafeUtility.MemCpy(resultPtr.ToPointer(), copyPtr, size);
+            resultPtr = IntPtr.Add(resultPtr, size);
+            size = 10 * 32 - size;
+            UnsafeUtility.MemCpy(resultPtr.ToPointer(), classNamePtr, size);
+
+            resultPtr = IntPtr.Add(resultPtr, size);
+            size = 4;
             
+            var count = copy.Count + className.Count;
+            UnsafeUtility.MemCpy(resultPtr.ToPointer(), UnsafeUtility.AddressOf(ref count), size);
+
             return result;
+        }
+
+        public override string ToString()
+        {
+            return Count switch
+            {
+                0 => "()",
+                1 => $"({_element0})",
+                2 => $"({_element0}, {_element1})",
+                3 => $"({_element0}, {_element1}, {_element2})",
+                4 => $"({_element0}, {_element1}, {_element2}, {_element3})",
+                5 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4})",
+                6 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4}, {_element5})",
+                7 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4}, {_element5}, {_element6})",
+                8 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4}, {_element5}, {_element6}, {_element7})",
+                9 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4}, {_element5}, {_element6}, {_element7}, {_element8})",
+                10 => $"({_element0}, {_element1}, {_element2}, {_element3}, {_element4}, {_element5}, {_element6}, {_element7}, {_element8}, {_element9})",
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         private static List<string> CachedClassNames { get; } = new();

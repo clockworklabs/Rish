@@ -5,7 +5,7 @@ using NativeManipulator = UnityEngine.UIElements.Manipulator;
 namespace RishUI.Events
 {
     
-    public abstract class Manipulator
+    public abstract class RishManipulator
     {
         internal IRishElement Owner { get; set; }
         

@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class ClickManipulator : Manipulator
+    public class ClickManipulator : RishManipulator
     {
         private HashSet<int> Pressed { get; } = new();
         private Button[] Buttons { get; } = { default, default, default };

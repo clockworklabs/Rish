@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RishUI.Events;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
@@ -53,10 +54,6 @@ namespace RishUI
             }
 
             var element = pool.Pop();
-            if (element is VisualElement visualElement)
-            {
-                visualElement.SetEnabled(true);
-            }
 
             return element as T;
         }
@@ -76,7 +73,6 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
-                visualElement.SetEnabled(false);
                 visualElement.RemoveFromHierarchy();
             }
             pool.Push(element);
@@ -96,7 +92,7 @@ namespace RishUI
                 var element = new T();
                 if (element is VisualElement visualElement)
                 {
-                    visualElement.SetEnabled(false);
+                    visualElement.AddManipulator(new VisualChangeManipulator());
                 }
                 pool.Push(element);
             }
