@@ -106,6 +106,8 @@ namespace RishUI
         VisualElement IElement.GetDOMChild() => GetDOMChild();
         private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;
 
+        private VisualElement GetDOMParent() => GetDOMChild()?.parent;
+
         private void SetProps(P value)
         {
             var propsSet = _props.HasValue;
@@ -293,9 +295,9 @@ namespace RishUI
             Node?.EventSystem.RemoveManipulator(manipulator);
         }
 
-        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback, bool trickleDown = false) where TEventType : EventBase<TEventType>, new()
+        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
         {
-            var wrapper = CallbacksPool.Get(callback, trickleDown);
+            var wrapper = CallbacksPool.Get(callback, phase);
 
             Callbacks ??= new List<ICallbackWrapper>(3);
             
@@ -349,12 +351,40 @@ namespace RishUI
         public Rect contentRect => GetDOMChild()?.contentRect ?? default;
         public Rect layout => GetDOMChild()?.layout ?? default;
 
-        public Rect parentContentRect
+        public Rect worldContentRect
         {
             get
             {
-                var parent = GetFirstAncestorOfType<VisualElement>();
+                var child = GetDOMChild();
+                return child != null ? LocalToWorld(child.contentRect) : default;
+            }
+        }
+        public Rect worldLayout
+        {
+            get
+            {
+                var child = GetDOMChild();
+
+                var parent = child?.parent;
+                return parent?.LocalToWorld(child.layout) ?? default;
+            }
+        }
+
+        public Rect parentWorldContentRect
+        {
+            get
+            {
+                var parent = GetDOMParent();
                 return parent?.LocalToWorld(parent.contentRect) ?? default;
+            }
+        }
+        public Rect parentWorldLayout
+        {
+            get
+            {
+                var parent = GetDOMParent();
+                var grandParent = parent?.parent;
+                return grandParent?.LocalToWorld(parent.layout) ?? default;
             }
         }
 

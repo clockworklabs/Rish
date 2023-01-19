@@ -14,8 +14,8 @@ namespace RishUI.Events
 
         private void LocalInit()
         {
-            tricklesDown = true;
-            bubbles = true;
+            tricklesDown = false;
+            bubbles = false;
         }
         
         public static VisualChangeEvent GetPooled(VisualElement target)

@@ -58,7 +58,7 @@ namespace RishUI.Events
         private void OnPointerUp(PointerUpEvent evt) => Pointers[evt.pointerId].OnUp(evt);
         private void OnPointerMove(PointerMoveEvent evt) => Pointers[evt.pointerId].OnMove(evt);
         private void OnPointerCaptured(PointerCaptureEvent evt) => Pointers[evt.pointerId].OnCapture(evt);
-        private void OnPointerReleased(PointerCaptureOutEvent evt) => Pointers[evt.pointerId].OnCaptureLost(evt);
+        private void OnPointerReleased(PointerCaptureOutEvent evt) => Pointers[evt.pointerId].OnRelease(evt);
 
         private class Pointer
         {
@@ -171,7 +171,7 @@ namespace RishUI.Events
                 Captured = true;
             }
 
-            public void OnCaptureLost(PointerCaptureOutEvent evt)
+            public void OnRelease(PointerCaptureOutEvent evt)
             {
                 if (evt.target != Target)
                 {

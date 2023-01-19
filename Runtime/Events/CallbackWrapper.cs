@@ -10,12 +10,15 @@ namespace RishUI.Events
         bool Wraps<T>(EventCallback<T> callback) where T : EventBase<T>, new();
         void SetTarget(VisualElement visualElement);
     }
+    
+    public enum EventPhase { TrickleDown, BubbleUp, AtTargetOnly }
 
     internal class CallbackWrapper<T> : ICallbackWrapper where T : EventBase<T>, new()
     {
         private TrickleDown TrickleDown { get; set; }
         private EventCallback<T> Callback { get; set; }
-        
+        private bool OnlyAtTarget { get; set; }
+
         private VisualElement _target;
         private VisualElement target
         {
@@ -41,10 +44,11 @@ namespace RishUI.Events
             }
         }
 
-        public void Setup(EventCallback<T> callback, bool trickleDown)
+        public void Setup(EventCallback<T> callback, EventPhase phase)
         {
             Callback = callback;
-            TrickleDown = trickleDown ? TrickleDown.TrickleDown : TrickleDown.NoTrickleDown;
+            TrickleDown = phase == EventPhase.TrickleDown ? TrickleDown.TrickleDown : TrickleDown.NoTrickleDown;
+            OnlyAtTarget = phase == EventPhase.AtTargetOnly;
         }
 
         bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback) => ReferenceEquals(Callback, callback);
@@ -58,15 +62,25 @@ namespace RishUI.Events
             target = visualElement;
         }
 
-        private void Register() => target.RegisterCallback(Callback, TrickleDown);
-        private void Unregister() => target.UnregisterCallback(Callback, TrickleDown);
+        private void Register() => target.RegisterCallback<T>(OnEvent, TrickleDown);
+        private void Unregister() => target.UnregisterCallback<T>(OnEvent, TrickleDown);
+
+        private void OnEvent(T evt)
+        {
+            if (OnlyAtTarget && (evt.target != evt.currentTarget || evt.target != target))
+            {
+                return;
+            }
+            
+            Callback?.Invoke(evt);
+        }
     }
 
     internal static class CallbacksPool
     {
         private static Dictionary<Type, Stack<ICallbackWrapper>> Pools { get; } = new();
         
-        public static ICallbackWrapper Get<T>(EventCallback<T> callback, bool trickleDown) where T : EventBase<T>, new()
+        public static ICallbackWrapper Get<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
         {
             var type = typeof(CallbackWrapper<T>);
             if (!Pools.TryGetValue(type, out var pool))
@@ -76,7 +90,7 @@ namespace RishUI.Events
             }
 
             var wrapper = pool.Count <= 0 ? new CallbackWrapper<T>() : (CallbackWrapper<T>) pool.Pop();
-            wrapper.Setup(callback, trickleDown);
+            wrapper.Setup(callback, phase);
             
             return wrapper;
         }
