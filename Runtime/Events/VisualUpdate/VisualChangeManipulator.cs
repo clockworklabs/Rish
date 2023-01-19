@@ -1,4 +1,6 @@
 using System.Drawing.Text;
+using RishUI.Deprecated;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,6 +8,7 @@ namespace RishUI.Events
 {
     public class VisualChangeManipulator : Manipulator
     {
+        private bool Ready { get; set; }
         private bool Attached { get; set; }
         
         protected override void RegisterCallbacksOnTarget()
@@ -30,7 +33,8 @@ namespace RishUI.Events
             {
                 return;
             }
-            
+
+            Ready = false;
             Attached = true;
             target.schedule.Execute(RaiseEvent);
         }
@@ -46,7 +50,7 @@ namespace RishUI.Events
 
         private void OnGeometryChange(GeometryChangedEvent evt)
         {
-            if (evt.target != target)
+            if (!Ready || evt.target != target)
             {
                 return;
             }
@@ -74,6 +78,8 @@ namespace RishUI.Events
             {
                 return;
             }
+
+            Ready = true;
             
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);
