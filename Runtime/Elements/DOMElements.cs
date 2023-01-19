@@ -113,7 +113,6 @@ namespace RishUI.Elements
     
     public class Label : TextElement, IDOMElement<LabelProps>
     {
-        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
@@ -224,7 +223,6 @@ namespace RishUI.Elements
     
     public class ActualImage : UnityEngine.UIElements.Image, IDOMElement<ImageProps>
     {
-        Rect IElement.contentRect => layout;
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }

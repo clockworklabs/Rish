@@ -70,6 +70,11 @@ namespace RishUI.Events
 
         private void RaiseEvent()
         {
+            if (!Attached)
+            {
+                return;
+            }
+            
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);
         }

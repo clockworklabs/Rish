@@ -106,7 +106,7 @@ namespace RishUI
         VisualElement IElement.GetDOMChild() => GetDOMChild();
         private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;
 
-        private VisualElement GetDOMParent() => GetDOMChild()?.parent;
+        private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
         private void SetProps(P value)
         {
@@ -345,21 +345,19 @@ namespace RishUI
         public Vector2 ChangeCoordinatesTo(IElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other.GetDOMChild(), point) ?? default;
         public Rect ChangeCoordinatesTo(VisualElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other, rect) ?? default;
         public Vector2 ChangeCoordinatesTo(VisualElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other, point) ?? default;
+        
+        public Rect ContentRect => GetDOMChild()?.contentRect ?? default;
+        public Rect Layout => GetDOMChild()?.layout ?? default;
 
-        // Rect IElement.layout => layout;
-        // TODO: Rename
-        public Rect contentRect => GetDOMChild()?.contentRect ?? default;
-        public Rect layout => GetDOMChild()?.layout ?? default;
-
-        public Rect worldContentRect
+        public Rect WorldContentRect
         {
             get
             {
                 var child = GetDOMChild();
-                return child != null ? LocalToWorld(child.contentRect) : default;
+                return child?.LocalToWorld(child.contentRect) ?? default;
             }
         }
-        public Rect worldLayout
+        public Rect WorldLayout
         {
             get
             {
@@ -370,7 +368,7 @@ namespace RishUI
             }
         }
 
-        public Rect parentWorldContentRect
+        public Rect ParentWorldContentRect
         {
             get
             {
@@ -378,7 +376,7 @@ namespace RishUI
                 return parent?.LocalToWorld(parent.contentRect) ?? default;
             }
         }
-        public Rect parentWorldLayout
+        public Rect ParentWorldLayout
         {
             get
             {
