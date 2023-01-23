@@ -6,8 +6,8 @@ namespace RishUI
 {
     public abstract class ElementDefinition : IEquatable<ElementDefinition>
     {
-        private HashSet<uint> References { get; } = new();
-        internal int ReferencesCount => References.Count;
+        private Dictionary<uint, int> References { get; } = new();
+        internal int ReferencesCount { get; private set; }
 
         public abstract void Dispose();
 
@@ -17,24 +17,34 @@ namespace RishUI
         internal virtual int RegisterReference(IOwner owner)
         {
             var id = owner.GetID();
-            if (References.Contains(id))
+            if (References.TryGetValue(id, out var currentCount))
             {
-                throw new UnityException($"Element {id} already owns this reference");
+                References[id] = currentCount + 1;
+
+                return ReferencesCount;
             }
 
-            References.Add(id);
+            References.Add(id, 1);
 
-            return ReferencesCount;
+            return ++ReferencesCount;
         }
         internal virtual int UnregisterReference(IOwner owner)
         {
             var id = owner.GetID();
-            if (!References.Contains(id))
+            if (!References.TryGetValue(id, out var currentCount))
             {
                 throw new UnityException($"Element {id} doesn't own this reference");
             }
 
-            References.Remove(id);
+            if (currentCount == 1)
+            {
+                References.Remove(id);
+                ReferencesCount--;
+            }
+            else
+            {
+                References[id] = currentCount - 1;
+            }
 
             return ReferencesCount;
         }
