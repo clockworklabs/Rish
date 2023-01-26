@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -410,6 +411,30 @@ namespace RishUI
                     }
             
                     return count;
+                }
+            }
+            
+            internal Element this[int index]
+            {
+                get
+                {
+                    if (index >= Length)
+                    {
+                        throw new ArgumentOutOfRangeException();
+                    }
+                    
+                    for (int i = 0, n = Children.Length; i < n; i++)
+                    {
+                        var child = Children[i];
+                        if (child.Length > index)
+                        {
+                            return child[index];
+                        }
+
+                        index -= child.Length;
+                    }
+
+                    throw new ArgumentOutOfRangeException();
                 }
             }
 

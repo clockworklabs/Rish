@@ -51,7 +51,15 @@ namespace RishUI.Events
             OnlyAtTarget = phase == EventPhase.AtTargetOnly;
         }
 
-        bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback) => ReferenceEquals(Callback, callback);
+        bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback)
+        {
+            if (callback is not EventCallback<T> typedCallback)
+            {
+                return false;
+            }
+            
+            return Callback == typedCallback;
+        }
         void ICallbackWrapper.SetTarget(VisualElement visualElement)
         {
             if (target != null && visualElement != null)

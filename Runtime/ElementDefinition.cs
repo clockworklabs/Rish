@@ -20,13 +20,15 @@ namespace RishUI
             if (References.TryGetValue(id, out var currentCount))
             {
                 References[id] = currentCount + 1;
-
-                return ReferencesCount;
+            }
+            else
+            {
+                References.Add(id, 1);
+                ReferencesCount++;
             }
 
-            References.Add(id, 1);
 
-            return ++ReferencesCount;
+            return ReferencesCount;
         }
         internal virtual int UnregisterReference(IOwner owner)
         {

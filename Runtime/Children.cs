@@ -22,6 +22,8 @@ namespace RishUI
 
         internal Element ToElement() => new Element(_id);
 
+        public Element this[int index] => Rish.GetChild(_id, index);
+
         internal void Invoke(Node node)
         {
             if (!Valid)

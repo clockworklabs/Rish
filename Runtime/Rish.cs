@@ -234,6 +234,16 @@ namespace RishUI
                 _ => 1
             };
         }
+        internal static Element GetChild(uint id, int index)
+        {
+            var definition = GetDefinition(id);
+            return definition switch
+            {
+                null => throw new ArgumentNullException(),
+                ChildrenDefinition children => children[index],
+                _ => index == 0 ? new Element(id) : throw new ArgumentNullException()
+            };
+        }
 
         private static HashSet<uint> GarbageSet { get; } = new(InitialPoolSize);
         private static List<uint> Garbage { get; } = new(InitialPoolSize);
