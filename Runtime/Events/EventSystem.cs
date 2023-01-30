@@ -114,7 +114,7 @@ namespace RishUI.Events
             }
         }
 
-        public void RemoveManipulator(ICallbackWrapper callback)
+        public void RemoveCallback(ICallbackWrapper callback)
         {
             Callbacks.Remove(callback);
             
@@ -126,7 +126,7 @@ namespace RishUI.Events
             {
                 foreach (var child in Node.Children)
                 {
-                    child.EventSystem.RemoveManipulator(callback);
+                    child.EventSystem.RemoveCallback(callback);
                 }
             }
         }

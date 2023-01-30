@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Priority_Queue;
 using RishUI.Events;
+using RishUI.Input;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,6 +25,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         public uint ID { get; }
         internal EventSystem EventSystem { get; }
+        internal InputSystem InputSystem { get; }
         private StateMachine Machine { get; }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -209,6 +211,7 @@ namespace RishUI
         {
             ID = id;
             EventSystem = new EventSystem(this);
+            InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
         }
         
@@ -572,6 +575,7 @@ namespace RishUI
                 }
                 
                 Node.EventSystem.OnMounted();
+                Node.InputSystem.OnMounted();
 
                 GoTo<MountedState>();
 
@@ -859,6 +863,7 @@ namespace RishUI
             public override void Enter()
             {
                 Node.EventSystem.OnUnmounted();
+                Node.InputSystem.OnUnmounted();
                 
                 Node.Parent?.UnmountingChildren.Remove(Node);
                 Node.OnUnmount?.Invoke(Node);

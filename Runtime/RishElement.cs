@@ -21,6 +21,8 @@ namespace RishUI
 
         IEnumerable<RishManipulator> Manipulators { get; }
         IEnumerable<ICallbackWrapper> Callbacks { get; }
+        
+        int FocusIndex { get; }
     }
 
     public abstract class RishBaseElement<P> : IRishElement, IOwner where P : struct
@@ -66,6 +68,9 @@ namespace RishUI
                 }
             }
         }
+
+        private int FocusIndex { get; set; } = -1;
+        int IRishElement.FocusIndex => FocusIndex;
         
         private Node Node { get; set; }
         protected uint ID => Node?.ID ?? 0;
@@ -82,6 +87,7 @@ namespace RishUI
 
         private References References { get; set; }
 
+        // TODO: Replicate EventSystem and InputSystem. Maybe just move all of this to the EventSystem.
         private InputTrackingManipulator TrackingManipulator { get; }
 
         protected RishBaseElement()
@@ -316,25 +322,42 @@ namespace RishUI
             {
                 var wrapper = Callbacks[i];
                 if (!wrapper.Wraps(callback)) continue;
-                CallbacksPool.Return(wrapper);
                 Callbacks.RemoveAt(i);
+                Node?.EventSystem.RemoveCallback(wrapper);
+                
+                CallbacksPool.Return(wrapper);
+            }
+        }
+        
+        public void Focusable(uint index = 0)
+        {
+            FocusIndex = (int)index;
+
+            Node?.InputSystem.SetFocusIndex(FocusIndex);
+        }
+        public void NotFocusable()
+        {
+            FocusIndex = -1;
+
+            Node?.InputSystem.SetFocusIndex(FocusIndex);
+        }
+        
+        public bool HasFocus
+        {
+            get
+            {
+                var child = GetDOMChild();
+                return child?.focusController?.focusedElement == child;
             }
         }
 
-        public void CapturePointer(int pointerId) => GetDOMChild()?.CapturePointer(pointerId);
-        public void ReleasePointer(int pointerId) => GetDOMChild()?.ReleasePointer(pointerId);
-        // public void ReleasePointer(int pointerId)
-        // {
-        //     var child = GetDOMChild();
-        //     if (child == null || !child.HasPointerCapture(pointerId))
-        //     {
-        //         return;
-        //     }
-        //
-        //     child.ReleasePointer(pointerId);
-        // }
-        public void CaptureMouse() => GetDOMChild()?.CaptureMouse();
-        public void ReleaseMouse() => GetDOMChild()?.ReleaseMouse();
+        public void Focus() => Node?.InputSystem.Focus();
+        public void Blur() => Node?.InputSystem.Blur();
+        
+        public void CapturePointer(int pointerId) => Node?.InputSystem.CapturePointer(pointerId);
+        public void ReleasePointer(int pointerId) => Node?.InputSystem.ReleasePointer(pointerId);
+        public void CaptureMouse() => CapturePointer(PointerId.mousePointerId);
+        public void ReleaseMouse() => ReleasePointer(PointerId.mousePointerId);
         public bool ContainsPoint(Vector2 localPoint) => GetDOMChild()?.ContainsPoint(localPoint) ?? false;
         
         public Rect WorldToLocal(Rect rect) => GetDOMChild()?.WorldToLocal(rect) ?? default;

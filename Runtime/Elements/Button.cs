@@ -1,180 +1,255 @@
 using System;
 using RishUI.Events;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Button : RishBaseElement<ButtonProps, ButtonState>, ICustomComponent
+    public class Button : RishBaseElement<ButtonProps>, IMountingListener, IPropsListener
     {
-        private bool Listening { get; set; }
-        private int PointerId { get; set; }
+        private Form Form { get; set; }
+        private bool JustMounted { get; set; }
 
         public Button()
         {
-            AddManipulator(new HoverManipulator());
-            
-            RegisterCallback<HoverStartEvent>(OnHoverStart);
-            RegisterCallback<HoverEndEvent>(OnHoverEnd);
-            
-            RegisterCallback<PointerDownEvent>(OnPointerDown);
-            RegisterCallback<PointerUpEvent>(OnPointerUp);
-            // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
-            RegisterCallback<PointerCancelEvent>(OnPointerCancel);
-            
-            // TODO: Add longPress
+            RegisterCallback<KeyDownEvent>(OnKeyDown);
+        }
+        
+        void IMountingListener.ComponentDidMount()
+        {
+            Form = GetFirstAncestorOfType<Form>();
+
+            JustMounted = true;
+        }
+        void IMountingListener.ComponentWillUnmount()
+        {
+            Form?.UnregisterElement();
+            NotFocusable();
         }
 
-        void ICustomComponent.Restart()
+        void IPropsListener.PropsDidChange()
         {
-            Listening = false;
-            PointerId = 0;
+            if (!JustMounted)
+            {
+                return;
+            }
+            
+            JustMounted = false;
+
+            var index = Form?.RegisterElement() ?? 0;
+            if (Props.focusable)
+            {
+                Focusable(index);
+            
+                if (Props.autoFocus)
+                {
+                    Focus();
+                }
+            }
         }
+        void IPropsListener.PropsWillChange() { }
         
         protected override Element Render()
         {
-            Element element;
-            if (!Props.interactable)
-            {
-                element = Props.disabled.Valid 
-                    ? Props.disabled 
-                    : Props.normal;
-            } else if(State.pressed && Props.pressed.Valid)
-            {
-                element = Props.pressed;
-            } else if(State.hovered && Props.hovered.Valid)
-            {
-                element = Props.hovered;
-            }
-            else
-            {
-                element = Props.normal;
-            }
-
-            return element;
+            return Rish.Create<Component, ButtonProps>(Props);
         }
 
-        private void OnHoverStart(HoverStartEvent evt)
+        private void OnKeyDown(KeyDownEvent evt)
         {
-            var state = State;
-            state.hovered = true;
-            State = state;
-        }
-
-        private void OnHoverEnd(HoverEndEvent evt)
-        {
-            var state = State;
-            state.hovered = false;
-            State = state;
-        }
-
-        private void OnPointerDown(PointerDownEvent evt)
-        {
-            if (Listening || !Props.interactable)
+            if (!HasFocus)
             {
                 return;
             }
 
-            Listening = true;
-            PointerId = evt.pointerId;
-            
-            CapturePointer(PointerId);
-
-            var state = State;
-            state.pressed = true;
-            State = state;
-            
-            // evt.StopPropagation();
-        }
-
-        private void OnPointerUp(PointerUpEvent evt)
-        {
-            if (!Listening || PointerId != evt.pointerId)
+            var keyCode = evt.keyCode;
+            if (keyCode != KeyCode.Space)
             {
                 return;
             }
             
-            ReleasePointer(PointerId);
+            Props.action?.Invoke();
 
-            Listening = false;
-            PointerId = 0;
-            
-            // TODO: Is it necessary?
-            if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+            evt.StopPropagation();
+        }
+        
+        private class Component : RishBaseElement<ButtonProps, ComponentState>, ICustomComponent
+        {
+            private bool Listening { get; set; }
+            private int PointerId { get; set; }
+
+            public Component()
             {
-                if (evt.button == 1)
+                AddManipulator(new HoverManipulator());
+                
+                RegisterCallback<HoverStartEvent>(OnHoverStart);
+                RegisterCallback<HoverEndEvent>(OnHoverEnd);
+                
+                RegisterCallback<PointerDownEvent>(OnPointerDown);
+                RegisterCallback<PointerUpEvent>(OnPointerUp);
+                // RegisterCallback<PointerStationaryEvent>(OnPointerStationary);
+                RegisterCallback<PointerCancelEvent>(OnPointerCancel);
+                
+                // TODO: Add longPress
+            }
+
+            void ICustomComponent.Restart()
+            {
+                Listening = false;
+                PointerId = 0;
+            }
+            
+            protected override Element Render()
+            {
+                Element element;
+                if (!Props.interactable)
                 {
-                    Props.secondaryAction?.Invoke();
+                    element = Props.disabled.Valid 
+                        ? Props.disabled 
+                        : Props.normal;
+                } else if(State.pressed && Props.pressed.Valid)
+                {
+                    element = Props.pressed;
+                } else if(State.hovered && Props.hovered.Valid)
+                {
+                    element = Props.hovered;
                 }
                 else
                 {
-                    Props.action?.Invoke();
+                    element = Props.normal;
                 }
+
+                return element;
             }
 
-            var state = State;
-            state.pressed = false;
-            State = state;
-            
-            evt.StopPropagation();
+            private void OnHoverStart(HoverStartEvent evt)
+            {
+                var state = State;
+                state.hovered = true;
+                State = state;
+            }
+
+            private void OnHoverEnd(HoverEndEvent evt)
+            {
+                var state = State;
+                state.hovered = false;
+                State = state;
+            }
+
+            private void OnPointerDown(PointerDownEvent evt)
+            {
+                if (Listening || !Props.interactable)
+                {
+                    return;
+                }
+
+                Listening = true;
+                PointerId = evt.pointerId;
+                
+                CapturePointer(PointerId);
+
+                var state = State;
+                state.pressed = true;
+                State = state;
+                
+                // evt.StopPropagation();
+            }
+
+            private void OnPointerUp(PointerUpEvent evt)
+            {
+                if (!Listening || PointerId != evt.pointerId)
+                {
+                    return;
+                }
+                
+                ReleasePointer(PointerId);
+
+                Listening = false;
+                PointerId = 0;
+                
+                // TODO: Is it necessary?
+                if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+                {
+                    if (evt.button == 1)
+                    {
+                        Props.secondaryAction?.Invoke();
+                    }
+                    else
+                    {
+                        Props.action?.Invoke();
+                    }
+                }
+
+                var state = State;
+                state.pressed = false;
+                State = state;
+                
+                evt.StopPropagation();
+            }
+
+            // TODO: Does this work?
+            // private void OnPointerStationary(PointerStationaryEvent evt)
+            // {
+            //     if (!Listening || PointerId != evt.pointerId)
+            //     {
+            //         return;
+            //     }
+            //     
+            //     this.ReleasePointer(PointerId);
+            //
+            //     Listening = false;
+            //     PointerId = 0;
+            //     
+            //     
+            //     if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
+            //     {
+            //         Props.secondaryAction?.Invoke();
+            //     }
+            //
+            //     var state = State;
+            //     state.pressed = false;
+            //     State = state;
+            //     
+            //     evt.StopPropagation();
+            // }
+
+            // TODO: Is this necessary?
+            private void OnPointerCancel(PointerCancelEvent evt)
+            {
+                if (!Listening || PointerId != evt.pointerId)
+                {
+                    return;
+                }
+
+                ReleasePointer(PointerId);
+
+                Listening = false;
+                PointerId = 0;
+                
+                // TODO: Is it necessary?
+                if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+                {
+                    if (evt.button == 1)
+                    {
+                        Props.secondaryAction?.Invoke();
+                    }
+                    else
+                    {
+                        Props.action?.Invoke();
+                    }
+                }
+
+                var state = State;
+                state.pressed = false;
+                State = state;
+                
+                evt.StopPropagation();
+            }
         }
 
-        // TODO: Does this work?
-        // private void OnPointerStationary(PointerStationaryEvent evt)
-        // {
-        //     if (!Listening || PointerId != evt.pointerId)
-        //     {
-        //         return;
-        //     }
-        //     
-        //     this.ReleasePointer(PointerId);
-        //
-        //     Listening = false;
-        //     PointerId = 0;
-        //     
-        //     
-        //     if (ContainsPoint(this.WorldToLocal(evt.position)) && Props.interactable)
-        //     {
-        //         Props.secondaryAction?.Invoke();
-        //     }
-        //
-        //     var state = State;
-        //     state.pressed = false;
-        //     State = state;
-        //     
-        //     evt.StopPropagation();
-        // }
-
-        // TODO: Is this necessary?
-        private void OnPointerCancel(PointerCancelEvent evt)
+        private struct ComponentState
         {
-            if (!Listening || PointerId != evt.pointerId)
-            {
-                return;
-            }
-
-            ReleasePointer(PointerId);
-
-            Listening = false;
-            PointerId = 0;
-            
-            // TODO: Is it necessary?
-            if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
-            {
-                if (evt.button == 1)
-                {
-                    Props.secondaryAction?.Invoke();
-                }
-                else
-                {
-                    Props.action?.Invoke();
-                }
-            }
-
-            var state = State;
-            state.pressed = false;
-            State = state;
-            
-            evt.StopPropagation();
+            public bool hovered;
+            public bool pressed;
         }
     }
 
@@ -189,7 +264,12 @@ namespace RishUI.Elements
         public Element hovered;
         public Element pressed;
         public Element disabled;
+        // TODO: Add focused
 
+        public bool focusable;
+        public bool autoFocus;
+
+        // TODO: Doing something similar to StyledProps is a better approach
         [Default]
         public static ButtonProps Default => new ButtonProps
         {
@@ -205,12 +285,14 @@ namespace RishUI.Elements
             hovered = other.hovered;
             pressed = other.pressed;
             disabled = other.disabled;
+            focusable = other.focusable;
+            autoFocus = other.autoFocus;
         }
 
         [Comparer]
         public static bool Equals(ButtonProps a, ButtonProps b)
         {
-            return a.interactable == b.interactable &&
+            return a.interactable == b.interactable && a.focusable == b.focusable && a.autoFocus == b.autoFocus &&
                 RishUtils.Compare<Element>(a.normal, b.normal) &&
                 RishUtils.Compare<Element>(a.hovered, b.hovered) &&
                 RishUtils.Compare<Element>(a.pressed, b.pressed) &&
@@ -218,11 +300,5 @@ namespace RishUI.Elements
         }
 
         References IReferencesHolder.GetReferences() => (normal, hovered, pressed, disabled);
-    }
-
-    public struct ButtonState
-    {
-        public bool hovered;
-        public bool pressed;
     }
 }

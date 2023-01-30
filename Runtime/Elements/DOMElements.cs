@@ -26,6 +26,7 @@ namespace RishUI.Elements
         {
             PickingManager = new PickingManager(this);
             
+            // TODO: Maybe use custom events?
             RegisterCallback<AttachToPanelEvent>(OnMounted);
             RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
             
