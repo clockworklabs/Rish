@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -85,8 +86,8 @@ namespace RishUI.Elements
             PickingManager IAdvancedPicking.Manager => PickingManager;
             
             private string[] TextInputClasses { get; }
-            private FieldInfo CursorColorFieldInfo { get; }
-            private FieldInfo SelectionColorFieldInfo { get; }
+            private int CursorColorOffset { get; }
+            private int SelectionColorOffset { get; }
             
             private RishTextFieldProps _preStylingProps;
             private RishTextFieldProps _props;
@@ -104,8 +105,8 @@ namespace RishUI.Elements
                 TextInputClasses = textInputBase.GetClasses().ToArray();
                 
                 var textInputType = textInputBase.GetType().BaseType;
-                CursorColorFieldInfo = textInputType.GetField("m_CursorColor", BindingFlags.Instance | BindingFlags.NonPublic);
-                SelectionColorFieldInfo = textInputType.GetField("m_SelectionColor", BindingFlags.Instance | BindingFlags.NonPublic);
+                CursorColorOffset = UnsafeUtility.GetFieldOffset(textInputType.GetField("m_CursorColor", BindingFlags.Instance | BindingFlags.NonPublic));
+                SelectionColorOffset = UnsafeUtility.GetFieldOffset(textInputType.GetField("m_SelectionColor", BindingFlags.Instance | BindingFlags.NonPublic));
             }
 
             private void OnCustomStyle(CustomStyleResolvedEvent evt)
@@ -146,11 +147,14 @@ namespace RishUI.Elements
                 maxLength = props.maxLength.Value;
                 doubleClickSelectsWord = props.multiClickInteraction.Value;
                 tripleClickSelectsLine = props.multiClickInteraction.Value;
-                
-                // TODO: Not acceptable (boxing and slow)
-                CursorColorFieldInfo.SetValue(textInputBase, props.cursorColor);
-                // TODO: Not acceptable (boxing and slow)
-                SelectionColorFieldInfo.SetValue(textInputBase, props.selectionColor);
+
+                unsafe
+                {
+                    var pointer = UnsafeUtility.PinGCObjectAndGetAddress(textInputBase, out var handle);
+                    *(Color*) ((byte*)pointer + CursorColorOffset) = props.cursorColor.Value;
+                    *(Color*) ((byte*)pointer + SelectionColorOffset) = props.selectionColor.Value;
+                    UnsafeUtility.ReleaseGCObject(handle);
+                }
 
                 var descriptor = props.textInputDescriptor;
                 textInputBase.name = descriptor.name;
