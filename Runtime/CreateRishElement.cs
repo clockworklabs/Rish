@@ -8,9 +8,8 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- RISH ELEMENTS -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        public static Element Create<T>() where T : RishElement, new() => Create<T>(0);
-
-        public static Element Create<T>(uint key) where T : RishElement, new()
+        public static Element Create<T>() where T : RishBaseElement<NoProps>, new() => Create<T>(0);
+        public static Element Create<T>(uint key) where T : RishBaseElement<NoProps>, new()
         {
             var element = GetFromPool<RishDefinition<T, NoProps>>();
             element.Factory(key, new NoProps());
