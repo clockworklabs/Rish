@@ -106,7 +106,7 @@ namespace RishUI.Elements
                     element = Props.disabled.Valid 
                         ? Props.disabled 
                         : Props.normal;
-                } else if(State.pressed && !State.hovered && Props.pressed.Valid)
+                } else if(State.pressed && State.hovered && Props.pressed.Valid)
                 {
                     element = Props.pressed;
                 } else if(State.hovered && Props.hovered.Valid)
