@@ -1,7 +1,3 @@
-using System.Drawing.Text;
-using RishUI.Deprecated;
-using TMPro;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
@@ -33,7 +29,7 @@ namespace RishUI.Events
             {
                 return;
             }
-
+            
             Ready = false;
             Attached = true;
             target.schedule.Execute(RaiseEvent);

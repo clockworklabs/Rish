@@ -353,6 +353,21 @@ namespace RishUI
             
             return Create(array);
         }
+        public static Children Children(params Element[] children)
+        {
+            var length = children?.Length ?? 0;
+            if (length <= 0)
+            {
+                return Children();
+            }
+            var array = new NativeArray<Children>(length, Allocator.Persistent);
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = children[i];
+            }
+            
+            return Create(array);
+        }
         public static Children Children(List<Children> children)
         {
             var length = children?.Count ?? 0;

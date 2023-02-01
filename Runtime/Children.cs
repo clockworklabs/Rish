@@ -67,7 +67,9 @@ namespace RishUI
         public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19);
         public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20);
         public static implicit operator Children(Children[] children) => Rish.Children(children);
+        public static implicit operator Children(Element[] children) => Rish.Children(children);
         public static implicit operator Children(List<Children> children) => Rish.Children(children);
+        public static implicit operator Children(List<Element> children) => Rish.Children(children);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
