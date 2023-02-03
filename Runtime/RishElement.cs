@@ -271,6 +271,11 @@ namespace RishUI
         {
             if (manipulator.Owner != null)
             {
+                if (manipulator.Owner == this)
+                {
+                    return;
+                }
+                
                 throw new UnityException("Manipulator already has an owner");
             }
 
