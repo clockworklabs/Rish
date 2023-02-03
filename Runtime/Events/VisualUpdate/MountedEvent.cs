@@ -2,9 +2,9 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class SetupEvent : EventBase<SetupEvent>
+    public class MountedEvent : EventBase<MountedEvent>
     {
-        public SetupEvent() => LocalInit();
+        public MountedEvent() => LocalInit();
 
         protected override void Init()
         {
@@ -18,9 +18,9 @@ namespace RishUI.Events
             bubbles = true;
         }
         
-        public static SetupEvent GetPooled(VisualElement target)
+        public static MountedEvent GetPooled(VisualElement target)
         {
-            var pooled = EventBase<SetupEvent>.GetPooled();
+            var pooled = EventBase<MountedEvent>.GetPooled();
             pooled.target = target;
 
             return pooled;

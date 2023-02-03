@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using UnityEngine.UIElements;
 
 namespace RishUI
 {
@@ -36,6 +37,13 @@ namespace RishUI
             className = this.className.Add(className),
             style = style
         };
+
+        public void Setup(VisualElement element)
+        {
+            element.name = name;
+            className.SetClasses(element);
+            style.SetInlineStyle(element);
+        }
         
         bool IEquatable<DOMDescriptor>.Equals(DOMDescriptor other) => Equals(this, other);
 

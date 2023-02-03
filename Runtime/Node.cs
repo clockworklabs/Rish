@@ -608,17 +608,22 @@ namespace RishUI
 
             public override void Enter()
             {
+                var element = Node.Element;
 #if UNITY_EDITOR
-                if (Node.Element == null)
+                if (element == null)
                 {
                     throw new UnityException("Invalid state. Element should always be set before mounting");
                 }
 #endif
 
-                if (Node.Element is IRishElement rishElement)
+                if (element is IRishElement rishElement)
                 {
                     rishElement.OnDirty += Node.Dirty;
                     rishElement.Mount(Node);
+                } else if (element is VisualElement visualElement)
+                {
+                    using var evt = MountedEvent.GetPooled(visualElement);
+                    visualElement.SendEvent(evt);
                 }
             }
 
@@ -894,16 +899,26 @@ namespace RishUI
             public override void Exit()
             {
                 var element = Node.Element;
-                if (element != null)
+                if (element == null)
                 {
-                    if (element is IRishElement rishElement)
-                    {
+                    return;
+                }
+                
+                switch (element)
+                {
+                    case IRishElement rishElement:
                         rishElement.OnDirty -= Node.Dirty;
                         rishElement.Unmount();
+                        break;
+                    case VisualElement visualElement:
+                    {
+                        using var evt = UnmountedEvent.GetPooled(visualElement);
+                        visualElement.SendEvent(evt);
+                        break;
                     }
-
-                    ElementsPool.Return(element);
                 }
+
+                ElementsPool.Return(element);
             }
 
             public override T MountAs<T>(Node parent, uint key)

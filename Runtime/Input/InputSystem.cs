@@ -1,10 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Input
 {
-    internal class InputSystem : MonoBehaviour
+    internal class InputSystem
     {
         private Node Node { get; }
         private IElement Element => Node.Element;

@@ -2,28 +2,30 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class VisualChangeManipulator : Manipulator
+    internal class VisualChangeManipulator : Manipulator
     {
         private bool Ready { get; set; }
         private bool Attached { get; set; }
         
         protected override void RegisterCallbacksOnTarget()
         {
-            target.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
-            target.RegisterCallback<DetachFromPanelEvent>(OnDetachToPanel);
+            target.RegisterCallback<MountedEvent>(OnMounted);
+            target.RegisterCallback<UnmountedEvent>(OnDetachToPanel);
             target.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
+            
             target.RegisterCallback<SetupEvent>(OnSetup);
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
+            target.UnregisterCallback<MountedEvent>(OnMounted);
+            target.UnregisterCallback<UnmountedEvent>(OnDetachToPanel);
             target.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
-            target.UnregisterCallback<DetachFromPanelEvent>(OnDetachToPanel);
-            target.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
+            
             target.UnregisterCallback<SetupEvent>(OnSetup);
         }
 
-        private void OnAttachToPanel(AttachToPanelEvent evt)
+        private void OnMounted(MountedEvent evt)
         {
             if (evt.target != target)
             {
@@ -32,14 +34,15 @@ namespace RishUI.Events
             
             Ready = false;
             Attached = true;
-            target.schedule.Execute(RaiseEvent);
         }
-        private void OnDetachToPanel(DetachFromPanelEvent evt)
+        private void OnDetachToPanel(UnmountedEvent evt)
         {
             if (evt.target != target)
             {
                 return;
             }
+
+            // RaiseEvent();
             
             Attached = false;
         }
@@ -53,6 +56,7 @@ namespace RishUI.Events
             
             RaiseEvent();
         }
+        
         private void OnSetup(SetupEvent evt)
         {
             if (evt.target != target)
@@ -60,12 +64,12 @@ namespace RishUI.Events
                 return;
             }
             
-            if (!Attached)
+            if (Ready)
             {
                 return;
             }
-            
-            // RaiseEvent();
+
+            target.schedule.Execute(RaiseEvent);
         }
 
         private void RaiseEvent()

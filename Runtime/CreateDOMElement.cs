@@ -342,12 +342,8 @@ namespace RishUI
             public override void Invoke(Node node)
             {
                 var (child, element) = node.AddChild<T>(Key);
-
-                element.visible = false;
                 
-                element.name = Descriptor.name;
-                Descriptor.className.SetClasses(element);
-                Descriptor.style.SetInlineStyle(element);
+                Descriptor.Setup(element);
                 
                 element.Setup();
 
