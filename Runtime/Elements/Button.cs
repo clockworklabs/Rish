@@ -166,8 +166,7 @@ namespace RishUI.Elements
                 Listening = false;
                 PointerId = 0;
                 
-                // TODO: Is it necessary?
-                if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+                if (Props.interactable && State.hovered)
                 {
                     if (evt.button == 1)
                     {
@@ -226,17 +225,17 @@ namespace RishUI.Elements
                 PointerId = 0;
                 
                 // TODO: Is it necessary?
-                if (ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
-                {
-                    if (evt.button == 1)
-                    {
-                        Props.secondaryAction?.Invoke();
-                    }
-                    else
-                    {
-                        Props.action?.Invoke();
-                    }
-                }
+                // if(ContainsPoint(WorldToLocal(evt.position)) && Props.interactable)
+                // {
+                //     if (evt.button == 1)
+                //     {
+                //         Props.secondaryAction?.Invoke();
+                //     }
+                //     else
+                //     {
+                //         Props.action?.Invoke();
+                //     }
+                // }
 
                 var state = State;
                 state.pressed = false;
