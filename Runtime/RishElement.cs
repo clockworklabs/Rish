@@ -532,14 +532,40 @@ namespace RishUI
 
     internal class FunctionalElement : RishElement
     {
-        internal FunctionElement Delegate { private get; set; }
+        private FunctionElement _delegate;
+        internal FunctionElement Delegate
+        {
+            private get => _delegate;
+            set
+            {
+                if (_delegate == value)
+                {
+                    return;
+                }
+                _delegate = value;
+                Dirty();
+            }
+        }
 
         protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
     internal class FunctionalElement<P> : RishBaseElement<P> where P : struct
     {
-        internal FunctionElement<P> Delegate { private get; set; }
+        private FunctionElement<P> _delegate;
+        internal FunctionElement<P> Delegate
+        {
+            private get => _delegate;
+            set
+            {
+                if (_delegate == value)
+                {
+                    return;
+                }
+                _delegate = value;
+                Dirty();
+            }
+        }
 
         protected override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
     }
