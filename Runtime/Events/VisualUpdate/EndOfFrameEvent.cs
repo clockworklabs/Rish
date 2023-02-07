@@ -1,47 +1,21 @@
 using System.Collections.Generic;
-using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    internal class EndOfFrameEvent : EventBase<EndOfFrameEvent>
+    internal class EndOfFrameEvent
     {
-        private static List<VisualElement> JustMountedElements { get; } = new();
+        private static List<VisualChangeManipulator> JustMountedElements { get; } = new();
         
-        public EndOfFrameEvent() => LocalInit();
-
-        protected override void Init()
-        {
-            base.Init();
-            LocalInit();
-        }
-
-        private void LocalInit()
-        {
-            tricklesDown = false;
-            bubbles = false;
-        }
-
-        public static void Register(VisualElement visualElement) => JustMountedElements.Add(visualElement);
+        public static void Register(VisualChangeManipulator manipulator) => JustMountedElements.Add(manipulator);
 
         public static void SendEvents()
         {
-            foreach (var visualElement in JustMountedElements)
+            foreach (var manipulator in JustMountedElements)
             {
-                using (var evt = GetPooled(visualElement))
-                {
-                    visualElement.SendEvent(evt);
-                }
+                manipulator.OnEndOfFrame();
             }
             
             JustMountedElements.Clear();
-        }
-        
-        private static EndOfFrameEvent GetPooled(VisualElement target)
-        {
-            var pooled = EventBase<EndOfFrameEvent>.GetPooled();
-            pooled.target = target;
-
-            return pooled;
         }
      }
 }

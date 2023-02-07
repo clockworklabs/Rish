@@ -1,4 +1,3 @@
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
@@ -11,14 +10,12 @@ namespace RishUI.Events
         {
             target.RegisterCallback<MountedEvent>(OnMounted);
             target.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
-            target.RegisterCallback<EndOfFrameEvent>(OnEndOfFrame);
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MountedEvent>(OnMounted);
             target.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
-            target.UnregisterCallback<EndOfFrameEvent>(OnEndOfFrame);
         }
 
         private void OnMounted(MountedEvent evt)
@@ -28,7 +25,7 @@ namespace RishUI.Events
                 return;
             }
 
-            EndOfFrameEvent.Register(target);
+            EndOfFrameEvent.Register(this);
 
             JustMounted = true;
         }
@@ -40,19 +37,15 @@ namespace RishUI.Events
                 return;
             }
             
-            Debug.Log($"{Time.frameCount} - GeometryChange {evt.target as VisualElement}");
-            
             RaiseEvent();
         }
         
-        private void OnEndOfFrame(EndOfFrameEvent evt)
+        internal void OnEndOfFrame()
         {
-            if (!JustMounted || evt.target != target)
+            if (!JustMounted)
             {
                 return;
             }
-
-            Debug.Log($"{Time.frameCount} - EndOfFrame {evt.target as VisualElement}");
          
             RaiseEvent();
         }
@@ -60,8 +53,6 @@ namespace RishUI.Events
         private void RaiseEvent()
         {
             JustMounted = false;
-            
-            Debug.Log($"{Time.frameCount} - Event {target}");
 
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);

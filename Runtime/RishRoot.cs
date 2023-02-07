@@ -1,4 +1,5 @@
 using System.Collections;
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -41,7 +42,7 @@ namespace RishUI
             {
                 yield return wait;
 
-                Tree.EndOfFrame();
+                EndOfFrameEvent.SendEvents();
             }
         }
 
