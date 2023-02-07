@@ -1,28 +1,24 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
     internal class VisualChangeManipulator : Manipulator
     {
-        private bool Ready { get; set; }
-        private bool Attached { get; set; }
+        private bool JustMounted { get; set; }
         
         protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<MountedEvent>(OnMounted);
-            target.RegisterCallback<UnmountedEvent>(OnDetachToPanel);
             target.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
-            
-            target.RegisterCallback<SetupEvent>(OnSetup);
+            target.RegisterCallback<EndOfFrameEvent>(OnEndOfFrame);
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MountedEvent>(OnMounted);
-            target.UnregisterCallback<UnmountedEvent>(OnDetachToPanel);
             target.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
-            
-            target.UnregisterCallback<SetupEvent>(OnSetup);
+            target.UnregisterCallback<EndOfFrameEvent>(OnEndOfFrame);
         }
 
         private void OnMounted(MountedEvent evt)
@@ -31,56 +27,42 @@ namespace RishUI.Events
             {
                 return;
             }
-            
-            Ready = false;
-            Attached = true;
-        }
-        private void OnDetachToPanel(UnmountedEvent evt)
-        {
-            if (evt.target != target)
-            {
-                return;
-            }
 
-            // RaiseEvent();
-            
-            Attached = false;
+            EndOfFrameEvent.Register(target);
+
+            JustMounted = true;
         }
 
         private void OnGeometryChange(GeometryChangedEvent evt)
         {
-            if (!Ready || evt.target != target)
-            {
-                return;
-            }
-            
-            RaiseEvent();
-        }
-        
-        private void OnSetup(SetupEvent evt)
-        {
             if (evt.target != target)
             {
                 return;
             }
             
-            if (Ready)
+            Debug.Log($"{Time.frameCount} - GeometryChange {evt.target as VisualElement}");
+            
+            RaiseEvent();
+        }
+        
+        private void OnEndOfFrame(EndOfFrameEvent evt)
+        {
+            if (!JustMounted || evt.target != target)
             {
                 return;
             }
 
-            target.schedule.Execute(RaiseEvent);
+            Debug.Log($"{Time.frameCount} - EndOfFrame {evt.target as VisualElement}");
+         
+            RaiseEvent();
         }
 
         private void RaiseEvent()
         {
-            if (!Attached)
-            {
-                return;
-            }
-
-            Ready = true;
+            JustMounted = false;
             
+            Debug.Log($"{Time.frameCount} - Event {target}");
+
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);
         }

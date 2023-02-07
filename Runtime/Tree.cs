@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Priority_Queue;
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -81,6 +82,8 @@ namespace RishUI
 
             ReturnFreeNodesToPool();
         }
+
+        public void EndOfFrame() => EndOfFrameEvent.SendEvents();
 
         public void Dispose()
         {

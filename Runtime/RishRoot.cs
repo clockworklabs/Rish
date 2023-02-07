@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,7 +17,7 @@ namespace RishUI
         
         private Tree Tree { get; set; }
         
-        private void Start()
+        private IEnumerator Start()
         {
             var document = gameObject.GetComponent<UIDocument>();
             if (document == null)
@@ -34,6 +35,14 @@ namespace RishUI
             }
             
             Tree = new Tree(document, RootClassName);
+
+            var wait = new WaitForEndOfFrame();
+            while (true)
+            {
+                yield return wait;
+
+                Tree.EndOfFrame();
+            }
         }
 
         private void OnDestroy()
