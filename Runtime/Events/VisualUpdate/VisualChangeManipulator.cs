@@ -4,17 +4,20 @@ namespace RishUI.Events
 {
     internal class VisualChangeManipulator : Manipulator
     {
-        private bool JustMounted { get; set; }
+        private bool Mounted { get; set; }
+        private bool FirstEventReported { get; set; }
         
         protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<MountedEvent>(OnMounted);
+            target.RegisterCallback<UnmountedEvent>(OnUnmounted);
             target.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MountedEvent>(OnMounted);
+            target.UnregisterCallback<UnmountedEvent>(OnUnmounted);
             target.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
         }
 
@@ -27,7 +30,20 @@ namespace RishUI.Events
 
             EndOfFrameEvent.Register(this);
 
-            JustMounted = true;
+            Mounted = true;
+            FirstEventReported = false;
+        }
+
+        private void OnUnmounted(UnmountedEvent evt)
+        {
+            if (evt.target != target)
+            {
+                return;
+            }
+
+            EndOfFrameEvent.Register(this);
+
+            Mounted = false;
         }
 
         private void OnGeometryChange(GeometryChangedEvent evt)
@@ -42,7 +58,7 @@ namespace RishUI.Events
         
         internal void OnEndOfFrame()
         {
-            if (!JustMounted)
+            if (FirstEventReported)
             {
                 return;
             }
@@ -52,7 +68,12 @@ namespace RishUI.Events
 
         private void RaiseEvent()
         {
-            JustMounted = false;
+            if (!Mounted)
+            {
+                return;
+            }
+            
+            FirstEventReported = true;
 
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);
