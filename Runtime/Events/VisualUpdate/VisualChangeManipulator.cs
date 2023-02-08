@@ -41,8 +41,6 @@ namespace RishUI.Events
                 return;
             }
 
-            EndOfFrameEvent.Register(this);
-
             Mounted = false;
         }
 

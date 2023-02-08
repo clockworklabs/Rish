@@ -717,6 +717,8 @@ namespace RishUI
         }
 
         [Comparer]
+        public static bool Equals(RishList<T> a, RishList<T> b) => a.Equals(b);
+        
         public bool Equals(RishList<T> other)
         {
             var count = Count;
@@ -744,6 +746,35 @@ namespace RishUI
             }
 
             return true;
+        }
+        
+        public override string ToString()
+        {
+            return Count switch
+            {
+                0 => "()",
+                1 => $"({_child0})",
+                2 => $"({_child0}, {_child1})",
+                3 => $"({_child0}, {_child1}, {_child2})",
+                4 => $"({_child0}, {_child1}, {_child2}, {_child3})",
+                5 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4})",
+                6 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5})",
+                7 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6})",
+                8 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7})",
+                9 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8})",
+                10 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9})",
+                11 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10})",
+                12 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11})",
+                13 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12})",
+                14 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13})",
+                15 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14})",
+                16 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14}, {_child15})",
+                17 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14}, {_child15}, {_child16})",
+                18 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14}, {_child15}, {_child16}, {_child17})",
+                19 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14}, {_child15}, {_child16}, {_child17}, {_child18})",
+                20 => $"({_child0}, {_child1}, {_child2}, {_child3}, {_child4}, {_child5}, {_child6}, {_child7}, {_child8}, {_child9}, {_child10}, {_child11}, {_child12}, {_child13}, {_child14}, {_child15}, {_child16}, {_child17}, {_child18}, {_child19})",
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public T[] ToArray()
