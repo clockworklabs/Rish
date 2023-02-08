@@ -47,14 +47,14 @@ namespace RishUI.Elements
         private void OnHoverStart(HoverStartEvent evt)
         {
             var state = State;
-            state.hovered = true;
+            ++state.hoverCount;
             State = state;
         }
 
         private void OnHoverEnd(HoverEndEvent evt)
         {
             var state = State;
-            state.hovered = false;
+            --state.hoverCount;
             State = state;
         }
 
@@ -134,7 +134,9 @@ namespace RishUI.Elements
 
     public struct StatefulDivState
     {
-        public bool hovered;
+        public int hoverCount;
         public bool pressed;
+
+        public bool hovered => hoverCount > 0;
     }
 }

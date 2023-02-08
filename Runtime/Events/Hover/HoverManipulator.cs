@@ -6,7 +6,7 @@ namespace RishUI.Events
 {
     public class HoverManipulator : RishManipulator
     {
-        private HashSet<int> Pointers { get; } = new();
+        private Dictionary<int, uint> Pointers { get; } = new();
         private int Count => Pointers.Count;
         
         protected override void RegisterCallbacks()
@@ -36,12 +36,13 @@ namespace RishUI.Events
         private void AddPointer(IPointerEvent evt)
         {
             var pointerId = evt.pointerId;
-            if (Pointers.Contains(pointerId))
+            if (Pointers.TryGetValue(pointerId, out var count))
             {
+                Pointers[pointerId] = count + 1;
                 return;
             }
 
-            Pointers.Add(pointerId);
+            Pointers[pointerId] = 1;
 
             if (Count != 1)
             {
@@ -55,8 +56,14 @@ namespace RishUI.Events
         private void RemovePointer(IPointerEvent evt)
         {
             var pointerId = evt.pointerId;
-            if (!Pointers.Contains(pointerId))
+            if (!Pointers.TryGetValue(pointerId, out var count))
             {
+                return;
+            }
+
+            if (count > 1)
+            {
+                Pointers[pointerId] = count - 1;
                 return;
             }
 
