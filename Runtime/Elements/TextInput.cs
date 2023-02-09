@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using RishUI.Events;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -8,20 +9,23 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class TextInput : RishBaseElement<TextInputProps>, IMountingListener, IPropsListener
+    public class TextInput : RishBaseElement<TextInputProps>, IMountingListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
 
         public TextInput()
         {
+            RegisterCallback<VisualChangeEvent>(OnVisualChange);
             RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
         
         void IMountingListener.ComponentDidMount()
         {
             Form = GetFirstAncestorOfType<Form>();
-
+            var index = Form?.RegisterElement() ?? 0;
+            Focusable(index);
+            
             JustMounted = true;
         }
         void IMountingListener.ComponentWillUnmount()
@@ -29,28 +33,6 @@ namespace RishUI.Elements
             Form?.UnregisterElement();
             NotFocusable();
         }
-
-        void IPropsListener.PropsDidChange()
-        {
-            if (!JustMounted)
-            {
-                return;
-            }
-            
-            JustMounted = false;
-            
-            var index = Form?.RegisterElement() ?? 0;
-            // if (!Props.readOnly)
-            // {
-                Focusable(index);
-            
-                if (Props.autoFocus)
-                {
-                    Focus();
-                }
-            // }
-        }
-        void IPropsListener.PropsWillChange() { }
         
         protected override Element Render() => Rish.Create<RishTextField, RishTextFieldProps>(Props.descriptor, new RishTextFieldProps
         {
@@ -67,6 +49,21 @@ namespace RishUI.Elements
         });
 
         private void OnChange(string value) => Props.onChange?.Invoke(value);
+
+        private void OnVisualChange(VisualChangeEvent evt)
+        {
+            if (!JustMounted)
+            {
+                return;
+            }
+            
+            JustMounted = false;
+            
+            if (Props.autoFocus)
+            {
+                Focus();
+            }
+        }
 
         private void OnKeyDown(KeyDownEvent evt)
         {

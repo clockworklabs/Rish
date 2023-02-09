@@ -9,15 +9,19 @@ namespace RishUI.Elements
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
+        
+        private uint FocusIndex { get; set; }
 
         public Button()
         {
+            RegisterCallback<VisualChangeEvent>(OnVisualChange);
             RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
         
         void IMountingListener.ComponentDidMount()
         {
             Form = GetFirstAncestorOfType<Form>();
+            FocusIndex = Form?.RegisterElement() ?? 0;
 
             JustMounted = true;
         }
@@ -29,6 +33,25 @@ namespace RishUI.Elements
 
         void IPropsListener.PropsDidChange()
         {
+            if (Props.focusable)
+            {
+                Focusable(FocusIndex);
+            }
+            else
+            {
+                NotFocusable();
+            }
+        }
+        void IPropsListener.PropsWillChange() { }
+
+        
+        protected override Element Render()
+        {
+            return Rish.Create<Component, ButtonProps>(Props);
+        }
+
+        private void OnVisualChange(VisualChangeEvent evt)
+        {
             if (!JustMounted)
             {
                 return;
@@ -36,22 +59,10 @@ namespace RishUI.Elements
             
             JustMounted = false;
 
-            var index = Form?.RegisterElement() ?? 0;
-            if (Props.focusable)
+            if (Props.focusable && Props.autoFocus)
             {
-                Focusable(index);
-            
-                if (Props.autoFocus)
-                {
                     Focus();
-                }
             }
-        }
-        void IPropsListener.PropsWillChange() { }
-        
-        protected override Element Render()
-        {
-            return Rish.Create<Component, ButtonProps>(Props);
         }
 
         private void OnKeyDown(KeyDownEvent evt)
