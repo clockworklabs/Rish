@@ -27,6 +27,8 @@ namespace RishUI
 
     public abstract class RishBaseElement<P> : IRishElement, IOwner where P : struct
     {
+        private static uint _nextId;
+        
         private event Action<bool> OnDirty;
         event Action<bool> IRishElement.OnDirty
         {
@@ -73,7 +75,8 @@ namespace RishUI
         int IRishElement.FocusIndex => FocusIndex;
         
         private Node Node { get; set; }
-        protected uint ID => Node?.ID ?? 0;
+        protected uint NodeID => Node?.ID ?? 0;
+        protected uint ElementId { get; }
         
         private P? _props;
         public P Props
@@ -92,6 +95,8 @@ namespace RishUI
 
         protected RishBaseElement()
         {
+            ElementId = _nextId++;
+            
             TrackingManipulator = new InputTrackingManipulator();
             AddManipulator(TrackingManipulator);
         }
@@ -169,7 +174,7 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
-        uint IOwner.GetID() => ID;
+        uint IOwner.GetID() => NodeID;
 
         void IRishElement.Mount(Node node)
         {
@@ -233,9 +238,9 @@ namespace RishUI
             var propsListener = this as IPropsListener;
             propsListener?.PropsWillChange();
             
-            if (this is IMountingListener listener)
+            if (this is IMountingListener mountingListener)
             {
-                listener.ComponentWillUnmount();
+                mountingListener.ComponentWillUnmount();
             }
 
             if (References.Count > 0)
@@ -251,6 +256,11 @@ namespace RishUI
             Node = null;
             
             OnUmounted?.Invoke();
+            
+            if (this is ICustomUnmountListener customUnmountListener)
+            {
+                customUnmountListener.Unmounted();
+            }
         }
 
         Element IRishElement.Render()
