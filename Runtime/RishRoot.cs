@@ -65,6 +65,8 @@ namespace RishUI
 
         public bool HasPointerOver(int pointerId) => Tree.HasPointerOver(pointerId);
         public bool HasPointerDown(int pointerId) => Tree.HasPointerDown(pointerId);
+
+        public bool HasFocus() => Tree.RootVisualElement.panel.focusController.focusedElement != null;
         
 #if UNITY_EDITOR
         public int PointerOverCount => Tree.PointerOverCount;
