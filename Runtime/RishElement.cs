@@ -44,7 +44,7 @@ namespace RishUI
         }
 
         protected internal event Action OnMounted;
-        protected internal event Action OnUmounted;
+        protected internal event Action OnUnmounted;
 
         private List<RishManipulator> Manipulators { get; set; }
         IEnumerable<RishManipulator> IRishElement.Manipulators
@@ -250,12 +250,12 @@ namespace RishUI
                     reference.UnregisterReference(this);
                 }
             }
+            
+            OnUnmounted?.Invoke();
 
             References = default;
             TrackingManipulator.App = null;
             Node = null;
-            
-            OnUmounted?.Invoke();
             
             if (this is ICustomUnmountListener customUnmountListener)
             {
@@ -488,7 +488,7 @@ namespace RishUI
         protected RishBaseElement()
         {
             OnMounted += SetDefaultState;
-            OnUmounted += UnregisterReferences; // For references
+            OnUnmounted += UnregisterReferences; // For references
         }
 
         private void SetDefaultState()
