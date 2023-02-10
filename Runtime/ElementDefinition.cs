@@ -35,8 +35,6 @@ namespace RishUI
             var id = owner.GetID();
             if (!References.TryGetValue(id, out var currentCount))
             {
-                Debug.LogError($"Element {owner.GetType()} ({id}) doesn't own this reference");
-                return ReferencesCount;
                 throw new UnityException($"Element {owner.GetType()} ({id}) doesn't own this reference");
             }
 
