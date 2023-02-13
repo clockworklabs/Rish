@@ -444,6 +444,8 @@ namespace RishUI
             }
         }
 
+        public IResolvedStyle ParentStyle => GetDOMParent()?.resolvedStyle;
+
         public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
     }
