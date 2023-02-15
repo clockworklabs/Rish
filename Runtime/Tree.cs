@@ -107,6 +107,8 @@ namespace RishUI
 
         internal bool HasPointerOver(int pointerId) => RootApp?.HasPointerOver(pointerId) ?? false;
         internal bool HasPointerDown(int pointerId) => RootApp?.HasPointerDown(pointerId) ?? false;
+
+        internal bool HasFocus() => RootVisualElement?.panel?.focusController?.focusedElement != null;
         
 #if UNITY_EDITOR
         internal int PointerOverCount => RootApp?.PointerOverCount ?? 0;

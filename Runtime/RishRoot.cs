@@ -60,13 +60,13 @@ namespace RishUI
             Rish.CleanGarbage();
         }
 
-        public bool HasAnyPointerOver() => Tree.HasAnyPointerOver();
-        public bool HasAnyPointerDown() => Tree.HasAnyPointerDown();
+        public bool HasAnyPointerOver() => Tree?.HasAnyPointerOver() ?? false;
+        public bool HasAnyPointerDown() => Tree?.HasAnyPointerDown() ?? false;
 
-        public bool HasPointerOver(int pointerId) => Tree.HasPointerOver(pointerId);
-        public bool HasPointerDown(int pointerId) => Tree.HasPointerDown(pointerId);
+        public bool HasPointerOver(int pointerId) => Tree?.HasPointerOver(pointerId) ?? false;
+        public bool HasPointerDown(int pointerId) => Tree?.HasPointerDown(pointerId) ?? false;
 
-        public bool HasFocus() => Tree.RootVisualElement.panel.focusController.focusedElement != null;
+        public bool HasFocus() => Tree?.HasFocus() ?? false;
         
 #if UNITY_EDITOR
         public int PointerOverCount => Tree.PointerOverCount;
