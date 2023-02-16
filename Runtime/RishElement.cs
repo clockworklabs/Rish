@@ -22,6 +22,7 @@ namespace RishUI
         IEnumerable<RishManipulator> Manipulators { get; }
         IEnumerable<ICallbackWrapper> Callbacks { get; }
         
+        Node Node { get; }
         int FocusIndex { get; }
     }
 
@@ -75,6 +76,7 @@ namespace RishUI
         int IRishElement.FocusIndex => FocusIndex;
         
         private Node Node { get; set; }
+        Node IRishElement.Node => Node;
         protected uint NodeID => Node?.ID ?? 0;
         protected uint ElementId { get; }
         
@@ -379,8 +381,8 @@ namespace RishUI
         public Vector2 WorldToLocal(Vector2 point) => GetDOMChild()?.WorldToLocal(point) ?? default;
         public Rect LocalToWorld(Rect rect) => GetDOMChild()?.LocalToWorld(rect) ?? default;
         public Vector2 LocalToWorld(Vector2 point) => GetDOMChild()?.LocalToWorld(point) ?? default;
-        public Rect ChangeCoordinatesTo(IElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other.GetDOMChild(), rect) ?? default;
-        public Vector2 ChangeCoordinatesTo(IElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other.GetDOMChild(), point) ?? default;
+        public Rect ChangeCoordinatesTo(IElement other, Rect rect) => ChangeCoordinatesTo(other.GetDOMChild(), rect);
+        public Vector2 ChangeCoordinatesTo(IElement other, Vector2 point) => ChangeCoordinatesTo(other.GetDOMChild(), point);
         public Rect ChangeCoordinatesTo(VisualElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other, rect) ?? default;
         public Vector2 ChangeCoordinatesTo(VisualElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other, point) ?? default;
         
@@ -448,6 +450,53 @@ namespace RishUI
 
         public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
+
+        public bool ContainsInTree(IElement element) => element switch
+        {
+            IRishElement rishElement => ContainsInTree(rishElement),
+            VisualElement visualElement => ContainsInTree(visualElement),
+            _ => false
+        };
+        public bool ContainsInTree(VisualElement element)
+        {
+            var domChild = GetDOMChild();
+            if (domChild == null)
+            {
+                return false;
+            }
+            
+            while (element != null)
+            {
+                if (element == domChild)
+                {
+                    return true;
+                }
+                
+                element = element.parent;
+            }
+
+            return false;
+        }
+        private bool ContainsInTree(IRishElement element)
+        {
+            if (Node == null)
+            {
+                return false;
+            }
+            
+            var node = element?.Node;
+            while (node != null)
+            {
+                if (node == Node)
+                {
+                    return true;
+                }
+                
+                node = node.Parent;
+            }
+
+            return false;
+        }
     }
 
     public abstract class RishBaseElement<P, S> : RishBaseElement<P> where P : struct where S : struct
