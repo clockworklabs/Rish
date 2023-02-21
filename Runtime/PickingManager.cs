@@ -30,9 +30,11 @@ namespace RishUI
             get => _inlinePointerDetection;
             set
             {
+                var prev = PointerDetection;
+                
                 _inlinePointerDetection = value;
 
-                if (value != null)
+                if (prev != PointerDetection)
                 {
                     Setup();
                 }
@@ -45,9 +47,11 @@ namespace RishUI
             get => _stylePointerDetection;
             set
             {
+                var prev = PointerDetection;
+                
                 _stylePointerDetection = value;
 
-                if (value != null)
+                if (prev != PointerDetection)
                 {
                     Setup();
                 }
