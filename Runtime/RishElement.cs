@@ -408,16 +408,7 @@ namespace RishUI
                 return parent?.LocalToWorld(child.layout) ?? default;
             }
         }
-        public Rect WorldBoundingBox
-        {
-            get
-            {
-                var child = GetDOMChild();
-
-                var parent = child?.parent;
-                return parent?.LocalToWorld(child.GetBoundingBox()) ?? default;
-            }
-        }
+        public Rect WorldBoundingBox => GetDOMChild()?.GetWorldBoundingBox() ?? default;
 
         public Rect ParentWorldContentRect
         {
@@ -441,8 +432,7 @@ namespace RishUI
             get
             {
                 var parent = GetDOMParent();
-                var grandParent = parent?.parent;
-                return grandParent?.LocalToWorld(parent.GetBoundingBox()) ?? default;
+                return parent?.GetWorldBoundingBox() ?? default;
             }
         }
 

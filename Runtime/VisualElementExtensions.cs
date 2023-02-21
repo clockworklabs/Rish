@@ -23,7 +23,23 @@ namespace RishUI
                 return _boundingBoxGetter;
             }
         }
+        
+        private static BoundingBoxGetter _worldBoundingBoxGetter;
+        private static BoundingBoxGetter WorldBoundingBoxGetter
+        {
+            get
+            {
+                if (_worldBoundingBoxGetter == null)
+                {
+                    var propertyInfo = typeof(VisualElement).GetProperty("worldBoundingBox", BindingFlags.NonPublic | BindingFlags.Instance);
+                    _worldBoundingBoxGetter = (BoundingBoxGetter) Delegate.CreateDelegate(typeof(BoundingBoxGetter), propertyInfo.GetGetMethod(true));
+                }
+
+                return _worldBoundingBoxGetter;
+            }
+        }
 
         public static Rect GetBoundingBox(this VisualElement visualElement) => BoundingBoxGetter?.Invoke(visualElement) ?? default;
+        public static Rect GetWorldBoundingBox(this VisualElement visualElement) => WorldBoundingBoxGetter?.Invoke(visualElement) ?? default;
     }
 }
