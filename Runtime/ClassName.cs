@@ -427,6 +427,29 @@ namespace RishUI
 
         public void SetClasses(VisualElement element)
         {
+            var currentCount = (element.GetClasses() as List<string>)?.Count ?? 0;
+            if (currentCount == Count)
+            {
+                var equals = true;
+                foreach (var className in this)
+                {
+                    if (!element.ClassListContains(className))
+                    {
+                        equals = false;
+                    }
+                }
+                
+                if (equals)
+                {
+                    return;
+                }
+            }
+            
+            if (element is IAdvancedPicking advancedPicking)
+            {
+                advancedPicking.Manager.StyleSheetsPointerDetection = null;
+            }
+            
             element.ClearClassList();
             
             if (Count <= 0)

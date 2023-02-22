@@ -396,11 +396,12 @@ namespace RishUI
             {
                 var (child, element) = node.AddChild<T>(Key);
 
-                element.name = Descriptor.name;
-                Descriptor.className.SetClasses(element);
-                Descriptor.style.SetInlineStyle(element);
+                Descriptor.Setup(element);
                 
                 element.Setup(Props);
+
+                using var evt = SetupEvent.GetPooled(element);
+                element.SendEvent(evt);
                 
                 child.AttachElement(Children);
             }

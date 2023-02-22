@@ -417,7 +417,7 @@ namespace RishUI
                     var detectionMode = pointerDetection.keyword switch
                     {
                         RishStyleKeyword.Undefined => pointerDetection.value,
-                        RishStyleKeyword.None => PointerDetectionMode.Ignore,
+                        RishStyleKeyword.None => PointerDetectionMode.ForceIgnore,
                         _ => PointerDetectionMode.Inherit
                     };
                     

@@ -1,3 +1,4 @@
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,55 +25,35 @@ namespace RishUI
         
         private VisualElement Element { get; }
 
-        private PointerDetectionMode? _inlinePointerDetection;
-        public PointerDetectionMode? InlinePointerDetection
-        {
-            get => _inlinePointerDetection;
-            set
-            {
-                var prev = PointerDetection;
-                
-                _inlinePointerDetection = value;
+        internal PointerDetectionMode? InlinePointerDetection { get; set; }
 
-                if (prev != PointerDetection)
-                {
-                    Setup();
-                }
-            }
-        }
+        internal PointerDetectionMode? StyleSheetsPointerDetection { private get; set; }
 
-        private PointerDetectionMode? _stylePointerDetection;
-        private PointerDetectionMode? StylePointerDetection
-        {
-            get => _stylePointerDetection;
-            set
-            {
-                var prev = PointerDetection;
-                
-                _stylePointerDetection = value;
+        private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StyleSheetsPointerDetection ?? PointerDetectionMode.Inherit);
 
-                if (prev != PointerDetection)
-                {
-                    Setup();
-                }
-            }
-        }
-        private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StylePointerDetection ?? PointerDetectionMode.Inherit);
+        private PointerDetectionMode _pointerDetection;
         private PointerDetectionMode PointerDetection
         {
-            get {
-                if (!Enabled)
+            get => _pointerDetection;
+            set
+            {
+                if (value == _pointerDetection)
                 {
-                    return PointerDetectionMode.Ignore;
+                    return;
                 }
-                
-                var inherited = GetInherited();
-                if (inherited == PointerDetectionMode.ForceIgnore)
+
+                _pointerDetection = value;
+
+                Setup();
+
+                for(int i = 0, n = Element.childCount; i < n; i++)
                 {
-                    return PointerDetectionMode.ForceIgnore;
+                    var child = Element[i];
+                    if (child is IAdvancedPicking advancedPicking)
+                    {
+                        advancedPicking.Manager.Update();
+                    }
                 }
-                
-                return LocalPointerDetection != PointerDetectionMode.Inherit ? LocalPointerDetection : inherited;
             }
         }
 
@@ -126,14 +107,14 @@ namespace RishUI
         {
             Element = element;
 
-            Element.generateVisualContent += OnDirty;
+            Element.RegisterCallback<SetupEvent>(OnSetup);
             Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
 
         public void Enable() => Enabled = true;
         public void Disable() => Enabled = false;
 
-        private void OnDirty(MeshGenerationContext context) => Setup();
+        private void OnSetup(SetupEvent evt) => Update();
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {
@@ -157,9 +138,32 @@ namespace RishUI
             {
                 mode = null;
             }
-            StylePointerDetection = mode;
+            StyleSheetsPointerDetection = mode;
 
-            Setup();
+            Update();
+        }
+
+        private void Update()
+        {
+            PointerDetectionMode target;
+            if (Enabled)
+            {
+                var inherited = GetInherited();
+                if (inherited == PointerDetectionMode.ForceIgnore)
+                {
+                    target =  PointerDetectionMode.ForceIgnore;
+                }
+                else
+                {
+                    target = LocalPointerDetection != PointerDetectionMode.Inherit ? LocalPointerDetection : inherited;
+                }
+            }
+            else
+            {
+                target = PointerDetectionMode.Ignore;
+            }
+
+            PointerDetection = target;
         }
 
         private void Setup()
