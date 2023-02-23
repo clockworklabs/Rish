@@ -423,6 +423,10 @@ namespace RishUI
                     
                     advancedPicking.Manager.InlinePointerDetection = detectionMode;
                 }
+                else
+                {
+                    advancedPicking.Manager.InlinePointerDetection = null;
+                }
             }
         }
 
