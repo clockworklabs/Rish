@@ -73,7 +73,6 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
-                visualElement.Blur();
                 visualElement.RemoveFromHierarchy();
             }
             pool.Push(element);

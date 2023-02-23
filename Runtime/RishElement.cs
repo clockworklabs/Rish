@@ -118,7 +118,7 @@ namespace RishUI
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
         private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;
-
+        
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
         private void SetProps(P value)

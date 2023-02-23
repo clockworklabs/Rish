@@ -40,10 +40,7 @@ namespace RishUI.Events
         internal void Reset() => OnReset();
         protected abstract void OnReset();
 
-        internal void SetTarget(VisualElement visualElement)
-        {
-            target = visualElement;
-        }
+        internal void SetTarget(VisualElement visualElement) => target = visualElement;
 
         // protected void SendEvent<T>(T evt) where T : EventBase<T>, new() => Owner?.OnEvent(evt);
     }

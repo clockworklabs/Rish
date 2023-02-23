@@ -71,8 +71,7 @@ namespace RishUI.Events
             private bool Hovering { get; set; }
             private bool Pressed { get; set; }
             private bool Dragging { get; set; }
-            private bool Captured { get; set; }
-
+            
             public Pointer(bool tricklesDown, bool bubbles)
             {
                 TricklesDown = tricklesDown;
@@ -86,7 +85,6 @@ namespace RishUI.Events
                 Hovering = false;
                 Pressed = false;
                 Dragging = false;
-                Captured = false;
             }
             
             public void SetTarget(VisualElement target)
@@ -107,7 +105,7 @@ namespace RishUI.Events
                 
                 Hovering = false;
 
-                if (Dragging && !Captured)
+                if (Dragging && !evt.target.HasPointerCapture(evt.pointerId))
                 {
                     EndDragging();
                 }
@@ -151,24 +149,10 @@ namespace RishUI.Events
 
             public void OnCapture(PointerCaptureEvent evt)
             {
-                if (evt.target != Target)
+                if (evt.target != Target && Dragging)
                 {
-                    if (Dragging)
-                    {
-                        EndDragging();
-                    }
-                    
-                    return;
+                    EndDragging();
                 }
-                
-#if UNITY_EDITOR
-                if (Captured)
-                {
-                    throw new UnityException("Pointer was already captured");
-                }
-#endif
-                
-                Captured = true;
             }
 
             public void OnRelease(PointerCaptureOutEvent evt)
@@ -178,15 +162,6 @@ namespace RishUI.Events
                     return;
                 }
                 
-#if UNITY_EDITOR
-                if (!Captured)
-                {
-                    throw new UnityException("Pointer wasn't captured");
-                }
-#endif
-                
-                Captured = false;
-
                 if (Dragging && !Hovering)
                 {
                     EndDragging();

@@ -42,12 +42,12 @@ namespace RishUI
             {
                 _parent = value;
                 
-                DOMParent = value != null 
-                    ? value.VisualElement ?? value.DOMParent
+                VisualParent = value != null 
+                    ? value.VisualElement ?? value.VisualParent
                     : Tree?.RootVisualElement;
             }
         }
-        private VisualElement DOMParent { get; set; }
+        private VisualElement VisualParent { get; set; }
         public uint Depth { get; private set; }
         internal uint DirtyPriority => uint.MaxValue - Depth;
 
@@ -168,13 +168,13 @@ namespace RishUI
                 {
                     visualElement.SendToBack();
                 }
-                else if (index >= DOMParent.childCount)
+                else if (index >= VisualParent.childCount)
                 {
                     visualElement.BringToFront();
                 }
                 else
                 {
-                    visualElement.PlaceBehind(DOMParent[index]);
+                    visualElement.PlaceBehind(VisualParent[index]);
                 }
             }
 
@@ -360,8 +360,6 @@ namespace RishUI
                 VirtualChildren.Add(child);
             }
             
-            var element = child.Element as T;
-
             child.VirtualIndex = ChildCount;
             
             var targetIndex = ChildCount;
@@ -372,7 +370,7 @@ namespace RishUI
 
             ChildCount++;
 
-            return (child, element);
+            return (child, child.Element as T);
         }
 
         private void Dirty(bool forceThisFrame) => Tree.Dirty(this, forceThisFrame);
@@ -569,9 +567,9 @@ namespace RishUI
 
                 var element = ElementsPool.Get<T>();
                 Node.Element = element;
-                if (element is VisualElement domElement)
+                if (element is VisualElement visualElement)
                 {
-                    Node.DOMParent?.Add(domElement);
+                    Node.VisualParent?.Add(visualElement);
                 }
                 
                 Node.EventSystem.OnMounted();
@@ -867,8 +865,8 @@ namespace RishUI
 
             public override void Enter()
             {
-                Node.EventSystem.OnUnmounted();
                 Node.InputSystem.OnUnmounted();
+                Node.EventSystem.OnUnmounted();
                 
                 Node.Parent?.UnmountingChildren.Remove(Node);
                 Node.OnUnmount?.Invoke(Node);
@@ -903,7 +901,7 @@ namespace RishUI
                 {
                     return;
                 }
-                
+
                 switch (element)
                 {
                     case IRishElement rishElement:
