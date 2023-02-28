@@ -193,6 +193,16 @@ namespace RishUI
                     child.UpdateRealIndices();
                 }
             }
+            
+            // var unmountingSiblings = Parent?.UnmountingChildren;
+            // if (unmountingSiblings != null && !unmountingSiblings.Contains(this))
+            // {
+            //     foreach (var sibling in unmountingSiblings)
+            //     {
+            //         Debug.Log("Update sibling");
+            //         sibling.UpdateRealIndices();
+            //     }
+            // }
         }
 
         public Node GetDOMChild()
@@ -304,6 +314,11 @@ namespace RishUI
                     UnmountingChildren.Add(child);
                     child.Unmount(false);
                 }
+
+                foreach (var child in UnmountingChildren)
+                {
+                    child.UpdateRealIndices();
+                }
             }
             
             OnClean?.Invoke();
@@ -397,10 +412,10 @@ namespace RishUI
         private class StateMachine
         {
             private State _currentState;
-            private State CurrentState
+            public State CurrentState
             {
                 get => _currentState;
-                set
+                private set
                 {
                     if (_currentState == value)
                     {
@@ -867,8 +882,16 @@ namespace RishUI
             {
                 Node.InputSystem.OnUnmounted();
                 Node.EventSystem.OnUnmounted();
-                
-                Node.Parent?.UnmountingChildren.Remove(Node);
+
+                var parentUnmountingChildren = Node.Parent?.UnmountingChildren;
+                if (parentUnmountingChildren != null)
+                {
+                    parentUnmountingChildren.Remove(Node);
+                    foreach (var child in parentUnmountingChildren)
+                    {
+                        child.UpdateRealIndices();
+                    }
+                }
                 Node.OnUnmount?.Invoke(Node);
 
                 if (Node.VirtualChildren?.Count > 0)
