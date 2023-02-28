@@ -193,16 +193,6 @@ namespace RishUI
                     child.UpdateRealIndices();
                 }
             }
-            
-            // var unmountingSiblings = Parent?.UnmountingChildren;
-            // if (unmountingSiblings != null && !unmountingSiblings.Contains(this))
-            // {
-            //     foreach (var sibling in unmountingSiblings)
-            //     {
-            //         Debug.Log("Update sibling");
-            //         sibling.UpdateRealIndices();
-            //     }
-            // }
         }
 
         public Node GetDOMChild()
