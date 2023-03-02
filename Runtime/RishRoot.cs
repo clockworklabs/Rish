@@ -61,10 +61,10 @@ namespace RishUI
         }
 
         public bool HasAnyPointerOver() => Tree?.HasAnyPointerOver() ?? false;
-        public bool HasAnyPointerDown() => Tree?.HasAnyPointerDown() ?? false;
+        public bool HasAnyPointerCaptured() => Tree?.HasAnyPointerCaptured() ?? false;
 
         public bool HasPointerOver(int pointerId) => Tree?.HasPointerOver(pointerId) ?? false;
-        public bool HasPointerDown(int pointerId) => Tree?.HasPointerDown(pointerId) ?? false;
+        public bool HasPointerCaptured(int pointerId) => Tree?.HasPointerCaptured(pointerId) ?? false;
 
         public bool HasFocus() => Tree?.HasFocus() ?? false;
         

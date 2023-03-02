@@ -103,10 +103,10 @@ namespace RishUI
         }
 
         internal bool HasAnyPointerOver() => RootApp?.HasAnyPointerOver() ?? false;
-        internal bool HasAnyPointerDown() => RootApp?.HasAnyPointerCaptured() ?? false;
+        internal bool HasAnyPointerCaptured() => RootApp?.HasAnyPointerCaptured() ?? false;
 
         internal bool HasPointerOver(int pointerId) => RootApp?.HasPointerOver(pointerId) ?? false;
-        internal bool HasPointerDown(int pointerId) => RootApp?.HasPointerCaptured(pointerId) ?? false;
+        internal bool HasPointerCaptured(int pointerId) => RootApp?.HasPointerCaptured(pointerId) ?? false;
 
         internal bool HasFocus() => RootVisualElement?.panel?.focusController?.focusedElement != null;
         
