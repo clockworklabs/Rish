@@ -24,7 +24,7 @@ namespace RishUI.Events
                     }
                     foreach (var pointerId in PressedPointers)
                     {
-                        _app.OnPointerUp(pointerId);
+                        _app.OnPointerReleased(pointerId);
                     }
                 }
                 
@@ -37,9 +37,6 @@ namespace RishUI.Events
             target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
-            target.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            target.RegisterCallback<PointerUpEvent>(OnPointerUp);
-            
             target.RegisterCallback<PointerCaptureEvent>(OnPointerCaptured);
             target.RegisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
         }
@@ -48,9 +45,6 @@ namespace RishUI.Events
         {
             target.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
-            
-            target.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            target.RegisterCallback<PointerUpEvent>(OnPointerUp);
             
             target.UnregisterCallback<PointerCaptureEvent>(OnPointerCaptured);
             target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
@@ -86,37 +80,6 @@ namespace RishUI.Events
             
             HoveredPointers.Remove(pointerId);
             App?.OnPointerExit(pointerId);
-
-            if (!CapturedPointers.Contains(pointerId))
-            {
-                RemovePressedPointer(pointerId);
-            }
-        }
-
-        private void OnPointerDown(PointerDownEvent evt) => AddPressedPointer(evt.pointerId);
-
-        private void OnPointerUp(PointerUpEvent evt) => RemovePressedPointer(evt.pointerId);
-
-        private void AddPressedPointer(int pointerId)
-        {
-            if (PressedPointers.Contains(pointerId))
-            {
-                return;
-            }
-            
-            PressedPointers.Add(pointerId);
-            App?.OnPointerDown(pointerId);
-        }
-
-        private void RemovePressedPointer(int pointerId)
-        {
-            if (!PressedPointers.Contains(pointerId))
-            {
-                return;
-            }
-            
-            PressedPointers.Remove(pointerId);
-            App?.OnPointerUp(pointerId);
         }
 
         private void OnPointerCaptured(PointerCaptureEvent evt)
@@ -126,11 +89,11 @@ namespace RishUI.Events
             if (evt.target == target)
             {
                 CapturedPointers.Add(pointerId);
+                App?.OnPointerCaptured(pointerId);
                 return;
             }
             
             RemoveHoveredPointer(pointerId);
-            RemovePressedPointer(pointerId);
         }
         private void OnPointerReleased(PointerCaptureOutEvent evt)
         {
@@ -139,7 +102,10 @@ namespace RishUI.Events
                 return;
             }
             
-            CapturedPointers.Remove(evt.pointerId);
+            var pointerId = evt.pointerId;
+            
+            CapturedPointers.Remove(pointerId);
+            App?.OnPointerReleased(pointerId);
         }
     }
 }

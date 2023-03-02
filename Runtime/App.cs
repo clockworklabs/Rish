@@ -24,7 +24,7 @@ namespace RishUI
 #endif
 
         private Dictionary<int, int> HoveredPointers { get; } = new();
-        private Dictionary<int, int> PressedPointers { get; } = new();
+        private Dictionary<int, int> CapturedPointers { get; } = new();
 
         private IApp UserApp { get; set; }
         
@@ -110,9 +110,9 @@ namespace RishUI
             }
         }
 
-        internal void OnPointerDown(int pointerId)
+        internal void OnPointerCaptured(int pointerId)
         {
-            if (PressedPointers.TryGetValue(pointerId, out var count))
+            if (CapturedPointers.TryGetValue(pointerId, out var count))
             {
                 count += 1;
             }
@@ -121,32 +121,32 @@ namespace RishUI
                 count = 1;
             }
 
-            PressedPointers[pointerId] = count;
+            CapturedPointers[pointerId] = count;
         }
 
-        internal void OnPointerUp(int pointerId)
+        internal void OnPointerReleased(int pointerId)
         {
-            if (!PressedPointers.TryGetValue(pointerId, out var count)) return;
+            if (!CapturedPointers.TryGetValue(pointerId, out var count)) return;
             count -= 1;
             if (count > 0)
             {
-                PressedPointers[pointerId] = count;
+                CapturedPointers[pointerId] = count;
             }
             else
             {
-                PressedPointers.Remove(pointerId);
+                CapturedPointers.Remove(pointerId);
             }
         }
 
         internal bool HasAnyPointerOver() => HoveredPointers.Count > 0;
-        internal bool HasAnyPointerDown() => PressedPointers.Count > 0;
+        internal bool HasAnyPointerCaptured() => CapturedPointers.Count > 0;
 
         internal bool HasPointerOver(int pointerId) => HoveredPointers.ContainsKey(pointerId);
-        internal bool HasPointerDown(int pointerId) => PressedPointers.ContainsKey(pointerId);
+        internal bool HasPointerCaptured(int pointerId) => CapturedPointers.ContainsKey(pointerId);
         
 #if UNITY_EDITOR
         internal int PointerOverCount => HoveredPointers.Count;
-        internal int PointerDownCount => PressedPointers.Count;
+        internal int PointerCaptureCount => CapturedPointers.Count;
 #endif
     }
 
