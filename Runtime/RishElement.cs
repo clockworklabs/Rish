@@ -92,15 +92,9 @@ namespace RishUI
 
         private References References { get; set; }
 
-        // TODO: Replicate EventSystem and InputSystem. Maybe just move all of this to the EventSystem.
-        private InputTrackingManipulator TrackingManipulator { get; }
-
         protected RishBaseElement()
         {
             ElementId = _nextId++;
-            
-            TrackingManipulator = new InputTrackingManipulator();
-            AddManipulator(TrackingManipulator);
         }
 
         protected T GetFirstAncestorOfType<T>() where T : class
@@ -201,8 +195,6 @@ namespace RishUI
                 }
             }
 
-            TrackingManipulator.App = GetFirstAncestorOfType<App>();
-
             if (this is IMountingListener listener)
             {
                 listener.ComponentDidMount();
@@ -256,7 +248,6 @@ namespace RishUI
             OnUnmounted?.Invoke();
 
             References = default;
-            TrackingManipulator.App = null;
             Node = null;
             
             if (this is ICustomUnmountListener customUnmountListener)

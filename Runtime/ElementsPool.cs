@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RishUI.Events;
+using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
@@ -73,8 +74,33 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
+                if (visualElement.IsHover())
+                {
+                    var parent = visualElement.parent;
+                    if (parent != null)
+                    {
+                        for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+                        {
+                            if(!visualElement.ContainsPointer(i)) { continue; }
+
+                            var position = PointerUtils.GetPointerPosition(i);
+                            var e = new StructPointerEvent
+                            {
+                                pointerId = i,
+                                position = position,
+                                localPosition = visualElement.WorldToLocal(position),
+                                pressedButtons = PointerUtils.GetPressedButtons(i)
+                            };
+                            using var pooled = PointerLeaveEvent.GetPooled(e);
+                            pooled.target = parent;
+                            parent.SendEvent(pooled);
+                        }
+                    }
+                }
+                
                 visualElement.RemoveFromHierarchy();
             }
+            
             pool.Push(element);
             
             return true;
@@ -96,6 +122,56 @@ namespace RishUI
                 }
                 pool.Push(element);
             }
+        }
+        
+        private struct StructPointerEvent : IPointerEvent
+        {
+            public int pointerId;
+            int IPointerEvent.pointerId => pointerId;
+            public string pointerType;
+            string IPointerEvent.pointerType => pointerType;
+            public bool isPrimary;
+            bool IPointerEvent.isPrimary => isPrimary;
+            public int button;
+            int IPointerEvent.button => button;
+            public int pressedButtons;
+            int IPointerEvent.pressedButtons => pressedButtons;
+            public Vector3 position;
+            Vector3 IPointerEvent.position => position;
+            public Vector3 localPosition;
+            Vector3 IPointerEvent.localPosition => localPosition;
+            public Vector3 deltaPosition;
+            Vector3 IPointerEvent.deltaPosition => deltaPosition;
+            public float deltaTime;
+            float IPointerEvent.deltaTime => deltaTime;
+            public int clickCount;
+            int IPointerEvent.clickCount => clickCount;
+            public float pressure;
+            float IPointerEvent.pressure => pressure;
+            public float tangentialPressure;
+            float IPointerEvent.tangentialPressure => tangentialPressure;
+            public float altitudeAngle;
+            float IPointerEvent.altitudeAngle => altitudeAngle;
+            public float azimuthAngle;
+            float IPointerEvent.azimuthAngle => azimuthAngle;
+            public float twist;
+            float IPointerEvent.twist => twist;
+            public Vector2 radius;
+            Vector2 IPointerEvent.radius => radius;
+            public Vector2 radiusVariance;
+            Vector2 IPointerEvent.radiusVariance => radiusVariance;
+            public EventModifiers modifiers;
+            EventModifiers IPointerEvent.modifiers => modifiers;
+            public bool shiftKey;
+            bool IPointerEvent.shiftKey => shiftKey;
+            public bool ctrlKey;
+            bool IPointerEvent.ctrlKey => ctrlKey;
+            public bool commandKey;
+            bool IPointerEvent.commandKey => commandKey;
+            public bool altKey;
+            bool IPointerEvent.altKey => altKey;
+            public bool actionKey;
+            bool IPointerEvent.actionKey => actionKey;
         }
     }
 }

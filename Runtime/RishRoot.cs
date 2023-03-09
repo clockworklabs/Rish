@@ -15,27 +15,43 @@ namespace RishUI
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;
+
+        private UIDocument _document;
+        private UIDocument Document
+        {
+            get
+            {
+                if (_document == null)
+                {
+                    _document = GetComponent<UIDocument>();
+                }
+
+                return _document;
+            }
+        }
+
+        private VisualElement Root => Document?.rootVisualElement;
+        private IPanel Panel => Root.panel;
         
         private Tree Tree { get; set; }
         
         private IEnumerator Start()
         {
-            var document = gameObject.GetComponent<UIDocument>();
-            if (document == null)
+            if (Document == null)
             {
                 throw new UnityException("RishRoot requires UIDocument");
             }
-            if (document.panelSettings == null)
+            if (Document.panelSettings == null)
             {
                 throw new UnityException("RishRoot requires UIDocument to have Panel Settings set");
             }
 
             foreach (var styleSheet in StyleSheets)
             {
-                document.rootVisualElement.styleSheets.Add(styleSheet);
+                Root.styleSheets.Add(styleSheet);
             }
             
-            Tree = new Tree(document, RootClassName);
+            Tree = new Tree(Document, RootClassName);
 
             var wait = new WaitForEndOfFrame();
             while (true)
@@ -60,17 +76,23 @@ namespace RishUI
             Rish.CleanGarbage();
         }
 
-        public bool HasAnyPointerOver() => Tree?.HasAnyPointerOver() ?? false;
-        public bool HasAnyPointerCaptured() => Tree?.HasAnyPointerCaptured() ?? false;
+        public bool HasAnyPointerOver() => Root.IsHover();
+        public bool HasAnyPointerCaptured()
+        {
+            for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+            {
+                if (Panel.GetCapturingElement(i) != null)
+                {
+                    return true;
+                }
+            }
 
-        public bool HasPointerOver(int pointerId) => Tree?.HasPointerOver(pointerId) ?? false;
-        public bool HasPointerCaptured(int pointerId) => Tree?.HasPointerCaptured(pointerId) ?? false;
+            return false;
+        }
 
-        public bool HasFocus() => Tree?.HasFocus() ?? false;
-        
-#if UNITY_EDITOR
-        public int PointerOverCount => Tree.PointerOverCount;
-        public int PointerDownCount => Tree.PointerDownCount;
-#endif
+        public bool HasPointerOver(int pointerId) => Root.ContainsPointer(pointerId);
+        public bool HasPointerCaptured(int pointerId) => Panel.GetCapturingElement(pointerId) != null;
+
+        public bool HasFocus() => Panel.focusController.focusedElement != null;
     }
 }

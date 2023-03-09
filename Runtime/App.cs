@@ -23,9 +23,6 @@ namespace RishUI
         // private HotReloader HotReloader { get; set; }
 #endif
 
-        private Dictionary<int, int> HoveredPointers { get; } = new();
-        private Dictionary<int, int> CapturedPointers { get; } = new();
-
         private IApp UserApp { get; set; }
         
 #if UNITY_EDITOR
@@ -81,73 +78,6 @@ namespace RishUI
             
             Dirty();
         }
-
-        internal void OnPointerEnter(int pointerId)
-        {
-            if (HoveredPointers.TryGetValue(pointerId, out var count))
-            {
-                count += 1;
-            }
-            else
-            {
-                count = 1;
-            }
-
-            HoveredPointers[pointerId] = count;
-        }
-
-        internal void OnPointerExit(int pointerId)
-        {
-            if (!HoveredPointers.TryGetValue(pointerId, out var count)) return;
-            count -= 1;
-            if (count > 0)
-            {
-                HoveredPointers[pointerId] = count;
-            }
-            else
-            {
-                HoveredPointers.Remove(pointerId);
-            }
-        }
-
-        internal void OnPointerCaptured(int pointerId)
-        {
-            if (CapturedPointers.TryGetValue(pointerId, out var count))
-            {
-                count += 1;
-            }
-            else
-            {
-                count = 1;
-            }
-
-            CapturedPointers[pointerId] = count;
-        }
-
-        internal void OnPointerReleased(int pointerId)
-        {
-            if (!CapturedPointers.TryGetValue(pointerId, out var count)) return;
-            count -= 1;
-            if (count > 0)
-            {
-                CapturedPointers[pointerId] = count;
-            }
-            else
-            {
-                CapturedPointers.Remove(pointerId);
-            }
-        }
-
-        internal bool HasAnyPointerOver() => HoveredPointers.Count > 0;
-        internal bool HasAnyPointerCaptured() => CapturedPointers.Count > 0;
-
-        internal bool HasPointerOver(int pointerId) => HoveredPointers.ContainsKey(pointerId);
-        internal bool HasPointerCaptured(int pointerId) => CapturedPointers.ContainsKey(pointerId);
-        
-#if UNITY_EDITOR
-        internal int PointerOverCount => HoveredPointers.Count;
-        internal int PointerCaptureCount => CapturedPointers.Count;
-#endif
     }
 
     public struct AppProps

@@ -101,18 +101,5 @@ namespace RishUI
             }
             FreeNodes.Clear();
         }
-
-        internal bool HasAnyPointerOver() => RootApp?.HasAnyPointerOver() ?? false;
-        internal bool HasAnyPointerCaptured() => RootApp?.HasAnyPointerCaptured() ?? false;
-
-        internal bool HasPointerOver(int pointerId) => RootApp?.HasPointerOver(pointerId) ?? false;
-        internal bool HasPointerCaptured(int pointerId) => RootApp?.HasPointerCaptured(pointerId) ?? false;
-
-        internal bool HasFocus() => RootVisualElement?.panel?.focusController?.focusedElement != null;
-        
-#if UNITY_EDITOR
-        internal int PointerOverCount => RootApp?.PointerOverCount ?? 0;
-        internal int PointerDownCount => RootApp?.PointerCaptureCount ?? 0;
-#endif
     }
 }

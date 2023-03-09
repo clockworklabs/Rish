@@ -62,10 +62,10 @@ namespace RishUI.Events
         }
         void ICallbackWrapper.SetTarget(VisualElement visualElement)
         {
-            if (target != null && visualElement != null)
-            {
-                throw new UnityException("CallbackWrapper already has a target");
-            }
+            // if (target != null && visualElement != null)
+            // {
+            //     throw new UnityException("CallbackWrapper already has a target");
+            // }
 
             target = visualElement;
         }
