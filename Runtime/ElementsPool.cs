@@ -76,24 +76,27 @@ namespace RishUI
             {
                 if (visualElement.IsHover())
                 {
-                    var parent = visualElement.parent;
-                    if (parent != null)
+                    for (int i = 0, n = PointerId.maxPointers; i < n; i++)
                     {
-                        for (int i = 0, n = PointerId.maxPointers; i < n; i++)
-                        {
-                            if(!visualElement.ContainsPointer(i)) { continue; }
+                        if(!visualElement.ContainsPointer(i)) { continue; }
 
-                            var position = PointerUtils.GetPointerPosition(i);
-                            var e = new StructPointerEvent
-                            {
-                                pointerId = i,
-                                position = position,
-                                localPosition = visualElement.WorldToLocal(position),
-                                pressedButtons = PointerUtils.GetPressedButtons(i)
-                            };
+                        var position = PointerUtils.GetPointerPosition(i);
+                        var e = new StructPointerEvent
+                        {
+                            pointerId = i,
+                            position = position,
+                            localPosition = visualElement.WorldToLocal(position),
+                            pressedButtons = PointerUtils.GetPressedButtons(i)
+                        };
+                        
+                        var parent = visualElement.parent;
+                        while(parent != null)
+                        {
                             using var pooled = PointerLeaveEvent.GetPooled(e);
                             pooled.target = parent;
                             parent.SendEvent(pooled);
+                            
+                            parent = parent.parent;
                         }
                     }
                 }
