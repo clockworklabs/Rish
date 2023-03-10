@@ -23,11 +23,6 @@ namespace RishUI.Events
 
         private void OnMounted(MountedEvent evt)
         {
-            if (evt.target != target)
-            {
-                return;
-            }
-
             EndOfFrameEvent.Register(this);
 
             Mounted = true;
@@ -36,11 +31,6 @@ namespace RishUI.Events
 
         private void OnUnmounted(UnmountedEvent evt)
         {
-            if (evt.target != target)
-            {
-                return;
-            }
-
             Mounted = false;
         }
 

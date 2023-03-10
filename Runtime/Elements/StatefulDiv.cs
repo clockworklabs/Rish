@@ -10,8 +10,6 @@ namespace RishUI.Elements
 
         public StatefulDiv()
         {
-            AddManipulator(new HoverManipulator());
-            
             RegisterCallback<HoverStartEvent>(OnHoverStart);
             RegisterCallback<HoverEndEvent>(OnHoverEnd);
             

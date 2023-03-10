@@ -15,7 +15,7 @@ namespace RishUI.Events
         private void LocalInit()
         {
             tricklesDown = false;
-            bubbles = true;
+            bubbles = false;
         }
         
         public static UnmountedEvent GetPooled(VisualElement target)

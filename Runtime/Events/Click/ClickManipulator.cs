@@ -5,28 +5,33 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class ClickManipulator : RishManipulator
+    public class ClickManipulator : Manipulator
     {
         private HashSet<int> Pressed { get; } = new();
         private Button[] Buttons { get; } = { default, default, default };
 
-        protected override void RegisterCallbacks()
+        protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<MouseDownEvent>(OnMouseDown);
             target.RegisterCallback<MouseUpEvent>(OnMouseUp);
             
             target.RegisterCallback<MouseCaptureEvent>(OnMouseCaptured);
+            
+            target.RegisterCallback<DetachFromPanelEvent>(Reset);
         }
 
-        protected override void UnregisterCallbacks()
+        protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
             target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
             
             target.UnregisterCallback<MouseCaptureEvent>(OnMouseCaptured);
+            
+            target.UnregisterCallback<DetachFromPanelEvent>(Reset);
         }
 
-        protected override void OnReset()
+        private void Reset(DetachFromPanelEvent evt) => Reset();
+        private void Reset()
         {
             Pressed.Clear();
 
@@ -125,7 +130,7 @@ namespace RishUI.Events
                 return;
             }
             
-            OnReset();
+            Reset();
         }
 
         private struct Button

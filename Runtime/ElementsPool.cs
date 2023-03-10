@@ -25,6 +25,8 @@ namespace RishUI
         private static Dictionary<Type, int> InitialSizes { get; } = new();
         private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
 
+        private static List<VisualElement> cElements { get; } = new();
+
         public static T Get<T>() where T : class, IElement, new()
         {
             var type = typeof(T);
@@ -74,6 +76,9 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
+                var originalParent = visualElement.parent;
+                visualElement.RemoveFromHierarchy();
+                
                 if (visualElement.IsHover())
                 {
                     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
@@ -89,19 +94,46 @@ namespace RishUI
                             pressedButtons = PointerUtils.GetPressedButtons(i)
                         };
                         
-                        var parent = visualElement.parent;
-                        while(parent != null)
-                        {
-                            using var pooled = PointerLeaveEvent.GetPooled(e);
-                            pooled.target = parent;
-                            parent.SendEvent(pooled);
-                            
-                            parent = parent.parent;
+                        var parent = originalParent;
+                        if(parent != null) {
+                            var picked = parent.panel.Pick(position);
+                            while (parent != null)
+                            {
+                                var pickedParent = picked?.parent;
+                                var stop = false;
+                                while (pickedParent != null)
+                                {
+                                    if (pickedParent == parent)
+                                    {
+                                        stop = true;
+                                        break;
+                                    }
+
+                                    pickedParent = pickedParent.parent;
+                                }
+
+                                if (stop)
+                                {
+                                    break;
+                                }
+                                
+                                using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
+                                pointerLeaveEvent.target = parent;
+                                parent.SendEvent(pointerLeaveEvent);
+
+                                // if (PointerUtils.GetPressedButtons(i) > 0)
+                                // {
+                                //     using var pointerUpEvent = PointerUpEvent.GetPooled(e);
+                                //     pointerUpEvent.target = parent;
+                                //     parent.SendEvent(pointerUpEvent);
+                                // }
+
+                                parent = parent.parent;
+                            }
                         }
                     }
                 }
                 
-                visualElement.RemoveFromHierarchy();
             }
             
             pool.Push(element);
@@ -121,6 +153,8 @@ namespace RishUI
                 var element = new T();
                 if (element is VisualElement visualElement)
                 {
+                    visualElement.AddManipulator(new HoverManipulator());
+                    visualElement.AddManipulator(new ClickManipulator());
                     visualElement.AddManipulator(new VisualChangeManipulator());
                 }
                 pool.Push(element);

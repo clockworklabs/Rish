@@ -90,8 +90,6 @@ namespace RishUI.Elements
 
             public Component()
             {
-                AddManipulator(new HoverManipulator());
-                
                 RegisterCallback<HoverStartEvent>(OnHoverStart);
                 RegisterCallback<HoverEndEvent>(OnHoverEnd);
                 
@@ -135,14 +133,14 @@ namespace RishUI.Elements
             private void OnHoverStart(HoverStartEvent evt)
             {
                 var state = State;
-                ++state.hoverCount;
+                state.hovered = true;
                 State = state;
             }
 
             private void OnHoverEnd(HoverEndEvent evt)
             {
                 var state = State;
-                --state.hoverCount;
+                state.hovered = false;
                 State = state;
             }
 
@@ -258,10 +256,8 @@ namespace RishUI.Elements
 
         private struct ComponentState
         {
-            public int hoverCount;
+            public bool hovered;
             public bool pressed;
-            
-            public bool hovered => hoverCount > 0;
         }
     }
 

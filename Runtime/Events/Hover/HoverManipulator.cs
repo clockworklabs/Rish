@@ -3,27 +3,31 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class HoverManipulator : RishManipulator
+    public class HoverManipulator : Manipulator
     {
         private int _pointers;
         
-        protected override void RegisterCallbacks()
+        protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
             target.RegisterCallback<PointerCaptureEvent>(OnPointerCaptured);
+            
+            target.RegisterCallback<DetachFromPanelEvent>(Reset);
         }
 
-        protected override void UnregisterCallbacks()
+        protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
             target.UnregisterCallback<PointerCaptureEvent>(OnPointerCaptured);
+            
+            target.UnregisterCallback<DetachFromPanelEvent>(Reset);
         }
 
-        protected override void OnReset()
+        private void Reset(DetachFromPanelEvent evt)
         {
             _pointers = 0;
         }
