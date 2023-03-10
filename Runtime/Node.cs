@@ -870,9 +870,6 @@ namespace RishUI
 
             public override void Enter()
             {
-                Node.InputSystem.OnUnmounted();
-                Node.EventSystem.OnUnmounted();
-
                 var parentUnmountingChildren = Node.Parent?.UnmountingChildren;
                 if (parentUnmountingChildren != null)
                 {
@@ -930,6 +927,9 @@ namespace RishUI
                 }
 
                 ElementsPool.Return(element);
+                
+                Node.InputSystem.OnUnmounted();
+                Node.EventSystem.OnUnmounted();
             }
 
             public override T MountAs<T>(Node parent, uint key)

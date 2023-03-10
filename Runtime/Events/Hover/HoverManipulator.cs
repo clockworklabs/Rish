@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,8 +5,7 @@ namespace RishUI.Events
 {
     public class HoverManipulator : RishManipulator
     {
-        private Dictionary<int, uint> Pointers { get; } = new();
-        private int Count => Pointers.Count;
+        private int _pointers;
         
         protected override void RegisterCallbacks()
         {
@@ -27,121 +25,45 @@ namespace RishUI.Events
 
         protected override void OnReset()
         {
-            Pointers.Clear();
+            _pointers = 0;
         }
 
-        private void OnPointerEnter(PointerEnterEvent evt) => AddPointer(evt);
-        private void OnPointerLeave(PointerLeaveEvent evt) => RemovePointer(evt);
-
-        private void AddPointer(IPointerEvent evt)
-        {
-            var pointerId = evt.pointerId;
-            if (Pointers.TryGetValue(pointerId, out var count))
-            {
-                Pointers[pointerId] = count + 1;
-                return;
-            }
-
-            Pointers[pointerId] = 1;
-
-            if (Count != 1)
-            {
-                return;
-            }
-            
-            using var pooled = HoverEventBase<HoverStartEvent>.GetPooled(evt, target);
-            target.SendEvent(pooled);
-        }
-
-        private void RemovePointer(IPointerEvent evt)
-        {
-            var pointerId = evt.pointerId;
-            if (!Pointers.TryGetValue(pointerId, out var count))
-            {
-                return;
-            }
-
-            if (count > 1)
-            {
-                Pointers[pointerId] = count - 1;
-                return;
-            }
-
-            Pointers.Remove(pointerId);
-
-            if (Count != 0)
-            {
-                return;
-            }
-            
-            using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(evt, target);
-            target.SendEvent(pooled);
-        }
-
-        private void RemovePointer(int pointerId, IEventHandler target)
-        {
-            using var pooled = PointerEvent.GetPooled(pointerId, target);
-
-            RemovePointer(pooled);
-        }
+        private void OnPointerEnter(PointerEnterEvent evt) => AddPointer(evt.pointerId, evt.position);
+        private void OnPointerLeave(PointerLeaveEvent evt) => RemovePointer(evt.pointerId, evt.position);
 
         private void OnPointerCaptured(PointerCaptureEvent evt)
         {
             var evtTarget = evt.target;
             if (evtTarget == target) return;
-            
-            RemovePointer(evt.pointerId, evtTarget);
+
+            var pointerId = evt.pointerId;
+            RemovePointer(pointerId, PointerUtils.GetPointerPosition(pointerId));
         }
-        
-        private class PointerEvent : EventBase<PointerEvent>, IPointerEvent
+
+        private void AddPointer(int pointerId, Vector2 position)
         {
-            public int pointerId { get; private set; }
-            public string pointerType { get; }
-            public bool isPrimary { get; }
-            public int button { get; }
-            public int pressedButtons { get; }
-            public Vector3 position { get; }
-            public Vector3 localPosition { get; }
-            public Vector3 deltaPosition { get; }
-            public float deltaTime { get; }
-            public int clickCount { get; }
-            public float pressure { get; }
-            public float tangentialPressure { get; }
-            public float altitudeAngle { get; }
-            public float azimuthAngle { get; }
-            public float twist { get; }
-            public Vector2 radius { get; }
-            public Vector2 radiusVariance { get; }
-            public EventModifiers modifiers { get; }
-            public bool shiftKey { get; }
-            public bool ctrlKey { get; }
-            public bool commandKey { get; }
-            public bool altKey { get; }
-            public bool actionKey { get; }
-
-            public PointerEvent() => LocalInit();
-
-            protected override void Init()
+            var wasHovering = _pointers > 0;
+            _pointers |= 1 << pointerId;
+            if (wasHovering || _pointers <= 0)
             {
-                base.Init();
-                LocalInit();
+                return;
             }
-
-            private void LocalInit()
-            {
-                tricklesDown = true;
-                bubbles = true;
-            }
-        
-            public static PointerEvent GetPooled(int pointerId, IEventHandler target)
-            {
-                var pooled = EventBase<PointerEvent>.GetPooled();
-                pooled.pointerId = pointerId;
             
-                pooled.target = target;
+            using var pooled = HoverEventBase<HoverStartEvent>.GetPooled(pointerId, position, target);
+            target.SendEvent(pooled);
+        }
 
-                return pooled;
+        private void RemovePointer(int pointerId, Vector2 position)
+        {
+            var wasHovering = _pointers > 0;
+            _pointers &= ~(1 << pointerId);
+            if (!wasHovering || _pointers > 0)
+            {
+                return;
             }
+            
+            using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(pointerId, position, target);
+            target.SendEvent(pooled);
         }
     }
 }
