@@ -25,8 +25,6 @@ namespace RishUI
         private static Dictionary<Type, int> InitialSizes { get; } = new();
         private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
 
-        private static List<VisualElement> cElements { get; } = new();
-
         public static T Get<T>() where T : class, IElement, new()
         {
             var type = typeof(T);
