@@ -158,88 +158,6 @@ namespace RishUI
 
         private static Style Default = default;
 
-        // public static Style Reset = new Style
-        // {
-        //     alignContent = RishStyleKeyword.Initial,
-        //     alignItems = RishStyleKeyword.Initial,
-        //     alignSelf = RishStyleKeyword.Initial,
-        //     backgroundColor = RishStyleKeyword.Initial,
-        //     backgroundImage = RishStyleKeyword.Initial,
-        //     borderBottomColor = RishStyleKeyword.Initial,
-        //     borderBottomLeftRadius = RishStyleKeyword.Initial,
-        //     borderBottomRightRadius = RishStyleKeyword.Initial,
-        //     borderBottomWidth = RishStyleKeyword.Initial,
-        //     borderLeftColor = RishStyleKeyword.Initial,
-        //     borderLeftWidth = RishStyleKeyword.Initial,
-        //     borderRightColor = RishStyleKeyword.Initial,
-        //     borderRightWidth = RishStyleKeyword.Initial,
-        //     borderTopColor = RishStyleKeyword.Initial,
-        //     borderTopLeftRadius = RishStyleKeyword.Initial,
-        //     borderTopRightRadius = RishStyleKeyword.Initial,
-        //     borderTopWidth = RishStyleKeyword.Initial,
-        //     bottom = RishStyleKeyword.Initial,
-        //     // color = RishStyleKeyword.Initial,
-        //     cursor = RishStyleKeyword.Initial,
-        //     display = RishStyleKeyword.Initial,
-        //     flexBasis = RishStyleKeyword.Initial,
-        //     flexDirection = RishStyleKeyword.Initial,
-        //     flexGrow = RishStyleKeyword.Initial,
-        //     flexShrink = RishStyleKeyword.Initial,
-        //     flexWrap = RishStyleKeyword.Initial,
-        //     // fontSize = RishStyleKeyword.Initial,
-        //     height = RishStyleKeyword.Initial,
-        //     justifyContent = RishStyleKeyword.Initial,
-        //     left = RishStyleKeyword.Initial,
-        //     // letterSpacing = RishStyleKeyword.Initial,
-        //     marginBottom = RishStyleKeyword.Initial,
-        //     marginLeft = RishStyleKeyword.Initial,
-        //     marginRight = RishStyleKeyword.Initial,
-        //     marginTop = RishStyleKeyword.Initial,
-        //     maxHeight = RishStyleKeyword.Initial,
-        //     maxWidth = RishStyleKeyword.Initial,
-        //     minHeight = RishStyleKeyword.Initial,
-        //     minWidth = RishStyleKeyword.Initial,
-        //     opacity = RishStyleKeyword.Initial,
-        //     overflow = RishStyleKeyword.Initial,
-        //     paddingBottom = RishStyleKeyword.Initial,
-        //     paddingLeft = RishStyleKeyword.Initial,
-        //     paddingRight = RishStyleKeyword.Initial,
-        //     paddingTop = RishStyleKeyword.Initial,
-        //     position = RishStyleKeyword.Initial,
-        //     right = RishStyleKeyword.Initial,
-        //     rotate = 0,
-        //     scale = 1,
-        //     textOverflow = RishStyleKeyword.Initial,
-        //     // textShadow = RishStyleKeyword.Initial,
-        //     top = RishStyleKeyword.Initial,
-        //     transformOrigin = RishStyleKeyword.Initial,
-        //     transitionDelay = RishStyleKeyword.Initial,
-        //     transitionDuration = RishStyleKeyword.Initial,
-        //     transitionProperty = RishStyleKeyword.Initial,
-        //     transitionTimingFunction = RishStyleKeyword.Initial,
-        //     translate = new Translate(0, 0, 0),
-        //     unityBackgroundImageTintColor = RishStyleKeyword.Initial,
-        //     unityBackgroundScaleMode = RishStyleKeyword.Initial,
-        //     // unityFont = RishStyleKeyword.Initial,
-        //     // unityFontDefinition = RishStyleKeyword.Initial,
-        //     // unityFontStyleAndWeight = RishStyleKeyword.Initial,
-        //     unityOverflowClipBox = RishStyleKeyword.Initial,
-        //     // unityParagraphSpacing = RishStyleKeyword.Initial,
-        //     unitySliceBottom = RishStyleKeyword.Initial,
-        //     unitySliceLeft = RishStyleKeyword.Initial,
-        //     unitySliceRight = RishStyleKeyword.Initial,
-        //     unitySliceTop = RishStyleKeyword.Initial,
-        //     // unityTextAlign = RishStyleKeyword.Initial,
-        //     // unityTextOutlineColor = RishStyleKeyword.Initial,
-        //     // unityTextOutlineWidth = RishStyleKeyword.Initial,
-        //     unityTextOverflowPosition = RishStyleKeyword.Initial,
-        //     // visibility = RishStyleKeyword.Initial,
-        //     // whiteSpace = RishStyleKeyword.Initial,
-        //     width = RishStyleKeyword.Initial,
-        //     // wordSpacing = RishStyleKeyword.Initial,
-        //     pointerDetection = RishStyleKeyword.Initial
-        // };
-
         public Style(Style other)
         {
             alignContent = other.alignContent;
@@ -328,7 +246,7 @@ namespace RishUI
         {
             if (RishUtils.MemCmp(ref this, ref Default))
             {
-                ResetInlineStyles(element);
+                element.ResetInlineStyles();
                 return;
             }
             
@@ -520,99 +438,6 @@ namespace RishUI
                     ? advancedPicking.Manager.InlinePointerDetection.Value
                     : RishStyleKeyword.Null
             };
-        }
-
-        private static void ResetInlineStyles(VisualElement element)
-        {
-            if (element == null)
-            {
-                throw new ArgumentNullException(nameof(element));
-            }
-
-            const StyleKeyword nullValue = StyleKeyword.Null;
-            
-            element.style.alignContent = nullValue;
-            element.style.alignItems = nullValue;
-            element.style.alignSelf = nullValue;
-            element.style.backgroundColor = nullValue;
-            element.style.backgroundImage = nullValue;
-            element.style.borderBottomColor = nullValue;
-            element.style.borderBottomLeftRadius = nullValue;
-            element.style.borderBottomRightRadius = nullValue;
-            element.style.borderBottomWidth = nullValue;
-            element.style.borderLeftColor = nullValue;
-            element.style.borderLeftWidth = nullValue;
-            element.style.borderRightColor = nullValue;
-            element.style.borderRightWidth = nullValue;
-            element.style.borderTopColor = nullValue;
-            element.style.borderTopLeftRadius = nullValue;
-            element.style.borderTopRightRadius = nullValue;
-            element.style.borderTopWidth = nullValue;
-            element.style.bottom = nullValue;
-            element.style.color = nullValue;
-            element.style.cursor = nullValue;
-            element.style.display = nullValue;
-            element.style.flexBasis = nullValue;
-            element.style.flexDirection = nullValue;
-            element.style.flexGrow = nullValue;
-            element.style.flexShrink = nullValue;
-            element.style.flexWrap = nullValue;
-            element.style.fontSize = nullValue;
-            element.style.height = nullValue;
-            element.style.justifyContent = nullValue;
-            element.style.left = nullValue;
-            element.style.letterSpacing = nullValue;
-            element.style.marginBottom = nullValue;
-            element.style.marginLeft = nullValue;
-            element.style.marginRight = nullValue;
-            element.style.marginTop = nullValue;
-            element.style.maxHeight = nullValue;
-            element.style.maxWidth = nullValue;
-            element.style.minHeight = nullValue;
-            element.style.minWidth = nullValue;
-            element.style.opacity = nullValue;
-            element.style.overflow = nullValue;
-            element.style.paddingBottom = nullValue;
-            element.style.paddingLeft = nullValue;
-            element.style.paddingRight = nullValue;
-            element.style.paddingTop = nullValue;
-            element.style.position = nullValue;
-            element.style.right = nullValue;
-            element.style.rotate = nullValue;
-            element.style.scale = nullValue;
-            element.style.textOverflow = nullValue;
-            element.style.textShadow = nullValue;
-            element.style.top = nullValue;
-            element.style.transformOrigin = nullValue;
-            element.style.transitionDelay = nullValue;
-            element.style.transitionDuration = nullValue;
-            element.style.transitionProperty = nullValue;
-            element.style.transitionTimingFunction = nullValue;
-            element.style.translate = nullValue;
-            element.style.unityBackgroundImageTintColor = nullValue;
-            element.style.unityBackgroundScaleMode = nullValue;
-            element.style.unityFont = nullValue;
-            element.style.unityFontDefinition = nullValue;
-            element.style.unityFontStyleAndWeight = nullValue;
-            element.style.unityOverflowClipBox = nullValue;
-            element.style.unityParagraphSpacing = nullValue;
-            element.style.unitySliceBottom = nullValue;
-            element.style.unitySliceLeft = nullValue;
-            element.style.unitySliceRight = nullValue;
-            element.style.unitySliceTop = nullValue;
-            element.style.unityTextAlign = nullValue;
-            element.style.unityTextOutlineColor = nullValue;
-            element.style.unityTextOutlineWidth = nullValue;
-            element.style.unityTextOverflowPosition = nullValue;
-            element.style.visibility = nullValue;
-            element.style.whiteSpace = nullValue;
-            element.style.width = nullValue;
-            element.style.wordSpacing = nullValue;
-            
-            if (element is IAdvancedPicking advancedPicking)
-            {
-                advancedPicking.Manager.InlinePointerDetection = null;
-            }
         }
 
         [Comparer]

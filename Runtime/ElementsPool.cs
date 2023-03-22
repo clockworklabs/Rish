@@ -74,6 +74,10 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
+                visualElement.name = null;
+                visualElement.ClearClassList();
+                visualElement.ResetInlineStyles();
+                
                 var originalParent = visualElement.parent;
                 visualElement.RemoveFromHierarchy();
                 

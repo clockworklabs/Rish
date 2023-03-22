@@ -5,12 +5,12 @@ namespace RishUI
 {
     public interface IDOMElement : IElement, IAdvancedPicking
     {
-        void Setup() { }
+        void Setup();
     }
     
     public interface IDOMElement<in P> : IElement, IAdvancedPicking where P : struct
     {
-        void Setup(P props) { }
+        void Setup(P props);
     }
 
     public abstract class RishVisualElement : VisualElement, IDOMElement
