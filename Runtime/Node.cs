@@ -575,6 +575,7 @@ namespace RishUI
                 if (element is VisualElement visualElement)
                 {
                     Node.VisualParent?.Add(visualElement);
+                    visualElement.ResetDOM();
                 }
                 
                 Node.EventSystem.OnMounted();
