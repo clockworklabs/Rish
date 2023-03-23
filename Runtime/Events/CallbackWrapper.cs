@@ -60,15 +60,7 @@ namespace RishUI.Events
             
             return Callback == typedCallback;
         }
-        void ICallbackWrapper.SetTarget(VisualElement visualElement)
-        {
-            // if (target != null && visualElement != null)
-            // {
-            //     throw new UnityException("CallbackWrapper already has a target");
-            // }
-
-            target = visualElement;
-        }
+        void ICallbackWrapper.SetTarget(VisualElement visualElement) => target = visualElement;
 
         private void Register() => target.RegisterCallback<T>(OnEvent, TrickleDown);
         private void Unregister() => target.UnregisterCallback<T>(OnEvent, TrickleDown);
