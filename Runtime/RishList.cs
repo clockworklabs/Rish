@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace RishUI
@@ -797,6 +798,27 @@ namespace RishUI
             }
 
             return list;
+        }
+
+        public References GetReferences()
+        {
+            var references = new FixedList4096Bytes<Children>();
+            for (int i = 0, n = Count; i < n; i++)
+            {
+                var element = this[i];
+                if (element is not IReferencesHolder referencesHolder)
+                {
+                    return default;
+                }
+
+                var elementReferences = referencesHolder.GetReferences();
+                foreach (var reference in elementReferences)
+                {
+                    references.Add(reference);
+                }
+            }
+            
+            return references;
         }
 
         public static implicit operator RishList<T>(T element)
