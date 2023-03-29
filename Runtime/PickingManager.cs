@@ -96,9 +96,8 @@ namespace RishUI
                 else
                 {
                     ManualReadable = true;
-                    var data = value.GetRawTextureData();
-                    BackgroundTexture = new Texture2D(value.width, value.height, value.format, value.mipmapCount > 1);
-                    BackgroundTexture.LoadRawTextureData(data);
+                    _backgroundTexture = new Texture2D(value.width, value.height, value.format, value.mipmapCount > 1);
+                    Graphics.CopyTexture(value, _backgroundTexture);
                 }
             }
         }

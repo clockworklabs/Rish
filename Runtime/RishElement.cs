@@ -394,7 +394,6 @@ namespace RishUI
             get
             {
                 var child = GetDOMChild();
-
                 var parent = child?.parent;
                 return parent?.LocalToWorld(child.layout) ?? default;
             }
