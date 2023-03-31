@@ -50,7 +50,7 @@ namespace RishUI
 
                     InitialSizes[type] = size;
                 }
-                
+
                 Populate<T>(pool, size);
             }
 
@@ -150,14 +150,30 @@ namespace RishUI
             
             for (var j = 0; j < size; j++)
             {
-                var element = new T();
-                if (element is VisualElement visualElement)
+                try
                 {
-                    visualElement.AddManipulator(new HoverManipulator());
-                    visualElement.AddManipulator(new ClickManipulator());
-                    visualElement.AddManipulator(new VisualChangeManipulator());
+                    var element = new T();
+                    
+                    if (element is VisualElement visualElement)
+                    {
+                        visualElement.AddManipulator(new HoverManipulator());
+                        visualElement.AddManipulator(new ClickManipulator());
+                        visualElement.AddManipulator(new VisualChangeManipulator());
+                    }
+                    pool.Push(element);
                 }
-                pool.Push(element);
+                catch (Exception exception)
+                {
+                    var type = typeof(T);
+                    if (type.IsGenericType)
+                    {
+                        Debug.LogError($"{type.FullName} is generic and the constructor was stripped. Define a type inheriting from this specific generic type just so the constructor doesn't get stripped, you don't need to use or reference the type anywhere.");
+                    }
+                    else
+                    {
+                        throw exception;
+                    }
+                }
             }
         }
         
