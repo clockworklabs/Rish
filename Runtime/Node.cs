@@ -32,7 +32,7 @@ namespace RishUI
         // --- Changes when mounted ------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         private Tree Tree { get; set; }
-        private uint Key { get; set; }
+        private ulong Key { get; set; }
         internal IElement Element { get; private set; }
         private Node _parent;
         internal Node Parent
@@ -227,7 +227,7 @@ namespace RishUI
             return node;
         }
 
-        private T MountAs<T>(Node parent, uint key) where T : class, IElement, new() => Machine.MountAs<T>(parent, key);
+        private T MountAs<T>(Node parent, ulong key) where T : class, IElement, new() => Machine.MountAs<T>(parent, key);
 
         public void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
@@ -314,7 +314,7 @@ namespace RishUI
             OnClean?.Invoke();
         }
 
-        internal (Node, T) AddChild<T>(uint key) where T : class, IElement, new()
+        internal (Node, T) AddChild<T>(ulong key) where T : class, IElement, new()
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -324,6 +324,12 @@ namespace RishUI
 #endif
             
             var type = typeof(T);
+
+            if (key == 0 && Attribute.IsDefined(type, typeof(AutoKeyAttribute)))
+            {
+                var attribute = (AutoKeyAttribute) Attribute.GetCustomAttribute(type, typeof(AutoKeyAttribute));
+                key = (ulong) ChildCount + attribute.offset;
+            }
 
             VirtualChildren ??= new List<Node>(10);
             Node child = null;
@@ -502,7 +508,7 @@ namespace RishUI
 
             public bool IsIn<T>() where T : State => CurrentState is T;
             
-            public T MountAs<T>(Node parent, uint key) where T : class, IElement, new() => CurrentState.MountAs<T>(parent, key);
+            public T MountAs<T>(Node parent, ulong key) where T : class, IElement, new() => CurrentState.MountAs<T>(parent, key);
 
             public void Unmount(bool forceUnmount)
             {
@@ -539,7 +545,7 @@ namespace RishUI
                 throw new NotImplementedException();
             }
 
-            public abstract T MountAs<T>(Node parent, uint key) where T : class, IElement, new();
+            public abstract T MountAs<T>(Node parent, ulong key) where T : class, IElement, new();
             public abstract void Unmount();
         }
 
@@ -564,7 +570,7 @@ namespace RishUI
 
             public override void Exit() { }
 
-            public override T MountAs<T>(Node parent, uint key)
+            public override T MountAs<T>(Node parent, ulong key)
             {
                 Node.Parent = parent;
                 Node.Key = key;
@@ -598,7 +604,7 @@ namespace RishUI
             {
             }
 
-            public override T MountAs<T>(Node parent, uint key)
+            public override T MountAs<T>(Node parent, ulong key)
             {
                 throw new UnityException("Invalid state. Node is already mounted.");
             }
@@ -933,7 +939,7 @@ namespace RishUI
                 Node.EventSystem.OnUnmounted();
             }
 
-            public override T MountAs<T>(Node parent, uint key)
+            public override T MountAs<T>(Node parent, ulong key)
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
             }

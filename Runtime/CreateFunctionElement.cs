@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace RishUI
 {
@@ -9,7 +8,7 @@ namespace RishUI
         // --- FUNCTION ELEMENTS ---------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         public static Element Create(FunctionElement functionElement) => Create(functionElement, 0);
-        public static Element Create(FunctionElement functionElement, uint key)
+        public static Element Create(FunctionElement functionElement, ulong key)
         {
             var element = GetFromPool<FunctionalDefinition>();
             element.Factory(key, functionElement);
@@ -18,11 +17,11 @@ namespace RishUI
         }
         
         public static Element Create<P>(FunctionElement<P> functionElement) where P : struct => Create(functionElement, 0);
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key) where P : struct => Create(functionElement, key, Defaults.GetValue<P>());
+        public static Element Create<P>(FunctionElement<P> functionElement, ulong key) where P : struct => Create(functionElement, key, Defaults.GetValue<P>());
         public static Element Create<P>(FunctionElement<P> functionElement, P props) where P : struct => Create(functionElement, 0, props);
         public static Element Create<P>(FunctionElement<P> functionElement, RefAction<P> props) where P : struct => Create(functionElement, 0, props);
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, RefAction<P> props) where P : struct => Create(functionElement, key, RefProps(props));
-        public static Element Create<P>(FunctionElement<P> functionElement, uint key, P props) where P : struct
+        public static Element Create<P>(FunctionElement<P> functionElement, ulong key, RefAction<P> props) where P : struct => Create(functionElement, key, RefProps(props));
+        public static Element Create<P>(FunctionElement<P> functionElement, ulong key, P props) where P : struct
         {
             var element = GetFromPool<FunctionalDefinition<P>>();
             element.Factory(key, functionElement, props);
@@ -43,7 +42,7 @@ namespace RishUI
             
             private FunctionElement Element { get; set; }
             
-            public void Factory(uint key, FunctionElement function)
+            public void Factory(ulong key, FunctionElement function)
             {
                 Key = key;
                 Element = function;
@@ -51,7 +50,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Children New(uint key) => Rish.Create(Element, key);
+            public override Children New(ulong key) => Rish.Create(Element, key);
 
             public override void Invoke(Node node)
             {
@@ -74,7 +73,7 @@ namespace RishUI
 
             private References References { get; set; }
 
-            public void Factory(uint key, FunctionElement<P> function, P props)
+            public void Factory(ulong key, FunctionElement<P> function, P props)
             {
                 Key = key;
                 Element = function;
@@ -85,7 +84,7 @@ namespace RishUI
 
             public override void Dispose() { }
 
-            public override Children New(uint key) => Rish.Create<P>(Element, key, Props);
+            public override Children New(ulong key) => Rish.Create<P>(Element, key, Props);
 
             public override void Invoke(Node node)
             {

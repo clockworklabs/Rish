@@ -8,7 +8,7 @@ namespace RishUI
         // --- RISH ELEMENTS -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         public static Element Create<T>() where T : RishBaseElement<NoProps>, new() => Create<T>(0);
-        public static Element Create<T>(uint key) where T : RishBaseElement<NoProps>, new()
+        public static Element Create<T>(ulong key) where T : RishBaseElement<NoProps>, new()
         {
             var element = GetFromPool<RishDefinition<T, NoProps>>();
             element.Factory(key, new NoProps());
@@ -17,11 +17,11 @@ namespace RishUI
         }
 
         public static Element Create<T, P>() where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0);
-        public static Element Create<T, P>(uint key) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, Defaults.GetValue<P>());
+        public static Element Create<T, P>(ulong key) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, Defaults.GetValue<P>());
         public static Element Create<T, P>(RefAction<P> props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0, RefProps(props));
         public static Element Create<T, P>(P props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0, props);
-        public static Element Create<T, P>(uint key, RefAction<P> props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, RefProps(props));
-        public static Element Create<T, P>(uint key, P props) where T : RishBaseElement<P>, new() where P : struct
+        public static Element Create<T, P>(ulong key, RefAction<P> props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, RefProps(props));
+        public static Element Create<T, P>(ulong key, P props) where T : RishBaseElement<P>, new() where P : struct
         {
             var element = GetFromPool<RishDefinition<T, P>>();
             element.Factory(key, props);
@@ -37,7 +37,7 @@ namespace RishUI
 
             private References References { get; set; }
 
-            public void Factory(uint key, P props)
+            public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
@@ -45,7 +45,7 @@ namespace RishUI
                 References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
             }
 
-            public override Children New(uint key) => Rish.Create<T, P>(key, Props);
+            public override Children New(ulong key) => Rish.Create<T, P>(key, Props);
 
             public override void Invoke(Node node)
             {

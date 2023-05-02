@@ -54,12 +54,12 @@ namespace RishUI
     
     public abstract class SingleElementDefinition : ElementDefinition
     {
-        public uint Key { get; protected set; }
+        public ulong Key { get; protected set; }
         public abstract Type Type { get; }
         
-        public abstract Children New(uint key);
+        public abstract Children New(ulong key);
 
-        public Children New(RefAction<uint> action)
+        public Children New(RefAction<ulong> action)
         {
             var key = Key;
             action?.Invoke(ref key);
