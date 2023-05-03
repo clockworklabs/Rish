@@ -370,6 +370,12 @@ namespace RishUI
             {
                 return other is DOMElementDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<DOMDescriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
             }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                return false;
+            }
         }
 
         private class DOMElementDefinition<T, P> : SingleElementDefinition where T: VisualElement, IDOMElement<P>, new() where P : struct
@@ -422,6 +428,18 @@ namespace RishUI
             public override bool Equals(ElementDefinition other)
             {
                 return other is DOMElementDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<DOMDescriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<P>(Props, otherDefinition.Props) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
+            }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                if (Props is not P1 p)
+                {
+                    return false;
+                }
+
+                props = p;
+                return true;
             }
         }
     } 

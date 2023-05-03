@@ -29,12 +29,6 @@ namespace RishUI
             return CreateChildren(element).ToElement();
         }
         
-        // private abstract class RishDefinition<P> : VirtualElementDefinition where P : struct
-        // {
-        //     public P Props { get; protected set; }
-        // }
-        //
-        // private class RishDefinition<T, P> : RishDefinition<P> where T : RishBaseElement<P>, new() where P : struct
         private class RishDefinition<T, P> : VirtualElementDefinition where T : RishBaseElement<P>, new() where P : struct
         {
             public override Type Type => typeof(T);
@@ -80,6 +74,18 @@ namespace RishUI
             public override bool Equals(ElementDefinition other)
             {
                 return other is RishDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<P>(Props, otherDefinition.Props);
+            }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                if (Props is not P1 p)
+                {
+                    return false;
+                }
+
+                props = p;
+                return true;
             }
         }
     }

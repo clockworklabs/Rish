@@ -44,24 +44,17 @@ namespace RishUI
             type = singleElementDefinition.Type;
             return true;
         }
-        // public bool TryGetProps<P>(out P props)
-        // {
-        //     props = default;
-        //     if (!Valid)
-        //     {
-        //         return false;
-        //     }
-        //     
-        //     var definition = GetDefinition();
-        //
-        //     if (definition is not RishDefinition<P> rishDefinition)
-        //     {
-        //         return false;
-        //     }
-        //
-        //     props = rishDefinition.Props;
-        //     return true;
-        // }
+        public bool TryGetProps<P>(out P props)
+        {
+            props = default;
+            if (!Valid)
+            {
+                return false;
+            }
+            
+            var definition = GetDefinition();
+            return definition is SingleElementDefinition singleElementDefinition && singleElementDefinition.TryGetProps(out props);
+        }
 
         public static implicit operator Children(Element element) => new Children(element._id);
 
