@@ -18,13 +18,12 @@ namespace RishUI
         }
     }
 
-    public static class ElementsPool
+    internal static class ElementsPool
     {
         private const int InitialSize = 32;
         
         private static Dictionary<Type, int> InitialSizes { get; } = new();
         private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
-        private static List<IElement> FreeElements { get; } = new();
 
         public static T Get<T>() where T : class, IElement, new()
         {
@@ -60,7 +59,7 @@ namespace RishUI
             return element as T;
         }
 
-        public static bool Return(IElement element)
+        public static bool Free(IElement element)
         {
             if (element == null)
             {
@@ -128,26 +127,25 @@ namespace RishUI
                         }
                     }
                 }
-                
             }
-            
-            FreeElements.Add(element);
-            
+
             return true;
         }
 
-        internal static void RepopulatePools()
+        internal static void ReturnToPool(IElement element)
         {
-            foreach (var element in FreeElements)
+            if (element == null)
             {
-                var type = element.GetType();
-                if (!Pools.TryGetValue(type, out var pool))
-                {
-                    continue;
-                }
-                
-                pool.Push(element);
+                return;
             }
+            
+            var type = element.GetType();
+            if (!Pools.TryGetValue(type, out var pool))
+            {
+                return;
+            }
+            
+            pool.Push(element);
         }
         
         private static void Populate<T>(Stack<IElement> pool, int size) where T : IElement, new()

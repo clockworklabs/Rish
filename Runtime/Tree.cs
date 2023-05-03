@@ -18,7 +18,8 @@ namespace RishUI
 
         private uint CurrentDepth { get; set; }
 
-        private List<Node> FreeNodes { get; } = new();
+        private List<Node> FreeNodes { get; set; } = new();
+        private List<Node> FreeNodesBuffer { get; set; } = new();
 
         public Tree(UIDocument document, string rootClassName)
         {
@@ -58,6 +59,8 @@ namespace RishUI
 
         public void Update()
         {
+            (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
+            
             for (int i = 0, n = DirtyList.Count; i < n; i++)
             {
                 var node = DirtyList[i];
@@ -80,27 +83,35 @@ namespace RishUI
             }
 
             ReturnFreeNodesToPool();
-            ElementsPool.RepopulatePools();
         }
 
         public void Dispose()
         {
             RootNode.Unmount(true);
-            ReturnFreeNodesToPool();
+            ReturnFreeNodesToPool(true);
         }
 
         internal void NodeFreed(Node node)
         {
-            FreeNodes.Add(node);
+            FreeNodesBuffer.Add(node);
         }
 
-        private void ReturnFreeNodesToPool()
+        private void ReturnFreeNodesToPool(bool returnBuffer = false)
         {
             for (int i = 0, n = FreeNodes.Count; i < n; i++)
             {
                 FreeNodes[i].ReturnToPool();
             }
             FreeNodes.Clear();
+
+            if (returnBuffer)
+            {
+                for (int i = 0, n = FreeNodesBuffer.Count; i < n; i++)
+                {
+                    FreeNodesBuffer[i].ReturnToPool();
+                }
+                FreeNodesBuffer.Clear();
+            }
         }
     }
 }

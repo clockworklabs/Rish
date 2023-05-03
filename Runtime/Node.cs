@@ -232,7 +232,7 @@ namespace RishUI
 
         private T MountAs<T>(Node parent, ulong key) where T : class, IElement, new() => Machine.MountAs<T>(parent, key);
 
-        public void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
+        internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
         internal void Render()
         {
@@ -393,7 +393,7 @@ namespace RishUI
 
         private bool Contains(Node child) => VirtualChildren.Contains(child);
 
-        internal void ReturnToPool() => ReturnNodeToPool(this);
+        internal void ReturnToPool() => Machine.ReturnToPool();
 
         private static Node GetNodeFromPool(Tree tree)
         {
@@ -443,6 +443,10 @@ namespace RishUI
                             throw new UnityException("Invalid transition");
                         case ReadyToUnmountState when value is not UnmountedState && value is not UnmountRequestedState:
                             throw new UnityException("Invalid transition");
+                        case UnmountedState when value is not FreeState:
+                            throw new UnityException("Invalid transition");
+                        case FreeState when value is not ReadyToMountState:
+                            throw new UnityException("Invalid transition");
                     }
 #endif
 
@@ -457,6 +461,7 @@ namespace RishUI
             private UnmountRequestedState UnmountRequested { get; }
             private ReadyToUnmountState ReadyToUnmount { get; }
             private UnmountedState Unmounted { get; }
+            private FreeState Free { get; }
 
             private Node Node { get; }
 
@@ -469,6 +474,7 @@ namespace RishUI
                 UnmountRequested = new UnmountRequestedState(this, node);
                 ReadyToUnmount = new ReadyToUnmountState(this, node);
                 Unmounted = new UnmountedState(this, node);
+                Free = new FreeState(this, node);
 
                 GoTo<ReadyToMountState>();
             }
@@ -507,6 +513,11 @@ namespace RishUI
                     return Unmounted;
                 }
 
+                if (Free is T)
+                {
+                    return Free;
+                }
+
                 return null;
             }
 
@@ -524,6 +535,8 @@ namespace RishUI
                 
                 CurrentState.Unmount();
             }
+
+            public void ReturnToPool() => CurrentState.ReturnToPool();
         }
 
         private abstract class State
@@ -551,6 +564,7 @@ namespace RishUI
 
             public abstract T MountAs<T>(Node parent, ulong key) where T : class, IElement, new();
             public abstract void Unmount();
+            public abstract void ReturnToPool();
         }
 
         private class ReadyToMountState : State
@@ -600,6 +614,11 @@ namespace RishUI
             {
                 throw new UnityException("Invalid state. Node is already unmounted.");
             }
+
+            public override void ReturnToPool()
+            {
+                throw new UnityException("Invalid state. Node is already in the pool.");
+            }
         }
 
         private abstract class ActiveState : State
@@ -611,6 +630,11 @@ namespace RishUI
             public override T MountAs<T>(Node parent, ulong key)
             {
                 throw new UnityException("Invalid state. Node is already mounted.");
+            }
+
+            public override void ReturnToPool()
+            {
+                throw new UnityException("Invalid state. Node isn't unmounted.");
             }
         }
 
@@ -910,9 +934,7 @@ namespace RishUI
                     }
                 }
 
-                Node.Free();
-
-                GoTo<ReadyToMountState>();
+                GoTo<FreeState>();
             }
 
             public override void Exit()
@@ -936,8 +958,6 @@ namespace RishUI
                         break;
                     }
                 }
-
-                ElementsPool.Return(element);
                 
                 Node.InputSystem.OnUnmounted();
                 Node.EventSystem.OnUnmounted();
@@ -952,6 +972,39 @@ namespace RishUI
             {
                 throw new UnityException("Invalid state. Node is unmounted.");
             }
+
+            public override void ReturnToPool()
+            {
+                throw new UnityException("Invalid state. Node isn't ready to return to the pool.");
+            }
+        }
+
+        private class FreeState : State
+        {
+            public FreeState(StateMachine machine, Node node) : base(machine, node) { }
+
+            public override void Enter() {
+                Node.Free();
+                ElementsPool.Free(Node.Element);
+            }
+
+            public override void Exit()
+            {
+                ReturnNodeToPool(Node);
+                ElementsPool.ReturnToPool(Node.Element);
+            }
+
+            public override T MountAs<T>(Node parent, ulong key)
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void Unmount()
+            {
+                throw new UnityException("Invalid state. Node is unmounted.");
+            }
+
+            public override void ReturnToPool() => GoTo<ReadyToMountState>();
         }
     }
 }
