@@ -24,6 +24,7 @@ namespace RishUI
         
         private static Dictionary<Type, int> InitialSizes { get; } = new();
         private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
+        private static List<IElement> FreeElements { get; } = new();
 
         public static T Get<T>() where T : class, IElement, new()
         {
@@ -62,12 +63,6 @@ namespace RishUI
         public static bool Return(IElement element)
         {
             if (element == null)
-            {
-                return false;
-            }
-
-            var type = element.GetType();
-            if (!Pools.TryGetValue(type, out var pool))
             {
                 return false;
             }
@@ -136,9 +131,23 @@ namespace RishUI
                 
             }
             
-            pool.Push(element);
+            FreeElements.Add(element);
             
             return true;
+        }
+
+        internal static void RepopulatePools()
+        {
+            foreach (var element in FreeElements)
+            {
+                var type = element.GetType();
+                if (!Pools.TryGetValue(type, out var pool))
+                {
+                    continue;
+                }
+                
+                pool.Push(element);
+            }
         }
         
         private static void Populate<T>(Stack<IElement> pool, int size) where T : IElement, new()

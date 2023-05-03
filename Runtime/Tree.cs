@@ -80,6 +80,7 @@ namespace RishUI
             }
 
             ReturnFreeNodesToPool();
+            ElementsPool.RepopulatePools();
         }
 
         public void Dispose()
