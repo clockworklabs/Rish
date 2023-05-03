@@ -6,7 +6,6 @@ using RishUI.Input;
 using SharpNeatLib.Maths;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Random = System.Random;
 
 namespace RishUI
 {
@@ -216,7 +215,7 @@ namespace RishUI
             EventSystem = new EventSystem(this);
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
-            PRNG = new FastRandom((int)id);
+            PRNG = new FastRandom();
         }
         
         public static Node CreateRoot(Tree tree, string rootClassName)
@@ -284,7 +283,8 @@ namespace RishUI
 #endif
             
             ChildCount = 0;
-            PRNG.Reinitialise((int) ID);
+            
+            PRNG.Reinitialise((int)ID ^ VirtualIndex);
         }
 
         private void Clean()
