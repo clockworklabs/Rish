@@ -62,6 +62,12 @@ namespace RishUI
             {
                 return other is FunctionalDefinition otherDefinition && Key == otherDefinition.Key && Element == otherDefinition.Element;
             }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                return false;
+            }
         }
 
         private class FunctionalDefinition<P> : SingleElementDefinition where P : struct
@@ -115,6 +121,18 @@ namespace RishUI
             public override bool Equals(ElementDefinition other)
             {
                 return other is FunctionalDefinition<P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<P>(Props, otherDefinition.Props) && Element == otherDefinition.Element;
+            }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                if (Props is not P1 p)
+                {
+                    return false;
+                }
+
+                props = p;
+                return true;
             }
         }
     } 
