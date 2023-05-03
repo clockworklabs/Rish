@@ -28,13 +28,18 @@ namespace RishUI
             
             return CreateChildren(element).ToElement();
         }
-
+        
+        // private abstract class RishDefinition<P> : VirtualElementDefinition where P : struct
+        // {
+        //     public P Props { get; protected set; }
+        // }
+        //
+        // private class RishDefinition<T, P> : RishDefinition<P> where T : RishBaseElement<P>, new() where P : struct
         private class RishDefinition<T, P> : VirtualElementDefinition where T : RishBaseElement<P>, new() where P : struct
         {
             public override Type Type => typeof(T);
             
             private P Props { get; set; }
-
             private References References { get; set; }
 
             public void Factory(ulong key, P props)
