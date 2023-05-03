@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
+using SharpNeatLib.Maths;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = System.Random;
 
 namespace RishUI
 {
@@ -27,6 +29,7 @@ namespace RishUI
         internal EventSystem EventSystem { get; }
         internal InputSystem InputSystem { get; }
         private StateMachine Machine { get; }
+        private FastRandom PRNG { get; }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes when mounted ------------------------------------------------------------------------------------
@@ -213,6 +216,7 @@ namespace RishUI
             EventSystem = new EventSystem(this);
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
+            PRNG = new FastRandom((int)id);
         }
         
         public static Node CreateRoot(Tree tree, string rootClassName)
@@ -280,6 +284,7 @@ namespace RishUI
 #endif
             
             ChildCount = 0;
+            PRNG.Reinitialise((int) ID);
         }
 
         private void Clean()
@@ -327,8 +332,7 @@ namespace RishUI
 
             if (key == 0 && Attribute.IsDefined(type, typeof(AutoKeyAttribute)))
             {
-                var attribute = (AutoKeyAttribute) Attribute.GetCustomAttribute(type, typeof(AutoKeyAttribute));
-                key = (ulong) ChildCount + attribute.offset;
+                key = PRNG.NextUInt();
             }
 
             VirtualChildren ??= new List<Node>(10);
