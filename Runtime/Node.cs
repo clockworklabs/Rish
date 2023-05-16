@@ -52,6 +52,8 @@ namespace RishUI
         private VisualElement VisualParent { get; set; }
         public uint Depth { get; private set; }
         internal uint DirtyPriority => uint.MaxValue - Depth;
+        
+        internal ulong MountedHashCode { get; private set; }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes constantly --------------------------------------------------------------------------------------
@@ -284,7 +286,7 @@ namespace RishUI
             
             ChildCount = 0;
             
-            PRNG.Reinitialise((int)ID ^ VirtualIndex);
+            PRNG.Reinitialise((int)MountedHashCode);
         }
 
         private void Clean()
@@ -394,6 +396,22 @@ namespace RishUI
         private bool Contains(Node child) => VirtualChildren.Contains(child);
 
         internal void ReturnToPool() => Machine.ReturnToPool();
+
+        private ulong ComputeHashCodeInTree()
+        {
+            ulong hash = 7;
+
+            var node = this;
+            while(node != null)
+            {
+                hash = (hash << 5) - hash + node.Key;
+                hash = (hash << 5) - hash + (ulong) node.Type.GetHashCode();
+                
+                node = node.Parent;
+            }
+            
+            return hash;
+        }
 
         private static Node GetNodeFromPool(Tree tree)
         {
@@ -578,6 +596,7 @@ namespace RishUI
                 Node.Depth = 0;
                 Node.Element = null;
                 Node.ChildCount = 0;
+                Node.MountedHashCode = 0;
 
                 Node.VirtualChildren?.Clear();
                 Node.UnmountingChildren?.Clear();
@@ -601,6 +620,8 @@ namespace RishUI
                     Node.VisualParent?.Add(visualElement);
                     visualElement.ResetDOM();
                 }
+
+                Node.MountedHashCode = Node.ComputeHashCodeInTree();
                 
                 Node.EventSystem.OnMounted();
                 Node.InputSystem.OnMounted();

@@ -28,8 +28,6 @@ namespace RishUI
 
     public abstract class RishBaseElement<P> : IRishElement, IOwner where P : struct
     {
-        private static uint _nextId;
-        
         private event Action<bool> OnDirty;
         event Action<bool> IRishElement.OnDirty
         {
@@ -78,7 +76,6 @@ namespace RishUI
         private Node Node { get; set; }
         Node IRishElement.Node => Node;
         protected uint NodeID => Node?.ID ?? 0;
-        protected uint ElementId { get; }
         
         private P? _props;
         public P Props
@@ -91,11 +88,6 @@ namespace RishUI
         private bool ReadyToUnmount { get; set; }
 
         private References References { get; set; }
-
-        protected RishBaseElement()
-        {
-            ElementId = _nextId++;
-        }
 
         protected T GetFirstAncestorOfType<T>() where T : class
         {
@@ -477,6 +469,8 @@ namespace RishUI
 
             return false;
         }
+
+        protected ulong GetNodeHashCode() => Node.MountedHashCode;
     }
 
     public abstract class RishBaseElement<P, S> : RishBaseElement<P> where P : struct where S : struct
