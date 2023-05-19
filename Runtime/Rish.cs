@@ -266,8 +266,6 @@ namespace RishUI
                 return;
             }
 
-            var definition = GetDefinition(id);
-
             GarbageSet.Add(id);
             Garbage.Add(id);
         }
@@ -278,8 +276,6 @@ namespace RishUI
             {
                 return;
             }
-
-            var definition = GetDefinition(id);
 
             GarbageSet.Remove(id);
             Garbage.Remove(id);

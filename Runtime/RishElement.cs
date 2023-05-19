@@ -126,7 +126,9 @@ namespace RishUI
                 }
             }
 
+            References.Dispose();
             References = default;
+            
             _props = value;
             if (value is IReferencesHolder holder)
             {
@@ -239,7 +241,9 @@ namespace RishUI
             
             OnUnmounted?.Invoke();
 
+            References.Dispose();
             References = default;
+            
             Node = null;
             
             if (this is ICustomUnmountListener customUnmountListener)
@@ -490,7 +494,10 @@ namespace RishUI
                         reference.UnregisterReference(this);
                     }
                 }
+                
+                References.Dispose();
                 References = default;
+                
                 _state = value;
                 if (value is IReferencesHolder holder)
                 {
@@ -529,9 +536,10 @@ namespace RishUI
                 {
                     reference.UnregisterReference(this);
                 }
-
-                References = default;
             }
+            
+            References.Dispose();
+            References = default;
         }
 
         protected void SetState(RefAction<S> action)

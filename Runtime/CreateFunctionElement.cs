@@ -85,10 +85,15 @@ namespace RishUI
                 Element = function;
                 Props = props;
 
+                References.Dispose();
                 References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
             }
 
-            public override void Dispose() { }
+            public override void Dispose()
+            {
+                References.Dispose();
+                References = default;
+            }
 
             public override Children New(ulong key) => Rish.Create<P>(Element, key, Props);
 

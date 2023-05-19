@@ -800,25 +800,23 @@ namespace RishUI
             return list;
         }
 
-        public References GetReferences()
+        public void AddReferences(ref References references)
         {
-            var references = new FixedList4096Bytes<Children>();
             for (int i = 0, n = Count; i < n; i++)
             {
                 var element = this[i];
                 if (element is not IReferencesHolder referencesHolder)
                 {
-                    return default;
+                    continue;
                 }
-
+        
                 var elementReferences = referencesHolder.GetReferences();
                 foreach (var reference in elementReferences)
                 {
                     references.Add(reference);
                 }
+                elementReferences.Dispose();
             }
-            
-            return references;
         }
 
         public static implicit operator RishList<T>(T element)

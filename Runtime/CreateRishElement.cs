@@ -29,7 +29,7 @@ namespace RishUI
             return CreateChildren(element).ToElement();
         }
         
-        private class RishDefinition<T, P> : VirtualElementDefinition where T : RishBaseElement<P>, new() where P : struct
+        private class RishDefinition<T, P> : SingleElementDefinition where T : RishBaseElement<P>, new() where P : struct
         {
             public override Type Type => typeof(T);
             
@@ -41,7 +41,14 @@ namespace RishUI
                 Key = key;
                 Props = props;
                 
+                References.Dispose();
                 References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
+            }
+
+            public override void Dispose()
+            {   
+                References.Dispose();
+                References = default;
             }
 
             public override Children New(ulong key) => Rish.Create<T, P>(key, Props);

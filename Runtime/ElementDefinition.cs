@@ -68,9 +68,4 @@ namespace RishUI
 
         public abstract bool TryGetProps<P>(out P props);
     }
-    
-    public abstract class VirtualElementDefinition : SingleElementDefinition
-    {
-        public sealed override void Dispose() { }
-    }
 }
