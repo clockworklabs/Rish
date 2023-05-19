@@ -110,8 +110,8 @@ namespace RishUI
         
         
         
-        private delegate Rect RectGetter(VisualElement props);
-        private delegate int IntGetter(VisualElement props);
+        private delegate Rect RectGetter(VisualElement visualElement);
+        private delegate int IntGetter(VisualElement visualElement);
         
         private static Type _visualElementType;
         private static Type VisualElementType => _visualElementType ??= typeof(VisualElement);
