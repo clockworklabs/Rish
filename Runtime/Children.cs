@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public readonly struct Children : IEquatable<Children>, IReferencesHolder
+    public readonly struct Children : IEquatable<Children>
     {
         private readonly uint _id;
 
@@ -111,6 +111,7 @@ namespace RishUI
             return aDefinition.Equals(bDefinition);
         }
 
-        References IReferencesHolder.GetReferences() => this;
+        [ReferencesGetter]
+        private static References GetReferences(Children owner) => owner;
     }
 }

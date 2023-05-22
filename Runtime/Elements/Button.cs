@@ -261,7 +261,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct ButtonProps : IReferencesHolder
+    public struct ButtonProps
     {
         public bool interactable;
         
@@ -307,6 +307,7 @@ namespace RishUI.Elements
                 RishUtils.Compare<Element>(a.disabled, b.disabled);
         }
 
-        References IReferencesHolder.GetReferences() => (normal, hovered, pressed, disabled);
+        [ReferencesGetter]
+        private static References GetReferences(ButtonProps owner) => (owner.normal, owner.hovered, owner.pressed, owner.disabled);
     }
 }

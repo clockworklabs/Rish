@@ -127,17 +127,13 @@ namespace RishUI
             }
 
             References.Dispose();
-            References = default;
+            References = ReferencesGetters.GetReferences(value);
+            foreach (var reference in References)
+            {
+                reference.RegisterReference(this);
+            }
             
             _props = value;
-            if (value is IReferencesHolder holder)
-            {
-                References = holder.GetReferences();
-                foreach (var reference in References)
-                {
-                    reference.RegisterReference(this);
-                }
-            }
 
             if (!propsSet || dirty)
             {
@@ -496,17 +492,13 @@ namespace RishUI
                 }
                 
                 References.Dispose();
-                References = default;
+                References = ReferencesGetters.GetReferences(value);
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(this);
+                }
                 
                 _state = value;
-                if (value is IReferencesHolder holder)
-                {
-                    References = holder.GetReferences();
-                    foreach (var reference in References)
-                    {
-                        reference.RegisterReference(this);
-                    }
-                }
  
                 if (dirty)
                 {
@@ -520,7 +512,7 @@ namespace RishUI
         protected RishBaseElement()
         {
             OnMounted += SetDefaultState;
-            OnUnmounted += UnregisterReferences; // For references
+            OnUnmounted += UnregisterReferences;
         }
 
         private void SetDefaultState()

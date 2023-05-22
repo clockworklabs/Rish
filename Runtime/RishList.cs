@@ -719,7 +719,7 @@ namespace RishUI
 
         [Comparer]
         public static bool Equals(RishList<T> a, RishList<T> b) => a.Equals(b);
-        
+
         public bool Equals(RishList<T> other)
         {
             var count = Count;
@@ -802,15 +802,15 @@ namespace RishUI
 
         public void AddReferences(ref References references)
         {
+            if (!ReferencesGetters.Contains<T>())
+            {
+                return;
+            }
+            
             for (int i = 0, n = Count; i < n; i++)
             {
                 var element = this[i];
-                if (element is not IReferencesHolder referencesHolder)
-                {
-                    continue;
-                }
-        
-                var elementReferences = referencesHolder.GetReferences();
+                var elementReferences = ReferencesGetters.GetReferences(element);
                 foreach (var reference in elementReferences)
                 {
                     references.Add(reference);

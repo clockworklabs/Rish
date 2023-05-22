@@ -114,6 +114,9 @@ namespace RishUI
                 };
             }).Where(type => !type.IsGenericParameter).ToArray();
             
+            Debug.Log($"{Comparers.Count} types have comparers");
+            Debug.Log($"{ReferencesGetters.Count} types have references getters");
+            
             ShowComparersWarnings(types);
             ShowReferencesWarnings(types);
 
@@ -157,18 +160,28 @@ namespace RishUI
 
         private static void ShowReferencesWarnings(Type[] types)
         {
-            var interfaceType = typeof(IReferencesHolder);
             foreach (var type in types)
             {
-                if(interfaceType.IsAssignableFrom(type))
+                var hasGetter = ReferencesGetters.Contains(type);
+                if (hasGetter)
                 {
-                    continue;
+                    Debug.Log($"{type} has getter");
                 }
-
+                
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (fields.Any(field => field.FieldType == typeof(Children)))
+                var shouldHaveGetter = fields.Any(field =>
                 {
-                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a to implement IReferencesHolder");
+                    var fieldType = field.FieldType;
+                    return fieldType == typeof(Children) || fieldType == typeof(Element);
+                });
+                
+                if (shouldHaveGetter && !hasGetter)
+                {
+                    Debug.LogWarning($"{GetTypeFullName(type)} has at least one Element or Children field and needs a References getter");
+                }
+                else if(!shouldHaveGetter && hasGetter)
+                {
+                    Debug.LogWarning($"{GetTypeFullName(type)} hasn't any Element or Children fields and doesn't need a References getter");
                 }
             }
         }

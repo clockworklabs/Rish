@@ -153,6 +153,28 @@ namespace RishUI
             _elements.Dispose();
         }
 
+        internal bool IsValid()
+        {
+            if (!_initialized)
+            {
+                return false;
+            }
+
+            var valid = false;
+            foreach (var element in _elements)
+            {
+                if (!element.Valid)
+                {
+                    continue;
+                }
+
+                valid = true;
+                break;
+            }
+
+            return valid;
+        }
+
         public static References Empty => new References(new NativeList<Children>(32, Allocator.Persistent));
 
         public Children this[int index] => _elements[index];

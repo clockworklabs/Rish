@@ -76,7 +76,7 @@ namespace RishUI.Elements
         }
     }
 
-    public struct FormProps : IReferencesHolder
+    public struct FormProps
     {
         public Element content;
         public Action submitAction;
@@ -84,6 +84,7 @@ namespace RishUI.Elements
         [Comparer]
         private static bool Equals(FormProps a, FormProps b) => RishUtils.Compare<Element>(a.content, b.content);
 
-        References IReferencesHolder.GetReferences() => content;
+        [ReferencesGetter]
+        private static References GetReferences(FormProps owner) => owner.content;
     }
 }

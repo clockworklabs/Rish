@@ -332,7 +332,7 @@ namespace RishUI
             
             var type = typeof(T);
 
-            if (key == 0 && Attribute.IsDefined(type, typeof(AutoKeyAttribute)))
+            if (key == 0 && AutoKeyAttribute.Contains(type))
             {
                 key = PRNG.NextUInt();
             }

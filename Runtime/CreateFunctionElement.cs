@@ -86,7 +86,7 @@ namespace RishUI
                 Props = props;
 
                 References.Dispose();
-                References = Props is IReferencesHolder holder ? holder.GetReferences() : default;
+                References = ReferencesGetters.GetReferences(props);
             }
 
             public override void Dispose()
