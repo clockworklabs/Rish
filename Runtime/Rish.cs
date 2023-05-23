@@ -114,9 +114,6 @@ namespace RishUI
                 };
             }).Where(type => !type.IsGenericParameter).ToArray();
             
-            Debug.Log($"{Comparers.Count} types have comparers");
-            Debug.Log($"{ReferencesGetters.Count} types have references getters");
-            
             ShowComparersWarnings(types);
             ShowReferencesWarnings(types);
 
@@ -163,10 +160,6 @@ namespace RishUI
             foreach (var type in types)
             {
                 var hasGetter = ReferencesGetters.Contains(type);
-                if (hasGetter)
-                {
-                    Debug.Log($"{type} has getter");
-                }
                 
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 var shouldHaveGetter = fields.Any(field =>

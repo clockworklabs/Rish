@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -20,7 +19,6 @@ namespace RishUI
 
         static ReferencesGetters()
         {
-            Debug.Log($"CONSTRUCTOR");
             Methods = new Dictionary<Type, MethodInfo>(200);
             foreach (var type in Rish.PlayerTypes)
             {
@@ -34,8 +32,6 @@ namespace RishUI
                     Methods.Add(type, method);
                 }
             }
-            
-            Debug.Log($"TOTAL: {Count}");
         }
 
         public static References GetReferences<T>(T owner) where T : struct
