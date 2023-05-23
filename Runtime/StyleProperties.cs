@@ -75,6 +75,20 @@ namespace RishUI
 
         public static implicit operator StyleBackground(UnityEngine.UIElements.StyleBackground style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleBackground a, StyleBackground b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value.Equals(b.value);
+            }
+
+            return aNotNull == bNotNull;
+        }
     }
     
     public readonly struct StyleColor : IStyleValue<Color>
@@ -147,9 +161,23 @@ namespace RishUI
 
         public static implicit operator StyleCursor(UnityEngine.UIElements.StyleCursor style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleCursor a, StyleCursor b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value.Equals(b.value);
+            }
+
+            return aNotNull == bNotNull;
+        }
     }
     
-    public readonly struct StyleEnum<T> : IStyleValue<T> where T : struct, IConvertible
+    public readonly struct StyleEnum<T> : IStyleValue<T> where T : unmanaged, IConvertible
     {
         public readonly T value;
         T IStyleValue<T>.value => value;
@@ -255,6 +283,20 @@ namespace RishUI
 
         public static implicit operator StyleFont(UnityEngine.UIElements.StyleFont style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleFont a, StyleFont b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value == b.value;
+            }
+
+            return aNotNull == bNotNull;
+        }
     }
     
     public readonly struct StyleFontDefinition : IStyleValue<FontDefinition>
@@ -295,6 +337,20 @@ namespace RishUI
 
         public static implicit operator StyleFontDefinition(UnityEngine.UIElements.StyleFontDefinition style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleFontDefinition a, StyleFontDefinition b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value.Equals(b.value);
+            }
+
+            return aNotNull == bNotNull;
+        }
     }
     
     public readonly struct StyleInt : IStyleValue<int>
@@ -407,6 +463,20 @@ namespace RishUI
 
         public static implicit operator StyleList<T>(UnityEngine.UIElements.StyleList<T> style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleList<T> a, StyleList<T> b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value == b.value;
+            }
+
+            return aNotNull == bNotNull;
+        }
     }
     
     public readonly struct StyleRotate : IStyleValue<Angle>

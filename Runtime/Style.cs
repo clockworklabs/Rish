@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -66,7 +65,7 @@ namespace RishUI
         public StyleTranslate translate;
         public StyleColor unityBackgroundImageTintColor;
         public StyleEnum<ScaleMode> unityBackgroundScaleMode;
-        public StyleFont unityFont; // TODO: Maybe remove this so we don't have references?
+        public StyleFont unityFont;
         public StyleFontDefinition unityFontDefinition;
         public StyleEnum<FontStyle> unityFontStyleAndWeight;
         public StyleEnum<OverflowClipBox> unityOverflowClipBox;
@@ -444,240 +443,84 @@ namespace RishUI
         public static bool Equals(Style a, Style b)
         {
             return
-                (a.alignContent.IsNotNull() && b.alignContent.IsNotNull()
-                    ? a.alignContent.keyword == b.alignContent.keyword && a.alignContent.value.Equals(b.alignContent.value)
-                    : a.alignContent.IsNotNull() == b.alignContent.IsNotNull()) &&
-                (a.alignItems.IsNotNull() && b.alignItems.IsNotNull()
-                    ? a.alignItems.keyword == b.alignItems.keyword && a.alignItems.value.Equals(b.alignItems.value)
-                    : a.alignItems.IsNotNull() == b.alignItems.IsNotNull()) &&
-                (a.alignSelf.IsNotNull() && b.alignSelf.IsNotNull()
-                    ? a.alignSelf.keyword == b.alignSelf.keyword && a.alignSelf.value.Equals(b.alignSelf.value)
-                    : a.alignSelf.IsNotNull() == b.alignSelf.IsNotNull()) &&
-                (a.backgroundColor.IsNotNull() && b.backgroundColor.IsNotNull()
-                    ? a.backgroundColor.keyword == b.backgroundColor.keyword && a.backgroundColor.value.Equals(b.backgroundColor.value)
-                    : a.backgroundColor.IsNotNull() == b.backgroundColor.IsNotNull()) &&
-                (a.backgroundImage.IsNotNull() && b.backgroundImage.IsNotNull()
-                    ? a.backgroundImage.keyword == b.backgroundImage.keyword && a.backgroundImage.value.Equals(b.backgroundImage.value)
-                    : a.backgroundImage.IsNotNull() == b.backgroundImage.IsNotNull()) &&
-                (a.borderBottomColor.IsNotNull() && b.borderBottomColor.IsNotNull()
-                    ? a.borderBottomColor.keyword == b.borderBottomColor.keyword && a.borderBottomColor.value.Equals(b.borderBottomColor.value)
-                    : a.borderBottomColor.IsNotNull() == b.borderBottomColor.IsNotNull()) &&
-                (a.borderBottomLeftRadius.IsNotNull() && b.borderBottomLeftRadius.IsNotNull()
-                    ? a.borderBottomLeftRadius.keyword == b.borderBottomLeftRadius.keyword && a.borderBottomLeftRadius.value.Equals(b.borderBottomLeftRadius.value)
-                    : a.borderBottomLeftRadius.IsNotNull() == b.borderBottomLeftRadius.IsNotNull()) &&
-                (a.borderBottomRightRadius.IsNotNull() && b.borderBottomRightRadius.IsNotNull()
-                    ? a.borderBottomRightRadius.keyword == b.borderBottomRightRadius.keyword && a.borderBottomRightRadius.value.Equals(b.borderBottomRightRadius.value)
-                    : a.borderBottomRightRadius.IsNotNull() == b.borderBottomRightRadius.IsNotNull()) &&
-                (a.borderBottomWidth.IsNotNull() && b.borderBottomWidth.IsNotNull()
-                    ? a.borderBottomWidth.keyword == b.borderBottomWidth.keyword && a.borderBottomWidth.value.Equals(b.borderBottomWidth.value)
-                    : a.borderBottomWidth.IsNotNull() == b.borderBottomWidth.IsNotNull()) &&
-                (a.borderLeftColor.IsNotNull() && b.borderLeftColor.IsNotNull()
-                    ? a.borderLeftColor.keyword == b.borderLeftColor.keyword && a.borderLeftColor.value.Equals(b.borderLeftColor.value)
-                    : a.borderLeftColor.IsNotNull() == b.borderLeftColor.IsNotNull()) &&
-                (a.borderLeftWidth.IsNotNull() && b.borderLeftWidth.IsNotNull()
-                    ? a.borderLeftWidth.keyword == b.borderLeftWidth.keyword && a.borderLeftWidth.value.Equals(b.borderLeftWidth.value)
-                    : a.borderLeftWidth.IsNotNull() == b.borderLeftWidth.IsNotNull()) &&
-                (a.borderRightColor.IsNotNull() && b.borderRightColor.IsNotNull()
-                    ? a.borderRightColor.keyword == b.borderRightColor.keyword && a.borderRightColor.value.Equals(b.borderRightColor.value)
-                    : a.borderRightColor.IsNotNull() == b.borderRightColor.IsNotNull()) &&
-                (a.borderRightWidth.IsNotNull() && b.borderRightWidth.IsNotNull()
-                    ? a.borderRightWidth.keyword == b.borderRightWidth.keyword && a.borderRightWidth.value.Equals(b.borderRightWidth.value)
-                    : a.borderRightWidth.IsNotNull() == b.borderRightWidth.IsNotNull()) &&
-                (a.borderTopColor.IsNotNull() && b.borderTopColor.IsNotNull()
-                    ? a.borderTopColor.keyword == b.borderTopColor.keyword && a.borderTopColor.value.Equals(b.borderTopColor.value)
-                    : a.borderTopColor.IsNotNull() == b.borderTopColor.IsNotNull()) &&
-                (a.borderTopLeftRadius.IsNotNull() && b.borderTopLeftRadius.IsNotNull()
-                    ? a.borderTopLeftRadius.keyword == b.borderTopLeftRadius.keyword && a.borderTopLeftRadius.value.Equals(b.borderTopLeftRadius.value)
-                    : a.borderTopLeftRadius.IsNotNull() == b.borderTopLeftRadius.IsNotNull()) &&
-                (a.borderTopRightRadius.IsNotNull() && b.borderTopRightRadius.IsNotNull()
-                    ? a.borderTopRightRadius.keyword == b.borderTopRightRadius.keyword && a.borderTopRightRadius.value.Equals(b.borderTopRightRadius.value)
-                    : a.borderTopRightRadius.IsNotNull() == b.borderTopRightRadius.IsNotNull()) &&
-                (a.borderTopWidth.IsNotNull() && b.borderTopWidth.IsNotNull()
-                    ? a.borderTopWidth.keyword == b.borderTopWidth.keyword && a.borderTopWidth.value.Equals(b.borderTopWidth.value)
-                    : a.borderTopWidth.IsNotNull() == b.borderTopWidth.IsNotNull()) &&
-                (a.bottom.IsNotNull() && b.bottom.IsNotNull()
-                    ? a.bottom.keyword == b.bottom.keyword && a.bottom.value.Equals(b.bottom.value)
-                    : a.bottom.IsNotNull() == b.bottom.IsNotNull()) &&
-                (a.color.IsNotNull() && b.color.IsNotNull()
-                    ? a.color.keyword == b.color.keyword && a.color.value.Equals(b.color.value)
-                    : a.color.IsNotNull() == b.color.IsNotNull()) &&
-                (a.cursor.IsNotNull() && b.cursor.IsNotNull()
-                    ? a.cursor.keyword == b.cursor.keyword && a.cursor.value.Equals(b.cursor.value)
-                    : a.cursor.IsNotNull() == b.cursor.IsNotNull()) &&
-                (a.display.IsNotNull() && b.display.IsNotNull()
-                    ? a.display.keyword == b.display.keyword && a.display.value.Equals(b.display.value)
-                    : a.display.IsNotNull() == b.display.IsNotNull()) &&
-                (a.flexBasis.IsNotNull() && b.flexBasis.IsNotNull()
-                    ? a.flexBasis.keyword == b.flexBasis.keyword && a.flexBasis.value.Equals(b.flexBasis.value)
-                    : a.flexBasis.IsNotNull() == b.flexBasis.IsNotNull()) &&
-                (a.flexDirection.IsNotNull() && b.flexDirection.IsNotNull()
-                    ? a.flexDirection.keyword == b.flexDirection.keyword && a.flexDirection.value.Equals(b.flexDirection.value)
-                    : a.flexDirection.IsNotNull() == b.flexDirection.IsNotNull()) &&
-                (a.flexGrow.IsNotNull() && b.flexGrow.IsNotNull()
-                    ? a.flexGrow.keyword == b.flexGrow.keyword && a.flexGrow.value.Equals(b.flexGrow.value)
-                    : a.flexGrow.IsNotNull() == b.flexGrow.IsNotNull()) &&
-                (a.flexShrink.IsNotNull() && b.flexShrink.IsNotNull()
-                    ? a.flexShrink.keyword == b.flexShrink.keyword && a.flexShrink.value.Equals(b.flexShrink.value)
-                    : a.flexShrink.IsNotNull() == b.flexShrink.IsNotNull()) &&
-                (a.flexWrap.IsNotNull() && b.flexWrap.IsNotNull()
-                    ? a.flexWrap.keyword == b.flexWrap.keyword && a.flexWrap.value.Equals(b.flexWrap.value)
-                    : a.flexWrap.IsNotNull() == b.flexWrap.IsNotNull()) &&
-                (a.fontSize.IsNotNull() && b.fontSize.IsNotNull()
-                    ? a.fontSize.keyword == b.fontSize.keyword && a.fontSize.value.Equals(b.fontSize.value)
-                    : a.fontSize.IsNotNull() == b.fontSize.IsNotNull()) &&
-                (a.height.IsNotNull() && b.height.IsNotNull()
-                    ? a.height.keyword == b.height.keyword && a.height.value.Equals(b.height.value)
-                    : a.height.IsNotNull() == b.height.IsNotNull()) &&
-                (a.justifyContent.IsNotNull() && b.justifyContent.IsNotNull()
-                    ? a.justifyContent.keyword == b.justifyContent.keyword && a.justifyContent.value.Equals(b.justifyContent.value)
-                    : a.justifyContent.IsNotNull() == b.justifyContent.IsNotNull()) &&
-                (a.left.IsNotNull() && b.left.IsNotNull()
-                    ? a.left.keyword == b.left.keyword && a.left.value.Equals(b.left.value)
-                    : a.left.IsNotNull() == b.left.IsNotNull()) &&
-                (a.letterSpacing.IsNotNull() && b.letterSpacing.IsNotNull()
-                    ? a.letterSpacing.keyword == b.letterSpacing.keyword && a.letterSpacing.value.Equals(b.letterSpacing.value)
-                    : a.letterSpacing.IsNotNull() == b.letterSpacing.IsNotNull()) &&
-                (a.marginBottom.IsNotNull() && b.marginBottom.IsNotNull()
-                    ? a.marginBottom.keyword == b.marginBottom.keyword && a.marginBottom.value.Equals(b.marginBottom.value)
-                    : a.marginBottom.IsNotNull() == b.marginBottom.IsNotNull()) &&
-                (a.marginLeft.IsNotNull() && b.marginLeft.IsNotNull()
-                    ? a.marginLeft.keyword == b.marginLeft.keyword && a.marginLeft.value.Equals(b.marginLeft.value)
-                    : a.marginLeft.IsNotNull() == b.marginLeft.IsNotNull()) &&
-                (a.marginRight.IsNotNull() && b.marginRight.IsNotNull()
-                    ? a.marginRight.keyword == b.marginRight.keyword && a.marginRight.value.Equals(b.marginRight.value)
-                    : a.marginRight.IsNotNull() == b.marginRight.IsNotNull()) &&
-                (a.marginTop.IsNotNull() && b.marginTop.IsNotNull()
-                    ? a.marginTop.keyword == b.marginTop.keyword && a.marginTop.value.Equals(b.marginTop.value)
-                    : a.marginTop.IsNotNull() == b.marginTop.IsNotNull()) &&
-                (a.maxHeight.IsNotNull() && b.maxHeight.IsNotNull()
-                    ? a.maxHeight.keyword == b.maxHeight.keyword && a.maxHeight.value.Equals(b.maxHeight.value)
-                    : a.maxHeight.IsNotNull() == b.maxHeight.IsNotNull()) &&
-                (a.maxWidth.IsNotNull() && b.maxWidth.IsNotNull()
-                    ? a.maxWidth.keyword == b.maxWidth.keyword && a.maxWidth.value.Equals(b.maxWidth.value)
-                    : a.maxWidth.IsNotNull() == b.maxWidth.IsNotNull()) &&
-                (a.minHeight.IsNotNull() && b.minHeight.IsNotNull()
-                    ? a.minHeight.keyword == b.minHeight.keyword && a.minHeight.value.Equals(b.minHeight.value)
-                    : a.minHeight.IsNotNull() == b.minHeight.IsNotNull()) &&
-                (a.minWidth.IsNotNull() && b.minWidth.IsNotNull()
-                    ? a.minWidth.keyword == b.minWidth.keyword && a.minWidth.value.Equals(b.minWidth.value)
-                    : a.minWidth.IsNotNull() == b.minWidth.IsNotNull()) &&
-                (a.opacity.IsNotNull() && b.opacity.IsNotNull()
-                    ? a.opacity.keyword == b.opacity.keyword && a.opacity.value.Equals(b.opacity.value)
-                    : a.opacity.IsNotNull() == b.opacity.IsNotNull()) &&
-                (a.overflow.IsNotNull() && b.overflow.IsNotNull()
-                    ? a.overflow.keyword == b.overflow.keyword && a.overflow.value.Equals(b.overflow.value)
-                    : a.overflow.IsNotNull() == b.overflow.IsNotNull()) &&
-                (a.paddingBottom.IsNotNull() && b.paddingBottom.IsNotNull()
-                    ? a.paddingBottom.keyword == b.paddingBottom.keyword && a.paddingBottom.value.Equals(b.paddingBottom.value)
-                    : a.paddingBottom.IsNotNull() == b.paddingBottom.IsNotNull()) &&
-                (a.paddingLeft.IsNotNull() && b.paddingLeft.IsNotNull()
-                    ? a.paddingLeft.keyword == b.paddingLeft.keyword && a.paddingLeft.value.Equals(b.paddingLeft.value)
-                    : a.paddingLeft.IsNotNull() == b.paddingLeft.IsNotNull()) &&
-                (a.paddingRight.IsNotNull() && b.paddingRight.IsNotNull()
-                    ? a.paddingRight.keyword == b.paddingRight.keyword && a.paddingRight.value.Equals(b.paddingRight.value)
-                    : a.paddingRight.IsNotNull() == b.paddingRight.IsNotNull()) &&
-                (a.paddingTop.IsNotNull() && b.paddingTop.IsNotNull()
-                    ? a.paddingTop.keyword == b.paddingTop.keyword && a.paddingTop.value.Equals(b.paddingTop.value)
-                    : a.paddingTop.IsNotNull() == b.paddingTop.IsNotNull()) &&
-                (a.position.IsNotNull() && b.position.IsNotNull()
-                    ? a.position.keyword == b.position.keyword && a.position.value.Equals(b.position.value)
-                    : a.position.IsNotNull() == b.position.IsNotNull()) &&
-                (a.right.IsNotNull() && b.right.IsNotNull()
-                    ? a.right.keyword == b.right.keyword && a.right.value.Equals(b.right.value)
-                    : a.right.IsNotNull() == b.right.IsNotNull()) &&
-                (a.rotate.IsNotNull() && b.rotate.IsNotNull()
-                    ? a.rotate.keyword == b.rotate.keyword && a.rotate.value.Equals(b.rotate.value)
-                    : a.rotate.IsNotNull() == b.rotate.IsNotNull()) &&
-                (a.scale.IsNotNull() && b.scale.IsNotNull()
-                    ? a.scale.keyword == b.scale.keyword && a.scale.value.Equals(b.scale.value)
-                    : a.scale.IsNotNull() == b.scale.IsNotNull()) &&
-                (a.textOverflow.IsNotNull() && b.textOverflow.IsNotNull()
-                    ? a.textOverflow.keyword == b.textOverflow.keyword && a.textOverflow.value.Equals(b.textOverflow.value)
-                    : a.textOverflow.IsNotNull() == b.textOverflow.IsNotNull()) &&
-                (a.textShadow.IsNotNull() && b.textShadow.IsNotNull()
-                    ? a.textShadow.keyword == b.textShadow.keyword && a.textShadow.value.Equals(b.textShadow.value)
-                    : a.textShadow.IsNotNull() == b.textShadow.IsNotNull()) &&
-                (a.top.IsNotNull() && b.top.IsNotNull()
-                    ? a.top.keyword == b.top.keyword && a.top.value.Equals(b.top.value)
-                    : a.top.IsNotNull() == b.top.IsNotNull()) &&
-                (a.transformOrigin.IsNotNull() && b.transformOrigin.IsNotNull()
-                    ? a.transformOrigin.keyword == b.transformOrigin.keyword && a.transformOrigin.value.Equals(b.transformOrigin.value)
-                    : a.transformOrigin.IsNotNull() == b.transformOrigin.IsNotNull()) &&
-                (a.transitionDelay.IsNotNull() && b.transitionDelay.IsNotNull()
-                    ? a.transitionDelay.keyword == b.transitionDelay.keyword && a.transitionDelay.value.Equals(b.transitionDelay.value)
-                    : a.transitionDelay.IsNotNull() == b.transitionDelay.IsNotNull()) &&
-                (a.transitionDuration.IsNotNull() && b.transitionDuration.IsNotNull()
-                    ? a.transitionDuration.keyword == b.transitionDuration.keyword && a.transitionDuration.value.Equals(b.transitionDuration.value)
-                    : a.transitionDuration.IsNotNull() == b.transitionDuration.IsNotNull()) &&
-                (a.transitionProperty.IsNotNull() && b.transitionProperty.IsNotNull()
-                    ? a.transitionProperty.keyword == b.transitionProperty.keyword && a.transitionProperty.value.Equals(b.transitionProperty.value)
-                    : a.transitionProperty.IsNotNull() == b.transitionProperty.IsNotNull()) &&
-                (a.transitionTimingFunction.IsNotNull() && b.transitionTimingFunction.IsNotNull()
-                    ? a.transitionTimingFunction.keyword == b.transitionTimingFunction.keyword && a.transitionTimingFunction.value.Equals(b.transitionTimingFunction.value)
-                    : a.transitionTimingFunction.IsNotNull() == b.transitionTimingFunction.IsNotNull()) &&
-                (a.translate.IsNotNull() && b.translate.IsNotNull()
-                    ? a.translate.keyword == b.translate.keyword && a.translate.value.Equals(b.translate.value)
-                    : a.translate.IsNotNull() == b.translate.IsNotNull()) &&
-                (a.unityBackgroundImageTintColor.IsNotNull() && b.unityBackgroundImageTintColor.IsNotNull()
-                    ? a.unityBackgroundImageTintColor.keyword == b.unityBackgroundImageTintColor.keyword && a.unityBackgroundImageTintColor.value.Equals(b.unityBackgroundImageTintColor.value)
-                    : a.unityBackgroundImageTintColor.IsNotNull() == b.unityBackgroundImageTintColor.IsNotNull()) &&
-                (a.unityBackgroundScaleMode.IsNotNull() && b.unityBackgroundScaleMode.IsNotNull()
-                    ? a.unityBackgroundScaleMode.keyword == b.unityBackgroundScaleMode.keyword && a.unityBackgroundScaleMode.value.Equals(b.unityBackgroundScaleMode.value)
-                    : a.unityBackgroundScaleMode.IsNotNull() == b.unityBackgroundScaleMode.IsNotNull()) &&
-                (a.unityFont.IsNotNull() && b.unityFont.IsNotNull()
-                    ? a.unityFont.keyword == b.unityFont.keyword && a.unityFont.value.Equals(b.unityFont.value)
-                    : a.unityFont.IsNotNull() == b.unityFont.IsNotNull()) &&
-                (a.unityFontDefinition.IsNotNull() && b.unityFontDefinition.IsNotNull()
-                    ? a.unityFontDefinition.keyword == b.unityFontDefinition.keyword && a.unityFontDefinition.value.Equals(b.unityFontDefinition.value)
-                    : a.unityFontDefinition.IsNotNull() == b.unityFontDefinition.IsNotNull()) &&
-                (a.unityFontStyleAndWeight.IsNotNull() && b.unityFontStyleAndWeight.IsNotNull()
-                    ? a.unityFontStyleAndWeight.keyword == b.unityFontStyleAndWeight.keyword && a.unityFontStyleAndWeight.value.Equals(b.unityFontStyleAndWeight.value)
-                    : a.unityFontStyleAndWeight.IsNotNull() == b.unityFontStyleAndWeight.IsNotNull()) &&
-                (a.unityOverflowClipBox.IsNotNull() && b.unityOverflowClipBox.IsNotNull()
-                    ? a.unityOverflowClipBox.keyword == b.unityOverflowClipBox.keyword && a.unityOverflowClipBox.value.Equals(b.unityOverflowClipBox.value)
-                    : a.unityOverflowClipBox.IsNotNull() == b.unityOverflowClipBox.IsNotNull()) &&
-                (a.unityParagraphSpacing.IsNotNull() && b.unityParagraphSpacing.IsNotNull()
-                    ? a.unityParagraphSpacing.keyword == b.unityParagraphSpacing.keyword && a.unityParagraphSpacing.value.Equals(b.unityParagraphSpacing.value)
-                    : a.unityParagraphSpacing.IsNotNull() == b.unityParagraphSpacing.IsNotNull()) &&
-                (a.unitySliceBottom.IsNotNull() && b.unitySliceBottom.IsNotNull()
-                    ? a.unitySliceBottom.keyword == b.unitySliceBottom.keyword && a.unitySliceBottom.value.Equals(b.unitySliceBottom.value)
-                    : a.unitySliceBottom.IsNotNull() == b.unitySliceBottom.IsNotNull()) &&
-                (a.unitySliceLeft.IsNotNull() && b.unitySliceLeft.IsNotNull()
-                    ? a.unitySliceLeft.keyword == b.unitySliceLeft.keyword && a.unitySliceLeft.value.Equals(b.unitySliceLeft.value)
-                    : a.unitySliceLeft.IsNotNull() == b.unitySliceLeft.IsNotNull()) &&
-                (a.unitySliceRight.IsNotNull() && b.unitySliceRight.IsNotNull()
-                    ? a.unitySliceRight.keyword == b.unitySliceRight.keyword && a.unitySliceRight.value.Equals(b.unitySliceRight.value)
-                    : a.unitySliceRight.IsNotNull() == b.unitySliceRight.IsNotNull()) &&
-                (a.unitySliceTop.IsNotNull() && b.unitySliceTop.IsNotNull()
-                    ? a.unitySliceTop.keyword == b.unitySliceTop.keyword && a.unitySliceTop.value.Equals(b.unitySliceTop.value)
-                    : a.unitySliceTop.IsNotNull() == b.unitySliceTop.IsNotNull()) &&
-                (a.unityTextAlign.IsNotNull() && b.unityTextAlign.IsNotNull()
-                    ? a.unityTextAlign.keyword == b.unityTextAlign.keyword && a.unityTextAlign.value.Equals(b.unityTextAlign.value)
-                    : a.unityTextAlign.IsNotNull() == b.unityTextAlign.IsNotNull()) &&
-                (a.unityTextOutlineColor.IsNotNull() && b.unityTextOutlineColor.IsNotNull()
-                    ? a.unityTextOutlineColor.keyword == b.unityTextOutlineColor.keyword && a.unityTextOutlineColor.value.Equals(b.unityTextOutlineColor.value)
-                    : a.unityTextOutlineColor.IsNotNull() == b.unityTextOutlineColor.IsNotNull()) &&
-                (a.unityTextOutlineWidth.IsNotNull() && b.unityTextOutlineWidth.IsNotNull()
-                    ? a.unityTextOutlineWidth.keyword == b.unityTextOutlineWidth.keyword && a.unityTextOutlineWidth.value.Equals(b.unityTextOutlineWidth.value)
-                    : a.unityTextOutlineWidth.IsNotNull() == b.unityTextOutlineWidth.IsNotNull()) &&
-                (a.unityTextOverflowPosition.IsNotNull() && b.unityTextOverflowPosition.IsNotNull()
-                    ? a.unityTextOverflowPosition.keyword == b.unityTextOverflowPosition.keyword && a.unityTextOverflowPosition.value.Equals(b.unityTextOverflowPosition.value)
-                    : a.unityTextOverflowPosition.IsNotNull() == b.unityTextOverflowPosition.IsNotNull()) &&
-                (a.visibility.IsNotNull() && b.visibility.IsNotNull()
-                    ? a.visibility.keyword == b.visibility.keyword && a.visibility.value.Equals(b.visibility.value)
-                    : a.visibility.IsNotNull() == b.visibility.IsNotNull()) &&
-                (a.whiteSpace.IsNotNull() && b.whiteSpace.IsNotNull()
-                    ? a.whiteSpace.keyword == b.whiteSpace.keyword && a.whiteSpace.value.Equals(b.whiteSpace.value)
-                    : a.whiteSpace.IsNotNull() == b.whiteSpace.IsNotNull()) &&
-                (a.width.IsNotNull() && b.width.IsNotNull()
-                    ? a.width.keyword == b.width.keyword && a.width.value.Equals(b.width.value)
-                    : a.width.IsNotNull() == b.width.IsNotNull()) &&
-                (a.wordSpacing.IsNotNull() && b.wordSpacing.IsNotNull()
-                    ? a.wordSpacing.keyword == b.wordSpacing.keyword && a.wordSpacing.value.Equals(b.wordSpacing.value)
-                    : a.wordSpacing.IsNotNull() == b.wordSpacing.IsNotNull()) &&
-                (a.pointerDetection.IsNotNull() && b.pointerDetection.IsNotNull()
-                    ? a.pointerDetection.keyword == b.pointerDetection.keyword && a.pointerDetection.value.Equals(b.pointerDetection.value)
-                    : a.pointerDetection.IsNotNull() == b.pointerDetection.IsNotNull());
+                RishUtils.CompareUnmanaged<StyleEnum<Align>>(a.alignContent, b.alignContent) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Align>>(a.alignItems, b.alignItems) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Align>>(a.alignSelf, b.alignSelf) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.backgroundColor, b.backgroundColor) &&
+                RishUtils.Compare<StyleBackground>(a.backgroundImage, b.backgroundImage) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.borderBottomColor, b.borderBottomColor) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.borderBottomLeftRadius, b.borderBottomLeftRadius) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.borderBottomRightRadius, b.borderBottomRightRadius) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.borderBottomWidth, b.borderBottomWidth) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.borderLeftColor, b.borderLeftColor) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.borderLeftWidth, b.borderLeftWidth) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.borderRightColor, b.borderRightColor) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.borderRightWidth, b.borderRightWidth) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.borderTopColor, b.borderTopColor) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.borderTopLeftRadius, b.borderTopLeftRadius) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.borderTopRightRadius, b.borderTopRightRadius) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.borderTopWidth, b.borderTopWidth) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.bottom, b.bottom) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.color, b.color) &&
+                RishUtils.Compare<StyleCursor>(a.cursor, b.cursor) &&
+                RishUtils.CompareUnmanaged<StyleEnum<DisplayStyle>>(a.display, b.display) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.flexBasis, b.flexBasis) &&
+                RishUtils.CompareUnmanaged<StyleEnum<FlexDirection>>(a.flexDirection, b.flexDirection) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.flexGrow, b.flexGrow) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.flexShrink, b.flexShrink) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Wrap>>(a.flexWrap, b.flexWrap) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.fontSize, b.fontSize) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.height, b.height) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Justify>>(a.justifyContent, b.justifyContent) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.left, b.left) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.letterSpacing, b.letterSpacing) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.marginBottom, b.marginBottom) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.marginLeft, b.marginLeft) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.marginRight, b.marginRight) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.marginTop, b.marginTop) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.maxHeight, b.maxHeight) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.maxWidth, b.maxWidth) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.minHeight, b.minHeight) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.minWidth, b.minWidth) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.opacity, b.opacity) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Overflow>>(a.overflow, b.overflow) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.paddingBottom, b.paddingBottom) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.paddingLeft, b.paddingLeft) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.paddingRight, b.paddingRight) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.paddingTop, b.paddingTop) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Position>>(a.position, b.position) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.right, b.right) &&
+                RishUtils.CompareUnmanaged<StyleRotate>(a.rotate, b.rotate) &&
+                RishUtils.CompareUnmanaged<StyleScale>(a.scale, b.scale) &&
+                RishUtils.CompareUnmanaged<StyleEnum<TextOverflow>>(a.textOverflow, b.textOverflow) &&
+                RishUtils.CompareUnmanaged<StyleTextShadow>(a.textShadow, b.textShadow) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.top, b.top) &&
+                RishUtils.CompareUnmanaged<StyleTransformOrigin>(a.transformOrigin, b.transformOrigin) &&
+                RishUtils.Compare<StyleList<TimeValue>>(a.transitionDelay, b.transitionDelay) &&
+                RishUtils.Compare<StyleList<TimeValue>>(a.transitionDuration, b.transitionDuration) &&
+                RishUtils.Compare<StyleList<StylePropertyName>>(a.transitionProperty, b.transitionProperty) &&
+                RishUtils.Compare<StyleList<EasingFunction>>(a.transitionTimingFunction, b.transitionTimingFunction) &&
+                RishUtils.CompareUnmanaged<StyleTranslate>(a.translate, b.translate) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.unityBackgroundImageTintColor, b.unityBackgroundImageTintColor) &&
+                RishUtils.CompareUnmanaged<StyleEnum<ScaleMode>>(a.unityBackgroundScaleMode, b.unityBackgroundScaleMode) &&
+                RishUtils.Compare<StyleFont>(a.unityFont, b.unityFont) &&
+                RishUtils.Compare<StyleFontDefinition>(a.unityFontDefinition, b.unityFontDefinition) &&
+                RishUtils.CompareUnmanaged<StyleEnum<FontStyle>>(a.unityFontStyleAndWeight, b.unityFontStyleAndWeight) &&
+                RishUtils.CompareUnmanaged<StyleEnum<OverflowClipBox>>(a.unityOverflowClipBox, b.unityOverflowClipBox) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.unityParagraphSpacing, b.unityParagraphSpacing) &&
+                RishUtils.CompareUnmanaged<StyleInt>(a.unitySliceBottom, b.unitySliceBottom) &&
+                RishUtils.CompareUnmanaged<StyleInt>(a.unitySliceLeft, b.unitySliceLeft) &&
+                RishUtils.CompareUnmanaged<StyleInt>(a.unitySliceRight, b.unitySliceRight) &&
+                RishUtils.CompareUnmanaged<StyleInt>(a.unitySliceTop, b.unitySliceTop) &&
+                RishUtils.CompareUnmanaged<StyleEnum<TextAnchor>>(a.unityTextAlign, b.unityTextAlign) &&
+                RishUtils.CompareUnmanaged<StyleColor>(a.unityTextOutlineColor, b.unityTextOutlineColor) &&
+                RishUtils.CompareUnmanaged<StyleFloat>(a.unityTextOutlineWidth, b.unityTextOutlineWidth) &&
+                RishUtils.CompareUnmanaged<StyleEnum<TextOverflowPosition>>(a.unityTextOverflowPosition, b.unityTextOverflowPosition) &&
+                RishUtils.CompareUnmanaged<StyleEnum<Visibility>>(a.visibility, b.visibility) &&
+                RishUtils.CompareUnmanaged<StyleEnum<WhiteSpace>>(a.whiteSpace, b.whiteSpace) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.width, b.width) &&
+                RishUtils.CompareUnmanaged<StyleLength>(a.wordSpacing, b.wordSpacing) &&
+                RishUtils.CompareUnmanaged<StyleEnum<PointerDetectionMode>>(a.pointerDetection, b.pointerDetection);
         }
     }
 }

@@ -89,7 +89,7 @@ namespace RishUI
                     return;
                 }
                 
-                UpdateRealIndices();
+                IndexDirty = true;
             }
         }
         
@@ -111,6 +111,8 @@ namespace RishUI
                 }
             }
         }
+        
+        private bool IndexDirty { get; set; }
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -165,6 +167,13 @@ namespace RishUI
 
         private void UpdateRealIndices()
         {
+            if (!IndexDirty)
+            {
+                return;
+            }
+
+            IndexDirty = false;
+            
             if (!IsRoot && Element is VisualElement visualElement)
             {
                 var index = GetRealIndex();
@@ -182,21 +191,21 @@ namespace RishUI
                 }
             }
 
-            if (VirtualChildren != null)
-            {
-                foreach (var child in VirtualChildren)
-                {
-                    child.UpdateRealIndices();
-                }
-            }
-
-            if (UnmountingChildren != null)
-            {
-                foreach (var child in UnmountingChildren)
-                {
-                    child.UpdateRealIndices();
-                }
-            }
+            // if (VirtualChildren != null)
+            // {
+            //     foreach (var child in VirtualChildren)
+            //     {
+            //         child.UpdateRealIndices();
+            //     }
+            // }
+            //
+            // if (UnmountingChildren != null)
+            // {
+            //     foreach (var child in UnmountingChildren)
+            //     {
+            //         child.UpdateRealIndices();
+            //     }
+            // }
         }
 
         public Node GetDOMChild()
@@ -303,6 +312,12 @@ namespace RishUI
             var childrenCount = VirtualChildren?.Count ?? 0;
             if (childrenCount > 0)
             {
+                for (var i = 0; i < ChildCount; i++)
+                {
+                    var child = VirtualChildren[i];
+                    child.UpdateRealIndices();
+                }
+                
                 UnmountingChildren ??= new List<Node>(VirtualChildren.Capacity);
                 for (var i = childrenCount - 1; i >= ChildCount; i--)
                 {
@@ -618,7 +633,6 @@ namespace RishUI
                 if (element is VisualElement visualElement)
                 {
                     Node.VisualParent?.Add(visualElement);
-                    visualElement.ResetDOM();
                 }
 
                 Node.MountedHashCode = Node.ComputeHashCodeInTree();
