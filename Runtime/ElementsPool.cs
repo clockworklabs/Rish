@@ -68,65 +68,66 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
-                visualElement.ResetDOM();
-                
-                var originalParent = visualElement.parent;
-                visualElement.RemoveFromHierarchy();
-                
                 if (visualElement.IsHover())
                 {
                     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
                     {
                         if(!visualElement.ContainsPointer(i)) { continue; }
-
-                        var position = PointerUtils.GetPointerPosition(i);
-                        var e = new StructPointerEvent
-                        {
-                            pointerId = i,
-                            position = position,
-                            localPosition = visualElement.WorldToLocal(position),
-                            pressedButtons = PointerUtils.GetPressedButtons(i)
-                        };
                         
-                        var parent = originalParent;
-                        if(parent != null) {
-                            var picked = parent.panel.Pick(position);
-                            while (parent != null)
+                        var position = PointerUtils.GetPointerPosition(i);
+                        var pressedButtons = PointerUtils.GetPressedButtons(i);
+                        
+                        var parent = visualElement.parent;
+                        var prevContained = true;
+                        while (parent != null)
+                        {
+                            var localPosition = parent.WorldToLocal(position);
+                            var containsPointer = parent.ContainsPointer(i);
+
+                            bool mustReport;
+                            if (parent is IDOMElement)
                             {
-                                var pickedParent = picked?.parent;
-                                var stop = false;
-                                while (pickedParent != null)
-                                {
-                                    if (pickedParent == parent)
-                                    {
-                                        stop = true;
-                                        break;
-                                    }
-
-                                    pickedParent = pickedParent.parent;
-                                }
-
-                                if (stop)
+                                if (containsPointer && !prevContained)
                                 {
                                     break;
                                 }
-                                
+                                prevContained = containsPointer;
+                                mustReport = !containsPointer;
+                            }
+                            else
+                            {
+                                mustReport = prevContained;
+                            }
+                            
+                            if (mustReport)
+                            {
+                                var e = new StructPointerEvent
+                                {
+                                    pointerId = i,
+                                    position = position,
+                                    localPosition = localPosition,
+                                    pressedButtons = pressedButtons
+                                };
+                            
                                 using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
                                 pointerLeaveEvent.target = parent;
                                 parent.SendEvent(pointerLeaveEvent);
 
-                                // if (PointerUtils.GetPressedButtons(i) > 0)
+                                // if (pressedButtons > 0)
                                 // {
                                 //     using var pointerUpEvent = PointerUpEvent.GetPooled(e);
                                 //     pointerUpEvent.target = parent;
-                                //     parent.SendEvent(pointerUpEvent);
+                                //     parent.SendEvent(pointerLeaveEvent);
                                 // }
-
-                                parent = parent.parent;
                             }
+
+                            parent = parent.parent;
                         }
                     }
                 }
+                
+                visualElement.ResetDOM();
+                visualElement.RemoveFromHierarchy();
             }
 
             return true;

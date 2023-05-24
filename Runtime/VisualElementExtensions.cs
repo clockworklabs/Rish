@@ -337,6 +337,8 @@ namespace RishUI
 
             return false;
         }
+
+        public static bool IsAppRoot(this VisualElement visualElement) => visualElement is IDOMElement && visualElement.parent is not IDOMElement;
         
 #if UNITY_EDITOR
         private static FieldInfo _idField;
