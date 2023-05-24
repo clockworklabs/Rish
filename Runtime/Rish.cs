@@ -89,12 +89,14 @@ namespace RishUI
             }
         }
         
+        internal static void Init() { } // This is to force calling Rish's static constructor before anything else
+        
 #if UNITY_EDITOR
         static Rish()
         {
             ShowWarnings();
         }
-
+        
         // TODO: Some types will not get warnings
         //       For example Props:
         //         GenericType<P> : RishElement<P> where P : struct { }

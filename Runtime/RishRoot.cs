@@ -37,6 +37,8 @@ namespace RishUI
         
         private IEnumerator Start()
         {
+            Rish.Init(); // This is just to force Rish static constructor before anything else
+            
             if (Document == null)
             {
                 throw new UnityException("RishRoot requires UIDocument");

@@ -10,16 +10,15 @@ namespace RishUI
     
     internal static class ReferencesGetters
     {
-        private static Dictionary<Type, MethodInfo> Methods { get; }
+        private static Dictionary<Type, MethodInfo> Methods { get; } = new(200);
         private static Dictionary<Type, Delegate> Delegates { get; } = new();
 
         public static int Count => Methods.Count;
 
         private delegate References ReferencesGetter<in T>(T owner);
-
+        
         static ReferencesGetters()
         {
-            Methods = new Dictionary<Type, MethodInfo>(200);
             foreach (var type in Rish.PlayerTypes)
             {
                 if (!type.IsValueType)

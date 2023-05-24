@@ -10,16 +10,15 @@ namespace RishUI
     
     public static class Comparers
     {
-        private static Dictionary<Type, MethodInfo> Methods { get; }
+        private static Dictionary<Type, MethodInfo> Methods { get; } = new(200);
         private static Dictionary<Type, Delegate> Delegates { get; } = new();
 
         public static int Count => Methods.Count;
 
         private delegate bool Comparer<in T>(T first, T second);
-
+        
         static Comparers()
         {
-            Methods = new Dictionary<Type, MethodInfo>(200);
             foreach (var type in Rish.PlayerTypes)
             {
                 if (!type.IsValueType)
