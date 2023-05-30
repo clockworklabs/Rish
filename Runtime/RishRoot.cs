@@ -82,13 +82,6 @@ namespace RishUI
 
         private void LateUpdate()
         {
-            if (Recovered)
-            {
-                Tree.Update();
-                Rish.CleanGarbage();
-                return;
-            }
-            
             try
             {
                 Tree.Update();
