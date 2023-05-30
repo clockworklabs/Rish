@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using RishUI.Events;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace RishUI
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;
+        
+        private bool Recovered { get; set; }
 
         private UIDocument _document;
         private UIDocument Document
@@ -37,6 +40,13 @@ namespace RishUI
         
         private IEnumerator Start()
         {
+#if UNITY_EDITOR
+            if (Recovered)
+            {
+                Debug.LogError("Recovering UI");
+            }
+#endif
+            
             Rish.Init(); // This is just to force Rish static constructor before anything else
             
             if (Document == null)
@@ -53,13 +63,13 @@ namespace RishUI
                 Root.styleSheets.Add(styleSheet);
             }
             
-            Tree = new Tree(Document, RootClassName);
+            Tree = new Tree(Document, RootClassName, Recovered);
 
             var wait = new WaitForEndOfFrame();
             while (true)
             {
                 yield return wait;
-
+            
                 EndOfFrameEvent.SendEvents();
             }
         }
@@ -67,15 +77,35 @@ namespace RishUI
         private void OnDestroy()
         {
             Tree.Dispose();
-            
             Rish.CleanGarbage();
         }
 
         private void LateUpdate()
         {
-            Tree.Update();
+            if (Recovered)
+            {
+                Tree.Update();
+                Rish.CleanGarbage();
+                return;
+            }
             
-            Rish.CleanGarbage();
+            try
+            {
+                Tree.Update();
+                Rish.CleanGarbage();
+            }
+            catch (Exception e)
+            {
+#if UNITY_EDITOR
+                Debug.LogException(e);
+#endif
+                var newRoot = gameObject.AddComponent<RishRoot>();
+                newRoot._styleSheets = _styleSheets;
+                newRoot._rootClassName = _rootClassName;
+                newRoot.Recovered = true;
+                
+                Destroy(this);
+            }
         }
 
         public bool HasAnyPointerOver() => Root.IsHover();

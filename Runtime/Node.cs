@@ -229,13 +229,14 @@ namespace RishUI
             PRNG = new FastRandom();
         }
         
-        public static Node CreateRoot(Tree tree, string rootClassName)
+        public static Node CreateRoot(Tree tree, string rootClassName, bool recovered)
         {
             var node = GetNodeFromPool(tree);
             var element = node.MountAs<App>(null, 0);
             element.Props = new AppProps
             {
-                rootClassName = rootClassName
+                rootClassName = rootClassName,
+                recovered = recovered
             };
 
             return node;

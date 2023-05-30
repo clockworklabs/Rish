@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Collections;
@@ -13,7 +12,7 @@ namespace RishUI
 {
     public interface IApp
     {
-        Element GetRoot();
+        Element GetRoot(bool recovered);
     }
     
     [PoolSize(1)]
@@ -53,7 +52,7 @@ namespace RishUI
         protected override Element Render()
         {
             // Without this monstrosity Unity can't compute Text layout and preferred size properly. Thank you, Unity. 
-            // Oh, it's just necessary in the Editor because in the builds (at least on Windows), of course it works...
+            // Oh, of course it's just necessary in the Editor because in the builds (at least on Windows), it works... (sigh)
 #if UNITY_EDITOR
             if (!Ready)
             {
@@ -63,7 +62,7 @@ namespace RishUI
             }
 #endif
             
-            return UserApp?.GetRoot() ?? Element.Null;
+            return UserApp?.GetRoot(Props.recovered) ?? Element.Null;
         }
         
         private void SetApp(Assembly assembly)
@@ -83,5 +82,6 @@ namespace RishUI
     public struct AppProps
     {
         public FixedString64Bytes rootClassName;
+        public bool recovered;
     }
 }

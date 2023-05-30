@@ -21,10 +21,10 @@ namespace RishUI
         private List<Node> FreeNodes { get; set; } = new();
         private List<Node> FreeNodesBuffer { get; set; } = new();
 
-        public Tree(UIDocument document, string rootClassName)
+        public Tree(UIDocument document, string rootClassName, bool recovered)
         {
             RootVisualElement = document.rootVisualElement;
-            RootNode = Node.CreateRoot(this, rootClassName);
+            RootNode = Node.CreateRoot(this, rootClassName, recovered);
         }
 
         public void Dirty(Node node, bool forceThisFrame)
@@ -96,19 +96,28 @@ namespace RishUI
             FreeNodesBuffer.Add(node);
         }
 
-        private void ReturnFreeNodesToPool(bool returnBuffer = false)
+        private void ReturnFreeNodesToPool(bool disposing = false)
         {
+            if (disposing)
+            {
+                DirtyQueue.Clear();
+            }
+            
             for (int i = 0, n = FreeNodes.Count; i < n; i++)
             {
-                FreeNodes[i].ReturnToPool();
+                var node = FreeNodes[i];
+                node.ReturnToPool();
+                DirtyQueue.ResetNode(node);
             }
             FreeNodes.Clear();
 
-            if (returnBuffer)
+            if (disposing)
             {
                 for (int i = 0, n = FreeNodesBuffer.Count; i < n; i++)
                 {
-                    FreeNodesBuffer[i].ReturnToPool();
+                    var node = FreeNodesBuffer[i];
+                    node.ReturnToPool();
+                    DirtyQueue.ResetNode(node);
                 }
                 FreeNodesBuffer.Clear();
             }
