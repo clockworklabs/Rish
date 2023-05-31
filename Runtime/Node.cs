@@ -61,7 +61,7 @@ namespace RishUI
 #if UNITY_EDITOR
         private bool Rendering { get; set; }
 #endif
-        internal int ChildCount { get; private set; }
+        private int ChildCount { get; set; }
         private List<Node> VirtualChildren { get; set; }
         private List<Node> UnmountingChildren { get; set; }
         internal IEnumerable<Node> Children
@@ -614,11 +614,17 @@ namespace RishUI
                 Node.ChildCount = 0;
                 Node.MountedHashCode = 0;
 
+#if UNITY_EDITOR
+                Node.Rendering = false;
+#endif
+                
                 Node.VirtualChildren?.Clear();
                 Node.UnmountingChildren?.Clear();
 
                 Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
+
+                Node.IndexDirty = false;
             }
 
             public override void Exit() { }
