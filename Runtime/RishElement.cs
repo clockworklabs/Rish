@@ -80,7 +80,18 @@ namespace RishUI
         private P? _props;
         public P Props
         {
-            get => _props.Value;
+            get
+            {
+                if (!_props.HasValue)
+                {
+                    #if UNITY_EDITOR
+                    Debug.LogError("Accessing unset Props. Using default Props instead.");
+                    #endif
+                    return Defaults.GetValue<P>();
+                }
+                
+                return _props.Value;
+            }
             internal set => SetProps(value);
         }
         
