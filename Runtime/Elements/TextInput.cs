@@ -83,8 +83,6 @@ namespace RishUI.Elements
             PickingManager IAdvancedPicking.Manager => PickingManager;
             
             private string[] TextInputClasses { get; }
-            private int CursorColorOffset { get; }
-            private int SelectionColorOffset { get; }
             
             private RishTextFieldProps _preStylingProps;
             private RishTextFieldProps _props;
@@ -100,10 +98,6 @@ namespace RishUI.Elements
                 PickingManager = new PickingManager(this);
                 textInputBase.name = null;
                 TextInputClasses = textInputBase.GetClasses().ToArray();
-                
-                var textInputType = textInputBase.GetType().BaseType;
-                CursorColorOffset = UnsafeUtility.GetFieldOffset(textInputType.GetField("m_CursorColor", BindingFlags.Instance | BindingFlags.NonPublic));
-                SelectionColorOffset = UnsafeUtility.GetFieldOffset(textInputType.GetField("m_SelectionColor", BindingFlags.Instance | BindingFlags.NonPublic));
             }
 
             private void OnCustomStyle(CustomStyleResolvedEvent evt)
@@ -145,13 +139,8 @@ namespace RishUI.Elements
                 doubleClickSelectsWord = props.multiClickInteraction.Value;
                 tripleClickSelectsLine = props.multiClickInteraction.Value;
 
-                unsafe
-                {
-                    var pointer = UnsafeUtility.PinGCObjectAndGetAddress(textInputBase, out var handle);
-                    *(Color*) ((byte*)pointer + CursorColorOffset) = props.cursorColor.Value;
-                    *(Color*) ((byte*)pointer + SelectionColorOffset) = props.selectionColor.Value;
-                    UnsafeUtility.ReleaseGCObject(handle);
-                }
+                textInputBase.cursorColor = props.cursorColor.Value;
+                textInputBase.selectionColor = props.selectionColor.Value;
 
                 var descriptor = props.textInputDescriptor;
                 textInputBase.name = descriptor.name;

@@ -28,7 +28,8 @@ namespace RishUI.Events
         public bool commandKey { get; private set; }
         public bool altKey { get; private set; }
         public bool actionKey { get; private set; }
-        
+        public Vector2 tilt { get; private set; }
+        public PenStatus penStatus { get; private set; }
         protected DragEventBase() => LocalInit();
 
         protected override void Init()
@@ -42,7 +43,7 @@ namespace RishUI.Events
             tricklesDown = true;
             bubbles = true;
         }
-        
+
         public static T GetPooled(IPointerEvent pointerEvent, VisualElement target, bool bubbles = true, bool tricklesDown = true)
         {
             var pooled = EventBase<T>.GetPooled();
@@ -74,7 +75,7 @@ namespace RishUI.Events
 
             pooled.tricklesDown = tricklesDown;
             pooled.bubbles = bubbles;
-            
+
             return pooled;
         }
     }

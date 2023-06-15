@@ -21,7 +21,7 @@ namespace RishUI
     internal static class ElementsPool
     {
         private const int InitialSize = 32;
-        
+
         private static Dictionary<Type, int> InitialSizes { get; } = new();
         private static Dictionary<Type, Stack<IElement>> Pools { get; } = new();
 
@@ -33,14 +33,14 @@ namespace RishUI
                 pool = new Stack<IElement>();
                 Pools[type] = pool;
             }
-            
+
             if (pool.Count <= 0)
             {
                 if (!InitialSizes.TryGetValue(type, out var size))
                 {
                     if (Attribute.IsDefined(type, typeof(PoolSizeAttribute)))
                     {
-                        var attribute = (PoolSizeAttribute) Attribute.GetCustomAttribute(type, typeof(PoolSizeAttribute));
+                        var attribute = (PoolSizeAttribute)Attribute.GetCustomAttribute(type, typeof(PoolSizeAttribute));
                         size = attribute.count;
                     }
                     else
@@ -72,11 +72,11 @@ namespace RishUI
                 {
                     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
                     {
-                        if(!visualElement.ContainsPointer(i)) { continue; }
-                        
+                        if (!visualElement.ContainsPointer(i)) { continue; }
+
                         var position = PointerUtils.GetPointerPosition(i);
                         var pressedButtons = PointerUtils.GetPressedButtons(i);
-                        
+
                         var parent = visualElement.parent;
                         var prevContained = true;
                         while (parent != null)
@@ -98,7 +98,7 @@ namespace RishUI
                             {
                                 mustReport = prevContained;
                             }
-                            
+
                             if (mustReport)
                             {
                                 var e = new StructPointerEvent
@@ -108,7 +108,7 @@ namespace RishUI
                                     localPosition = localPosition,
                                     pressedButtons = pressedButtons
                                 };
-                            
+
                                 using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
                                 pointerLeaveEvent.target = parent;
                                 parent.SendEvent(pointerLeaveEvent);
@@ -125,7 +125,7 @@ namespace RishUI
                         }
                     }
                 }
-                
+
                 visualElement.ResetDOM();
                 visualElement.RemoveFromHierarchy();
             }
@@ -139,29 +139,29 @@ namespace RishUI
             {
                 return;
             }
-            
+
             var type = element.GetType();
             if (!Pools.TryGetValue(type, out var pool))
             {
                 return;
             }
-            
+
             pool.Push(element);
         }
-        
+
         private static void Populate<T>(Stack<IElement> pool, int size) where T : IElement, new()
         {
             if (pool == null || size <= 0)
             {
                 return;
             }
-            
+
             for (var j = 0; j < size; j++)
             {
                 try
                 {
                     var element = new T();
-                    
+
                     if (element is VisualElement visualElement)
                     {
                         visualElement.AddManipulator(new HoverManipulator());
@@ -184,7 +184,7 @@ namespace RishUI
                 }
             }
         }
-        
+
         private struct StructPointerEvent : IPointerEvent
         {
             public int pointerId;
@@ -233,6 +233,10 @@ namespace RishUI
             bool IPointerEvent.altKey => altKey;
             public bool actionKey;
             bool IPointerEvent.actionKey => actionKey;
+            public Vector2 tilt;
+            Vector2 IPointerEvent.tilt => tilt;
+            public PenStatus penStatus;
+            PenStatus IPointerEvent.penStatus => penStatus;
         }
     }
 }

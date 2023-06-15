@@ -28,6 +28,8 @@ namespace RishUI.Events
         public bool commandKey { get; private set; }
         public bool altKey { get; private set; }
         public bool actionKey { get; private set; }
+        public Vector2 tilt { get; private set; }
+        public PenStatus penStatus { get; private set; }
 
         protected TapEventBase() => LocalInit();
 

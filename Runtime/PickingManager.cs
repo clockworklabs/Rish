@@ -221,7 +221,7 @@ namespace RishUI
 
             BackgroundSlices = backgroundBorder;
 
-            BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode;
+            BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode.value;
         }
         
         internal bool ContainsPoint(Vector2 localPoint)
