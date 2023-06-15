@@ -11,10 +11,10 @@ namespace RishUI
         public StyleEnum<Align> alignSelf;
         public StyleColor backgroundColor;
         public StyleBackground backgroundImage;
-        public StyleBackgroundHorizontalPosition backgroundPositionX; // New
-        public StyleBackgroundVerticalPosition backgroundPositionY; // New
-        public StyleBackgroundRepeat backgroundRepeat; // New
-        public StyleBackgroundSize backgroundSize; // New
+        public StyleBackgroundHorizontalPosition backgroundPositionX;
+        public StyleBackgroundVerticalPosition backgroundPositionY;
+        public StyleBackgroundRepeat backgroundRepeat;
+        public StyleBackgroundSize backgroundSize;
         public StyleColor borderBottomColor;
         public StyleLength borderBottomLeftRadius;
         public StyleLength borderBottomRightRadius;
@@ -69,7 +69,6 @@ namespace RishUI
         public StyleList<EasingFunction> transitionTimingFunction;
         public StyleTranslate translate;
         public StyleColor unityBackgroundImageTintColor;
-        // public StyleEnum<ScaleMode> unityBackgroundScaleMode; // TODO: Revise
         public StyleFont unityFont;
         public StyleFontDefinition unityFontDefinition;
         public StyleEnum<FontStyle> unityFontStyleAndWeight;
