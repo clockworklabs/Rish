@@ -93,10 +93,10 @@ namespace RishUI
         
 #if UNITY_EDITOR
         static Rish()
-        {
+        {   
             ShowWarnings();
         }
-        
+
         // TODO: Some types will not get warnings
         //       For example Props:
         //         GenericType<P> : RishElement<P> where P : struct { }

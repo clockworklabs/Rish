@@ -1,0 +1,111 @@
+﻿using Microsoft.CodeAnalysis;
+
+namespace Rishenerator
+{
+    public static class SymbolExtensions
+    {
+        public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics = true)
+        {
+            var name = typeSymbol.Name;
+            if (includeGenerics)
+            {
+                var genericName = typeSymbol.GetGenericsName();
+                if (!string.IsNullOrWhiteSpace(genericName))
+                {
+                    name = $"{name}{genericName}";
+                }
+            }
+
+            var containingNamespace = typeSymbol.ContainingNamespace;
+            if (containingNamespace == null || containingNamespace.IsGlobalNamespace)
+            {
+                return name;
+            }
+
+            return $"{typeSymbol.ContainingNamespace}.{name}";
+        }
+        
+        public static string GetGenericsName(this ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return null;
+            
+            var genericTypes = "<";
+            var typeArguments = namedTypeSymbol.TypeArguments;
+            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            {
+                var typeArgument = typeArguments[i];
+                var typeArgumentFullName = typeArgument.GetFullName();
+                genericTypes = $"{genericTypes}{(i != 0 ? ", " : string.Empty)}{typeArgumentFullName}";
+            }
+                
+            return $"{genericTypes}>";
+
+        }
+        
+        public static string GetGenericsConstraints(this ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return null;
+
+            string constraintsString = null;
+            
+            var typeArguments = namedTypeSymbol.TypeArguments;
+            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            {
+                var typeArgument = typeArguments[i];
+                var hasConstraints = false;
+                if (typeArgument is not ITypeParameterSymbol typeParameter)
+                {
+                    continue;
+                }
+
+                var parameterConstraints = $" where {typeParameter.Name} : ";
+
+                if (typeParameter.HasNotNullConstraint)
+                {
+                    parameterConstraints = $"{parameterConstraints}notnull";
+                    hasConstraints = true;
+                }
+
+                var constraintTypes = typeParameter.ConstraintTypes;
+                foreach (var constraintType in constraintTypes)
+                {
+                    var constraintFullName = constraintType.GetFullName();
+                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}{constraintFullName}";
+                    hasConstraints = true;
+                }
+
+                if (typeParameter.HasReferenceTypeConstraint)
+                {
+                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}class";
+                    hasConstraints = true;
+                }
+
+                if (typeParameter.HasUnmanagedTypeConstraint)
+                {
+                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}unmanaged";
+                    hasConstraints = true;
+                }
+
+                if (typeParameter.HasValueTypeConstraint)
+                {
+                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}struct";
+                    hasConstraints = true;
+                }
+
+                if (typeParameter.HasConstructorConstraint)
+                {
+                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}new()";
+                    hasConstraints = true;
+                }
+
+                if (hasConstraints)
+                {
+                    constraintsString = $"{constraintsString}{parameterConstraints}";
+                }
+            }
+                
+            return constraintsString;
+
+        }
+    }
+}

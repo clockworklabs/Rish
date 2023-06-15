@@ -132,6 +132,7 @@ namespace RishUI.Elements
 
             private void OnHoverStart(HoverStartEvent evt)
             {
+                Debug.Log("Hover start");
                 var state = State;
                 state.hovered = true;
                 State = state;
@@ -139,6 +140,7 @@ namespace RishUI.Elements
 
             private void OnHoverEnd(HoverEndEvent evt)
             {
+                Debug.Log("Hover end");
                 var state = State;
                 state.hovered = false;
                 State = state;
