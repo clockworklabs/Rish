@@ -445,9 +445,9 @@ namespace RishUI
                 }
             }
             
-            if (element is IAdvancedPicking advancedPicking)
+            if (element is ICustomPicking customPicking)
             {
-                advancedPicking.Manager.StyleSheetsPointerDetection = null;
+                customPicking.Manager.StyleSheetsPointerDetection = null;
             }
             
             element.ClearClassList();

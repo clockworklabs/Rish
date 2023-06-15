@@ -80,7 +80,7 @@ namespace RishUI.Elements
             VisualElement IElement.GetDOMChild() => this;
             
             private PickingManager PickingManager { get; }
-            PickingManager IAdvancedPicking.Manager => PickingManager;
+            PickingManager ICustomPicking.Manager => PickingManager;
             
             private string[] TextInputClasses { get; }
             
@@ -95,7 +95,7 @@ namespace RishUI.Elements
                 StyledProps.Register<RishTextFieldProps>();
                 RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
 
-                PickingManager = new PickingManager(this);
+                PickingManager = new DefaultPickingManager(this);
                 textInputBase.name = null;
                 TextInputClasses = textInputBase.GetClasses().ToArray();
             }

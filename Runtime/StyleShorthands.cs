@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -5,6 +6,126 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    public struct StyleBackgroundPositionShorthand
+    {
+        public StyleBackgroundHorizontalPosition x;
+        public StyleBackgroundVerticalPosition y;
+
+        public StyleBackgroundPositionShorthand(BackgroundPositionKeyword keyword)
+        {
+            switch (keyword)
+            {
+                case BackgroundPositionKeyword.Center:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                case BackgroundPositionKeyword.Top:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Top);
+                    break;
+                case BackgroundPositionKeyword.Bottom:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Bottom);
+                    break;
+                case BackgroundPositionKeyword.Left:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Left);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                case BackgroundPositionKeyword.Right:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Right);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(keyword), keyword, null);
+            }
+        }
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword x) : this((StyleBackgroundHorizontalPosition)x, default) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword y) : this(default, (StyleBackgroundVerticalPosition)y) { }
+        public StyleBackgroundPositionShorthand(Length x) : this((StyleBackgroundHorizontalPosition)x, (StyleBackgroundVerticalPosition)BackgroundVerticalPositionKeyword.Center) { }
+        
+        public StyleBackgroundPositionShorthand(BackgroundPositionKeyword keyword, Length offset)
+        {
+            switch (keyword)
+            {
+                case BackgroundPositionKeyword.Center:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                case BackgroundPositionKeyword.Top:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Top, offset);
+                    break;
+                case BackgroundPositionKeyword.Bottom:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Center);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Bottom, offset);
+                    break;
+                case BackgroundPositionKeyword.Left:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Left, offset);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                case BackgroundPositionKeyword.Right:
+                    x = new StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword.Right, offset);
+                    y = new StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword.Center);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(keyword), keyword, null);
+            }
+        }
+        public StyleBackgroundPositionShorthand(Length x, Length y) : this((StyleBackgroundHorizontalPosition)x, (StyleBackgroundVerticalPosition)y) { }
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword x, BackgroundVerticalPositionKeyword y) : this((StyleBackgroundHorizontalPosition)x, (StyleBackgroundVerticalPosition)y) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword y, BackgroundHorizontalPositionKeyword x) : this((StyleBackgroundHorizontalPosition)x, (StyleBackgroundVerticalPosition)y) { }
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), default) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword yKeyword, Length yOffset) : this(default, (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, BackgroundVerticalPositionKeyword yKeyword) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)yKeyword) { }
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, Length yOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)yOffset) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword yKeyword, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)yKeyword) { }
+        public StyleBackgroundPositionShorthand(Length yOffset, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)yOffset) { }
+        
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword xKeyword, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) : this((StyleBackgroundHorizontalPosition)xKeyword, (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        public StyleBackgroundPositionShorthand(Length xOffset, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) : this((StyleBackgroundHorizontalPosition)xOffset, (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword yKeyword, Length yOffset, BackgroundHorizontalPositionKeyword xKeyword) : this((StyleBackgroundHorizontalPosition)xKeyword, (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword yKeyword, Length yOffset, Length xOffset) : this((StyleBackgroundHorizontalPosition)xOffset, (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+
+        
+        public StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        public StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword yKeyword, Length yOffset, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) : this((StyleBackgroundHorizontalPosition)(xKeyword, xOffset), (StyleBackgroundVerticalPosition)(yKeyword, yOffset)) { }
+        
+        public StyleBackgroundPositionShorthand(StyleBackgroundHorizontalPosition value) : this(value, default) { }
+        public StyleBackgroundPositionShorthand(StyleBackgroundVerticalPosition value) : this(default, value) { }
+        public StyleBackgroundPositionShorthand(StyleBackgroundHorizontalPosition x, StyleBackgroundVerticalPosition y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public static implicit operator StyleBackgroundPositionShorthand(BackgroundPositionKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundPositionShorthand(BackgroundHorizontalPositionKeyword x) => new(x);
+        public static implicit operator StyleBackgroundPositionShorthand(BackgroundVerticalPositionKeyword y) => new(y);
+        public static implicit operator StyleBackgroundPositionShorthand(Length x) => new(x);
+        public static implicit operator StyleBackgroundPositionShorthand(StyleBackgroundHorizontalPosition value) => new(value);
+        public static implicit operator StyleBackgroundPositionShorthand(StyleBackgroundVerticalPosition value) => new(value);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundPositionKeyword keyword, Length offset) value) => new(value.keyword, value.offset);
+        public static implicit operator StyleBackgroundPositionShorthand((Length x, Length y) value) => (value.x, value.y);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword x, BackgroundVerticalPositionKeyword y) value) => new(value.x, value.y);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword y, BackgroundHorizontalPositionKeyword x) value) => new(value.y, value.x);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) value) => new(value.xKeyword, value.xOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword yKeyword, Length yOffset) value) => new(value.yKeyword, value.yOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, BackgroundVerticalPositionKeyword yKeyword) value) => new(value.xKeyword, value.xOffset, value.yKeyword);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, Length yOffset) value) => new(value.xKeyword, value.xOffset, value.yOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword yKeyword, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) value) => new(value.yKeyword, value.xKeyword, value.xOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((Length yOffset, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) value) => new(value.yOffset, value.xKeyword, value.xOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword xKeyword, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) value) => new(value.xKeyword, value.yKeyword, value.yOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((Length xOffset, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) value) => new(value.xOffset, value.yKeyword, value.yOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword yKeyword, Length yOffset, BackgroundHorizontalPositionKeyword xKeyword) value) => new(value.yKeyword, value.yOffset, value.xKeyword);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword yKeyword, Length yOffset, Length xOffset) value) => new(value.yKeyword, value.yOffset, value.xOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundHorizontalPositionKeyword xKeyword, Length xOffset, BackgroundVerticalPositionKeyword yKeyword, Length yOffset) value) => new(value.xKeyword, value.xOffset, value.yKeyword, value.yOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((BackgroundVerticalPositionKeyword yKeyword, Length yOffset, BackgroundHorizontalPositionKeyword xKeyword, Length xOffset) value) => new(value.yKeyword, value.yOffset, value.xKeyword, value.xOffset);
+        public static implicit operator StyleBackgroundPositionShorthand((StyleBackgroundHorizontalPosition x, StyleBackgroundVerticalPosition y) value) => new(value.x, value.y);
+
+        public override string ToString() => $"({x}, {y})";
+    }
+    
     public struct StyleFloatsShorthand
     {
         public StyleFloat top;
@@ -37,6 +158,42 @@ namespace RishUI
         public static implicit operator StyleFloatsShorthand((float, float, float, float) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleFloatsShorthand((StyleFloat, StyleFloat, StyleFloat, StyleFloat) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleFloatsShorthand(Vector4 values) => new (values.x, values.y, values.z, values.w);
+
+        public override string ToString() => $"({top}, {right}, {bottom}, {left})";
+    }
+    
+    public struct StyleIntsShorthand
+    {
+        public StyleInt top;
+        public StyleInt right;
+        public StyleInt bottom;
+        public StyleInt left;
+
+        public StyleIntsShorthand(StyleInt value) : this(value, value, value, value) { }
+        
+        public StyleIntsShorthand(StyleInt topBottom, StyleInt leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
+        
+        public StyleIntsShorthand(StyleInt top, StyleInt leftRight, StyleInt bottom) : this(top, leftRight, bottom, leftRight) { }
+
+        public StyleIntsShorthand(StyleInt top, StyleInt right, StyleInt bottom, StyleInt left)
+        {
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+            this.left = left;
+        }
+
+        public static implicit operator StyleIntsShorthand(int value) => new (value);
+        public static implicit operator StyleIntsShorthand(StyleInt value) => new (value);
+        public static implicit operator StyleIntsShorthand((int, int) values) => new (values.Item1, values.Item2);
+        public static implicit operator StyleIntsShorthand((StyleInt, StyleInt) values) => new (values.Item1, values.Item2);
+        public static implicit operator StyleIntsShorthand(Vector2Int values) => new (values.x, values.y);
+        public static implicit operator StyleIntsShorthand((int, int, int) values) => new (values.Item1, values.Item2, values.Item3);
+        public static implicit operator StyleIntsShorthand((StyleInt, StyleInt, StyleInt) values) => new (values.Item1, values.Item2, values.Item3);
+        public static implicit operator StyleIntsShorthand(Vector3Int values) => new (values.x, values.y, values.z);
+        public static implicit operator StyleIntsShorthand((int, int, int, int) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
+        public static implicit operator StyleIntsShorthand((StyleInt, StyleInt, StyleInt, StyleInt) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
+        // public static implicit operator StyleIntsShorthand(Vector4Int values) => new (values.x, values.y, values.z, values.w);
 
         public override string ToString() => $"({top}, {right}, {bottom}, {left})";
     }

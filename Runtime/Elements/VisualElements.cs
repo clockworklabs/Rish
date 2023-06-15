@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,7 +16,7 @@ namespace RishUI.Elements
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
-        PickingManager IAdvancedPicking.Manager => PickingManager;
+        PickingManager ICustomPicking.Manager => PickingManager;
 
         private LengthRange? WidthRange { get; set; }
         private LengthRange? HeightRange { get; set; }
@@ -24,7 +25,7 @@ namespace RishUI.Elements
 
         public Label()
         {
-            PickingManager = new PickingManager(this);
+            PickingManager = new DefaultPickingManager(this); // TODO: Maybe a simpler RectPickingManager?
             
             // TODO: Maybe use custom events?
             RegisterCallback<AttachToPanelEvent>(OnMounted);
@@ -103,6 +104,7 @@ namespace RishUI.Elements
         public LengthRange? heightRange;
     }
     
+    // TODO: Maybe turn it into RishElement?
     public class Image : RishVisualElement<ImageProps>
     {
         protected override void Setup(ImageProps props)
@@ -117,7 +119,12 @@ namespace RishUI.Elements
                             ? Background.FromRenderTexture(props.renderTexture)
                             : null;
             style.unityBackgroundImageTintColor = props.tintColor.Value;
-            style.unityBackgroundScaleMode = props.scaleMode;
+            style.backgroundSize = props.scaleMode switch
+            {
+                ScaleMode.ScaleAndCrop => new BackgroundSize(BackgroundSizeType.Cover),
+                ScaleMode.ScaleToFit => new BackgroundSize(BackgroundSizeType.Contain),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
     
@@ -126,7 +133,7 @@ namespace RishUI.Elements
     //     VisualElement IElement.GetDOMChild() => this;
     //     
     //     private PickingManager PickingManager { get; }
-    //     PickingManager IAdvancedPicking.Manager => PickingManager;
+    //     PickingManager IcustomPicking.Manager => PickingManager;
     //
     //     public ActualImage()
     //     {
