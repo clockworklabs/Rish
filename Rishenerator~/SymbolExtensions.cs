@@ -25,6 +25,39 @@ namespace Rishenerator
             return $"{typeSymbol.ContainingNamespace}.{name}";
         }
         
+        public static bool IsGenericDefinition(this ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return false;
+            
+            var typeArguments = namedTypeSymbol.TypeArguments;
+            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            {
+                var typeArgument = typeArguments[i];
+                if (typeArgument is not ITypeParameterSymbol)
+                {
+                    return false;
+                }
+            }
+                
+            return true;
+        }
+        public static bool HasGenericParameters(this ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return false;
+            
+            var typeArguments = namedTypeSymbol.TypeArguments;
+            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            {
+                var typeArgument = typeArguments[i];
+                if (typeArgument is ITypeParameterSymbol)
+                {
+                    return true;
+                }
+            }
+                
+            return false;
+        }
+        
         public static string GetGenericsName(this ITypeSymbol typeSymbol)
         {
             if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return null;
@@ -39,7 +72,6 @@ namespace Rishenerator
             }
                 
             return $"{genericTypes}>";
-
         }
         
         public static string GetGenericsConstraints(this ITypeSymbol typeSymbol)
@@ -78,15 +110,11 @@ namespace Rishenerator
                 {
                     parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}class";
                     hasConstraints = true;
-                }
-
-                if (typeParameter.HasUnmanagedTypeConstraint)
+                } else if (typeParameter.HasUnmanagedTypeConstraint)
                 {
                     parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}unmanaged";
                     hasConstraints = true;
-                }
-
-                if (typeParameter.HasValueTypeConstraint)
+                } else if (typeParameter.HasValueTypeConstraint)
                 {
                     parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}struct";
                     hasConstraints = true;

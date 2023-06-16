@@ -41,7 +41,7 @@ namespace Rishenerator
         {
             private Dictionary<INamedTypeSymbol, bool> Comparers { get; } = new();
             private List<INamedTypeSymbol> AutoComparerTypes { get; } = new();
-            
+
             void ISyntaxContextReceiver.OnVisitSyntaxNode(GeneratorSyntaxContext context)
             {
                 try
@@ -69,6 +69,8 @@ namespace Rishenerator
                     return string.Empty;
                 }
 
+                var unboundTypesGenerated = new HashSet<INamedTypeSymbol>();
+
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.AppendLine(@"using System;
@@ -83,10 +85,36 @@ namespace RishUI.Generated
 
                 foreach (var typeSymbol in AutoComparerTypes)
                 {
-                    Logger.Log($"{typeSymbol} needs a comparer");
+                    var isGenericDefinition = false;
+                    if (typeSymbol.IsGenericType)
+                    {
+                        if (typeSymbol.IsGenericDefinition())
+                        {
+                            var unboundType = typeSymbol.ConstructUnboundGenericType();
+                            if (unboundTypesGenerated.Contains(unboundType))
+                            {
+                                continue;
+                            }
+                            unboundTypesGenerated.Add(unboundType);
+                            isGenericDefinition = true;
+                        } else if(typeSymbol.HasGenericParameters())
+                        {
+                            continue;
+                        }
+                    }
+                    
                     var typeGenericsName = typeSymbol.GetGenericsName() ?? string.Empty;
                     var typeFullName = $"{typeSymbol.GetFullName(false)}{typeGenericsName}";
-                    var genericsConstraints = typeSymbol.GetGenericsConstraints();
+                    string genericsConstraints;
+                    if (isGenericDefinition)
+                    {
+                        genericsConstraints = typeSymbol.GetGenericsConstraints();
+                    }
+                    else
+                    {
+                        typeGenericsName = string.Empty;
+                        genericsConstraints = string.Empty;
+                    }
 
                     stringBuilder.Append($@"        [Comparer]
         public static bool Equals{typeGenericsName}({typeFullName} a, {typeFullName} b){genericsConstraints}
@@ -94,42 +122,13 @@ namespace RishUI.Generated
             return ");
 
                     var fieldsCount = 0;
-
                     foreach (var memberSymbol in typeSymbol.GetMembers())
                     {
-                        if (memberSymbol is not IFieldSymbol fieldSymbol)
+                        if (!GetFieldComparisonSourceCode(memberSymbol, null, out var comparisonSourceCode))
                         {
                             continue;
                         }
-
-                        var fieldTypeSymbol = fieldSymbol.Type;
-                        var fieldTypeFullName = fieldTypeSymbol.GetFullName();
-                        var fieldName = fieldSymbol.Name;
-
-                        var comparisonType = GetComparisonType(fieldSymbol);
-                        string comparisonSourceCode;
-                        switch (comparisonType)
-                        {
-                            case ComparisonType.Default:
-                                comparisonSourceCode = fieldTypeSymbol.IsValueType
-                                    ? $"{(NeedsAutoComparer(fieldTypeSymbol) ? "Comparers.Compare" : "RishUtils.CompareMemory")}<{fieldTypeFullName}>(a.{fieldName}, b.{fieldName})"
-                                    : $"Object.ReferenceEquals(a.{fieldName}, b.{fieldName})";
-                                break;
-                            case ComparisonType.EqualityOperator:
-                                comparisonSourceCode = $"a.{fieldName} == b.{fieldName}";
-                                break;
-                            case ComparisonType.EqualsFunction:
-                                comparisonSourceCode = $"a.{fieldName}.Equals(b.{fieldName})";
-                                break;
-                            case ComparisonType.EpsilonComparison:
-                                comparisonSourceCode = $"Mathf.Approximately(a.{fieldName}, b.{fieldName})";
-                                break;
-                            case ComparisonType.Ignore:
-                                continue;
-                            default:
-                                throw new ArgumentException("Unsupported comparison type");
-                        }
-
+                        
                         stringBuilder.Append($"{(fieldsCount > 0 ? " && " : string.Empty)}{comparisonSourceCode}");
                         fieldsCount++;
                     }
@@ -144,16 +143,74 @@ namespace RishUI.Generated
                 return stringBuilder.ToString();
             }
 
+            private bool GetFieldComparisonSourceCode(ISymbol memberSymbol, string parentSymbol, out string sourceCode)
+            {
+                if (memberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
+                {
+                    sourceCode = null;
+                    return false;
+                }
+                
+                var fieldTypeSymbol = fieldSymbol.Type;
+                var fieldName = $"{parentSymbol}.{fieldSymbol.Name}";
+
+                var comparisonType = GetComparisonType(fieldSymbol);
+                switch (comparisonType)
+                {
+                    case ComparisonType.Ignore:
+                        sourceCode = null;
+                        return false;
+                    case ComparisonType.MemoryComparison when fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated:
+                    {
+                        var defaultComparison = GetFieldComparisonSourceCode($"{fieldName}.Value", GetDefaultComparisonType(fieldTypeSymbol)).Replace("ref ", string.Empty);
+                        sourceCode = $"a{fieldName}.HasValue == b{fieldName}.HasValue && a{fieldName}.HasValue && {defaultComparison}";
+                        break;
+                    }
+                    case ComparisonType.MemoryComparison when fieldTypeSymbol.IsTupleType:
+                    {
+                        sourceCode = string.Empty;
+                        var fieldsCount = 0;
+                        foreach (var tupleMemberSymbol in fieldTypeSymbol.GetMembers())
+                        {
+                            if (!GetFieldComparisonSourceCode(tupleMemberSymbol, fieldName, out var tupleMemberComparison))
+                            {
+                                continue;
+                            }
+
+                            sourceCode = $"{sourceCode}{(fieldsCount > 0 ? " && " : string.Empty)}{tupleMemberComparison}";
+                            fieldsCount++;
+                        }
+
+                        break;
+                    }
+                    default:
+                        sourceCode = GetFieldComparisonSourceCode(fieldName, comparisonType);
+                        break;
+                }
+
+                return true;
+            }
+
+            private static string GetFieldComparisonSourceCode(string fieldName, ComparisonType comparisonType)
+            {
+                return comparisonType switch
+                {
+                    ComparisonType.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
+                    ComparisonType.ReferenceComparison => $"Object.ReferenceEquals(a{fieldName}, b{fieldName})",
+                    ComparisonType.EqualityOperator => $"a{fieldName} == b{fieldName}",
+                    ComparisonType.EqualsFunction => $"a{fieldName}.Equals(b{fieldName})",
+                    ComparisonType.EpsilonComparison => $"Mathf.Approximately(a{fieldName}, b{fieldName})",
+                    ComparisonType.ComparerComparison => $"Comparers.Compare(a{fieldName}, b{fieldName})",
+                    ComparisonType.Ignore => "true",
+                    _ => throw new ArgumentException("Unsupported comparison type")
+                };
+            }
+
             private bool NeedsAutoComparer(ITypeSymbol typeSymbol)
             {
                 if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
                 {
                     return false;
-                }
-
-                if (namedTypeSymbol.IsGenericType)
-                {
-                    namedTypeSymbol = namedTypeSymbol.ConstructUnboundGenericType();
                 }
                 
                 if (Comparers.TryGetValue(namedTypeSymbol, out var needsComparer))
@@ -170,11 +227,6 @@ namespace RishUI.Generated
                 {
                     return false;
                 }
-
-                if (namedTypeSymbol.IsGenericType)
-                {
-                    namedTypeSymbol = namedTypeSymbol.ConstructUnboundGenericType();
-                }
                 
                 if (Comparers.TryGetValue(namedTypeSymbol, out var needsComparer))
                 {
@@ -187,7 +239,7 @@ namespace RishUI.Generated
                     return false;
                 }
 
-                if (IsRishReferenceType(namedTypeSymbol))
+                if (IsFlaggedForCustomComparer(namedTypeSymbol))
                 {
                     Comparers[namedTypeSymbol] = true;
                     return true;
@@ -202,8 +254,7 @@ namespace RishUI.Generated
                             continue;
                         }
 
-                        var comparisonType = GetComparisonType(fieldSymbol);
-                        if (comparisonType != ComparisonType.Default)
+                        if (!HasDefaultComparison(fieldSymbol))
                         {
                             needsComparer = true;
                             continue;
@@ -244,17 +295,73 @@ namespace RishUI.Generated
                     }
                 }
 
+                if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+                {
+                    foreach (var member in typeSymbol.GetMembers())
+                    {
+                        if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
+                        {
+                            continue;
+                        }
+
+                        var fieldType = fieldSymbol.Type;
+
+                        if (IsFlaggedForAutoComparer(fieldType))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
                 return false;
             }
             
-            private static bool IsRishReferenceType(ITypeSymbol typeSymbol)
+            private static bool IsFlaggedForCustomComparer(ITypeSymbol typeSymbol)
             {
-                var typeFullName = typeSymbol.GetFullName();
-                return typeFullName is "RishUI.Element" or "RishUI.Children";
+                foreach (var attributeData in typeSymbol.GetAttributes())
+                {
+                    var attributeClass = attributeData.AttributeClass;
+                    while (attributeClass != null)
+                    {
+                        var attributeFullName = attributeClass.GetFullName();
+                        if (attributeFullName == "RishUI.CustomComparer")
+                        {
+                            return true;
+                        }
+                
+                        attributeClass = attributeClass.BaseType;
+                    }
+                }
+
+                if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+                {
+                    foreach (var member in typeSymbol.GetMembers())
+                    {
+                        if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
+                        {
+                            continue;
+                        }
+
+                        var fieldType = fieldSymbol.Type;
+
+                        if (IsFlaggedForCustomComparer(fieldType))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
             }
             
-            private enum ComparisonType { Default, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison }
-            private static ComparisonType GetComparisonType(IFieldSymbol fieldSymbol)
+            private enum ComparisonType { MemoryComparison, ReferenceComparison, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison, ComparerComparison }
+
+            private bool HasDefaultComparison(IFieldSymbol fieldSymbol)
+            {
+                var comparisonType = GetComparisonType(fieldSymbol);
+                return comparisonType == GetDefaultComparisonType(fieldSymbol.Type);
+            }
+            private ComparisonType GetComparisonType(IFieldSymbol fieldSymbol)
             {
                 foreach (var attributeData in fieldSymbol.GetAttributes())
                 {
@@ -279,7 +386,22 @@ namespace RishUI.Generated
                     }
                 }
 
-                return ComparisonType.Default;
+                return GetDefaultComparisonType(fieldSymbol.Type);
+            }
+            
+            private ComparisonType GetDefaultComparisonType(ITypeSymbol typeSymbol)
+            {
+                if (typeSymbol.IsValueType)
+                {
+                    if (IsFlaggedForCustomComparer(typeSymbol) || IsFlaggedForAutoComparer(typeSymbol) && NeedsAutoComparer(typeSymbol))
+                    {
+                        return ComparisonType.ComparerComparison;
+                    }
+
+                    return ComparisonType.MemoryComparison;
+                }
+
+                return ComparisonType.ReferenceComparison;
             }
         }
     }
