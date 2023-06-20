@@ -2,6 +2,7 @@ using System;
 
 namespace RishUI
 {
+    [CustomComparer]
     public struct Element : IEquatable<Element>
     {
         private readonly uint _id;
@@ -61,7 +62,7 @@ namespace RishUI
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
 
         [Comparer]
-        private static bool Equals(Element a, Element b) => RishUtils.Compare<Children>(a, b);
+        private static bool Equals(Element a, Element b) => RishUtils.SmartCompare<Children>(a, b);
 
         [ReferencesGetter]
         private static References GetReferences(Element owner) => owner;

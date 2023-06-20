@@ -71,7 +71,7 @@ namespace RishUI
 
         private void SetProps(P value, bool external)
         {
-            var dirty = !_props.HasValue || !RishUtils.Compare<P>(value, _props.Value);
+            var dirty = !_props.HasValue || !RishUtils.SmartCompare<P>(value, _props.Value);
             
             if (ContainsStyledProps && external)
             {

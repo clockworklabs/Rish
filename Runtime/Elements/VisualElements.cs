@@ -96,6 +96,7 @@ namespace RishUI.Elements
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
+    [RishValueType]
     public struct LabelProps
     {
         public FixedString4096Bytes text;
@@ -121,6 +122,7 @@ namespace RishUI.Elements
         }
     }
     
+    [RishValueType]
     public struct ImageProps
     {
         public Sprite sprite;
@@ -130,55 +132,5 @@ namespace RishUI.Elements
         [StyledProp("--props-tint-color", 1, 1, 1)]
         public Color? tintColor { get; set; }
         public ScaleMode scaleMode;
-
-        [Comparer]
-        private static bool Equals(ImageProps a, ImageProps b)
-        {
-            var aSpriteSet = a.sprite != null;
-            var bSpriteSet = b.sprite != null;
-            if (aSpriteSet != bSpriteSet)
-            {
-                return false;
-            }
-            if (aSpriteSet && a.sprite.GetInstanceID() == b.sprite.GetInstanceID())
-            {
-                return false;
-            }
-            
-            var aVectorImage = a.vectorImage != null;
-            var bVectorImage = b.vectorImage != null;
-            if (aVectorImage != bVectorImage)
-            {
-                return false;
-            }
-            if (aVectorImage && a.vectorImage.GetInstanceID() == b.vectorImage.GetInstanceID())
-            {
-                return false;
-            }
-            
-            var aTexture = a.texture != null;
-            var bTexture = b.texture != null;
-            if (aTexture != bTexture)
-            {
-                return false;
-            }
-            if (aTexture && a.texture.GetInstanceID() == b.texture.GetInstanceID())
-            {
-                return false;
-            }
-            
-            var aRenderTexture = a.renderTexture != null;
-            var bRenderTexture = b.renderTexture != null;
-            if (aRenderTexture != bRenderTexture)
-            {
-                return false;
-            }
-            if (aRenderTexture && a.renderTexture.GetInstanceID() == b.renderTexture.GetInstanceID())
-            {
-                return false;
-            }
-
-            return RishUtils.CompareNullable(a.tintColor, b.tintColor) && a.scaleMode == b.scaleMode;
-        }
     }
 }

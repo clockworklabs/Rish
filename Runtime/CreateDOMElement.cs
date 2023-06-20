@@ -368,7 +368,7 @@ namespace RishUI
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is DOMElementDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<DOMDescriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
+                return other is DOMElementDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && Comparers.Compare(Children, otherDefinition.Children);
             }
             
             public override bool TryGetProps<P1>(out P1 props)
@@ -427,7 +427,7 @@ namespace RishUI
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is DOMElementDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<DOMDescriptor>(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare<P>(Props, otherDefinition.Props) && RishUtils.Compare<Children>(Children, otherDefinition.Children);
+                return other is DOMElementDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && RishUtils.SmartCompare(Props, otherDefinition.Props) && Comparers.Compare(Children, otherDefinition.Children);
             }
             
             public override bool TryGetProps<P1>(out P1 props)

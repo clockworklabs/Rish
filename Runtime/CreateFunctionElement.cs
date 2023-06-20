@@ -125,7 +125,7 @@ namespace RishUI
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is FunctionalDefinition<P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<P>(Props, otherDefinition.Props) && Element == otherDefinition.Element;
+                return other is FunctionalDefinition<P> otherDefinition && Key == otherDefinition.Key && RishUtils.SmartCompare(Props, otherDefinition.Props) && Element == otherDefinition.Element;
             }
             
             public override bool TryGetProps<P1>(out P1 props)

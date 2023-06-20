@@ -121,7 +121,7 @@ namespace RishUI
         private void SetProps(P value)
         {
             var propsSet = _props.HasValue;
-            var dirty = propsSet && !RishUtils.Compare<P>(value, _props.Value);
+            var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
                 
             var propsListener = this as IPropsListener;
             if (dirty)
@@ -492,7 +492,7 @@ namespace RishUI
             get => _state;
             set
             {
-                var dirty = !RishUtils.Compare<S>(value, _state);
+                var dirty = !RishUtils.SmartCompare(value, _state);
 
                 if (References.Count > 0)
                 {

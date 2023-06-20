@@ -7,6 +7,11 @@ namespace Rishenerator
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics = true)
         {
             var name = typeSymbol.Name;
+            if (typeSymbol is ITypeParameterSymbol)
+            {
+                return name;
+            }
+            
             if (includeGenerics)
             {
                 var genericName = typeSymbol.GetGenericsName();
@@ -14,6 +19,12 @@ namespace Rishenerator
                 {
                     name = $"{name}{genericName}";
                 }
+            }
+
+            var containingType = typeSymbol.ContainingType;
+            if (containingType != null)
+            {
+                return $"{containingType.GetFullName()}.{name}";
             }
 
             var containingNamespace = typeSymbol.ContainingNamespace;

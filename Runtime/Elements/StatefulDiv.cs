@@ -113,6 +113,7 @@ namespace RishUI.Elements
         }
     }
 
+    [RishValueType]
     public struct StatefulDivProps
     {
         public DOMDescriptor descriptor;
@@ -120,17 +121,11 @@ namespace RishUI.Elements
         public Children hovered;
         public Children pressed;
 
-        [Comparer]
-        public static bool Equals(StatefulDivProps a, StatefulDivProps b) =>
-            RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
-            RishUtils.Compare<Children>(a.children, b.children) &&
-            RishUtils.Compare<Children>(a.hovered, b.hovered) &&
-            RishUtils.Compare<Children>(a.pressed, b.pressed);
-
         [ReferencesGetter]
         private static References GetReferences(StatefulDivProps owner) => (owner.children, owner.hovered, owner.pressed);
     }
 
+    [RishValueType]
     public struct StatefulDivState
     {
         public int hoverCount;

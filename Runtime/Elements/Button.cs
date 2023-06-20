@@ -256,6 +256,7 @@ namespace RishUI.Elements
             }
         }
 
+        [RishValueType]
         private struct ComponentState
         {
             public bool hovered;
@@ -263,11 +264,14 @@ namespace RishUI.Elements
         }
     }
 
+    [RishValueType]
     public struct ButtonProps
     {
         public bool interactable;
         
+        [IgnoreComparison]
         public Action action;
+        [IgnoreComparison]
         public Action secondaryAction;
         
         public Element normal;
@@ -297,16 +301,6 @@ namespace RishUI.Elements
             disabled = other.disabled;
             focusable = other.focusable;
             autoFocus = other.autoFocus;
-        }
-
-        [Comparer]
-        public static bool Equals(ButtonProps a, ButtonProps b)
-        {
-            return a.interactable == b.interactable && a.focusable == b.focusable && a.autoFocus == b.autoFocus &&
-                RishUtils.Compare<Element>(a.normal, b.normal) &&
-                RishUtils.Compare<Element>(a.hovered, b.hovered) &&
-                RishUtils.Compare<Element>(a.pressed, b.pressed) &&
-                RishUtils.Compare<Element>(a.disabled, b.disabled);
         }
 
         [ReferencesGetter]

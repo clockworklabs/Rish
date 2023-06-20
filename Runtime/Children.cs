@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace RishUI
 {
+    [CustomComparer]
     public readonly struct Children : IEquatable<Children>
     {
         private readonly uint _id;
