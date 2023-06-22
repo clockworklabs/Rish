@@ -121,23 +121,30 @@ namespace RishUI.Elements
 
             style.backgroundImage = background;
             style.unityBackgroundImageTintColor = props.tintColor.Value;
-            
-            var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image 
-            bool isNineSlice; 
-            if (isBackgroundSet) 
-            { 
-                isNineSlice = style.unitySliceTop.keyword == StyleKeyword.Undefined && style.unitySliceTop.value != 0 || 
-                              style.unitySliceRight.keyword == StyleKeyword.Undefined && style.unitySliceRight.value != 0 || 
-                              style.unitySliceBottom.keyword == StyleKeyword.Undefined && style.unitySliceBottom.value != 0 || 
-                              style.unitySliceLeft.keyword == StyleKeyword.Undefined && style.unitySliceLeft.value != 0 || 
-                              background.sprite != null && background.sprite.border != Vector4.zero; 
-            } 
-            else 
-            { 
-                isNineSlice = false; 
-            }
 
-            var backgroundSize = isNineSlice ? new BackgroundSize(Length.Percent(100), Length.Percent(100)) : props.backgroundSize;
+            bool stretch;
+            if (!props.backgroundSize.HasValue)
+            {
+                stretch = true;
+            }
+            else
+            {
+                var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image 
+                if (isBackgroundSet) 
+                { 
+                    stretch = style.unitySliceTop.keyword == StyleKeyword.Undefined && style.unitySliceTop.value != 0 || 
+                             style.unitySliceRight.keyword == StyleKeyword.Undefined && style.unitySliceRight.value != 0 || 
+                             style.unitySliceBottom.keyword == StyleKeyword.Undefined && style.unitySliceBottom.value != 0 || 
+                             style.unitySliceLeft.keyword == StyleKeyword.Undefined && style.unitySliceLeft.value != 0 || 
+                             background.sprite != null && background.sprite.border != Vector4.zero; 
+                } 
+                else 
+                { 
+                    stretch = false; 
+                }
+            }
+            
+            var backgroundSize = stretch ? new BackgroundSize(Length.Percent(100), Length.Percent(100)) : props.backgroundSize.Value;
             
             style.backgroundPositionX = new BackgroundPosition(BackgroundPositionKeyword.Center);
             style.backgroundPositionY = new BackgroundPosition(BackgroundPositionKeyword.Center);
@@ -155,7 +162,7 @@ namespace RishUI.Elements
         [StyledProp("--props-tint-color", 1, 1, 1)]
         public Color? tintColor { get; set; }
 
-        public BackgroundSize backgroundSize;
+        public BackgroundSize? backgroundSize;
 
         [Comparer]
         private static bool Equals(ImageProps a, ImageProps b)
@@ -204,7 +211,7 @@ namespace RishUI.Elements
                 return false;
             }
 
-            return RishUtils.CompareNullable(a.tintColor, b.tintColor) && RishUtils.CompareUnmanaged<BackgroundSize>(a.backgroundSize, b.backgroundSize);
+            return RishUtils.CompareNullable(a.tintColor, b.tintColor) && RishUtils.CompareNullable(a.backgroundSize, b.backgroundSize);
         }
     }
 }
