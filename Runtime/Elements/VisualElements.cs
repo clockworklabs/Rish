@@ -109,7 +109,7 @@ namespace RishUI.Elements
     {
         protected override void Setup(ImageProps props)
         {
-            style.backgroundImage = props.sprite != null
+            var background = props.sprite != null
                 ? Background.FromSprite(props.sprite)
                 : props.vectorImage != null
                     ? Background.FromVectorImage(props.vectorImage)
@@ -118,13 +118,31 @@ namespace RishUI.Elements
                         : props.renderTexture != null
                             ? Background.FromRenderTexture(props.renderTexture)
                             : null;
+
+            style.backgroundImage = background;
             style.unityBackgroundImageTintColor = props.tintColor.Value;
-            style.backgroundSize = props.scaleMode switch
-            {
-                ScaleMode.ScaleAndCrop => new BackgroundSize(BackgroundSizeType.Cover),
-                ScaleMode.ScaleToFit => new BackgroundSize(BackgroundSizeType.Contain),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+            
+            var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image 
+            bool isNineSlice; 
+            if (isBackgroundSet) 
+            { 
+                isNineSlice = style.unitySliceTop.keyword == StyleKeyword.Undefined && style.unitySliceTop.value != 0 || 
+                              style.unitySliceRight.keyword == StyleKeyword.Undefined && style.unitySliceRight.value != 0 || 
+                              style.unitySliceBottom.keyword == StyleKeyword.Undefined && style.unitySliceBottom.value != 0 || 
+                              style.unitySliceLeft.keyword == StyleKeyword.Undefined && style.unitySliceLeft.value != 0 || 
+                              background.sprite != null && background.sprite.border != Vector4.zero; 
+            } 
+            else 
+            { 
+                isNineSlice = false; 
+            }
+
+            var backgroundSize = isNineSlice ? new BackgroundSize(Length.Percent(100), Length.Percent(100)) : props.backgroundSize;
+            
+            style.backgroundPositionX = new BackgroundPosition(BackgroundPositionKeyword.Center);
+            style.backgroundPositionY = new BackgroundPosition(BackgroundPositionKeyword.Center);
+            style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
+            style.backgroundSize = backgroundSize;
         }
     }
     
@@ -136,7 +154,8 @@ namespace RishUI.Elements
         public RenderTexture renderTexture;
         [StyledProp("--props-tint-color", 1, 1, 1)]
         public Color? tintColor { get; set; }
-        public ScaleMode scaleMode;
+
+        public BackgroundSize backgroundSize;
 
         [Comparer]
         private static bool Equals(ImageProps a, ImageProps b)
@@ -185,7 +204,7 @@ namespace RishUI.Elements
                 return false;
             }
 
-            return RishUtils.CompareNullable(a.tintColor, b.tintColor) && a.scaleMode == b.scaleMode;
+            return RishUtils.CompareNullable(a.tintColor, b.tintColor) && RishUtils.CompareUnmanaged<BackgroundSize>(a.backgroundSize, b.backgroundSize);
         }
     }
 }
