@@ -91,6 +91,356 @@ namespace RishUI
         }
     }
     
+    public enum BackgroundHorizontalPositionKeyword { Center, Left, Right }
+    public struct BackgroundHorizontalPosition
+    {
+        public BackgroundHorizontalPositionKeyword keyword;
+        public Length offset;
+
+        public BackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword) : this(keyword, default) { }
+        public BackgroundHorizontalPosition(Length offset) : this(BackgroundHorizontalPositionKeyword.Left, offset) { }
+
+        public BackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword, Length offset)
+        {
+            this.keyword = keyword;
+            this.offset = offset;
+        }
+
+        public static implicit operator BackgroundPosition(BackgroundHorizontalPosition position)
+        {
+            BackgroundPositionKeyword positionKeyword;
+            Length positionOffset;
+            switch (position.keyword)
+            {
+                case BackgroundHorizontalPositionKeyword.Left:
+                    positionKeyword = BackgroundPositionKeyword.Left;
+                    positionOffset = position.offset;
+                    break;
+                case BackgroundHorizontalPositionKeyword.Right:
+                    positionKeyword = BackgroundPositionKeyword.Right;
+                    positionOffset = position.offset;
+                    break;
+                default:
+                    positionKeyword = BackgroundPositionKeyword.Center;
+                    positionOffset = default;
+                    break;
+            }
+            
+            return new BackgroundPosition
+            {
+                keyword = positionKeyword,
+                offset = positionOffset
+            };
+        }
+
+        public static implicit operator BackgroundHorizontalPosition(BackgroundPosition nativePosition)
+        {
+            BackgroundHorizontalPositionKeyword positionKeyword;
+            Length positionOffset;
+            switch (nativePosition.keyword)
+            {
+                case BackgroundPositionKeyword.Left:
+                    positionKeyword = BackgroundHorizontalPositionKeyword.Left;
+                    positionOffset = nativePosition.offset;
+                    break;
+                case BackgroundPositionKeyword.Right:
+                    positionKeyword = BackgroundHorizontalPositionKeyword.Right;
+                    positionOffset = nativePosition.offset;
+                    break;
+                default:
+                    positionKeyword = BackgroundHorizontalPositionKeyword.Center;
+                    positionOffset = default;
+                    break;
+            }
+            
+            return new BackgroundHorizontalPosition
+            {
+                keyword = positionKeyword,
+                offset = positionOffset
+            };
+        }
+    }
+    public readonly struct StyleBackgroundHorizontalPosition : IStyleValue<BackgroundPosition>
+    {
+        public readonly BackgroundPosition value;
+        BackgroundPosition IStyleValue<BackgroundPosition>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<BackgroundPosition>.keyword => keyword;
+        
+        public StyleBackgroundHorizontalPosition(BackgroundHorizontalPosition value) : this(value, RishStyleKeyword.Undefined) { }
+        public StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword) : this(new BackgroundHorizontalPosition(keyword)) { }
+        public StyleBackgroundHorizontalPosition(Length length) : this(new BackgroundHorizontalPosition(length)) { }
+        public StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword, Length offset) : this(new BackgroundHorizontalPosition(keyword, offset)) { }
+        public StyleBackgroundHorizontalPosition(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleBackgroundHorizontalPosition(BackgroundHorizontalPosition value, RishStyleKeyword keyword)
+        {
+            this.value = value;
+            this.keyword = keyword;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleBackgroundHorizontalPosition(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundHorizontalPosition(BackgroundHorizontalPosition v) => new(v);
+        public static implicit operator StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundHorizontalPosition(Length length) => new(length);
+        public static implicit operator StyleBackgroundHorizontalPosition((BackgroundHorizontalPositionKeyword keyword, Length offset) v) => new(v.keyword, v.offset);
+
+        public static implicit operator StyleBackgroundPosition(StyleBackgroundHorizontalPosition style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleBackgroundHorizontalPosition(StyleBackgroundPosition style) =>
+            style.keyword == StyleKeyword.Undefined ? (BackgroundHorizontalPosition)style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleBackgroundHorizontalPosition a, StyleBackgroundHorizontalPosition b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value.Equals(b.value);
+            }
+
+            return aNotNull == bNotNull;
+        }
+    }
+    
+    public enum BackgroundVerticalPositionKeyword { Center, Top, Bottom }
+    public struct BackgroundVerticalPosition
+    {
+        public BackgroundVerticalPositionKeyword keyword;
+        public Length offset;
+
+        public BackgroundVerticalPosition(BackgroundVerticalPositionKeyword keyword) : this(keyword, default) { }
+        public BackgroundVerticalPosition(Length offset) : this(BackgroundVerticalPositionKeyword.Top, offset) { }
+
+        public BackgroundVerticalPosition(BackgroundVerticalPositionKeyword keyword, Length offset)
+        {
+            this.keyword = keyword;
+            this.offset = offset;
+        }
+
+        public static implicit operator BackgroundPosition(BackgroundVerticalPosition position)
+        {
+            BackgroundPositionKeyword positionKeyword;
+            Length positionOffset;
+            switch (position.keyword)
+            {
+                case BackgroundVerticalPositionKeyword.Top:
+                    positionKeyword = BackgroundPositionKeyword.Top;
+                    positionOffset = position.offset;
+                    break;
+                case BackgroundVerticalPositionKeyword.Bottom:
+                    positionKeyword = BackgroundPositionKeyword.Bottom;
+                    positionOffset = position.offset;
+                    break;
+                default:
+                    positionKeyword = BackgroundPositionKeyword.Center;
+                    positionOffset = default;
+                    break;
+            }
+            
+            return new BackgroundPosition
+            {
+                keyword = positionKeyword,
+                offset = positionOffset
+            };
+        }
+
+        public static implicit operator BackgroundVerticalPosition(BackgroundPosition nativePosition)
+        {
+            BackgroundVerticalPositionKeyword positionKeyword;
+            Length positionOffset;
+            switch (nativePosition.keyword)
+            {
+                case BackgroundPositionKeyword.Top:
+                    positionKeyword = BackgroundVerticalPositionKeyword.Top;
+                    positionOffset = nativePosition.offset;
+                    break;
+                case BackgroundPositionKeyword.Bottom:
+                    positionKeyword = BackgroundVerticalPositionKeyword.Bottom;
+                    positionOffset = nativePosition.offset;
+                    break;
+                default:
+                    positionKeyword = BackgroundVerticalPositionKeyword.Center;
+                    positionOffset = default;
+                    break;
+            }
+            
+            return new BackgroundVerticalPosition
+            {
+                keyword = positionKeyword,
+                offset = positionOffset
+            };
+        }
+    }
+    public readonly struct StyleBackgroundVerticalPosition : IStyleValue<BackgroundPosition>
+    {
+        public readonly BackgroundPosition value;
+        BackgroundPosition IStyleValue<BackgroundPosition>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<BackgroundPosition>.keyword => keyword;
+        
+        public StyleBackgroundVerticalPosition(BackgroundVerticalPosition value) : this(value, RishStyleKeyword.Undefined) { }
+        public StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword keyword) : this(new BackgroundVerticalPosition(keyword)) { }
+        public StyleBackgroundVerticalPosition(Length length) : this(new BackgroundVerticalPosition(length)) { }
+        public StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword keyword, Length offset) : this(new BackgroundVerticalPosition(keyword, offset)) { }
+        public StyleBackgroundVerticalPosition(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleBackgroundVerticalPosition(BackgroundVerticalPosition value, RishStyleKeyword keyword)
+        {
+            this.value = value;
+            this.keyword = keyword;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleBackgroundVerticalPosition(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundVerticalPosition(BackgroundVerticalPosition v) => new(v);
+        public static implicit operator StyleBackgroundVerticalPosition(BackgroundVerticalPositionKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundVerticalPosition(Length length) => new(length);
+        public static implicit operator StyleBackgroundVerticalPosition((BackgroundVerticalPositionKeyword keyword, Length offset) v) => new(v.keyword, v.offset);
+
+        public static implicit operator StyleBackgroundPosition(StyleBackgroundVerticalPosition style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleBackgroundVerticalPosition(StyleBackgroundPosition style) =>
+            style.keyword == StyleKeyword.Undefined ? (BackgroundVerticalPosition)style.value : style.keyword.FromNative();
+
+        [Comparer]
+        private static bool Equals(StyleBackgroundVerticalPosition a, StyleBackgroundVerticalPosition b)
+        {
+            var aNotNull = a.IsNotNull();
+            var bNotNull = b.IsNotNull();
+
+            if (aNotNull && bNotNull)
+            {
+                return a.value.Equals(b.value);
+            }
+
+            return aNotNull == bNotNull;
+        }
+    }
+    
+    public enum RepeatHorizontally { NoRepeat, Space, Round, Repeat }
+    public enum RepeatVertically { NoRepeat, Space, Round, Repeat }
+    public readonly struct StyleBackgroundRepeat : IStyleValue<BackgroundRepeat>
+    {
+        public readonly BackgroundRepeat value;
+        BackgroundRepeat IStyleValue<BackgroundRepeat>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<BackgroundRepeat>.keyword => keyword;
+
+        public StyleBackgroundRepeat(BackgroundRepeat v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleBackgroundRepeat(Repeat x) : this(new BackgroundRepeat(x, default)) { }
+        public StyleBackgroundRepeat(RepeatHorizontally x) : this(new BackgroundRepeat((Repeat)x, default)) { }
+        public StyleBackgroundRepeat(RepeatVertically y) : this(new BackgroundRepeat(default, (Repeat)y)) { }
+        public StyleBackgroundRepeat(Repeat x, Repeat y) : this(new BackgroundRepeat(x, y)) { }
+        public StyleBackgroundRepeat(RepeatHorizontally x, Repeat y) : this(new BackgroundRepeat((Repeat)x, y)) { }
+        public StyleBackgroundRepeat(RepeatVertically y, Repeat x) : this(new BackgroundRepeat(x, (Repeat)y)) { }
+        public StyleBackgroundRepeat(Repeat x, RepeatVertically y) : this(new BackgroundRepeat(x, (Repeat)y)) { }
+        public StyleBackgroundRepeat(Repeat y, RepeatHorizontally x) : this(new BackgroundRepeat((Repeat)x, y)) { }
+        public StyleBackgroundRepeat(RepeatHorizontally x, RepeatVertically y) : this(new BackgroundRepeat((Repeat)x, (Repeat)y)) { }
+        public StyleBackgroundRepeat(RepeatVertically y, RepeatHorizontally x) : this(new BackgroundRepeat((Repeat)x, (Repeat)y)) { }
+        public StyleBackgroundRepeat(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleBackgroundRepeat(BackgroundRepeat v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleBackgroundRepeat(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundRepeat(BackgroundRepeat v) => new(v);
+        public static implicit operator StyleBackgroundRepeat(Repeat x) => new(x);
+        public static implicit operator StyleBackgroundRepeat(RepeatHorizontally x) => new(x);
+        public static implicit operator StyleBackgroundRepeat(RepeatVertically y) => new(y);
+        public static implicit operator StyleBackgroundRepeat((Repeat x, Repeat y) v) => new(v.x, v.y);
+        public static implicit operator StyleBackgroundRepeat((RepeatHorizontally x, Repeat y) v) => new(v.x, v.y);
+        public static implicit operator StyleBackgroundRepeat((RepeatVertically y, Repeat x) v) => new(v.y, v.x);
+        public static implicit operator StyleBackgroundRepeat((Repeat x, RepeatVertically y) v) => new(v.x, v.y);
+        public static implicit operator StyleBackgroundRepeat((Repeat y, RepeatHorizontally x) v) => new(v.y, v.x);
+        public static implicit operator StyleBackgroundRepeat((RepeatHorizontally x, RepeatVertically y) v) => new(v.x, v.y);
+        public static implicit operator StyleBackgroundRepeat((RepeatVertically y, RepeatHorizontally x) v) => new(v.y, v.x);
+
+        public static implicit operator UnityEngine.UIElements.StyleBackgroundRepeat(StyleBackgroundRepeat style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleBackgroundRepeat(UnityEngine.UIElements.StyleBackgroundRepeat style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
+    public readonly struct StyleBackgroundSize : IStyleValue<BackgroundSize>
+    {
+        public readonly BackgroundSize value;
+        BackgroundSize IStyleValue<BackgroundSize>.value => value;
+        
+        public readonly RishStyleKeyword keyword;
+        RishStyleKeyword IStyleValue<BackgroundSize>.keyword => keyword;
+
+        public StyleBackgroundSize(BackgroundSize v) : this(v, RishStyleKeyword.Undefined) { }
+        public StyleBackgroundSize(BackgroundSizeType type) : this(new BackgroundSize(type)) { }
+        public StyleBackgroundSize(Length x) : this(new BackgroundSize(x, Length.Auto())) { }
+        public StyleBackgroundSize(Length x, Length y) : this(new BackgroundSize(x, y)) { }
+        public StyleBackgroundSize(RishStyleKeyword keyword) : this(default, keyword) { }
+        private StyleBackgroundSize(BackgroundSize v, RishStyleKeyword keyword)
+        {
+            this.keyword = keyword;
+            this.value = v;
+        }
+
+        public bool IsNull() => keyword == RishStyleKeyword.Null;
+        public bool IsNotNull() => keyword != RishStyleKeyword.Null;
+        
+        public static implicit operator StyleBackgroundSize(RishStyleKeyword keyword) => new(keyword);
+        public static implicit operator StyleBackgroundSize(BackgroundSize v) => new(v);
+        public static implicit operator StyleBackgroundSize(BackgroundSizeType type) => new(type);
+        public static implicit operator StyleBackgroundSize(Length x) => new(x);
+        public static implicit operator StyleBackgroundSize((Length x, Length y) v) => new(v.x, v.y);
+
+        public static implicit operator UnityEngine.UIElements.StyleBackgroundSize(StyleBackgroundSize style)
+        {
+            return style.keyword switch
+            {
+                RishStyleKeyword.Null => throw new UnityException("Invalid"),
+                RishStyleKeyword.Undefined => style.value,
+                _ => style.keyword.ToNative()
+            };
+        }
+
+        public static implicit operator StyleBackgroundSize(UnityEngine.UIElements.StyleBackgroundSize style) =>
+            style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
+    }
+    
     public readonly struct StyleColor : IStyleValue<Color>
     {
         public readonly Color value;

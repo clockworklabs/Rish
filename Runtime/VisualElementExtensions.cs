@@ -102,9 +102,9 @@ namespace RishUI
             element.style.width = nullValue;
             element.style.wordSpacing = nullValue;
             
-            if (element is IAdvancedPicking advancedPicking)
+            if (element is ICustomPicking customPicking)
             {
-                advancedPicking.Manager.InlinePointerDetection = null;
+                customPicking.Manager.InlinePointerDetection = null;
             }
         }
         

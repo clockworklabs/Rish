@@ -3,12 +3,12 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public interface IDOMElement : IElement, IAdvancedPicking
+    public interface IDOMElement : IElement, ICustomPicking
     {
         void Setup();
     }
     
-    public interface IDOMElement<in P> : IElement, IAdvancedPicking where P : struct
+    public interface IDOMElement<in P> : IElement, ICustomPicking where P : struct
     {
         void Setup(P props);
     }
@@ -18,11 +18,11 @@ namespace RishUI
         VisualElement IElement.GetDOMChild() => this;
         
         protected PickingManager PickingManager { get; }
-        PickingManager IAdvancedPicking.Manager => PickingManager;
+        PickingManager ICustomPicking.Manager => PickingManager;
 
         protected RishVisualElement()
         {
-            PickingManager = new PickingManager(this);
+            PickingManager = new DefaultPickingManager(this);
         }
 
         void IDOMElement.Setup() => Setup();
@@ -46,7 +46,7 @@ namespace RishUI
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
-        PickingManager IAdvancedPicking.Manager => PickingManager;
+        PickingManager ICustomPicking.Manager => PickingManager;
 
         protected RishVisualElement()
         {
@@ -57,7 +57,7 @@ namespace RishUI
                 RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
             }
 
-            PickingManager = new PickingManager(this);
+            PickingManager = new DefaultPickingManager(this);
         }
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
