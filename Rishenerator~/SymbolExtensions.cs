@@ -4,6 +4,34 @@ namespace Rishenerator
 {
     public static class SymbolExtensions
     {
+        public static bool IsRishReferenceType(this ITypeSymbol typeSymbol)
+        {
+            var fullName = typeSymbol.GetFullName();
+
+            return fullName is "RishUI.Element" or "RishUI.Children";
+        }
+        
+        public static bool IsPublic(this ITypeSymbol typeSymbol)
+        {
+            var containingType = typeSymbol.ContainingType;
+            while (containingType != null)
+            {
+                if (!containingType.IsPublic())
+                {
+                    return false;
+                }
+
+                containingType = containingType.ContainingType;
+            }
+            
+            if (typeSymbol is ITypeParameterSymbol)
+            {
+                return true;
+            }
+            
+            return typeSymbol.DeclaredAccessibility == Accessibility.Public;
+        }
+        
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics = true)
         {
             var name = typeSymbol.Name;
@@ -144,7 +172,102 @@ namespace Rishenerator
             }
                 
             return constraintsString;
+        }
+        
+        public static bool IsFlaggedAsRishValueType(this ITypeSymbol typeSymbol)
+        {
+            foreach (var attributeData in typeSymbol.GetAttributes())
+            {
+                var attributeClass = attributeData.AttributeClass;
+                while (attributeClass != null)
+                {
+                    var attributeFullName = attributeClass.GetFullName();
+                    if (attributeFullName == "RishUI.RishValueTypeAttribute")
+                    {
+                        return true;
+                    }
+            
+                    attributeClass = attributeClass.BaseType;
+                }
+            }
 
+            return false;
+        }
+        
+        public static bool IsFlaggedForAutoComparer(this ITypeSymbol typeSymbol)
+        {
+            foreach (var attributeData in typeSymbol.GetAttributes())
+            {
+                var attributeClass = attributeData.AttributeClass;
+                while (attributeClass != null)
+                {
+                    var attributeFullName = attributeClass.GetFullName();
+                    if (attributeFullName == "RishUI.AutoComparerAttribute")
+                    {
+                        return true;
+                    }
+            
+                    attributeClass = attributeClass.BaseType;
+                }
+            }
+
+            if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+            {
+                foreach (var member in typeSymbol.GetMembers())
+                {
+                    if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
+                    {
+                        continue;
+                    }
+
+                    var fieldType = fieldSymbol.Type;
+
+                    if (IsFlaggedForAutoComparer(fieldType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        
+        public static bool IsFlaggedForCustomComparer(this ITypeSymbol typeSymbol)
+        {
+            foreach (var attributeData in typeSymbol.GetAttributes())
+            {
+                var attributeClass = attributeData.AttributeClass;
+                while (attributeClass != null)
+                {
+                    var attributeFullName = attributeClass.GetFullName();
+                    if (attributeFullName == "RishUI.CustomComparer")
+                    {
+                        return true;
+                    }
+            
+                    attributeClass = attributeClass.BaseType;
+                }
+            }
+
+            if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+            {
+                foreach (var member in typeSymbol.GetMembers())
+                {
+                    if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
+                    {
+                        continue;
+                    }
+
+                    var fieldType = fieldSymbol.Type;
+
+                    if (IsFlaggedForCustomComparer(fieldType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

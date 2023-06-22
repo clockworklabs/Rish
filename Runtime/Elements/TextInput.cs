@@ -75,7 +75,7 @@ namespace RishUI.Elements
             Form?.Submit();
         }
 
-        private class RishTextField : TextField, IDOMElement<RishTextFieldProps>
+        public class RishTextField : TextField, IDOMElement<RishTextFieldProps>
         {
             VisualElement IElement.GetDOMChild() => this;
             

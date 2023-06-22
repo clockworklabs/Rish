@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    [RishValueType]
     public struct NoProps { }
 
     internal interface IRishElement : IElement

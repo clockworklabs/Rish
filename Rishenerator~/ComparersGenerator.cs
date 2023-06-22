@@ -10,20 +10,16 @@ namespace Rishenerator
     {
         void ISourceGenerator.Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is not Crawler crawler) return;
+            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
             
             try
             {
-                var sourceCode = crawler.GetSourceCode();
+                var sourceCode = syntaxReceiver.GetSourceCode();
                 if (string.IsNullOrWhiteSpace(sourceCode))
                 {
                     return;
                 }
-                
-                Logger.Log("");
-                Logger.Log(sourceCode);
-                Logger.Log("");
-                
+
                 context.AddSource("AutoComparersProvider.g.cs", sourceCode);
             }
             catch (Exception e)
@@ -34,10 +30,10 @@ namespace Rishenerator
 
         void ISourceGenerator.Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new Crawler());
+            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
         }
         
-        private class Crawler : ISyntaxContextReceiver
+        private class SyntaxReceiver : ISyntaxContextReceiver
         {
             private Dictionary<INamedTypeSymbol, bool> Comparers { get; } = new();
             private List<INamedTypeSymbol> AutoComparerTypes { get; } = new();
@@ -47,7 +43,7 @@ namespace Rishenerator
                 try
                 {
                     var node = context.Node;
-                
+
                     var semanticModel = context.SemanticModel;
                     if (semanticModel.GetDeclaredSymbol(node) is not INamedTypeSymbol type)
                     {
@@ -74,7 +70,6 @@ namespace Rishenerator
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.AppendLine(@"using System;
-using RishUI;
 using UnityEngine;
 
 namespace RishUI.Generated 
@@ -117,7 +112,7 @@ namespace RishUI.Generated
                     }
 
                     stringBuilder.Append($@"        [Comparer]
-        public static bool Equals{typeGenericsName}({typeFullName} a, {typeFullName} b){genericsConstraints}
+        private static bool Equals{typeGenericsName}({typeFullName} a, {typeFullName} b){genericsConstraints}
         {{
             return ");
 
@@ -233,23 +228,23 @@ namespace RishUI.Generated
                     return needsComparer;
                 }
 
-                if (!namedTypeSymbol.IsValueType)
+                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern)
                 {
                     Comparers[namedTypeSymbol] = false;
                     return false;
                 }
 
-                if (IsFlaggedForCustomComparer(namedTypeSymbol))
+                if (namedTypeSymbol.IsFlaggedForCustomComparer())
                 {
                     Comparers[namedTypeSymbol] = true;
                     return true;
                 }
 
-                if (IsFlaggedForAutoComparer(namedTypeSymbol))
+                if (namedTypeSymbol.IsFlaggedForAutoComparer())
                 {
                     foreach (var member in namedTypeSymbol.GetMembers())
                     {
-                        if (member is not IFieldSymbol fieldSymbol)
+                        if (member is not IFieldSymbol fieldSymbol || fieldSymbol.IsConst)
                         {
                             continue;
                         }
@@ -277,83 +272,7 @@ namespace RishUI.Generated
 
                 return needsComparer;
             }
-            
-            private static bool IsFlaggedForAutoComparer(ITypeSymbol typeSymbol)
-            {
-                foreach (var attributeData in typeSymbol.GetAttributes())
-                {
-                    var attributeClass = attributeData.AttributeClass;
-                    while (attributeClass != null)
-                    {
-                        var attributeFullName = attributeClass.GetFullName();
-                        if (attributeFullName == "RishUI.AutoComparerAttribute")
-                        {
-                            return true;
-                        }
-                
-                        attributeClass = attributeClass.BaseType;
-                    }
-                }
 
-                if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
-                {
-                    foreach (var member in typeSymbol.GetMembers())
-                    {
-                        if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
-                        {
-                            continue;
-                        }
-
-                        var fieldType = fieldSymbol.Type;
-
-                        if (IsFlaggedForAutoComparer(fieldType))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-            
-            private static bool IsFlaggedForCustomComparer(ITypeSymbol typeSymbol)
-            {
-                foreach (var attributeData in typeSymbol.GetAttributes())
-                {
-                    var attributeClass = attributeData.AttributeClass;
-                    while (attributeClass != null)
-                    {
-                        var attributeFullName = attributeClass.GetFullName();
-                        if (attributeFullName == "RishUI.CustomComparer")
-                        {
-                            return true;
-                        }
-                
-                        attributeClass = attributeClass.BaseType;
-                    }
-                }
-
-                if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
-                {
-                    foreach (var member in typeSymbol.GetMembers())
-                    {
-                        if (member is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } fieldSymbol)
-                        {
-                            continue;
-                        }
-
-                        var fieldType = fieldSymbol.Type;
-
-                        if (IsFlaggedForCustomComparer(fieldType))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-            
             private enum ComparisonType { MemoryComparison, ReferenceComparison, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison, ComparerComparison }
 
             private bool HasDefaultComparison(IFieldSymbol fieldSymbol)
@@ -393,7 +312,7 @@ namespace RishUI.Generated
             {
                 if (typeSymbol.IsValueType)
                 {
-                    if (IsFlaggedForCustomComparer(typeSymbol) || IsFlaggedForAutoComparer(typeSymbol) && NeedsAutoComparer(typeSymbol))
+                    if (typeSymbol.IsFlaggedForCustomComparer() || typeSymbol.IsFlaggedForAutoComparer() && NeedsAutoComparer(typeSymbol))
                     {
                         return ComparisonType.ComparerComparison;
                     }

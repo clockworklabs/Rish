@@ -79,6 +79,7 @@ namespace RishUI
         }
     }
 
+    [RishValueType]
     public struct AppProps
     {
         public FixedString64Bytes rootClassName;

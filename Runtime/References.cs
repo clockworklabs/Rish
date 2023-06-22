@@ -5,8 +5,19 @@ namespace RishUI
     public struct References
     {
         private readonly bool _initialized;
-        private NativeList<Children> _elements;
+        // private NativeArray<Children> _elements;
+        private NativeList<Children> _elements; // TODO: Use NativeArray after migration
         public int Count => _initialized ? _elements.Length : 0;
+
+        public References(FixedList4096Bytes<Children> elements)
+        {
+            _initialized = true;
+            // _elements = elements.ToNativeArray(Allocator.Persistent);
+            var nativeArray = elements.ToNativeArray(Allocator.Temp);
+            _elements = new NativeList<Children>(Allocator.Persistent);
+            _elements.AddRange(nativeArray);
+            nativeArray.Dispose();
+        }
 
         public References(Children element0) : this(new NativeList<Children>(Allocator.Persistent)
         {
@@ -835,6 +846,8 @@ namespace RishUI
                 _elements.Add(element);
             }
         }
+        
+        public static implicit operator References(FixedList4096Bytes<Children> elements) => new(elements);
         
         public static implicit operator References(Children element0)
         {
