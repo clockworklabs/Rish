@@ -21,20 +21,17 @@ namespace RishUI
         {
             foreach (var type in Rish.PlayerTypes)
             {
-                if (!type.IsValueType)
-                {
-                    continue;
-                }
-                var method = GetGetter(type);
-                if (method != null)
-                {
-                    Methods.Add(type, method);
-                }
+                RegisterReferencesGetters(type);
             }
         }
 
         public static References GetReferences<T>(T owner) where T : struct
         {
+            if (!Contains<T>())
+            {
+                return default;
+            }
+            
             var getter = GetDelegate<T>();
             var references = getter?.Invoke(owner) ?? default;
             if (references.IsValid())
@@ -49,40 +46,39 @@ namespace RishUI
         private static ReferencesGetter<T> GetDelegate<T>() where T : struct
         {
             var type = typeof(T);
-            if (!Delegates.TryGetValue(type, out var comparer))
+            if (!Delegates.TryGetValue(type, out var referencesGetter))
             {
-                var methodKey = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-                if (!Methods.TryGetValue(methodKey, out var method))
+                if (!Methods.TryGetValue(type, out var method))
+                {
+                    if (type.IsGenericType)
+                    {
+                        var genericType = type.GetGenericTypeDefinition();
+                        if (Methods.TryGetValue(genericType, out method))
+                        {
+                            method = method.MakeGenericMethod(type.GenericTypeArguments);
+                        }
+                    }
+                }
+
+                if (method == null)
                 {
                     return null;
                 }
-                
-                if (type.IsGenericType)
-                {
-                    var concreteMethod = GetGetter(type);
-                    if (concreteMethod == null)
-                    {
-                        return null;
-                    }
 
-                    comparer = Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, concreteMethod);
-                }
-                else
-                {
-                    comparer = Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method);
-                }
-
-                Delegates.Add(type, comparer);
+                referencesGetter = Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method);
+                Delegates.Add(type, referencesGetter);
             }
 
-            return (ReferencesGetter<T>) comparer;
+            return (ReferencesGetter<T>) referencesGetter;
         }
 
-        private static MethodInfo GetGetter(Type type)
+        private static void RegisterReferencesGetters(Type provider)
         {
-            var isGeneric = type.IsGenericType;
-            var targetType = isGeneric ? type.GetGenericTypeDefinition() : type;
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            if(!Attribute.IsDefined(provider, typeof(ReferencesGettersProviderAttribute))) {
+                return;
+            }
+            
+            foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
                 if (parameters.Length != 1 || method.ReturnType != typeof(References) || !Attribute.IsDefined(method, typeof(ReferencesGetterAttribute)))
@@ -90,21 +86,44 @@ namespace RishUI
                     continue;
                 }
 
-                var parameter = isGeneric
-                    ? parameters[0].ParameterType.GetGenericTypeDefinition()
-                    : parameters[0].ParameterType;
-
-                if (parameter != targetType)
+                var type = parameters[0].ParameterType;
+                if (type.ContainsGenericParameters)
                 {
-                    continue;
+                    type = type.GetGenericTypeDefinition();
                 }
-
-                return method;
+                
+                if (Methods.ContainsKey(type))
+                {
+                    if (type == provider)
+                    {
+                        Methods.Remove(type);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                
+                Methods.Add(type, method);
             }
-            return null;
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type) => Methods.ContainsKey(type.IsGenericType ? type.GetGenericTypeDefinition() : type);
+        internal static bool Contains(Type type)
+        {
+            if (Methods.ContainsKey(type))
+            {
+                return true;
+            }
+
+            if (!type.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericDefinition = type.GetGenericTypeDefinition();
+            
+            return Methods.ContainsKey(genericDefinition);
+        }
     }
 }

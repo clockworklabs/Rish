@@ -120,9 +120,6 @@ namespace RishUI.Elements
         public Children children;
         public Children hovered;
         public Children pressed;
-
-        [ReferencesGetter]
-        private static References GetReferences(StatefulDivProps owner) => (owner.children, owner.hovered, owner.pressed);
     }
 
     [RishValueType]

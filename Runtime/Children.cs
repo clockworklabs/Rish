@@ -111,8 +111,5 @@ namespace RishUI
 
             return aDefinition.Equals(bDefinition);
         }
-
-        [ReferencesGetter]
-        private static References GetReferences(Children owner) => owner;
     }
 }

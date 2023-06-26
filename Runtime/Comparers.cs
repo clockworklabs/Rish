@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -39,12 +38,18 @@ namespace RishUI
             {
                 if (!Methods.TryGetValue(type, out var method))
                 {
-                    method = GetCustomGenericComparer(type);
+                    if (type.IsGenericType)
+                    {
+                        var genericType = type.GetGenericTypeDefinition();
+                        if (Methods.TryGetValue(genericType, out method))
+                        {
+                            method = method.MakeGenericMethod(type.GenericTypeArguments);
+                        }
+                    }
                 }
 
                 if (method == null)
                 {
-                    Debug.Log($"No comparer found for {type}");
                     return null;
                 }
                 
@@ -53,35 +58,6 @@ namespace RishUI
             }
 
             return (Comparer<T>) comparer;
-        }
-
-        private static MethodInfo GetCustomGenericComparer(Type type)
-        {
-            if(!type.IsGenericType || !Attribute.IsDefined(type, typeof(CustomComparerAttribute)))
-            {
-                return null;
-            }
-            
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
-            {
-                var parameters = method.GetParameters();
-                if (parameters.Length != 2 || method.ReturnType != typeof(bool) || !Attribute.IsDefined(method, typeof(ComparerAttribute)))
-                {
-                    continue;
-                }
-
-                var par0 = parameters[0].ParameterType;
-                var par1 = parameters[1].ParameterType;
-
-                if (par0 != type || par1 != type)
-                {
-                    continue;
-                }
-
-                return method;
-            }
-            
-            return null;
         }
 
         private static void RegisterComparers(Type provider)
@@ -104,33 +80,26 @@ namespace RishUI
                 }
 
                 var type = parameters[0].ParameterType;
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == type)
-                {
-                    Debug.LogError($"Ignore generic comparer for {type}");
-                    continue;
-                }
                 if (parameters[1].ParameterType != type)
                 {
                     continue;
+                }
+
+                if (type.ContainsGenericParameters)
+                {
+                    type = type.GetGenericTypeDefinition();
                 }
 
                 if (Methods.ContainsKey(type))
                 {
                     if (type == customComparerType)
                     {
-                        Debug.LogError($"Overriding comparer for {type}");
                         Methods.Remove(type);
                     }
                     else
                     {
-                        Debug.LogError($"Ignoring duplicated comparer for {type}");
                         continue;
                     }
-                }
-                
-                if (type == customComparerType)
-                {
-                    Debug.LogError($"Using custom comparer for {type}");
                 }
                 
                 Methods.Add(type, method);
@@ -138,6 +107,20 @@ namespace RishUI
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type) => Methods.ContainsKey(type.IsGenericType ? type.GetGenericTypeDefinition() : type);
+        internal static bool Contains(Type type)
+        {
+            if (Methods.ContainsKey(type))
+            {
+                return true;
+            }
+
+            if (!type.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericDefinition = type.GetGenericTypeDefinition();
+            return Methods.ContainsKey(genericDefinition);
+        }
     }
 }

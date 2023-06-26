@@ -21,6 +21,7 @@ namespace Rishenerator
                 }
                 
                 Logger.Log("");
+                Logger.Log($"// --- {context.Compilation.Assembly.Name}");
                 Logger.Log(sourceCode);
                 Logger.Log("");
                 
@@ -120,7 +121,7 @@ namespace Rishenerator
                     stringBuilder.AppendLine($@"        [ReferencesGetter]
         private static References GetReferences{typeGenericsName}({typeFullName} value){genericsConstraints}
         {{
-            return new Unity.Collections.FixedList4096Bytes<Children>{{ {typeSourceCode} }};
+            return new References(true) {{ {typeSourceCode} }};
         }}");
                 }
                 

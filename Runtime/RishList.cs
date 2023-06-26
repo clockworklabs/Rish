@@ -801,25 +801,6 @@ namespace RishUI
             return list;
         }
 
-        public void AddReferences(ref References references)
-        {
-            if (!ReferencesGetters.Contains<T>())
-            {
-                return;
-            }
-            
-            for (int i = 0, n = Count; i < n; i++)
-            {
-                var element = this[i];
-                var elementReferences = ReferencesGetters.GetReferences(element);
-                foreach (var reference in elementReferences)
-                {
-                    references.Add(reference);
-                }
-                elementReferences.Dispose();
-            }
-        }
-
         public static implicit operator RishList<T>(T element)
         {
             return new RishList<T>(element);

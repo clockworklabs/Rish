@@ -63,8 +63,5 @@ namespace RishUI
 
         [Comparer]
         private static bool Equals(Element a, Element b) => RishUtils.SmartCompare<Children>(a, b);
-
-        [ReferencesGetter]
-        private static References GetReferences(Element owner) => owner;
     }
 }

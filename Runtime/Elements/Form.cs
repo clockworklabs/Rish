@@ -82,8 +82,5 @@ namespace RishUI.Elements
         public Element content;
         [IgnoreComparison]
         public Action submitAction;
-
-        [ReferencesGetter]
-        private static References GetReferences(FormProps owner) => owner.content;
     }
 }

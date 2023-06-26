@@ -302,8 +302,5 @@ namespace RishUI.Elements
             focusable = other.focusable;
             autoFocus = other.autoFocus;
         }
-
-        [ReferencesGetter]
-        private static References GetReferences(ButtonProps owner) => (owner.normal, owner.hovered, owner.pressed, owner.disabled);
     }
 }
