@@ -20,11 +20,6 @@ namespace Rishenerator
                     return;
                 }
                 
-                Logger.Log("");
-                Logger.Log($"// --- {context.Compilation.Assembly.Name}");
-                Logger.Log(sourceCode);
-                Logger.Log("");
-                
                 context.AddSource("ReferencesGettersProvider.g.cs", sourceCode);
             }
             catch (Exception e)
