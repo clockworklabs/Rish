@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,7 +16,7 @@ namespace RishUI.Elements
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
-        PickingManager IAdvancedPicking.Manager => PickingManager;
+        PickingManager ICustomPicking.Manager => PickingManager;
 
         private LengthRange? WidthRange { get; set; }
         private LengthRange? HeightRange { get; set; }
@@ -24,7 +25,7 @@ namespace RishUI.Elements
 
         public Label()
         {
-            PickingManager = new PickingManager(this);
+            PickingManager = new DefaultPickingManager(this); // TODO: Maybe a simpler RectPickingManager?
             
             // TODO: Maybe use custom events?
             RegisterCallback<AttachToPanelEvent>(OnMounted);
@@ -104,11 +105,12 @@ namespace RishUI.Elements
         public LengthRange? heightRange;
     }
     
+    // TODO: Maybe turn it into RishElement?
     public class Image : RishVisualElement<ImageProps>
     {
         protected override void Setup(ImageProps props)
         {
-            style.backgroundImage = props.sprite != null
+            var background = props.sprite != null
                 ? Background.FromSprite(props.sprite)
                 : props.vectorImage != null
                     ? Background.FromVectorImage(props.vectorImage)
@@ -117,8 +119,38 @@ namespace RishUI.Elements
                         : props.renderTexture != null
                             ? Background.FromRenderTexture(props.renderTexture)
                             : null;
+
+            style.backgroundImage = background;
             style.unityBackgroundImageTintColor = props.tintColor.Value;
-            style.unityBackgroundScaleMode = props.scaleMode;
+
+            bool stretch;
+            if (!props.backgroundSize.HasValue)
+            {
+                stretch = true;
+            }
+            else
+            {
+                var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image 
+                if (isBackgroundSet) 
+                { 
+                    stretch = style.unitySliceTop.keyword == StyleKeyword.Undefined && style.unitySliceTop.value != 0 || 
+                             style.unitySliceRight.keyword == StyleKeyword.Undefined && style.unitySliceRight.value != 0 || 
+                             style.unitySliceBottom.keyword == StyleKeyword.Undefined && style.unitySliceBottom.value != 0 || 
+                             style.unitySliceLeft.keyword == StyleKeyword.Undefined && style.unitySliceLeft.value != 0 || 
+                             background.sprite != null && background.sprite.border != Vector4.zero; 
+                } 
+                else 
+                { 
+                    stretch = false; 
+                }
+            }
+            
+            var backgroundSize = stretch ? new BackgroundSize(Length.Percent(100), Length.Percent(100)) : props.backgroundSize.Value;
+            
+            style.backgroundPositionX = new BackgroundPosition(BackgroundPositionKeyword.Center);
+            style.backgroundPositionY = new BackgroundPosition(BackgroundPositionKeyword.Center);
+            style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
+            style.backgroundSize = backgroundSize;
         }
     }
     
@@ -131,6 +163,6 @@ namespace RishUI.Elements
         public RenderTexture renderTexture;
         [StyledProp("--props-tint-color", 1, 1, 1)]
         public Color? tintColor { get; set; }
-        public ScaleMode scaleMode;
+        public BackgroundSize? backgroundSize;
     }
 }

@@ -23,7 +23,7 @@ namespace RishUI.Events
             {
                 Pointers[i].SetTarget(target);
             }
-            
+
             target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
             target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             target.RegisterCallback<PointerDownEvent>(OnPointerDown);
@@ -64,29 +64,29 @@ namespace RishUI.Events
         {
             private bool TricklesDown { get; }
             private bool Bubbles { get; }
-            
+
             private PointerEvent LastEvent { get; } = new();
-            
+
             private VisualElement Target { get; set; }
             private bool Hovering { get; set; }
             private bool Pressed { get; set; }
             private bool Dragging { get; set; }
-            
+
             public Pointer(bool tricklesDown, bool bubbles)
             {
                 TricklesDown = tricklesDown;
                 Bubbles = bubbles;
             }
-            
+
             public void Reset()
             {
                 LastEvent.Reset();
-                
+
                 Hovering = false;
                 Pressed = false;
                 Dragging = false;
             }
-            
+
             public void SetTarget(VisualElement target)
             {
                 Target = target;
@@ -95,14 +95,14 @@ namespace RishUI.Events
             public void OnEnter(PointerEnterEvent evt)
             {
                 LastEvent.Copy(evt);
-                
+
                 Hovering = true;
             }
 
             public void OnLeave(PointerLeaveEvent evt)
             {
                 LastEvent.Copy(evt);
-                
+
                 Hovering = false;
 
                 if (Dragging && !evt.target.HasPointerCapture(evt.pointerId))
@@ -114,14 +114,14 @@ namespace RishUI.Events
             public void OnDown(PointerDownEvent evt)
             {
                 LastEvent.Copy(evt);
-                
+
                 Pressed = true;
             }
 
             public void OnUp(PointerUpEvent evt)
             {
                 LastEvent.Copy(evt);
-                
+
                 Pressed = false;
 
                 if (Dragging)
@@ -133,12 +133,12 @@ namespace RishUI.Events
             public void OnMove(PointerMoveEvent evt)
             {
                 LastEvent.Copy(evt);
-                
+
                 if (!Pressed)
                 {
                     return;
                 }
-                
+
                 if (!Dragging)
                 {
                     StartDragging();
@@ -161,7 +161,7 @@ namespace RishUI.Events
                 {
                     return;
                 }
-                
+
                 if (Dragging && !Hovering)
                 {
                     EndDragging();
@@ -180,9 +180,9 @@ namespace RishUI.Events
                     throw new UnityException("Pointer was already dragging");
                 }
 #endif
-                
+
                 Dragging = true;
-                
+
                 using var pooled = DragEventBase<DragStartEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
@@ -199,7 +199,7 @@ namespace RishUI.Events
                     throw new UnityException("Pointer was already dragging");
                 }
 #endif
-                
+
                 using var pooled = DragEventBase<DragEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
@@ -216,11 +216,11 @@ namespace RishUI.Events
                     throw new UnityException("Pointer wasn't dragging");
                 }
 #endif
-                
+
                 Hovering = false;
                 Pressed = false;
                 Dragging = false;
-                
+
                 using var pooled = DragEventBase<DragEndEvent>.GetPooled(LastEvent, Target, Bubbles, TricklesDown);
                 Target.SendEvent(pooled);
             }
@@ -228,7 +228,7 @@ namespace RishUI.Events
             private class PointerEvent : IPointerEvent
             {
                 public bool Valid { get; set; }
-                
+
                 public int pointerId { get; private set; }
                 public string pointerType { get; private set; }
                 public bool isPrimary { get; private set; }
@@ -252,6 +252,8 @@ namespace RishUI.Events
                 public bool commandKey { get; private set; }
                 public bool altKey { get; private set; }
                 public bool actionKey { get; private set; }
+                public Vector2 tilt { get; private set; }
+                public PenStatus penStatus { get; private set; }
 
                 public void Reset() => Valid = false;
 
@@ -259,14 +261,14 @@ namespace RishUI.Events
                 {
                     // TODO: This doesn't work properly on Mac (position is wrong because the app has the wrong size for whatever reason)
                     // TODO: Test in build
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     var dp = Valid ? pointerEvent.position - position : Vector3.zero;
-                    #else
+#else
                     var dp = pointerEvent.deltaPosition;
-                    #endif
-                    
+#endif
+
                     Valid = true;
-                    
+
                     pointerId = pointerEvent.pointerId;
                     pointerType = pointerEvent.pointerType;
                     isPrimary = pointerEvent.isPrimary;

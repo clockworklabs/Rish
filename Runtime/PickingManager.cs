@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public interface IAdvancedPicking
+    public interface ICustomPicking
     {
         PickingManager Manager { get; }
     }
@@ -19,11 +19,11 @@ namespace RishUI
         ForceIgnore
     }
 
-    public class PickingManager
+    public abstract class PickingManager
     {
         private static readonly CustomStyleProperty<string> PointerDetectionProperty = new("--pointer-detection");
         
-        private VisualElement Element { get; }
+        protected VisualElement Element { get; }
 
         internal PointerDetectionMode? InlinePointerDetection { get; set; }
 
@@ -32,10 +32,10 @@ namespace RishUI
         private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StyleSheetsPointerDetection ?? PointerDetectionMode.Inherit);
 
         private PointerDetectionMode _pointerDetection;
-        private PointerDetectionMode PointerDetection
+        protected PointerDetectionMode PointerDetection
         {
             get => _pointerDetection;
-            set
+            private set
             {
                 if (value == _pointerDetection)
                 {
@@ -49,58 +49,15 @@ namespace RishUI
                 for(int i = 0, n = Element.childCount; i < n; i++)
                 {
                     var child = Element[i];
-                    if (child is IAdvancedPicking advancedPicking)
+                    if (child is ICustomPicking customPicking)
                     {
-                        advancedPicking.Manager.Update();
+                        customPicking.Manager.Update();
                     }
                 }
             }
         }
 
         private bool Enabled { get; set; } = true;
-
-        private float BackgroundColorAlpha { get; set; }
-        private Vector4 BackgroundSlices { get; set; }
-        private bool NineSliced => BackgroundSlices != Vector4.zero;
-        private float BackgroundSlicesScale { get; set; }
-        private ScaleMode BackgroundScaleMode { get; set; }
-        private Rect BackgroundSourceRect { get; set; }
-        
-        // TODO: Profile
-        private int ReadableId { get; set; }
-        private bool ManualReadable { get; set; }
-        private Texture2D _backgroundTexture;
-        private Texture2D BackgroundTexture
-        {
-            get => _backgroundTexture;
-            set
-            {
-                var id = value != null ? value.GetInstanceID() : 0;
-                if (ReadableId == id)
-                {
-                    return;
-                }
-
-                ReadableId = id;
-
-                if (_backgroundTexture && ManualReadable)
-                {
-                    Object.Destroy(_backgroundTexture);
-                }
-
-                if (value == null || value.isReadable)
-                {
-                    ManualReadable = false;
-                    _backgroundTexture = value;
-                }
-                else
-                {
-                    ManualReadable = true;
-                    _backgroundTexture = new Texture2D(value.width, value.height, value.format, value.mipmapCount > 1);
-                    Graphics.CopyTexture(value, _backgroundTexture);
-                }
-            }
-        }
 
         public PickingManager(VisualElement element)
         {
@@ -165,7 +122,75 @@ namespace RishUI
             PointerDetection = target;
         }
 
-        private void Setup()
+        private PointerDetectionMode GetInherited()
+        {
+            var parent = Element.parent;
+            while (parent is ICustomPicking picking)
+            {
+                var manager = picking.Manager;
+                if (manager.Enabled)
+                {
+                    return manager.PointerDetection;
+                }
+                
+                parent = parent.parent;
+            }
+
+            return PointerDetectionMode.Ignore;
+        }
+
+        protected abstract void Setup();
+        public abstract bool ContainsPoint(Vector2 localPoint);
+    }
+
+    public class DefaultPickingManager : PickingManager
+    {
+        private float BackgroundColorAlpha { get; set; }
+        private Vector4 BackgroundSlices { get; set; }
+        private bool NineSliced => BackgroundSlices != Vector4.zero;
+        private float BackgroundSlicesScale { get; set; }
+        private ScaleMode BackgroundScaleMode { get; set; }
+        private Rect BackgroundSourceRect { get; set; }
+        
+        // TODO: Profile
+        private int ReadableId { get; set; }
+        private bool ManualReadable { get; set; }
+        private Texture2D _backgroundTexture;
+        private Texture2D BackgroundTexture
+        {
+            get => _backgroundTexture;
+            set
+            {
+                var id = value != null ? value.GetInstanceID() : 0;
+                if (ReadableId == id)
+                {
+                    return;
+                }
+
+                ReadableId = id;
+
+                if (_backgroundTexture && ManualReadable)
+                {
+                    Object.Destroy(_backgroundTexture);
+                }
+
+                if (value == null || value.isReadable)
+                {
+                    ManualReadable = false;
+                    _backgroundTexture = value;
+                }
+                else
+                {
+                    ManualReadable = true;
+                    _backgroundTexture = new Texture2D(value.width, value.height, value.format, value.mipmapCount > 1);
+                    Graphics.CopyTexture(value, _backgroundTexture);
+                }
+            }
+        }
+
+        public DefaultPickingManager(VisualElement element) : base(element) { }
+
+        protected override void Setup()
         {
             if (PointerDetection is PointerDetectionMode.Ignore or PointerDetectionMode.ForceIgnore)
             {
@@ -221,10 +246,10 @@ namespace RishUI
 
             BackgroundSlices = backgroundBorder;
 
-            BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode;
+            BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode.value;
         }
         
-        internal bool ContainsPoint(Vector2 localPoint)
+        public override bool ContainsPoint(Vector2 localPoint)
         {
             var layout = Element.layout;
             var rect = new Rect(0.0f, 0.0f, layout.width, layout.height);
@@ -233,11 +258,39 @@ namespace RishUI
                 return false;
             }
 
-            // TODO: Check rounded corners
+            if (PointerDetection == PointerDetectionMode.Rect)
+            {
+                return true;
+            }
+            
+            var resolvedStyle = Element.resolvedStyle;
+            if (resolvedStyle.borderTopRightRadius != 0 || resolvedStyle.borderBottomRightRadius != 0 ||
+                resolvedStyle.borderBottomLeftRadius != 0 || resolvedStyle.borderTopLeftRadius != 0)
+            {
+                Debug.LogError("Rounded corners not supported yet.");
+                return true;
+            }
+            if (resolvedStyle.backgroundRepeat.x != Repeat.NoRepeat ||
+                resolvedStyle.backgroundRepeat.y != Repeat.NoRepeat)
+            {
+                Debug.LogError("Repeated background not supported yet.");
+                return true;
+            }
+            if (resolvedStyle.backgroundPositionX.keyword != BackgroundPositionKeyword.Center ||
+                resolvedStyle.backgroundPositionY.keyword != BackgroundPositionKeyword.Center )
+            {
+                Debug.LogError("Not centered background not supported yet.");
+                return true;
+            }
+            if (resolvedStyle.backgroundSize.x != Length.Percent(100) ||
+                resolvedStyle.backgroundSize.y != Length.Percent(100))
+            {
+                Debug.LogError("Not stretched background not supported yet.");
+                return true;
+            }
 
             return PointerDetection switch
             {
-                PointerDetectionMode.Rect => true,
                 PointerDetectionMode.Alpha =>
                     // TODO: Maybe use a threshold?
                     BackgroundColorAlpha > 0 || GetImageAlpha() > 0,
@@ -396,23 +449,6 @@ namespace RishUI
             }
             
             float Remap(float value, float start1, float stop1, float start2, float stop2) => start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
-        }
-
-        private PointerDetectionMode GetInherited()
-        {
-            var parent = Element.parent;
-            while (parent is IAdvancedPicking picking)
-            {
-                var manager = picking.Manager;
-                if (manager.Enabled)
-                {
-                    return manager.PointerDetection;
-                }
-                
-                parent = parent.parent;
-            }
-
-            return PointerDetectionMode.Ignore;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,6 +11,10 @@ namespace RishUI
         public StyleEnum<Align> alignSelf;
         public StyleColor backgroundColor;
         public StyleBackground backgroundImage;
+        public StyleBackgroundHorizontalPosition backgroundPositionX;
+        public StyleBackgroundVerticalPosition backgroundPositionY;
+        public StyleBackgroundRepeat backgroundRepeat;
+        public StyleBackgroundSize backgroundSize;
         public StyleColor borderBottomColor;
         public StyleLength borderBottomLeftRadius;
         public StyleLength borderBottomRightRadius;
@@ -64,7 +69,6 @@ namespace RishUI
         public StyleList<EasingFunction> transitionTimingFunction;
         public StyleTranslate translate;
         public StyleColor unityBackgroundImageTintColor;
-        public StyleEnum<ScaleMode> unityBackgroundScaleMode;
         public StyleFont unityFont;
         public StyleFontDefinition unityFontDefinition;
         public StyleEnum<FontStyle> unityFontStyleAndWeight;
@@ -84,6 +88,15 @@ namespace RishUI
         public StyleLength wordSpacing;
         public StyleEnum<PointerDetectionMode> pointerDetection;
 
+        public StyleBackgroundPositionShorthand backgroundPosition
+        {
+            set
+            {
+                backgroundPositionX = value.x;
+                backgroundPositionY = value.y;
+            }
+        }
+        
         public StyleColorsShorthand borderColor
         {
             set
@@ -133,6 +146,7 @@ namespace RishUI
                 marginLeft = value.left;
             }
         }
+        
         public StyleLengthsShorthand padding
         {
             set
@@ -155,6 +169,17 @@ namespace RishUI
             }
         }
 
+        public StyleIntsShorthand unitySlice
+        {
+            set
+            {
+                unitySliceTop = value.top;
+                unitySliceRight = value.right;
+                unitySliceBottom = value.bottom;
+                unitySliceLeft = value.left;
+            }
+        }
+
         private static Style Default = default;
 
         public Style(Style other)
@@ -164,6 +189,10 @@ namespace RishUI
             alignSelf = other.alignSelf;
             backgroundColor = other.backgroundColor;
             backgroundImage = other.backgroundImage;
+            backgroundPositionX = other.backgroundPositionX;
+            backgroundPositionY = other.backgroundPositionY;
+            backgroundRepeat = other.backgroundRepeat;
+            backgroundSize = other.backgroundSize;
             borderBottomColor = other.borderBottomColor;
             borderBottomLeftRadius = other.borderBottomLeftRadius;
             borderBottomRightRadius = other.borderBottomRightRadius;
@@ -218,7 +247,6 @@ namespace RishUI
             transitionTimingFunction = other.transitionTimingFunction;
             translate = other.translate;
             unityBackgroundImageTintColor = other.unityBackgroundImageTintColor;
-            unityBackgroundScaleMode = other.unityBackgroundScaleMode;
             unityFont = other.unityFont;
             unityFontDefinition = other.unityFontDefinition;
             unityFontStyleAndWeight = other.unityFontStyleAndWeight;
@@ -248,12 +276,45 @@ namespace RishUI
                 element.ResetInlineStyles();
                 return;
             }
+
+            var background = backgroundImage.keyword == RishStyleKeyword.Undefined ? backgroundImage.value : default;
+            var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image
+            bool isNineSlice;
+            if (isBackgroundSet)
+            {
+                isNineSlice = unitySliceTop.keyword == RishStyleKeyword.Undefined && unitySliceTop.value != 0 ||
+                              unitySliceRight.keyword == RishStyleKeyword.Undefined && unitySliceRight.value != 0 ||
+                              unitySliceBottom.keyword == RishStyleKeyword.Undefined && unitySliceBottom.value != 0 ||
+                              unitySliceLeft.keyword == RishStyleKeyword.Undefined && unitySliceLeft.value != 0 ||
+                              background.sprite != null && background.sprite.border != Vector4.zero;
+            }
+            else
+            {
+                isNineSlice = false;
+            }
+            
+            var backgroundPositionX = isNineSlice 
+                ? BackgroundHorizontalPositionKeyword.Center
+                : this.backgroundPositionX;
+            var backgroundPositionY = isNineSlice 
+                ? BackgroundVerticalPositionKeyword.Center
+                : this.backgroundPositionY;
+            var backgroundRepeat = isNineSlice 
+                ? Repeat.NoRepeat
+                : this.backgroundRepeat;
+            var backgroundSize = isNineSlice 
+                ? new BackgroundSize(Length.Percent(100), Length.Percent(100))
+                : this.backgroundSize;
             
             element.style.alignContent = alignContent.IsNotNull() ? alignContent : StyleKeyword.Null;
             element.style.alignItems = alignItems.IsNotNull() ? alignItems : StyleKeyword.Null;
             element.style.alignSelf = alignSelf.IsNotNull() ? alignSelf : StyleKeyword.Null;
             element.style.backgroundColor = backgroundColor.IsNotNull() ? backgroundColor : StyleKeyword.Null;
             element.style.backgroundImage = backgroundImage.IsNotNull() ? backgroundImage : StyleKeyword.Null;
+            element.style.backgroundPositionX = backgroundPositionX.IsNotNull() ? backgroundPositionX : StyleKeyword.Null;
+            element.style.backgroundPositionY = backgroundPositionY.IsNotNull() ? backgroundPositionY : StyleKeyword.Null;
+            element.style.backgroundRepeat = backgroundRepeat.IsNotNull() ? backgroundRepeat : StyleKeyword.Null;
+            element.style.backgroundSize = backgroundSize.IsNotNull() ? backgroundSize : StyleKeyword.Null;
             element.style.borderBottomColor = borderBottomColor.IsNotNull() ? borderBottomColor : StyleKeyword.Null;
             element.style.borderBottomLeftRadius = borderBottomLeftRadius.IsNotNull() ? borderBottomLeftRadius : StyleKeyword.Null;
             element.style.borderBottomRightRadius = borderBottomRightRadius.IsNotNull() ? borderBottomRightRadius : StyleKeyword.Null;
@@ -308,7 +369,6 @@ namespace RishUI
             element.style.transitionTimingFunction = transitionTimingFunction.IsNotNull() ? transitionTimingFunction : StyleKeyword.Null;
             element.style.translate = translate.IsNotNull() ? translate : StyleKeyword.Null;
             element.style.unityBackgroundImageTintColor = unityBackgroundImageTintColor.IsNotNull() ? unityBackgroundImageTintColor : StyleKeyword.Null;
-            element.style.unityBackgroundScaleMode = unityBackgroundScaleMode.IsNotNull() ? unityBackgroundScaleMode : StyleKeyword.Null;
             element.style.unityFont = unityFont.IsNotNull() ? unityFont : StyleKeyword.Null;
             element.style.unityFontDefinition = unityFontDefinition.IsNotNull() ? unityFontDefinition : StyleKeyword.Null;
             element.style.unityFontStyleAndWeight = unityFontStyleAndWeight.IsNotNull() ? unityFontStyleAndWeight : StyleKeyword.Null;
@@ -327,7 +387,7 @@ namespace RishUI
             element.style.width = width.IsNotNull() ? width : StyleKeyword.Null;
             element.style.wordSpacing = wordSpacing.IsNotNull() ? wordSpacing : StyleKeyword.Null;
             
-            if (element is IAdvancedPicking advancedPicking)
+            if (element is ICustomPicking customPicking)
             {
                 if (pointerDetection.IsNotNull())
                 {
@@ -338,11 +398,11 @@ namespace RishUI
                         _ => PointerDetectionMode.Inherit
                     };
                     
-                    advancedPicking.Manager.InlinePointerDetection = detectionMode;
+                    customPicking.Manager.InlinePointerDetection = detectionMode;
                 }
                 else
                 {
-                    advancedPicking.Manager.InlinePointerDetection = null;
+                    customPicking.Manager.InlinePointerDetection = null;
                 }
             }
         }
@@ -361,6 +421,10 @@ namespace RishUI
                 alignSelf = element.style.alignSelf,
                 backgroundColor = element.style.backgroundColor,
                 backgroundImage = element.style.backgroundImage,
+                backgroundPositionX = element.style.backgroundPositionX,
+                backgroundPositionY = element.style.backgroundPositionY,
+                backgroundRepeat = element.style.backgroundRepeat,
+                backgroundSize = element.style.backgroundSize,
                 borderBottomColor = element.style.borderBottomColor,
                 borderBottomLeftRadius = element.style.borderBottomLeftRadius,
                 borderBottomRightRadius = element.style.borderBottomRightRadius,
@@ -415,7 +479,6 @@ namespace RishUI
                 transitionTimingFunction = element.style.transitionTimingFunction,
                 translate = element.style.translate,
                 unityBackgroundImageTintColor = element.style.unityBackgroundImageTintColor,
-                unityBackgroundScaleMode = element.style.unityBackgroundScaleMode,
                 unityFont = element.style.unityFont,
                 unityFontDefinition = element.style.unityFontDefinition,
                 unityFontStyleAndWeight = element.style.unityFontStyleAndWeight,
@@ -433,10 +496,263 @@ namespace RishUI
                 whiteSpace = element.style.whiteSpace,
                 width = element.style.width,
                 wordSpacing = element.style.wordSpacing,
-                pointerDetection = element is IAdvancedPicking advancedPicking && advancedPicking.Manager.InlinePointerDetection.HasValue 
-                    ? advancedPicking.Manager.InlinePointerDetection.Value
+                pointerDetection = element is ICustomPicking customPicking && customPicking.Manager.InlinePointerDetection.HasValue 
+                    ? customPicking.Manager.InlinePointerDetection.Value
                     : RishStyleKeyword.Null
             };
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            
+            builder.AppendLine("{");
+            if(alignContent.IsNotNull()) {
+                builder.AppendLine($"    alignContent: {alignContent}");
+            }
+            if(alignItems.IsNotNull()) {
+                builder.AppendLine($"    alignItems: {alignItems}");
+            }
+            if(alignSelf.IsNotNull()) {
+                builder.AppendLine($"    alignSelf: {alignSelf}");
+            }
+            if(backgroundColor.IsNotNull()) {
+                builder.AppendLine($"    backgroundColor: {backgroundColor}");
+            }
+            if(backgroundImage.IsNotNull()) {
+                builder.AppendLine($"    backgroundImage: {backgroundImage}");
+            }
+            if(backgroundPositionX.IsNotNull()) {
+                builder.AppendLine($"    backgroundPositionX: {backgroundPositionX}");
+            }
+            if(backgroundPositionY.IsNotNull()) {
+                builder.AppendLine($"    backgroundPositionY: {backgroundPositionY}");
+            }
+            if(backgroundRepeat.IsNotNull()) {
+                builder.AppendLine($"    backgroundRepeat: {backgroundRepeat}");
+            }
+            if(backgroundSize.IsNotNull()) {
+                builder.AppendLine($"    backgroundSize: {backgroundSize}");
+            }
+            if(borderBottomColor.IsNotNull()) {
+                builder.AppendLine($"    borderBottomColor: {borderBottomColor}");
+            }
+            if(borderBottomLeftRadius.IsNotNull()) {
+                builder.AppendLine($"    borderBottomLeftRadius: {borderBottomLeftRadius}");
+            }
+            if(borderBottomRightRadius.IsNotNull()) {
+                builder.AppendLine($"    borderBottomRightRadius: {borderBottomRightRadius}");
+            }
+            if(borderBottomWidth.IsNotNull()) {
+                builder.AppendLine($"    borderBottomWidth: {borderBottomWidth}");
+            }
+            if(borderLeftColor.IsNotNull()) {
+                builder.AppendLine($"    borderLeftColor: {borderLeftColor}");
+            }
+            if(borderLeftWidth.IsNotNull()) {
+                builder.AppendLine($"    borderLeftWidth: {borderLeftWidth}");
+            }
+            if(borderRightColor.IsNotNull()) {
+                builder.AppendLine($"    borderRightColor: {borderRightColor}");
+            }
+            if(borderRightWidth.IsNotNull()) {
+                builder.AppendLine($"    borderRightWidth: {borderRightWidth}");
+            }
+            if(borderTopColor.IsNotNull()) {
+                builder.AppendLine($"    borderTopColor: {borderTopColor}");
+            }
+            if(borderTopLeftRadius.IsNotNull()) {
+                builder.AppendLine($"    borderTopLeftRadius: {borderTopLeftRadius}");
+            }
+            if(borderTopRightRadius.IsNotNull()) {
+                builder.AppendLine($"    borderTopRightRadius: {borderTopRightRadius}");
+            }
+            if(borderTopWidth.IsNotNull()) {
+                builder.AppendLine($"    borderTopWidth: {borderTopWidth}");
+            }
+            if(bottom.IsNotNull()) {
+                builder.AppendLine($"    bottom: {bottom}");
+            }
+            if(color.IsNotNull()) {
+                builder.AppendLine($"    color: {color}");
+            }
+            if(cursor.IsNotNull()) {
+                builder.AppendLine($"    cursor: {cursor}");
+            }
+            if(display.IsNotNull()) {
+                builder.AppendLine($"    display: {display}");
+            }
+            if(flexBasis.IsNotNull()) {
+                builder.AppendLine($"    flexBasis: {flexBasis}");
+            }
+            if(flexDirection.IsNotNull()) {
+                builder.AppendLine($"    flexDirection: {flexDirection}");
+            }
+            if(flexGrow.IsNotNull()) {
+                builder.AppendLine($"    flexGrow: {flexGrow}");
+            }
+            if(flexShrink.IsNotNull()) {
+                builder.AppendLine($"    flexShrink: {flexShrink}");
+            }
+            if(flexWrap.IsNotNull()) {
+                builder.AppendLine($"    flexWrap: {flexWrap}");
+            }
+            if(fontSize.IsNotNull()) {
+                builder.AppendLine($"    fontSize: {fontSize}");
+            }
+            if(height.IsNotNull()) {
+                builder.AppendLine($"    height: {height}");
+            }
+            if(justifyContent.IsNotNull()) {
+                builder.AppendLine($"    justifyContent: {justifyContent}");
+            }
+            if(left.IsNotNull()) {
+                builder.AppendLine($"    left: {left}");
+            }
+            if(letterSpacing.IsNotNull()) {
+                builder.AppendLine($"    letterSpacing: {letterSpacing}");
+            }
+            if(marginBottom.IsNotNull()) {
+                builder.AppendLine($"    marginBottom: {marginBottom}");
+            }
+            if(marginLeft.IsNotNull()) {
+                builder.AppendLine($"    marginLeft: {marginLeft}");
+            }
+            if(marginRight.IsNotNull()) {
+                builder.AppendLine($"    marginRight: {marginRight}");
+            }
+            if(marginTop.IsNotNull()) {
+                builder.AppendLine($"    marginTop: {marginTop}");
+            }
+            if(maxHeight.IsNotNull()) {
+                builder.AppendLine($"    maxHeight: {maxHeight}");
+            }
+            if(maxWidth.IsNotNull()) {
+                builder.AppendLine($"    maxWidth: {maxWidth}");
+            }
+            if(minHeight.IsNotNull()) {
+                builder.AppendLine($"    minHeight: {minHeight}");
+            }
+            if(minWidth.IsNotNull()) {
+                builder.AppendLine($"    minWidth: {minWidth}");
+            }
+            if(opacity.IsNotNull()) {
+                builder.AppendLine($"    opacity: {opacity}");
+            }
+            if(overflow.IsNotNull()) {
+                builder.AppendLine($"    overflow: {overflow}");
+            }
+            if(paddingBottom.IsNotNull()) {
+                builder.AppendLine($"    paddingBottom: {paddingBottom}");
+            }
+            if(paddingLeft.IsNotNull()) {
+                builder.AppendLine($"    paddingLeft: {paddingLeft}");
+            }
+            if(paddingRight.IsNotNull()) {
+                builder.AppendLine($"    paddingRight: {paddingRight}");
+            }
+            if(paddingTop.IsNotNull()) {
+                builder.AppendLine($"    paddingTop: {paddingTop}");
+            }
+            if(position.IsNotNull()) {
+                builder.AppendLine($"    position: {position}");
+            }
+            if(right.IsNotNull()) {
+                builder.AppendLine($"    right: {right}");
+            }
+            if(rotate.IsNotNull()) {
+                builder.AppendLine($"    rotate: {rotate}");
+            }
+            if(scale.IsNotNull()) {
+                builder.AppendLine($"    scale: {scale}");
+            }
+            if(textOverflow.IsNotNull()) {
+                builder.AppendLine($"    textOverflow: {textOverflow}");
+            }
+            if(textShadow.IsNotNull()) {
+                builder.AppendLine($"    textShadow: {textShadow}");
+            }
+            if(top.IsNotNull()) {
+                builder.AppendLine($"    top: {top}");
+            }
+            if(transformOrigin.IsNotNull()) {
+                builder.AppendLine($"    transformOrigin: {transformOrigin}");
+            }
+            if(transitionDelay.IsNotNull()) {
+                builder.AppendLine($"    transitionDelay: {transitionDelay}");
+            }
+            if(transitionDuration.IsNotNull()) {
+                builder.AppendLine($"    transitionDuration: {transitionDuration}");
+            }
+            if(transitionProperty.IsNotNull()) {
+                builder.AppendLine($"    transitionProperty: {transitionProperty}");
+            }
+            if(transitionTimingFunction.IsNotNull()) {
+                builder.AppendLine($"    transitionTimingFunction: {transitionTimingFunction}");
+            }
+            if(translate.IsNotNull()) {
+                builder.AppendLine($"    translate: {translate}");
+            }
+            if(unityBackgroundImageTintColor.IsNotNull()) {
+                builder.AppendLine($"    unityBackgroundImageTintColor: {unityBackgroundImageTintColor}");
+            }
+            if(unityFont.IsNotNull()) {
+                builder.AppendLine($"    unityFont: {unityFont}");
+            }
+            if(unityFontDefinition.IsNotNull()) {
+                builder.AppendLine($"    unityFontDefinition: {unityFontDefinition}");
+            }
+            if(unityFontStyleAndWeight.IsNotNull()) {
+                builder.AppendLine($"    unityFontStyleAndWeight: {unityFontStyleAndWeight}");
+            }
+            if(unityOverflowClipBox.IsNotNull()) {
+                builder.AppendLine($"    unityOverflowClipBox: {unityOverflowClipBox}");
+            }
+            if(unityParagraphSpacing.IsNotNull()) {
+                builder.AppendLine($"    unityParagraphSpacing: {unityParagraphSpacing}");
+            }
+            if(unitySliceBottom.IsNotNull()) {
+                builder.AppendLine($"    unitySliceBottom: {unitySliceBottom}");
+            }
+            if(unitySliceLeft.IsNotNull()) {
+                builder.AppendLine($"    unitySliceLeft: {unitySliceLeft}");
+            }
+            if(unitySliceRight.IsNotNull()) {
+                builder.AppendLine($"    unitySliceRight: {unitySliceRight}");
+            }
+            if(unitySliceTop.IsNotNull()) {
+                builder.AppendLine($"    unitySliceTop: {unitySliceTop}");
+            }
+            if(unityTextAlign.IsNotNull()) {
+                builder.AppendLine($"    unityTextAlign: {unityTextAlign}");
+            }
+            if(unityTextOutlineColor.IsNotNull()) {
+                builder.AppendLine($"    unityTextOutlineColor: {unityTextOutlineColor}");
+            }
+            if(unityTextOutlineWidth.IsNotNull()) {
+                builder.AppendLine($"    unityTextOutlineWidth: {unityTextOutlineWidth}");
+            }
+            if(unityTextOverflowPosition.IsNotNull()) {
+                builder.AppendLine($"    unityTextOverflowPosition: {unityTextOverflowPosition}");
+            }
+            if(visibility.IsNotNull()) {
+                builder.AppendLine($"    visibility: {visibility}");
+            }
+            if(whiteSpace.IsNotNull()) {
+                builder.AppendLine($"    whiteSpace: {whiteSpace}");
+            }
+            if(width.IsNotNull()) {
+                builder.AppendLine($"    width: {width}");
+            }
+            if(wordSpacing.IsNotNull()) {
+                builder.AppendLine($"    wordSpacing: {wordSpacing}");
+            }
+            if(pointerDetection.IsNotNull()) {
+                builder.AppendLine($"    pointerDetection: {pointerDetection}");
+            }
+            builder.AppendLine("}");
+
+            return builder.ToString();
         }
     }
 }
