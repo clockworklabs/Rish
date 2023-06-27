@@ -85,7 +85,7 @@ namespace RishUI
                             var containsPointer = parent.ContainsPointer(i);
 
                             bool mustReport;
-                            if (parent is IDOMElement)
+                            if (parent is IVisualElement)
                             {
                                 if (containsPointer && !prevContained)
                                 {

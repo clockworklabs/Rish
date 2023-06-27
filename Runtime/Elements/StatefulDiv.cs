@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class StatefulDiv : RishBaseElement<StatefulDivProps, StatefulDivState>, ICustomComponent
+    public partial class StatefulDiv : RishElement<StatefulDivProps, StatefulDivState>, ICustomComponent
     {
         private bool Listening { get; set; }
         private int PointerId { get; set; }
@@ -116,6 +116,7 @@ namespace RishUI.Elements
     [RishValueType]
     public struct StatefulDivProps
     {
+        [DOMDescriptor]
         public DOMDescriptor descriptor;
         public Children children;
         public Children hovered;

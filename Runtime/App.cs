@@ -16,6 +16,7 @@ namespace RishUI
     }
     
     [PoolSize(1)]
+    [IgnoreWarnings]
     internal class App : RishElement<AppProps>, IPropsListener
     {
 #if UNITY_EDITOR && RISH_HOT_RELOAD_READY

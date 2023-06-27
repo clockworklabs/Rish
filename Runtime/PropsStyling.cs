@@ -84,12 +84,12 @@ namespace RishUI
         public static bool Register<T>() where T : struct
         {
             var type = typeof(T);
-            if (StyledProperties.TryGetValue(type, out var fieldInfos))
+            if (StyledProperties.TryGetValue(type, out var propertyInfos))
             {
-                return fieldInfos != null;
+                return propertyInfos != null;
             }
 
-            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(pi => Attribute.IsDefined(pi, AttributeType))
                 .Select(StyledProperty.Create<T>)
                 .Where(p => p != null)
@@ -311,9 +311,9 @@ namespace RishUI
                 if (type == BoolType)
                 {
                     var getterType = typeof(CustomBoolGetter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomBoolSetter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -321,9 +321,9 @@ namespace RishUI
                 if (type == IntType)
                 {
                     var getterType = typeof(CustomIntGetter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomIntSetter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -331,9 +331,9 @@ namespace RishUI
                 if (type == FloatType)
                 {
                     var getterType = typeof(CustomFloatGetter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomFloatSetter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -341,9 +341,9 @@ namespace RishUI
                 if (type == ColorType)
                 {
                     var getterType = typeof(CustomColorGetter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomColorSetter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -351,9 +351,9 @@ namespace RishUI
                 if (type == String32Type)
                 {
                     var getterType = typeof(CustomString32Getter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomString32Setter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -361,9 +361,9 @@ namespace RishUI
                 if (type == String64Type)
                 {
                     var getterType = typeof(CustomString64Getter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomString64Setter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -371,9 +371,9 @@ namespace RishUI
                 if (type == String128Type)
                 {
                     var getterType = typeof(CustomString128Getter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomString128Setter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -381,9 +381,9 @@ namespace RishUI
                 if (type == String512Type)
                 {
                     var getterType = typeof(CustomString512Getter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomString512Setter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }
@@ -391,9 +391,9 @@ namespace RishUI
                 if (type == String4096Type)
                 {
                     var getterType = typeof(CustomString4096Getter<T>);
-                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod());
+                    var getter = Delegate.CreateDelegate(getterType, propertyInfo.GetGetMethod(true));
                     var setterType = typeof(CustomString4096Setter<T>);
-                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod());
+                    var setter = Delegate.CreateDelegate(setterType, propertyInfo.GetSetMethod(true));
 
                     return new StyledProperty(name, type, getter, setter, attribute);
                 }

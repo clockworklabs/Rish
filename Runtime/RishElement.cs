@@ -27,7 +27,7 @@ namespace RishUI
         int FocusIndex { get; }
     }
 
-    public abstract class RishBaseElement<P> : IRishElement, IOwner where P : struct
+    public abstract class RishElement<P> : IRishElement, IOwner where P : struct
     {
         private event Action<bool> OnDirty;
         event Action<bool> IRishElement.OnDirty
@@ -485,7 +485,7 @@ namespace RishUI
         protected ulong GetNodeHashCode() => Node.MountedHashCode;
     }
 
-    public abstract class RishBaseElement<P, S> : RishBaseElement<P> where P : struct where S : struct
+    public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
         private S _state;
         protected S State
@@ -521,7 +521,7 @@ namespace RishUI
 
         private References References { get; set; }
         
-        protected RishBaseElement()
+        protected RishElement()
         {
             OnMounted += SetDefaultState;
             OnUnmounted += UnregisterReferences;
@@ -554,7 +554,7 @@ namespace RishUI
         }
     }
 
-    public abstract class RishElement : RishBaseElement<NoProps>
+    public abstract class RishElement : RishElement<NoProps>
     {
         protected RishElement()
         {
@@ -567,16 +567,10 @@ namespace RishUI
         }
     }
 
-    public abstract class RishElement<P> : RishBaseElement<P> where P : unmanaged { }
-    public abstract class RishElement<P, S> : RishBaseElement<P, S> where P : unmanaged where S : unmanaged { }
-    
-    
-    // public abstract class RishNastyElement<P> : RishBaseElement<P> where P : struct, IComparer { }
-    // public abstract class RishNastyElement<P, S> : RishBaseElement<P, S> where P : struct, IComparer where S : struct, IComparer { }
-
     public delegate Element FunctionElement();
     public delegate Element FunctionElement<P>(P props) where P : struct;
 
+    [IgnoreWarnings]
     internal class FunctionalElement : RishElement
     {
         private FunctionElement _delegate;
@@ -597,7 +591,8 @@ namespace RishUI
         protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
     }
     
-    internal class FunctionalElement<P> : RishBaseElement<P> where P : struct
+    [IgnoreWarnings]
+    internal class FunctionalElement<P> : RishElement<P> where P : struct
     {
         private FunctionElement<P> _delegate;
         internal FunctionElement<P> Delegate

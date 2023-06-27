@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Button : RishBaseElement<ButtonProps>, IMountingListener, IPropsListener
+    public partial class Button : RishElement<ButtonProps>, IMountingListener, IPropsListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
@@ -83,7 +83,8 @@ namespace RishUI.Elements
             evt.StopPropagation();
         }
         
-        private class InternalElement : RishBaseElement<ButtonProps, InternalElementState>, ICustomComponent
+        [IgnoreWarnings]
+        private class InternalElement : RishElement<ButtonProps, InternalElementState>, ICustomComponent
         {
             private bool Listening { get; set; }
             private int PointerId { get; set; }
@@ -283,7 +284,6 @@ namespace RishUI.Elements
         public bool focusable;
         public bool autoFocus;
 
-        // TODO: Doing something similar to StyledProps is a better approach
         [Default]
         public static ButtonProps Default => new ButtonProps
         {

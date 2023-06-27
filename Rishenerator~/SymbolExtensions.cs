@@ -11,6 +11,42 @@ namespace Rishenerator
             return fullName is "RishUI.Element" or "RishUI.Children";
         }
         
+        public static bool IsRishElement(this ITypeSymbol typeSymbol)
+        {
+            if(typeSymbol is not INamedTypeSymbol { IsReferenceType: true })
+            {
+                return false;
+            }
+            
+            var baseTypeSymbol = typeSymbol.BaseType;
+            if (baseTypeSymbol == null)
+            {
+                return false;
+            }
+            
+            var baseTypeFullName = baseTypeSymbol.GetFullName(false);
+            return baseTypeFullName == "RishUI.RishElement";
+        }
+        
+        public static bool IsVisualElement(this ITypeSymbol typeSymbol)
+        {
+            if(typeSymbol is not INamedTypeSymbol { IsReferenceType: true })
+            {
+                return false;
+            }
+
+            foreach (var interfaceTypeSymbol in typeSymbol.Interfaces)
+            {
+                var interfaceTypeFullName = interfaceTypeSymbol.GetFullName(false);
+                if (interfaceTypeFullName == "RishUI.IVisualElement")
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
         public static bool IsPublic(this ITypeSymbol typeSymbol)
         {
             var containingType = typeSymbol.ContainingType;
@@ -172,6 +208,26 @@ namespace Rishenerator
             }
                 
             return constraintsString;
+        }
+        
+        public static bool HasAttribute(this ISymbol typeSymbol, string fullName)
+        {
+            foreach (var attributeData in typeSymbol.GetAttributes())
+            {
+                var attributeClass = attributeData.AttributeClass;
+                while (attributeClass != null)
+                {
+                    var attributeFullName = attributeClass.GetFullName();
+                    if (attributeFullName == fullName)
+                    {
+                        return true;
+                    }
+            
+                    attributeClass = attributeClass.BaseType;
+                }
+            }
+
+            return false;
         }
         
         public static bool IsFlaggedAsRishValueType(this ITypeSymbol typeSymbol)

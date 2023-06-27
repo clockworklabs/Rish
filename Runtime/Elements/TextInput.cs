@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class TextInput : RishBaseElement<TextInputProps>, IMountingListener
+    public class TextInput : RishElement<TextInputProps>, IMountingListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
@@ -75,7 +75,7 @@ namespace RishUI.Elements
             Form?.Submit();
         }
 
-        public class RishTextField : TextField, IDOMElement<RishTextFieldProps>
+        private class RishTextField : TextField, IVisualElement<RishTextFieldProps>
         {
             VisualElement IElement.GetDOMChild() => this;
             
@@ -122,7 +122,7 @@ namespace RishUI.Elements
                 Setup(value);
             }
 
-            void IDOMElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => SetProps(props, true);
+            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => SetProps(props, true);
             
             private void Setup(RishTextFieldProps props)
             {

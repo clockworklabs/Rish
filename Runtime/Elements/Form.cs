@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Form : RishBaseElement<FormProps>, IMountingListener
+    public partial class Form : RishElement<FormProps>, IMountingListener
     {
         private Form ParentForm { get; set; }
         private uint Index { get; set; }

@@ -10,8 +10,48 @@ namespace Rishenerator
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SourceAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor PropsMustBeRishValueTypeRule = new(
-            "PropsMustBeRishValueType",
+        private static readonly DiagnosticDescriptor PublicRishElementRule = new(
+            "PublicRishElementRule",
+            "RishElement should be public",
+            "{0} should be a publicly accessible",
+            "Usage",
+            DiagnosticSeverity.Warning,
+            true,
+            "RishElements should be public for factory methods to be generated",
+            null // TODO: Help link to documentation
+        );
+        private static readonly DiagnosticDescriptor PartialRishElementRule = new(
+            "PartialRishElementRule",
+            "RishElement should be partial",
+            "{0} should be a partial class",
+            "Usage",
+            DiagnosticSeverity.Warning,
+            true,
+            "RishElements should be partial for factory methods to be generated",
+            null // TODO: Help link to documentation
+        );
+        private static readonly DiagnosticDescriptor PublicVisualElementRule = new(
+            "PublicVisualElementRule",
+            "VisualElement should be public",
+            "{0} should be a publicly accessible",
+            "Usage",
+            DiagnosticSeverity.Warning,
+            true,
+            "VisualElements should be public for factory methods to be generated",
+            null // TODO: Help link to documentation
+        );
+        private static readonly DiagnosticDescriptor PartialVisualElementRule = new(
+            "PartialVisualElementRule",
+            "VisualElement should be partial",
+            "{0} should be a partial class",
+            "Usage",
+            DiagnosticSeverity.Warning,
+            true,
+            "VisualElements should be partial for factory methods to be generated",
+            null // TODO: Help link to documentation
+        );
+        private static readonly DiagnosticDescriptor PropsRishValueTypeRule = new(
+            "PropsRishValueTypeRule",
             "RishElement Props must be RishValueType",
             "Props {0} of {1} must be RishValueType",
             "Usage",
@@ -20,8 +60,8 @@ namespace Rishenerator
             "Props types must have the RishValueType attribute",
             null // TODO: Help link to documentation
         );
-        private static readonly DiagnosticDescriptor StateMustBeRishValueTypeRule = new(
-            "StateMustBeRishValueType",
+        private static readonly DiagnosticDescriptor StateRishValueTypeRule = new(
+            "StateRishValueTypeRule",
             "RishElement State must be RishValueType",
             "State {0} of {1} must be RishValueType",
             "Usage",
@@ -31,8 +71,8 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        private static readonly DiagnosticDescriptor NonPublicRishValueTypeRule = new(
-            "NonPublicRishValueType",
+        private static readonly DiagnosticDescriptor PublicRishValueTypeRule = new(
+            "PublicRishValueTypeRule",
             "RishValueType needs to be public",
             "Struct {0} must be publicly accessible",
             "Usage",
@@ -42,8 +82,8 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
         
-        private static readonly DiagnosticDescriptor NonPublicAutoComparerRule = new(
-            "NonPublicAutoComparer",
+        private static readonly DiagnosticDescriptor PublicAutoComparerRule = new(
+            "PublicAutoComparer",
             "AutoComparer needs to be public",
             "Struct {0} must be publicly accessible",
             "Usage",
@@ -52,22 +92,86 @@ namespace Rishenerator
             "Structs flagged for an auto comparer must be public",
             null // TODO: Help link to documentation
         );
+        
+        private static readonly DiagnosticDescriptor SingleDOMDescriptorRule = new(
+            "SingleDOMDescriptorRule",
+            "There can only be one DOMDescriptor",
+            "{0} can't have more than one DOMDescriptor",
+            "Usage",
+            DiagnosticSeverity.Error,
+            true,
+            "RishValueTypes can't have more than one field with the DOMDescriptor attribute",
+            null // TODO: Help link to documentation
+        );
+        
+        private static readonly DiagnosticDescriptor DOMDescriptorTypeRule = new(
+            "DOMDescriptorTypeRule",
+            "Invalid type for DOMDescriptor attribute",
+            "Field {0} can't have the DOMDescriptor attribute",
+            "Usage",
+            DiagnosticSeverity.Error,
+            true,
+            "DOMDescriptor attribute is valid only on DOMDescriptor fields",
+            null // TODO: Help link to documentation
+        );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PropsMustBeRishValueTypeRule, StateMustBeRishValueTypeRule, NonPublicRishValueTypeRule, NonPublicAutoComparerRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PublicRishElementRule, PartialRishElementRule, PublicVisualElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, PublicRishValueTypeRule, PublicAutoComparerRule, SingleDOMDescriptorRule, DOMDescriptorTypeRule);
 
 
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.RegisterSyntaxNodeAction(AnalyzePropsAndState, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeRishElements, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeStructDeclaration, SyntaxKind.StructDeclaration);
         }
 
-        private void AnalyzePropsAndState(SyntaxNodeAnalysisContext context)
+        private void AnalyzeRishElements(SyntaxNodeAnalysisContext context)
         {
             var declarationSyntax = (ClassDeclarationSyntax)context.Node;
             var classSymbol = (INamedTypeSymbol)context.ContainingSymbol;
+
+            if (!classSymbol.IsAbstract && !classSymbol.HasAttribute("RishUI.IgnoreWarningsAttribute"))
+            {
+                var isRishElement = classSymbol.IsRishElement();
+                var isVisualElement = !isRishElement && classSymbol.IsVisualElement();
+
+                if (isRishElement || isVisualElement)
+                {
+                    var publicRule = isRishElement ? PublicRishElementRule : PublicVisualElementRule;
+                    var partialRule = isRishElement ? PartialRishElementRule : PartialVisualElementRule;
+                    
+                    if (!classSymbol.IsPublic())
+                    {
+                        var diagnostic = Diagnostic.Create(publicRule, declarationSyntax.GetLocation(), classSymbol);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                    
+                    var isPartial = declarationSyntax.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
+                    if (isPartial)
+                    {
+                        var containingType = classSymbol.ContainingType;
+                        while (containingType?.DeclaringSyntaxReferences.Length > 0)
+                        {
+                            var containingTypeDeclaration = containingType.DeclaringSyntaxReferences[0].GetSyntax() as ClassDeclarationSyntax;
+                            var containingTypeIsPartial = containingTypeDeclaration?.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword)) ?? false;
+                            if (!containingTypeIsPartial)
+                            {
+                                isPartial = false;
+                                break;
+                            }
+                        
+                            containingType = null;
+                        }
+                    }
+
+                    if (!isPartial)
+                    {
+                        var diagnostic = Diagnostic.Create(partialRule, declarationSyntax.GetLocation(), classSymbol);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
 
             var baseTypeSymbol = classSymbol.BaseType;
             while (baseTypeSymbol != null)
@@ -90,20 +194,20 @@ namespace Rishenerator
                         {
                             case 0:
                             {
-                                var diagnostic = Diagnostic.Create(PropsMustBeRishValueTypeRule, argumentTypeDeclarationSyntax?.GetLocation() ?? declarationSyntax.GetLocation(), typeArgument, classSymbol);
+                                var diagnostic = Diagnostic.Create(PropsRishValueTypeRule, argumentTypeDeclarationSyntax?.GetLocation() ?? declarationSyntax.GetLocation(), typeArgument, classSymbol);
                                 context.ReportDiagnostic(diagnostic);
                                 break;
                             }
                             case 1:
                             {
-                                var diagnostic = Diagnostic.Create(StateMustBeRishValueTypeRule, argumentTypeDeclarationSyntax?.GetLocation() ?? declarationSyntax.GetLocation(), typeArgument, classSymbol);
+                                var diagnostic = Diagnostic.Create(StateRishValueTypeRule, argumentTypeDeclarationSyntax?.GetLocation() ?? declarationSyntax.GetLocation(), typeArgument, classSymbol);
                                 context.ReportDiagnostic(diagnostic);
                                 break;
                             }
                         }
                     }
                 }
-                    
+
                 baseTypeSymbol = baseTypeSymbol.BaseType;
             }
         }
@@ -113,22 +217,52 @@ namespace Rishenerator
             var declarationSyntax = (StructDeclarationSyntax)context.Node;
             var structSymbol = (INamedTypeSymbol)context.ContainingSymbol;
 
-            if (structSymbol.IsPublic())
-            {
-                return;
-            }
+            var isPublic = structSymbol.IsPublic();
+            
 
             if (structSymbol.IsFlaggedAsRishValueType())
             {
-                var diagnostic = Diagnostic.Create(NonPublicRishValueTypeRule, declarationSyntax.GetLocation(), structSymbol);
-                context.ReportDiagnostic(diagnostic);
-                return;
-            }
+                var domDescriptorCount = 0;
+                foreach (var memberSymbol in structSymbol.GetMembers())
+                {
+                    if (memberSymbol is not IFieldSymbol fieldSymbol)
+                    {
+                        continue;
+                    }
 
-            if (structSymbol.IsFlaggedForAutoComparer() && !structSymbol.IsFlaggedForCustomComparer())
+                    if (memberSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
+                    {
+                        if (fieldSymbol.Type.GetFullName(false) != "RishUI.DOMDescriptor")
+                        {
+                            var fieldDeclaration = fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+                            var diagnostic = Diagnostic.Create(DOMDescriptorTypeRule, fieldDeclaration.GetLocation(), fieldSymbol);
+                            context.ReportDiagnostic(diagnostic);
+                        }
+                        if (domDescriptorCount > 0)
+                        {
+                            var diagnostic = Diagnostic.Create(SingleDOMDescriptorRule, declarationSyntax.GetLocation(), structSymbol);
+                            context.ReportDiagnostic(diagnostic);
+                        }
+                        domDescriptorCount += 1;
+                    }
+                }
+                
+                if (!isPublic)
+                {
+                    var diagnostic = Diagnostic.Create(PublicRishValueTypeRule, declarationSyntax.GetLocation(), structSymbol);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+            else
             {
-                var diagnostic = Diagnostic.Create(NonPublicAutoComparerRule, declarationSyntax.GetLocation(), structSymbol);
-                context.ReportDiagnostic(diagnostic);
+                if (structSymbol.IsFlaggedForAutoComparer() && !structSymbol.IsFlaggedForCustomComparer())
+                {
+                    if (!isPublic)
+                    {
+                        var diagnostic = Diagnostic.Create(PublicAutoComparerRule, declarationSyntax.GetLocation(), structSymbol);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
             }
         }
     }

@@ -1,4 +1,3 @@
-using System;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,12 +5,24 @@ using VectorImage = UnityEngine.UIElements.VectorImage;
 
 namespace RishUI.Elements
 {
-    public class Div : RishVisualElement
+    public partial class Div : VisualElement, IVisualElement
     {
-        protected override void Setup() { }
+        VisualElement IElement.GetDOMChild() => this;
+        
+        private PickingManager PickingManager { get; }
+        PickingManager ICustomPicking.Manager => PickingManager;
+
+        public Div()
+        {
+            PickingManager = new DefaultPickingManager(this);
+        }
+
+        void IVisualElement.Setup() { }
+
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
-    public class Label : TextElement, IDOMElement<LabelProps>
+    public partial class Label : TextElement, IVisualElement<LabelProps>
     {
         VisualElement IElement.GetDOMChild() => this;
         
@@ -34,7 +45,7 @@ namespace RishUI.Elements
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
-        void IDOMElement<LabelProps>.Setup(LabelProps props)
+        void IVisualElement<LabelProps>.Setup(LabelProps props)
         {
             WidthRange = props.widthRange;
             HeightRange = props.heightRange;
@@ -106,9 +117,25 @@ namespace RishUI.Elements
     }
     
     // TODO: Maybe turn it into RishElement?
-    public class Image : RishVisualElement<ImageProps>
+    public partial class Image : VisualElement, IVisualElement<ImageProps>, IStyledProps<Image, ImageProps>
     {
-        protected override void Setup(ImageProps props)
+        VisualElement IElement.GetDOMChild() => this;
+        
+        private PickingManager PickingManager { get; }
+        PickingManager ICustomPicking.Manager => PickingManager;
+        
+        private StyledPropsManager<Image, ImageProps> PropsManager { get; }
+        StyledPropsManager<Image, ImageProps> IStyledProps<Image, ImageProps>.Manager => PropsManager;
+
+        public Image()
+        {
+            PickingManager = new DefaultPickingManager(this);
+            PropsManager = new StyledPropsManager<Image, ImageProps>(this);
+        }
+
+        void IVisualElement<ImageProps>.Setup(ImageProps props) => PropsManager.Setup(props);
+
+        void IStyledProps<Image, ImageProps>.Setup(ImageProps props, bool dirty)
         {
             var background = props.sprite != null
                 ? Background.FromSprite(props.sprite)
@@ -152,6 +179,8 @@ namespace RishUI.Elements
             style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
             style.backgroundSize = backgroundSize;
         }
+
+        public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
     [RishValueType]
@@ -161,8 +190,14 @@ namespace RishUI.Elements
         public VectorImage vectorImage;
         public Texture2D texture;
         public RenderTexture renderTexture;
-        [StyledProp("--props-tint-color", 1, 1, 1)]
-        public Color? tintColor { get; set; }
+        public Color? tintColor;
         public BackgroundSize? backgroundSize;
+        
+        [StyledProp("--props-tint-color", 1, 1, 1)]
+        private Color? TintColor
+        {
+            get => tintColor;
+            set => tintColor = value;
+        }
     }
 }
