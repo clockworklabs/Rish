@@ -150,19 +150,31 @@ namespace Rishenerator
                     var isPartial = declarationSyntax.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
                     if (isPartial)
                     {
-                        var containingType = classSymbol.ContainingType;
-                        while (containingType?.DeclaringSyntaxReferences.Length > 0)
+                        var parent = declarationSyntax.Parent;
+                        while (parent is ClassDeclarationSyntax containingClassDeclaration)
                         {
-                            var containingTypeDeclaration = containingType.DeclaringSyntaxReferences[0].GetSyntax() as ClassDeclarationSyntax;
-                            var containingTypeIsPartial = containingTypeDeclaration?.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword)) ?? false;
+                            var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
                             if (!containingTypeIsPartial)
                             {
                                 isPartial = false;
                                 break;
                             }
-                        
-                            containingType = null;
+
+                            parent = parent.Parent;
                         }
+                        // var containingType = classSymbol.ContainingType;
+                        // while (containingType?.DeclaringSyntaxReferences.Length > 0)
+                        // {
+                        //     var containingTypeDeclaration = containingType.DeclaringSyntaxReferences[0].GetSyntax() as ClassDeclarationSyntax;
+                        //     var containingTypeIsPartial = containingTypeDeclaration?.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword)) ?? false;
+                        //     if (!containingTypeIsPartial)
+                        //     {
+                        //         isPartial = false;
+                        //         break;
+                        //     }
+                        //
+                        //     containingType = null;
+                        // }
                     }
 
                     if (!isPartial)

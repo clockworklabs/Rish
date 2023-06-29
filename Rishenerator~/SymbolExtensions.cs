@@ -47,6 +47,8 @@ namespace Rishenerator
             return false;
         }
         
+        public static bool IsPublic(this IMethodSymbol methodSymbol) => methodSymbol.DeclaredAccessibility == Accessibility.Public && methodSymbol.ContainingType.IsPublic();
+        
         public static bool IsPublic(this ITypeSymbol typeSymbol)
         {
             var containingType = typeSymbol.ContainingType;
