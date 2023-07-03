@@ -7,8 +7,8 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- RISH ELEMENTS -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        public static Element Create<T>() where T : RishBaseElement<NoProps>, new() => Create<T>(0);
-        public static Element Create<T>(ulong key) where T : RishBaseElement<NoProps>, new()
+        public static Element Create<T>() where T : RishElement<NoProps>, new() => Create<T>(0);
+        public static Element Create<T>(ulong key) where T : RishElement<NoProps>, new()
         {
             var element = GetFromPool<RishDefinition<T, NoProps>>();
             element.Factory(key, new NoProps());
@@ -16,12 +16,12 @@ namespace RishUI
             return CreateChildren(element).ToElement();
         }
 
-        public static Element Create<T, P>() where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0);
-        public static Element Create<T, P>(ulong key) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, Defaults.GetValue<P>());
-        public static Element Create<T, P>(RefAction<P> props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0, RefProps(props));
-        public static Element Create<T, P>(P props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(0, props);
-        public static Element Create<T, P>(ulong key, RefAction<P> props) where T : RishBaseElement<P>, new() where P : struct => Create<T, P>(key, RefProps(props));
-        public static Element Create<T, P>(ulong key, P props) where T : RishBaseElement<P>, new() where P : struct
+        public static Element Create<T, P>() where T : RishElement<P>, new() where P : struct => Create<T, P>(0);
+        public static Element Create<T, P>(ulong key) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, Defaults.GetValue<P>());
+        public static Element Create<T, P>(RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, RefProps(props));
+        public static Element Create<T, P>(P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, props);
+        public static Element Create<T, P>(ulong key, RefAction<P> props) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, RefProps(props));
+        public static Element Create<T, P>(ulong key, P props) where T : RishElement<P>, new() where P : struct
         {
             var element = GetFromPool<RishDefinition<T, P>>();
             element.Factory(key, props);
@@ -29,7 +29,7 @@ namespace RishUI
             return CreateChildren(element).ToElement();
         }
         
-        private class RishDefinition<T, P> : SingleElementDefinition where T : RishBaseElement<P>, new() where P : struct
+        private class RishDefinition<T, P> : SingleElementDefinition where T : RishElement<P>, new() where P : struct
         {
             public override Type Type => typeof(T);
             
@@ -80,7 +80,7 @@ namespace RishUI
 
             public override bool Equals(ElementDefinition other)
             {
-                return other is RishDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare<P>(Props, otherDefinition.Props);
+                return other is RishDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.SmartCompare(Props, otherDefinition.Props);
             }
             
             public override bool TryGetProps<P1>(out P1 props)

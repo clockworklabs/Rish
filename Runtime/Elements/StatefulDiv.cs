@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class StatefulDiv : RishBaseElement<StatefulDivProps, StatefulDivState>, ICustomComponent
+    public partial class StatefulDiv : RishElement<StatefulDivProps, StatefulDivState>, ICustomComponent
     {
         private bool Listening { get; set; }
         private int PointerId { get; set; }
@@ -113,24 +113,17 @@ namespace RishUI.Elements
         }
     }
 
+    [RishValueType]
     public struct StatefulDivProps
     {
+        [DOMDescriptor]
         public DOMDescriptor descriptor;
         public Children children;
         public Children hovered;
         public Children pressed;
-
-        [Comparer]
-        public static bool Equals(StatefulDivProps a, StatefulDivProps b) =>
-            RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
-            RishUtils.Compare<Children>(a.children, b.children) &&
-            RishUtils.Compare<Children>(a.hovered, b.hovered) &&
-            RishUtils.Compare<Children>(a.pressed, b.pressed);
-
-        [ReferencesGetter]
-        private static References GetReferences(StatefulDivProps owner) => (owner.children, owner.hovered, owner.pressed);
     }
 
+    [RishValueType]
     public struct StatefulDivState
     {
         public int hoverCount;

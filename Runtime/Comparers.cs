@@ -5,7 +5,7 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class ComparerAttribute : PreserveAttribute { }
     
     public static class Comparers
@@ -21,15 +21,7 @@ namespace RishUI
         {
             foreach (var type in Rish.PlayerTypes)
             {
-                if (!type.IsValueType)
-                {
-                    continue;
-                }
-                var method = GetComparer(type);
-                if (method != null)
-                {
-                    Methods.Add(type, method);
-                }
+                RegisterComparers(type);
             }
         }
 
@@ -44,38 +36,42 @@ namespace RishUI
             var type = typeof(T);
             if (!Delegates.TryGetValue(type, out var comparer))
             {
-                var methodKey = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-                if (!Methods.TryGetValue(methodKey, out var method))
+                if (!Methods.TryGetValue(type, out var method))
+                {
+                    if (type.IsGenericType)
+                    {
+                        var genericType = type.GetGenericTypeDefinition();
+                        if (Methods.TryGetValue(genericType, out method))
+                        {
+                            method = method.MakeGenericMethod(type.GenericTypeArguments);
+                        }
+                    }
+                }
+
+                if (method == null)
                 {
                     return null;
                 }
                 
-                if (type.IsGenericType)
-                {
-                    var concreteMethod = GetComparer(type);
-                    if (concreteMethod == null)
-                    {
-                        return null;
-                    }
-
-                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, concreteMethod);
-                }
-                else
-                {
-                    comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
-                }
-
+                comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
                 Delegates.Add(type, comparer);
             }
 
             return (Comparer<T>) comparer;
         }
 
-        private static MethodInfo GetComparer(Type type)
+        private static void RegisterComparers(Type provider)
         {
-            var isGeneric = type.IsGenericType;
-            var targetType = isGeneric ? type.GetGenericTypeDefinition() : type;
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            if(!Attribute.IsDefined(provider, typeof(ComparersProviderAttribute))) {
+                return;
+            }
+
+            var customComparerType =
+                provider.IsValueType && Attribute.IsDefined(provider, typeof(CustomComparerAttribute))
+                    ? provider
+                    : null;
+            
+            foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
                 if (parameters.Length != 2 || method.ReturnType != typeof(bool) || !Attribute.IsDefined(method, typeof(ComparerAttribute)))
@@ -83,24 +79,48 @@ namespace RishUI
                     continue;
                 }
 
-                var par0 = isGeneric
-                    ? parameters[0].ParameterType.GetGenericTypeDefinition()
-                    : parameters[0].ParameterType;
-                var par1 = isGeneric
-                    ? parameters[1].ParameterType.GetGenericTypeDefinition()
-                    : parameters[1].ParameterType;
-
-                if (par0 != targetType || par1 != targetType)
+                var type = parameters[0].ParameterType;
+                if (parameters[1].ParameterType != type)
                 {
                     continue;
-                } 
+                }
 
-                return method;
+                if (type.ContainsGenericParameters)
+                {
+                    type = type.GetGenericTypeDefinition();
+                }
+
+                if (Methods.ContainsKey(type))
+                {
+                    if (type == customComparerType)
+                    {
+                        Methods.Remove(type);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                
+                Methods.Add(type, method);
             }
-            return null;
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type) => Methods.ContainsKey(type.IsGenericType ? type.GetGenericTypeDefinition() : type);
+        internal static bool Contains(Type type)
+        {
+            if (Methods.ContainsKey(type))
+            {
+                return true;
+            }
+
+            if (!type.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericDefinition = type.GetGenericTypeDefinition();
+            return Methods.ContainsKey(genericDefinition);
+        }
     }
 }

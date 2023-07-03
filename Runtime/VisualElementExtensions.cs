@@ -29,6 +29,10 @@ namespace RishUI
             element.style.alignSelf = nullValue;
             element.style.backgroundColor = nullValue;
             element.style.backgroundImage = nullValue;
+            element.style.backgroundPositionX = nullValue;
+            element.style.backgroundPositionY = nullValue;
+            element.style.backgroundRepeat = nullValue;
+            element.style.backgroundSize = nullValue;
             element.style.borderBottomColor = nullValue;
             element.style.borderBottomLeftRadius = nullValue;
             element.style.borderBottomRightRadius = nullValue;
@@ -338,7 +342,7 @@ namespace RishUI
             return false;
         }
 
-        public static bool IsAppRoot(this VisualElement visualElement) => visualElement is IDOMElement && visualElement.parent is not IDOMElement;
+        public static bool IsAppRoot(this VisualElement visualElement) => visualElement is IVisualElement && visualElement.parent is not IVisualElement;
         
 #if UNITY_EDITOR
         private static FieldInfo _idField;

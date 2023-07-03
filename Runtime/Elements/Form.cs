@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Form : RishBaseElement<FormProps>, IMountingListener
+    public partial class Form : RishElement<FormProps>, IMountingListener
     {
         private Form ParentForm { get; set; }
         private uint Index { get; set; }
@@ -76,15 +76,11 @@ namespace RishUI.Elements
         }
     }
 
+    [RishValueType]
     public struct FormProps
     {
         public Element content;
+        [IgnoreComparison]
         public Action submitAction;
-
-        [Comparer]
-        private static bool Equals(FormProps a, FormProps b) => RishUtils.Compare<Element>(a.content, b.content);
-
-        [ReferencesGetter]
-        private static References GetReferences(FormProps owner) => owner.content;
     }
 }

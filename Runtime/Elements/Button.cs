@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class Button : RishBaseElement<ButtonProps>, IMountingListener, IPropsListener
+    public partial class Button : RishElement<ButtonProps>, IMountingListener, IPropsListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
@@ -47,7 +47,7 @@ namespace RishUI.Elements
         
         protected override Element Render()
         {
-            return Rish.Create<Component, ButtonProps>(Props);
+            return InternalElement.Create(Props);
         }
 
         private void OnVisualChange(VisualChangeEvent evt)
@@ -83,12 +83,12 @@ namespace RishUI.Elements
             evt.StopPropagation();
         }
         
-        private class Component : RishBaseElement<ButtonProps, ComponentState>, ICustomComponent
+        private partial class InternalElement : RishElement<ButtonProps, InternalElementState>, ICustomComponent
         {
             private bool Listening { get; set; }
             private int PointerId { get; set; }
 
-            public Component()
+            public InternalElement()
             {
                 RegisterCallback<HoverStartEvent>(OnHoverStart);
                 RegisterCallback<HoverEndEvent>(OnHoverEnd);
@@ -254,18 +254,22 @@ namespace RishUI.Elements
             }
         }
 
-        private struct ComponentState
+        [RishValueType]
+        internal struct InternalElementState
         {
             public bool hovered;
             public bool pressed;
         }
     }
 
+    [RishValueType]
     public struct ButtonProps
     {
         public bool interactable;
         
+        [IgnoreComparison]
         public Action action;
+        [IgnoreComparison]
         public Action secondaryAction;
         
         public Element normal;
@@ -277,7 +281,6 @@ namespace RishUI.Elements
         public bool focusable;
         public bool autoFocus;
 
-        // TODO: Doing something similar to StyledProps is a better approach
         [Default]
         public static ButtonProps Default => new ButtonProps
         {
@@ -296,18 +299,5 @@ namespace RishUI.Elements
             focusable = other.focusable;
             autoFocus = other.autoFocus;
         }
-
-        [Comparer]
-        public static bool Equals(ButtonProps a, ButtonProps b)
-        {
-            return a.interactable == b.interactable && a.focusable == b.focusable && a.autoFocus == b.autoFocus &&
-                RishUtils.Compare<Element>(a.normal, b.normal) &&
-                RishUtils.Compare<Element>(a.hovered, b.hovered) &&
-                RishUtils.Compare<Element>(a.pressed, b.pressed) &&
-                RishUtils.Compare<Element>(a.disabled, b.disabled);
-        }
-
-        [ReferencesGetter]
-        private static References GetReferences(ButtonProps owner) => (owner.normal, owner.hovered, owner.pressed, owner.disabled);
     }
 }

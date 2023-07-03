@@ -1,15 +1,13 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using RishUI.Events;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class TextInput : RishBaseElement<TextInputProps>, IMountingListener
+    public partial class TextInput : RishElement<TextInputProps>, IMountingListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
@@ -75,7 +73,8 @@ namespace RishUI.Elements
             Form?.Submit();
         }
 
-        private class RishTextField : TextField, IDOMElement<RishTextFieldProps>
+        [IgnoreWarnings]
+        private class RishTextField : TextField, IVisualElement<RishTextFieldProps>
         {
             VisualElement IElement.GetDOMChild() => this;
             
@@ -122,7 +121,7 @@ namespace RishUI.Elements
                 Setup(value);
             }
 
-            void IDOMElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => SetProps(props, true);
+            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => SetProps(props, true);
             
             private void Setup(RishTextFieldProps props)
             {
@@ -157,7 +156,8 @@ namespace RishUI.Elements
             private void OnNewValue(ChangeEvent<string> value) => _props.onChange?.Invoke(value.newValue);
         }
 
-        private struct RishTextFieldProps
+        [RishValueType]
+        public struct RishTextFieldProps
         {
             public FixedString4096Bytes text;
             public bool multiline;
@@ -174,13 +174,17 @@ namespace RishUI.Elements
             [StyledProp("--props-selection-color", 0.39f, 0.58f, 0.93f)]
             public Color? selectionColor { get; set; }
 
+            [IgnoreComparison]
             public Action<string> onChange;
         }
     }
 
+    [RishValueType]
     public struct TextInputProps
     {
+        [DOMDescriptor]
         public DOMDescriptor descriptor;
+        [DOMDescriptor]
         public DOMDescriptor textInputDescriptor;
         public FixedString4096Bytes text;
         public bool multiline;
@@ -191,16 +195,7 @@ namespace RishUI.Elements
         public bool autoFocus;
         public Color? cursorColor;
         public Color? selectionColor;
+        [IgnoreComparison]
         public Action<string> onChange;
-
-        [Comparer]
-        private static bool Equals(TextInputProps a, TextInputProps b) =>
-            a.multiline == b.multiline && a.isPassword == b.isPassword && a.autoFocus == b.autoFocus &&
-            a.readOnly == b.readOnly &&
-            RishUtils.CompareUnmanaged<FixedString4096Bytes>(a.text, b.text) &&
-            RishUtils.CompareNullable(a.cursorColor, b.cursorColor) &&
-            RishUtils.CompareNullable(a.selectionColor, b.selectionColor) &&
-            RishUtils.Compare<DOMDescriptor>(a.descriptor, b.descriptor) &&
-            RishUtils.Compare<DOMDescriptor>(a.textInputDescriptor, b.textInputDescriptor);
     }
 }

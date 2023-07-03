@@ -525,7 +525,7 @@ namespace RishUI
     
                 for (var i = 0; i < count; i++)
                 {
-                    if (!RishUtils.Compare<Children>(a[i], b[i]))
+                    if (!Comparers.Compare(a[i], b[i]))
                     {
                         return false;
                     }

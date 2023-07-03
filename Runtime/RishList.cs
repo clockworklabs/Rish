@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace RishUI
 {
+    [CustomComparer]
     public readonly struct RishList<T> where T : struct
     {
         private readonly int _childCount;
@@ -703,7 +704,7 @@ namespace RishUI
         {
             for (int i = 0, n = Count; i < n; i++)
             {
-                if (RishUtils.Compare<T>(item, this[i]))
+                if (RishUtils.SmartCompare(item, this[i]))
                 {
                     return true;
                 }
@@ -740,7 +741,7 @@ namespace RishUI
 
             for (var i = Count - 1; i >= 0; i--)
             {
-                if (!RishUtils.Compare<T>(this[i], other[i]))
+                if (!RishUtils.SmartCompare(this[i], other[i]))
                 {
                     return false;
                 }
@@ -798,25 +799,6 @@ namespace RishUI
             }
 
             return list;
-        }
-
-        public void AddReferences(ref References references)
-        {
-            if (!ReferencesGetters.Contains<T>())
-            {
-                return;
-            }
-            
-            for (int i = 0, n = Count; i < n; i++)
-            {
-                var element = this[i];
-                var elementReferences = ReferencesGetters.GetReferences(element);
-                foreach (var reference in elementReferences)
-                {
-                    references.Add(reference);
-                }
-                elementReferences.Dispose();
-            }
         }
 
         public static implicit operator RishList<T>(T element)
