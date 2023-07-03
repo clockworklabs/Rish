@@ -73,17 +73,6 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
         
-        private static readonly DiagnosticDescriptor SingleDOMDescriptorRule = new(
-            "SingleDOMDescriptorRule",
-            "There can only be one DOMDescriptor",
-            "{0} can't have more than one DOMDescriptor",
-            "Usage",
-            DiagnosticSeverity.Error,
-            true,
-            "RishValueTypes can't have more than one field with the DOMDescriptor attribute",
-            null // TODO: Help link to documentation
-        );
-        
         private static readonly DiagnosticDescriptor DOMDescriptorTypeRule = new(
             "DOMDescriptorTypeRule",
             "Invalid type for DOMDescriptor attribute",
@@ -95,7 +84,7 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, SingleDOMDescriptorRule, DOMDescriptorTypeRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
 
 
         public override void Initialize(AnalysisContext context)
@@ -193,7 +182,6 @@ namespace Rishenerator
 
             if (structSymbol.IsFlaggedAsRishValueType())
             {
-                var domDescriptorCount = 0;
                 foreach (var memberSymbol in structSymbol.GetMembers())
                 {
                     if (memberSymbol is not IFieldSymbol fieldSymbol)
@@ -209,12 +197,6 @@ namespace Rishenerator
                             var diagnostic = Diagnostic.Create(DOMDescriptorTypeRule, fieldDeclaration.GetLocation(), fieldSymbol);
                             context.ReportDiagnostic(diagnostic);
                         }
-                        if (domDescriptorCount > 0)
-                        {
-                            var diagnostic = Diagnostic.Create(SingleDOMDescriptorRule, declarationSyntax.GetLocation(), structSymbol);
-                            context.ReportDiagnostic(diagnostic);
-                        }
-                        domDescriptorCount += 1;
                     }
                 }
                 

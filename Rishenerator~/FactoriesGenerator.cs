@@ -220,7 +220,7 @@ namespace Rishenerator
                 if (hasProps)
                 {
                     var propsFieldsSymbols = new List<IFieldSymbol>();
-                    IFieldSymbol domDescriptorField = null;
+                    HashSet<IFieldSymbol> domDescriptorFields = null;
                     foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                     {
                         if (propsMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } propsFieldSymbol)
@@ -229,9 +229,10 @@ namespace Rishenerator
                         }
                         
                         propsFieldsSymbols.Add(propsFieldSymbol);
-                        if (domDescriptorField == null && propsFieldSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
+                        if (propsFieldSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
                         {
-                            domDescriptorField = propsFieldSymbol;
+                            domDescriptorFields ??= new HashSet<IFieldSymbol>();
+                            domDescriptorFields.Add(propsFieldSymbol);
                         }
                     }
 
@@ -262,11 +263,14 @@ namespace Rishenerator
                         sourceCode.Append("        public static RishUI.Element Create(ulong key = 0");
                         foreach (var propsFieldSymbol in propsFieldsSymbols)
                         {
-                            if (propsFieldSymbol == domDescriptorField)
+                            if (domDescriptorFields?.Contains(propsFieldSymbol) ?? false)
                             {
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Name>" : "RishUI.Name")} name = default");
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.ClassName>" : "RishUI.ClassName")} className = default");
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Style>" : "RishUI.Style")} style = default");
+                                var fieldName = propsFieldSymbol.Name;
+                                var fieldNameLength = fieldName.Length;
+                                var prefix = fieldNameLength >= 10 && propsFieldSymbol.Name.ToLowerInvariant().EndsWith("descriptor") ? propsFieldSymbol.Name.Substring(0, fieldNameLength - 10) : propsFieldSymbol.Name;
+                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Name>" : "RishUI.Name")} {(string.IsNullOrWhiteSpace(prefix) ? "name" : $"{prefix}Name")} = default");
+                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.ClassName>" : "RishUI.ClassName")} {(string.IsNullOrWhiteSpace(prefix) ? "className" : $"{prefix}ClassName")} = default");
+                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Style>" : "RishUI.Style")} {(string.IsNullOrWhiteSpace(prefix) ? "style" : $"{prefix}Style")} = default");
                             }
                             else
                             {
@@ -285,13 +289,16 @@ namespace Rishenerator
                         foreach (var propsFieldSymbol in propsFieldsSymbols)
                         {
                             var propsFieldName = propsFieldSymbol.Name;
-                            if (propsFieldSymbol == domDescriptorField)
+                            if (domDescriptorFields?.Contains(propsFieldSymbol) ?? false)
                             {
+                                var fieldName = propsFieldSymbol.Name;
+                                var fieldNameLength = fieldName.Length;
+                                var prefix = fieldNameLength > 10 ? propsFieldSymbol.Name.Substring(0, fieldNameLength - 10) : null;
                                 sourceCode.AppendLine($@"                {propsFieldName} = new RishUI.DOMDescriptor
                 {{
-                    name = {(hasDefaultProps ? $"name.GetValue({defaultProps}.{propsFieldName}.name)" : "name")},
-                    className = {(hasDefaultProps ? $"className.GetValue({defaultProps}.{propsFieldName}.className)" : "className")},
-                    style = {(hasDefaultProps ? $"style.GetValue({defaultProps}.{propsFieldName}.style)" : "style")}
+                    name = {(hasDefaultProps ? $"name.GetValue({defaultProps}.{propsFieldName}.name)" : (string.IsNullOrWhiteSpace(prefix) ? "name" : $"{prefix}Name"))},
+                    className = {(hasDefaultProps ? $"className.GetValue({defaultProps}.{propsFieldName}.className)" : (string.IsNullOrWhiteSpace(prefix) ? "className" : $"{prefix}ClassName"))},
+                    style = {(hasDefaultProps ? $"style.GetValue({defaultProps}.{propsFieldName}.style)" : (string.IsNullOrWhiteSpace(prefix) ? "style" : $"{prefix}Style"))}
                 }},");
                             }
                             else
@@ -303,24 +310,21 @@ namespace Rishenerator
                         sourceCode.AppendLine(@"            });
         }");
 
-                        if (domDescriptorField != null)
+                        if (domDescriptorFields != null)
                         {
                             for (var i = 0; i < 2; i++)
                             {
-                                sourceCode.Append($"        public static RishUI.Element Create({(i == 0 ? "ulong key, " : string.Empty)}{(hasDefaultProps ? "RishUI.Overridable<RishUI.DOMDescriptor>" : "RishUI.DOMDescriptor")} descriptor = default");
-
+                                sourceCode.Append($"        public static RishUI.Element Create({(i == 0 ? "ulong key" : string.Empty)}");
+                                var parametersAdded = i == 0;
                                 foreach (var propsFieldSymbol in propsFieldsSymbols)
                                 {
-                                    if (propsFieldSymbol == domDescriptorField)
-                                    {
-                                        continue;
-                                    }
-                                    
                                     var propsFieldTypeSymbol = propsFieldSymbol.Type;
                                     var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
                                     var propsFieldName = propsFieldSymbol.Name;
 
-                                    sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
+                                    sourceCode.Append($"{(parametersAdded ? ", " : string.Empty)}{(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
+
+                                    parametersAdded = true;
                                 }
 
                                 sourceCode.AppendLine($@")
@@ -330,9 +334,7 @@ namespace Rishenerator
                                 foreach (var propsFieldSymbol in propsFieldsSymbols)
                                 {
                                     var propsFieldName = propsFieldSymbol.Name;
-                                    sourceCode.AppendLine(propsFieldSymbol == domDescriptorField
-                                        ? $"                {propsFieldName} = {(hasDefaultProps ? $"descriptor.GetValue({defaultProps}.{propsFieldName})" : "descriptor")},"
-                                        : $"                {propsFieldName} = {(hasDefaultProps ? $"{propsFieldName}.GetValue({defaultProps}.{propsFieldName})" : propsFieldName)},");
+                                    sourceCode.AppendLine($"                {propsFieldName} = {(hasDefaultProps ? $"{propsFieldName}.GetValue({defaultProps}.{propsFieldName})" : propsFieldName)},");
                                 }
 
                                 sourceCode.AppendLine(@"            });

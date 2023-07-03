@@ -184,6 +184,7 @@ namespace RishUI.Elements
     {
         [DOMDescriptor]
         public DOMDescriptor descriptor;
+        [DOMDescriptor]
         public DOMDescriptor textInputDescriptor;
         public FixedString4096Bytes text;
         public bool multiline;
