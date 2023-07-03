@@ -175,7 +175,7 @@ namespace Rishenerator
                     return needsReferencesGetter;
                 }
 
-                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern || !namedTypeSymbol.IsPublic())
+                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern || !namedTypeSymbol.IsInternallyAccessible())
                 {
                     References[namedTypeSymbol] = false;
                     return false;

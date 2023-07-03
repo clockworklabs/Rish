@@ -65,7 +65,7 @@ namespace Rishenerator
                     if (node is ClassDeclarationSyntax classDeclaration)
                     {
                         var semanticModel = context.SemanticModel;
-                        if (semanticModel.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol typeSymbol || typeSymbol.IsAbstract || !typeSymbol.IsPublic())
+                        if (semanticModel.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol typeSymbol || typeSymbol.IsAbstract)
                         {
                             return;
                         }
@@ -96,19 +96,6 @@ namespace Rishenerator
                             parent = parent.Parent;
                         }
 
-                        // var containingType = typeSymbol.ContainingType;
-                        // while (containingType?.DeclaringSyntaxReferences.Length > 0)
-                        // {
-                        //     var containingTypeDeclaration = containingType.DeclaringSyntaxReferences[0].GetSyntax() as ClassDeclarationSyntax;
-                        //     var containingTypeIsPartial = containingTypeDeclaration?.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword)) ?? false;
-                        //     if (!containingTypeIsPartial)
-                        //     {
-                        //         return;
-                        //     }
-                        //
-                        //     containingType = null;
-                        // }
-
                         if (isRishElement)
                         {
                             RishElements.Add(typeSymbol);
@@ -121,9 +108,8 @@ namespace Rishenerator
                     {
                         var semanticModel = context.SemanticModel;
                         if (semanticModel.GetDeclaredSymbol(methodDeclaration) is not IMethodSymbol methodSymbol || 
-                            methodSymbol.IsAbstract || !methodSymbol.IsStatic || !methodSymbol.IsPublic() || 
-                            methodSymbol.IsGenericMethod || !methodSymbol.Name.EndsWith("Element") ||
-                            !methodSymbol.HasAttribute("RishUI.SimpleElementAttribute"))
+                            methodSymbol.IsAbstract || !methodSymbol.IsStatic || 
+                            methodSymbol.IsGenericMethod || methodSymbol.Name.Length <= 7 || !methodSymbol.Name.EndsWith("Element"))
                         {
                             return;
                         }
@@ -208,8 +194,7 @@ namespace Rishenerator
                     var t = containingType;
                     while (t != null)
                     {
-                        var genericConstraints = t.GetGenericsConstraints();
-                        containingTypes = @$"public partial class {t.Name}{genericConstraints}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsName()}{t.GetGenericsConstraints()}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -218,7 +203,7 @@ namespace Rishenerator
                     sourceCode.AppendLine(containingTypes);
                 }
                 
-                sourceCode.AppendLine(@$"    public partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName()}{typeSymbol.GetGenericsConstraints()}
     {{");
 
                 var baseTypeSymbol = typeSymbol.BaseType;
@@ -405,7 +390,7 @@ namespace Rishenerator
                     while (t != null)
                     {
                         var genericConstraints = t.GetGenericsConstraints();
-                        containingTypes = @$"public partial class {t.Name}{genericConstraints}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{genericConstraints}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -414,7 +399,7 @@ namespace Rishenerator
                     sourceCode.AppendLine(containingTypes);
                 }
                 
-                sourceCode.AppendLine(@$"    public partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
     {{");
 
                 var interfaceTypeSymbol = typeSymbol.Interfaces.FirstOrDefault(s => s.GetFullName(false) == "RishUI.IVisualElement");
@@ -605,7 +590,7 @@ namespace Rishenerator
                     while (t != null)
                     {
                         var genericConstraints = t.GetGenericsConstraints();
-                        containingTypes = @$"public partial class {t.Name}{genericConstraints}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{genericConstraints}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -624,9 +609,9 @@ namespace Rishenerator
 
                 var hasProps = propsTypeSymbol != null;
                 
-                sourceCode.AppendLine(@$"    public partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
     {{
-        public class {targetName} : RishUI.RishElement{(hasProps ? $"<{propsTypeSymbolFullName}>" : string.Empty)}
+        {methodSymbol.DeclaredAccessibility.ToModifiers()} class {targetName} : RishUI.RishElement{(hasProps ? $"<{propsTypeSymbolFullName}>" : string.Empty)}
         {{
             protected override RishUI.Element Render()
             {{

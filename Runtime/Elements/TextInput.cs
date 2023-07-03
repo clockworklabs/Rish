@@ -1,15 +1,13 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using RishUI.Events;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Elements
 {
-    public class TextInput : RishElement<TextInputProps>, IMountingListener
+    public partial class TextInput : RishElement<TextInputProps>, IMountingListener
     {
         private Form Form { get; set; }
         private bool JustMounted { get; set; }
@@ -75,6 +73,7 @@ namespace RishUI.Elements
             Form?.Submit();
         }
 
+        [IgnoreWarnings]
         private class RishTextField : TextField, IVisualElement<RishTextFieldProps>
         {
             VisualElement IElement.GetDOMChild() => this;
@@ -183,6 +182,7 @@ namespace RishUI.Elements
     [RishValueType]
     public struct TextInputProps
     {
+        [DOMDescriptor]
         public DOMDescriptor descriptor;
         public DOMDescriptor textInputDescriptor;
         public FixedString4096Bytes text;

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace Rishenerator
 {
@@ -47,14 +48,12 @@ namespace Rishenerator
             return false;
         }
         
-        public static bool IsPublic(this IMethodSymbol methodSymbol) => methodSymbol.DeclaredAccessibility == Accessibility.Public && methodSymbol.ContainingType.IsPublic();
-        
-        public static bool IsPublic(this ITypeSymbol typeSymbol)
+        public static bool IsInternallyAccessible(this ITypeSymbol typeSymbol)
         {
             var containingType = typeSymbol.ContainingType;
             while (containingType != null)
             {
-                if (!containingType.IsPublic())
+                if (!containingType.IsInternallyAccessible())
                 {
                     return false;
                 }
@@ -67,7 +66,7 @@ namespace Rishenerator
                 return true;
             }
             
-            return typeSymbol.DeclaredAccessibility == Accessibility.Public;
+            return typeSymbol.DeclaredAccessibility is Accessibility.Public or Accessibility.ProtectedOrInternal or Accessibility.Internal;
         }
         
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics = true)
@@ -327,5 +326,16 @@ namespace Rishenerator
 
             return false;
         }
+        
+        public static string ToModifiers(this Accessibility accessibility) => accessibility switch
+        {
+            Accessibility.Private => "private",
+            Accessibility.ProtectedAndInternal => "private protected",
+            Accessibility.Protected => "protected",
+            Accessibility.Internal => "internal",
+            Accessibility.ProtectedOrInternal => "protected internal",
+            Accessibility.Public => "public",
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }

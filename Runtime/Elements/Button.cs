@@ -47,7 +47,7 @@ namespace RishUI.Elements
         
         protected override Element Render()
         {
-            return Rish.Create<InternalElement, ButtonProps>(Props);
+            return InternalElement.Create(Props);
         }
 
         private void OnVisualChange(VisualChangeEvent evt)
@@ -83,8 +83,7 @@ namespace RishUI.Elements
             evt.StopPropagation();
         }
         
-        [IgnoreWarnings]
-        private class InternalElement : RishElement<ButtonProps, InternalElementState>, ICustomComponent
+        private partial class InternalElement : RishElement<ButtonProps, InternalElementState>, ICustomComponent
         {
             private bool Listening { get; set; }
             private int PointerId { get; set; }
@@ -133,7 +132,6 @@ namespace RishUI.Elements
 
             private void OnHoverStart(HoverStartEvent evt)
             {
-                Debug.Log("Hover start");
                 var state = State;
                 state.hovered = true;
                 State = state;
@@ -141,7 +139,6 @@ namespace RishUI.Elements
 
             private void OnHoverEnd(HoverEndEvent evt)
             {
-                Debug.Log("Hover end");
                 var state = State;
                 state.hovered = false;
                 State = state;
@@ -258,7 +255,7 @@ namespace RishUI.Elements
         }
 
         [RishValueType]
-        public struct InternalElementState
+        internal struct InternalElementState
         {
             public bool hovered;
             public bool pressed;

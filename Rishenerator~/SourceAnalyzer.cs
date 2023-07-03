@@ -10,16 +10,6 @@ namespace Rishenerator
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SourceAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor PublicRishElementRule = new(
-            "PublicRishElementRule",
-            "RishElement should be public",
-            "{0} should be a publicly accessible",
-            "Usage",
-            DiagnosticSeverity.Warning,
-            true,
-            "RishElements should be public for factory methods to be generated",
-            null // TODO: Help link to documentation
-        );
         private static readonly DiagnosticDescriptor PartialRishElementRule = new(
             "PartialRishElementRule",
             "RishElement should be partial",
@@ -28,16 +18,6 @@ namespace Rishenerator
             DiagnosticSeverity.Warning,
             true,
             "RishElements should be partial for factory methods to be generated",
-            null // TODO: Help link to documentation
-        );
-        private static readonly DiagnosticDescriptor PublicVisualElementRule = new(
-            "PublicVisualElementRule",
-            "VisualElement should be public",
-            "{0} should be a publicly accessible",
-            "Usage",
-            DiagnosticSeverity.Warning,
-            true,
-            "VisualElements should be public for factory methods to be generated",
             null // TODO: Help link to documentation
         );
         private static readonly DiagnosticDescriptor PartialVisualElementRule = new(
@@ -71,25 +51,25 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        private static readonly DiagnosticDescriptor PublicRishValueTypeRule = new(
-            "PublicRishValueTypeRule",
-            "RishValueType needs to be public",
-            "Struct {0} must be publicly accessible",
+        private static readonly DiagnosticDescriptor AccessibilityRishValueTypeRule = new(
+            "AccessibilityRishValueTypeRule",
+            "RishValueType needs to be at least internal",
+            "Struct {0} must be internally accessible",
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "Structs with RishValueType attribute must be public",
+            "Structs with RishValueType attribute must be at least internal",
             null // TODO: Help link to documentation
         );
         
-        private static readonly DiagnosticDescriptor PublicAutoComparerRule = new(
-            "PublicAutoComparer",
-            "AutoComparer needs to be public",
-            "Struct {0} must be publicly accessible",
+        private static readonly DiagnosticDescriptor AccessibilityAutoComparerRule = new(
+            "AccessibilityAutoComparerRule",
+            "AutoComparer needs to be at least internal",
+            "Struct {0} must be internally accessible",
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "Structs flagged for an auto comparer must be public",
+            "Structs flagged for an auto comparer must be at least internal",
             null // TODO: Help link to documentation
         );
         
@@ -115,7 +95,7 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PublicRishElementRule, PartialRishElementRule, PublicVisualElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, PublicRishValueTypeRule, PublicAutoComparerRule, SingleDOMDescriptorRule, DOMDescriptorTypeRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, SingleDOMDescriptorRule, DOMDescriptorTypeRule);
 
 
         public override void Initialize(AnalysisContext context)
@@ -138,14 +118,7 @@ namespace Rishenerator
 
                 if (isRishElement || isVisualElement)
                 {
-                    var publicRule = isRishElement ? PublicRishElementRule : PublicVisualElementRule;
                     var partialRule = isRishElement ? PartialRishElementRule : PartialVisualElementRule;
-                    
-                    if (!classSymbol.IsPublic())
-                    {
-                        var diagnostic = Diagnostic.Create(publicRule, declarationSyntax.GetLocation(), classSymbol);
-                        context.ReportDiagnostic(diagnostic);
-                    }
                     
                     var isPartial = declarationSyntax.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
                     if (isPartial)
@@ -162,19 +135,6 @@ namespace Rishenerator
 
                             parent = parent.Parent;
                         }
-                        // var containingType = classSymbol.ContainingType;
-                        // while (containingType?.DeclaringSyntaxReferences.Length > 0)
-                        // {
-                        //     var containingTypeDeclaration = containingType.DeclaringSyntaxReferences[0].GetSyntax() as ClassDeclarationSyntax;
-                        //     var containingTypeIsPartial = containingTypeDeclaration?.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword)) ?? false;
-                        //     if (!containingTypeIsPartial)
-                        //     {
-                        //         isPartial = false;
-                        //         break;
-                        //     }
-                        //
-                        //     containingType = null;
-                        // }
                     }
 
                     if (!isPartial)
@@ -229,8 +189,7 @@ namespace Rishenerator
             var declarationSyntax = (StructDeclarationSyntax)context.Node;
             var structSymbol = (INamedTypeSymbol)context.ContainingSymbol;
 
-            var isPublic = structSymbol.IsPublic();
-            
+            var isAccessible = structSymbol.IsInternallyAccessible();
 
             if (structSymbol.IsFlaggedAsRishValueType())
             {
@@ -259,9 +218,9 @@ namespace Rishenerator
                     }
                 }
                 
-                if (!isPublic)
+                if (!isAccessible)
                 {
-                    var diagnostic = Diagnostic.Create(PublicRishValueTypeRule, declarationSyntax.GetLocation(), structSymbol);
+                    var diagnostic = Diagnostic.Create(AccessibilityRishValueTypeRule, declarationSyntax.GetLocation(), structSymbol);
                     context.ReportDiagnostic(diagnostic);
                 }
             }
@@ -269,9 +228,9 @@ namespace Rishenerator
             {
                 if (structSymbol.IsFlaggedForAutoComparer() && !structSymbol.IsFlaggedForCustomComparer())
                 {
-                    if (!isPublic)
+                    if (!isAccessible)
                     {
-                        var diagnostic = Diagnostic.Create(PublicAutoComparerRule, declarationSyntax.GetLocation(), structSymbol);
+                        var diagnostic = Diagnostic.Create(AccessibilityAutoComparerRule, declarationSyntax.GetLocation(), structSymbol);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
