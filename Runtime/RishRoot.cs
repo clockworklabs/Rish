@@ -6,9 +6,13 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    public delegate void RishStart(RishRoot root);
+    
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
+        public static event RishStart OnStart;
+        
         [SerializeField]
         private StyleSheet[] _styleSheets;
         private StyleSheet[] StyleSheets => _styleSheets;
@@ -58,10 +62,12 @@ namespace RishUI
 
             foreach (var styleSheet in StyleSheets)
             {
-                Root.styleSheets.Add(styleSheet);
+                AddStyleSheet(styleSheet);
             }
             
             Tree = new Tree(Document, RootClassName, Recovered);
+            
+            OnStart?.Invoke(this);
 
             var wait = new WaitForEndOfFrame();
             while (true)
@@ -98,6 +104,9 @@ namespace RishUI
                 Destroy(this);
             }
         }
+
+        public void AddStyleSheet(StyleSheet styleSheet) => Root.styleSheets.Add(styleSheet);
+        public void RemoveStyleSheet(StyleSheet styleSheet) => Root.styleSheets.Remove(styleSheet);
 
         public bool HasAnyPointerOver() => Root.IsHover();
         public bool HasAnyPointerCaptured()
