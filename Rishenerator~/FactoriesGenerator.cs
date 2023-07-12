@@ -431,15 +431,15 @@ namespace Rishenerator
                     if (propsFieldsSymbols.Count <= 0)
                     {
                         sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(0, descriptor);");
-                        sourceCode.AppendLine("        public static RishUI.Element Create(Children children) => Create(0, default(RishUI.DOMDescriptor), children);");
-                        sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, Name name = default, ClassName className = default, Style style = default, Children? children = null) => Create(key, new RishUI.DOMDescriptor
+                        sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.Children children) => Create(0, default(RishUI.DOMDescriptor), children);");
+                        sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, RishUI.Name name = default, RishUI.ClassName className = default, RishUI.Style style = default, RishUI.Children? children = null) => Create(key, new RishUI.DOMDescriptor
         {{
             name = name,
             className = className,
             style = style
         }}, children);");
-                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, children);");
-                        sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(0, key, descriptor, children);");
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, children);");
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(0, key, descriptor, children);");
                     }
                     else
                     {
@@ -463,16 +463,16 @@ namespace Rishenerator
 
                         sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(0, descriptor, default({propsTypeSymbolFullName}));");
                         sourceCode.AppendLine($"        public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(0, default(RishUI.DOMDescriptor), props);");
-                        sourceCode.AppendLine($"        public static RishUI.Element Create(Children children) => Create(0, default(RishUI.DOMDescriptor), default({propsTypeSymbolFullName}), children);");
-                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, props, children);");
-                        sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(0, descriptor, props, children);");
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.Children children) => Create(0, default(RishUI.DOMDescriptor), default({propsTypeSymbolFullName}), children);");
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, props, children);");
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(0, descriptor, props, children);");
 
                         for (var i = 0; i < 3; i++)
                         {
                             switch (i)
                             {
                                 case 0:
-                                    sourceCode.Append("        public static RishUI.Element Create(ulong key = 0, Name name = default, ClassName className = default, Style style = default");
+                                    sourceCode.Append("        public static RishUI.Element Create(ulong key = 0, RishUI.Name name = default, RishUI.ClassName className = default, RishUI.Style style = default");
                                     break;
                                 case 1:
                                     sourceCode.Append("        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor");
@@ -494,7 +494,7 @@ namespace Rishenerator
                             switch (i)
                             {
                                 case 0:
-                                    sourceCode.AppendLine($@", Children? children = null)
+                                    sourceCode.AppendLine($@", RishUI.Children? children = null)
         {{
             return Create(key, new RishUI.DOMDescriptor
             {{
@@ -505,13 +505,13 @@ namespace Rishenerator
             {{");
                                     break;
                                 case 1:
-                                    sourceCode.AppendLine($@", Children? children = null)
+                                    sourceCode.AppendLine($@", RishUI.Children? children = null)
         {{
             return Create(key, descriptor, new {propsTypeSymbolFullName}
             {{");
                                     break;
                                 default:
-                                    sourceCode.AppendLine($@", Children? children = null)
+                                    sourceCode.AppendLine($@", RishUI.Children? children = null)
         {{
             return Create(descriptor, new {propsTypeSymbolFullName}
             {{");
@@ -533,15 +533,15 @@ namespace Rishenerator
                 else
                 {
                     sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(0, descriptor);");
-                    sourceCode.AppendLine("        public static RishUI.Element Create(Children children) => Create(0, default(RishUI.DOMDescriptor), children);");
-                    sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, Name name = default, ClassName className = default, Style style = default, Children? children = null) => Create(key, new RishUI.DOMDescriptor
+                    sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.Children children) => Create(0, default(RishUI.DOMDescriptor), children);");
+                    sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, RishUI.Name name = default, RishUI.ClassName className = default, RishUI.Style style = default, Children? children = null) => Create(key, new RishUI.DOMDescriptor
         {
             name = name,
             className = className,
             style = style
         }, children);");
-                    sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}>(key, descriptor, children);");
-                    sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}>(0, descriptor, children);");
+                    sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}>(key, descriptor, children);");
+                    sourceCode.AppendLine($"        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children? children = null) => RishUI.Rish.Create<{typeSymbolFullName}>(0, descriptor, children);");
                 }
                 
                 sourceCode.AppendLine("    }");

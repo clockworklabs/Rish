@@ -143,6 +143,22 @@ namespace RishUI
         public abstract bool ContainsPoint(Vector2 localPoint);
     }
 
+    public class RectPickingManager : PickingManager
+    {
+        public RectPickingManager(VisualElement element) : base(element) { }
+
+        protected override void Setup() { }
+        
+        public override bool ContainsPoint(Vector2 localPoint)
+        {
+            var layout = Element.layout;
+            var rect = new Rect(0.0f, 0.0f, layout.width, layout.height);
+
+            // TODO: Check rounded corners
+            return rect.Contains(localPoint);
+        }
+    }
+
     public class DefaultPickingManager : PickingManager
     {
         private float BackgroundColorAlpha { get; set; }

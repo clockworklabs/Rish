@@ -41,6 +41,6 @@ namespace RishUI
         public static implicit operator LengthRange(Vector2 range) => new(range);
         public static implicit operator LengthRange(Length max) => new(max);
         
-        internal (float, float) ToSize(float parentSize) => unit == LengthUnit.Pixel ? (min, max) : (min * 0.01f * parentSize, max * 0.01f * parentSize);
+        public (float, float) ToSize(float parentSize) => unit == LengthUnit.Pixel ? (min, max) : (min * 0.01f * parentSize, max * 0.01f * parentSize);
     }
 }

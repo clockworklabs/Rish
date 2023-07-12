@@ -1,3 +1,4 @@
+using RishUI.Events;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -41,6 +42,9 @@ namespace RishUI
             element.name = name;
             className.SetClasses(element);
             style.SetInlineStyle(element);
+            
+            using var evt = InlineStyleEvent.GetPooled(element);
+            element.SendEvent(evt);
         }
         
         public static implicit operator DOMDescriptor(Name name) => new DOMDescriptor

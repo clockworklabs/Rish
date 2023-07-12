@@ -1,9 +1,9 @@
 {
   "name": "com.clockworklabs.rish",
-  "version": "3.0.0-pre.87",
+  "version": "3.0.0-pre.88",
   "displayName": "Rish",
   "description": "R[eact]ish UI system for Unity",
-  "unity": "2021.3",
+  "unity": "2022.3",
   "author": {
     "name": "Lisandro Crespo",
     "email": "hey@lisandroct.com",
