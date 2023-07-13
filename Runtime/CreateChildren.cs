@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace RishUI
@@ -397,6 +398,67 @@ namespace RishUI
             }
             
             return Create(array);
+        }
+
+        public static Children Children(FixedList32Bytes<Element> children) => Children(UnsafeUtility.As<FixedList32Bytes<Element>, FixedList32Bytes<Children>>(ref children));
+        public static Children Children(FixedList64Bytes<Element> children) => Children(UnsafeUtility.As<FixedList64Bytes<Element>, FixedList64Bytes<Children>>(ref children));
+        public static Children Children(FixedList128Bytes<Element> children) => Children(UnsafeUtility.As<FixedList128Bytes<Element>, FixedList128Bytes<Children>>(ref children));
+        public static Children Children(FixedList512Bytes<Element> children) => Children(UnsafeUtility.As<FixedList512Bytes<Element>, FixedList512Bytes<Children>>(ref children));
+        public static Children Children(FixedList4096Bytes<Element> children) => Children(UnsafeUtility.As<FixedList4096Bytes<Element>, FixedList4096Bytes<Children>>(ref children));
+        public static Children Children(FixedList32Bytes<Children> children)
+        {
+            var length = children.Length;
+            if (length <= 0)
+            {
+                return Children();
+            }
+
+            var nativeArray = children.ToNativeArray(Allocator.Persistent);
+            return Create(nativeArray);
+        }
+        public static Children Children(FixedList64Bytes<Children> children)
+        {
+            var length = children.Length;
+            if (length <= 0)
+            {
+                return Children();
+            }
+
+            var nativeArray = children.ToNativeArray(Allocator.Persistent);
+            return Create(nativeArray);
+        }
+        public static Children Children(FixedList128Bytes<Children> children)
+        {
+            var length = children.Length;
+            if (length <= 0)
+            {
+                return Children();
+            }
+
+            var nativeArray = children.ToNativeArray(Allocator.Persistent);
+            return Create(nativeArray);
+        }
+        public static Children Children(FixedList512Bytes<Children> children)
+        {
+            var length = children.Length;
+            if (length <= 0)
+            {
+                return Children();
+            }
+
+            var nativeArray = children.ToNativeArray(Allocator.Persistent);
+            return Create(nativeArray);
+        }
+        public static Children Children(FixedList4096Bytes<Children> children)
+        {
+            var length = children.Length;
+            if (length <= 0)
+            {
+                return Children();
+            }
+
+            var nativeArray = children.ToNativeArray(Allocator.Persistent);
+            return Create(nativeArray);
         }
         private static Children Create(NativeArray<Children> children)
         {

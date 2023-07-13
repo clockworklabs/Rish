@@ -1,9 +1,38 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
 {
+    // Max count: 1023
+    public struct ElementsList : IEnumerable<Element>
+    {
+        internal FixedList4096Bytes<Element> children;
+
+        public void Add(Element element)
+        {
+            children.Add(element);
+        }
+
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 1023
+    public struct ChildrenList : IEnumerable<Children>
+    {
+        internal FixedList4096Bytes<Children> children;
+
+        public void Add(Children element)
+        {
+            children.Add(element);
+        }
+
+        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    
     [CustomComparer]
     public readonly struct Children : IEquatable<Children>
     {
@@ -71,6 +100,18 @@ namespace RishUI
         public static implicit operator Children(Element[] children) => Rish.Children(children);
         public static implicit operator Children(List<Children> children) => Rish.Children(children);
         public static implicit operator Children(List<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList32Bytes<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList64Bytes<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList128Bytes<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList512Bytes<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList4096Bytes<Element> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList32Bytes<Children> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList64Bytes<Children> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList128Bytes<Children> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList512Bytes<Children> children) => Rish.Children(children);
+        public static implicit operator Children(FixedList4096Bytes<Children> children) => Rish.Children(children);
+        public static implicit operator Children(ElementsList list) => Rish.Children(list.children);
+        public static implicit operator Children(ChildrenList list) => Rish.Children(list.children);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
