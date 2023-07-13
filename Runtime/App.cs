@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Collections;
 using UnityEngine;
-using Label = RishUI.Elements.Label;
 #if UNITY_EDITOR
 using RishUI.Elements;
 #endif
