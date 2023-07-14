@@ -18,9 +18,8 @@ namespace RishUI.Elements
 
         public Label()
         {
-            PickingManager = new DefaultPickingManager(this); // TODO: Maybe a simpler RectPickingManager?
+            PickingManager = new RectPickingManager(this);
             
-            // TODO: Maybe use custom events?
             RegisterCallback<AttachToPanelEvent>(OnMounted);
             RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
             

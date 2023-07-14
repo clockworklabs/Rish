@@ -534,7 +534,7 @@ namespace Rishenerator
                 {
                     sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(0, descriptor);");
                     sourceCode.AppendLine("        public static RishUI.Element Create(RishUI.Children children) => Create(0, default(RishUI.DOMDescriptor), children);");
-                    sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, RishUI.Name name = default, RishUI.ClassName className = default, RishUI.Style style = default, Children? children = null) => Create(key, new RishUI.DOMDescriptor
+                    sourceCode.AppendLine(@"        public static RishUI.Element Create(ulong key = 0, RishUI.Name name = default, RishUI.ClassName className = default, RishUI.Style style = default, RishUI.Children? children = null) => Create(key, new RishUI.DOMDescriptor
         {
             name = name,
             className = className,

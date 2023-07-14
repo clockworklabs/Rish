@@ -7,13 +7,12 @@ using UnityEngine.UIElements;
 namespace RishUI
 {
     public delegate void RishStart(RishRoot root);
-    public delegate void ResizeEvent(Vector2 oldSize, Vector2 newSize);
     
     [RequireComponent(typeof(UIDocument))]
+    [DisallowMultipleComponent]
     public class RishRoot : MonoBehaviour
     {
         public static event RishStart OnStart;
-        public  event ResizeEvent OnResize;
         
         [SerializeField]
         private StyleSheet[] _styleSheets;
@@ -68,7 +67,6 @@ namespace RishUI
             }
             
             Tree = new Tree(Document, RootClassName, Recovered);
-            Root?.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             
             OnStart?.Invoke(this);
 
@@ -106,19 +104,6 @@ namespace RishUI
                 
                 Destroy(this);
             }
-        }
-
-        private void OnGeometryChanged(GeometryChangedEvent evt)
-        {
-            var oldSize = evt.oldRect.size;
-            var newSize = evt.newRect.size;
-
-            if (Mathf.Approximately(oldSize.x, newSize.x) && Mathf.Approximately(oldSize.y, newSize.y))
-            {
-                return;
-            }
-            
-            OnResize?.Invoke(oldSize, newSize);
         }
 
         public void AddStyleSheet(StyleSheet styleSheet) => Root?.styleSheets.Add(styleSheet);
