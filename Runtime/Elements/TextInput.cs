@@ -91,39 +91,12 @@ namespace RishUI.Elements
             {
                 this.RegisterValueChangedCallback(OnNewValue);
 
-                StyledProps.Register<RishTextFieldProps>();
-                RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
-
                 PickingManager = new DefaultPickingManager(this);
                 textInputBase.name = null;
                 TextInputClasses = textInputBase.GetClasses().ToArray();
             }
-
-            private void OnCustomStyle(CustomStyleResolvedEvent evt)
-            {
-                CustomStyle = evt.customStyle;
-
-                var props = _preStylingProps;
-                StyledProps.Style(ref props, CustomStyle);
-                SetProps(props, false);
-            }
-
-            private void SetProps(RishTextFieldProps value, bool external)
-            {
-                if (external)
-                {
-                    _preStylingProps = value;
-                    StyledProps.Style(ref value, CustomStyle);
-                }
-
-                _props = value;
-
-                Setup(value);
-            }
-
-            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => SetProps(props, true);
             
-            private void Setup(RishTextFieldProps props)
+            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props)
             {
                 text = props.text.Value;
                 multiline = props.multiline;
@@ -163,15 +136,15 @@ namespace RishUI.Elements
             public bool multiline;
             public bool isPassword;
             public bool readOnly;
-            [StyledProp("--props-max-length", -1)]
+            // TODO: [StyledProp("--props-max-length", -1)]
             public int? maxLength { get; set; }
-            [StyledProp("--props-multi-click-interaction", true)]
+            // TODO: [StyledProp("--props-multi-click-interaction", true)]
             public bool? multiClickInteraction { get; set; }
             public DOMDescriptor textInputDescriptor;
             
-            [StyledProp("--props-cursor-color", 0, 0, 0)]
+            // TODO: [StyledProp("--props-cursor-color", 0, 0, 0)]
             public Color? cursorColor { get; set; }
-            [StyledProp("--props-selection-color", 0.39f, 0.58f, 0.93f)]
+            // TODO: [StyledProp("--props-selection-color", 0.39f, 0.58f, 0.93f)]
             public Color? selectionColor { get; set; }
 
             [IgnoreComparison]

@@ -6,29 +6,23 @@ namespace RishUI
     {
         StyledPropsManager<T, P> Manager { get; }
         void Setup(P props, bool dirty);
+        // void OnCustomStyle(ref P props, ICustomStyle customStyle);
+        void OnCustomStyle(ref P props);
     }
     
     public class StyledPropsManager<T, P> where T : VisualElement, IVisualElement<P>, IStyledProps<T, P> where P : struct
     {
         private IStyledProps<T, P> Element { get; }
-        private bool ContainsStyledProps { get; }
         
         private P _preStylingProps;
         private P? _props;
         
-        private ICustomStyle CustomStyle { get; set; }
-        
         public StyledPropsManager(T element)
         {
             Element = element;
-            ContainsStyledProps = StyledProps.Register<P>();
 
             element.RegisterCallback<DetachFromPanelEvent>(OnDetach);
-            
-            if (ContainsStyledProps)
-            {
-                element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
-            }
+            element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
         
         private void OnDetach(DetachFromPanelEvent evt)
@@ -39,21 +33,19 @@ namespace RishUI
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {
-            CustomStyle = evt.customStyle;
-
             var props = _preStylingProps;
-            StyledProps.Style(ref props, CustomStyle);
+            Element.OnCustomStyle(ref props);
             SetProps(props, false);
         }
 
         private void SetProps(P value, bool external)
         {
-            var dirty = !_props.HasValue || !RishUtils.SmartCompare<P>(value, _props.Value);
+            var dirty = !_props.HasValue || !RishUtils.SmartCompare(value, _props.Value);
             
-            if (ContainsStyledProps && external)
+            if (external)
             {
                 _preStylingProps = value;
-                StyledProps.Style(ref value, CustomStyle);
+                Element.OnCustomStyle(ref value);
             }
 
             _props = value;

@@ -1,4 +1,5 @@
 using System;
+using RishUI.Elements;
 
 namespace RishUI
 {
@@ -58,6 +59,7 @@ namespace RishUI
         }
 
         public static implicit operator Children(Element element) => new Children(element._id);
+        public static implicit operator Element(string text) => Label.Create(text: text);
 
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
 

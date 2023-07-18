@@ -52,8 +52,8 @@ namespace RishUI.Elements
 
         internal void Submit() => Props.submitAction?.Invoke();
 
-        internal uint RegisterElement() => Index + ++ElementsCount;
-        internal void UnregisterElement() => ElementsCount--;
+        public uint RegisterElement() => Index + ++ElementsCount;
+        public void UnregisterElement() => ElementsCount--;
 
         private uint RegisterForm()
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using RishUI.Elements;
 using Unity.Collections;
 using UnityEngine;
 
@@ -112,6 +113,8 @@ namespace RishUI
         public static implicit operator Children(FixedList4096Bytes<Children> children) => Rish.Children(children);
         public static implicit operator Children(ElementsList list) => Rish.Children(list.children);
         public static implicit operator Children(ChildrenList list) => Rish.Children(list.children);
+        
+        public static implicit operator Children(string text) => Label.Create(text: text);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
