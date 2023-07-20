@@ -58,7 +58,7 @@ namespace Rishenerator
                 }
                 catch (Exception e)
                 {
-                    Exceptions.Add(e);
+                    // Exceptions.Add(e);
                     Logger.Log($"EXCEPTION: {e}");
                 }
             }
@@ -176,7 +176,7 @@ namespace Rishenerator
                     References[namedTypeSymbol] = true;
                     return true;
                 }
-                
+
                 foreach (var member in namedTypeSymbol.GetMembers())
                 {
                     if (member is not IFieldSymbol fieldSymbol || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)

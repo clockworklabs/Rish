@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -43,7 +44,22 @@ namespace RishUI
                         var genericType = type.GetGenericTypeDefinition();
                         if (Methods.TryGetValue(genericType, out method))
                         {
-                            method = method.MakeGenericMethod(type.GenericTypeArguments);
+                            var declaringType = method.DeclaringType;
+                            if (method.IsGenericMethod)
+                            {
+                                if (declaringType.IsGenericType)
+                                {
+                                    throw new UnityException("Generic Comparer should not be defined in a generic type");
+                                }
+                                method = method.MakeGenericMethod(type.GenericTypeArguments);
+                            }
+                            else
+                            {
+                                var args = type.GetGenericArguments();
+                                var something = declaringType.MakeGenericType(args);
+                                
+                                method = GetCustomComparer(something);
+                            }
                         }
                     }
                 }
@@ -66,10 +82,14 @@ namespace RishUI
                 return;
             }
 
-            var customComparerType =
-                provider.IsValueType && Attribute.IsDefined(provider, typeof(CustomComparerAttribute))
-                    ? provider
-                    : null;
+            var customComparerType = provider.IsValueType && Attribute.IsDefined(provider, typeof(CustomComparerAttribute))
+                ? provider
+                : null;
+
+            if (customComparerType != null)
+            {
+                Debug.Log(customComparerType);
+            }
             
             foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
@@ -104,6 +124,32 @@ namespace RishUI
                 
                 Methods.Add(type, method);
             }
+        }
+
+        private static MethodInfo GetCustomComparer(Type provider)
+        {
+            if(!Attribute.IsDefined(provider, typeof(CustomComparerAttribute))) {
+                return null;
+            }
+            
+            foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            {
+                var parameters = method.GetParameters();
+                if (parameters.Length != 2 || method.ReturnType != typeof(bool) || !Attribute.IsDefined(method, typeof(ComparerAttribute)))
+                {
+                    continue;
+                }
+
+                var type = parameters[0].ParameterType;
+                if (parameters[1].ParameterType != type)
+                {
+                    continue;
+                }
+
+                return method;
+            }
+
+            return null;
         }
 
         internal static bool Contains<T>() => Contains(typeof(T));

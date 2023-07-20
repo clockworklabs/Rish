@@ -22,15 +22,15 @@ namespace Rishenerator
         }
         public static bool IsRishReferenceType(this ITypeSymbol typeSymbol)
         {
-            if(typeSymbol is not INamedTypeSymbol { IsValueType: true } namedTypeSymbol)
-            {
-                return false;
-            }
-            
-            if (namedTypeSymbol.IsGenericType || namedTypeSymbol.Interfaces.Length > 0)
-            {
-                return false;
-            }
+            // if(typeSymbol is not INamedTypeSymbol { IsValueType: true } namedTypeSymbol)
+            // {
+            //     return false;
+            // }
+            //
+            // if (namedTypeSymbol.IsGenericType || namedTypeSymbol.Interfaces.Length > 0)
+            // {
+            //     return false;
+            // }
             
             var fullName = typeSymbol.GetFullName(false);
             return fullName is "RishUI.Element" or "RishUI.Children";
@@ -127,8 +127,28 @@ namespace Rishenerator
         
         public static bool IsGenericDefinition(this ITypeSymbol typeSymbol)
         {
-            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return false;
+            var containingType = typeSymbol.ContainingType;
+            while(containingType != null)
+            {
+                if (containingType.Arity <= 0)
+                {
+                    continue;
+                }
+
+                var containingTypeArguments = containingType.TypeArguments;
+                for(int i = 0, n = containingTypeArguments.Length; i < n; i++)
+                {
+                    var typeArgument = containingTypeArguments[i];
+                    if (typeArgument is not ITypeParameterSymbol)
+                    {
+                        return false;
+                    }
+                }
+                containingType = containingType.ContainingType;
+            }
             
+            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return false;
+
             var typeArguments = namedTypeSymbol.TypeArguments;
             for(int i = 0, n = typeArguments.Length; i < n; i++)
             {
