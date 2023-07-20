@@ -10,8 +10,8 @@ namespace Rishenerator
     {
         void ISourceGenerator.Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
-            
+            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver || syntaxReceiver.HasExceptions) return;
+
             try
             {
                 var sourceCode = syntaxReceiver.GetSourceCode();
@@ -20,7 +20,8 @@ namespace Rishenerator
                     return;
                 }
 
-                context.AddSource("AutoComparersProvider.g.cs", sourceCode);
+                var fileName = $"{context.Compilation.Assembly.Name}.AutoComparersProvider.g.cs";
+                context.AddSource(fileName, sourceCode);
             }
             catch (Exception e)
             {
@@ -38,6 +39,9 @@ namespace Rishenerator
             private Dictionary<INamedTypeSymbol, bool> Comparers { get; } = new();
             private List<INamedTypeSymbol> AutoComparerTypes { get; } = new();
 
+            private List<Exception> Exceptions { get; } = new();
+            public bool HasExceptions => Exceptions.Count > 0;
+
             void ISyntaxContextReceiver.OnVisitSyntaxNode(GeneratorSyntaxContext context)
             {
                 try
@@ -54,6 +58,7 @@ namespace Rishenerator
                 }
                 catch (Exception e)
                 {
+                    Exceptions.Add(e);
                     Logger.Log($"EXCEPTION: {e}");
                 }
             }
@@ -69,10 +74,7 @@ namespace Rishenerator
 
                 var stringBuilder = new StringBuilder();
 
-                stringBuilder.AppendLine(@"using System;
-using UnityEngine;
-
-namespace RishUI.Generated 
+                stringBuilder.AppendLine(@"namespace RishUI.Generated 
 {
     [ComparersProvider]
     public static class AutoComparersProvider
@@ -80,7 +82,6 @@ namespace RishUI.Generated
 
                 foreach (var typeSymbol in AutoComparerTypes)
                 {
-                    var isGenericDefinition = false;
                     if (typeSymbol.IsGenericType)
                     {
                         if (typeSymbol.IsGenericDefinition())
@@ -91,28 +92,16 @@ namespace RishUI.Generated
                                 continue;
                             }
                             unboundTypesGenerated.Add(unboundType);
-                            isGenericDefinition = true;
                         } else if(typeSymbol.HasGenericParameters())
                         {
                             continue;
                         }
                     }
                     
-                    var typeGenericsName = typeSymbol.GetGenericsName() ?? string.Empty;
-                    var typeFullName = $"{typeSymbol.GetFullName(false)}{typeGenericsName}";
-                    string genericsConstraints;
-                    if (isGenericDefinition)
-                    {
-                        genericsConstraints = typeSymbol.GetGenericsConstraints();
-                    }
-                    else
-                    {
-                        typeGenericsName = string.Empty;
-                        genericsConstraints = string.Empty;
-                    }
+                    var typeFullName = $"{typeSymbol.GetFullName(true)}";
 
                     stringBuilder.Append($@"        [Comparer]
-        private static bool Equals{typeGenericsName}({typeFullName} a, {typeFullName} b){genericsConstraints}
+        private static bool Equals{typeSymbol.GetGenericsParametersName(true)}({typeFullName} a, {typeFullName} b){typeSymbol.GetGenericsConstraints(true)}
         {{
             return ");
 
@@ -191,10 +180,10 @@ namespace RishUI.Generated
                 return comparisonType switch
                 {
                     ComparisonType.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
-                    ComparisonType.ReferenceComparison => $"Object.ReferenceEquals(a{fieldName}, b{fieldName})",
+                    ComparisonType.ReferenceComparison => $"System.Object.ReferenceEquals(a{fieldName}, b{fieldName})",
                     ComparisonType.EqualityOperator => $"a{fieldName} == b{fieldName}",
                     ComparisonType.EqualsFunction => $"a{fieldName}.Equals(b{fieldName})",
-                    ComparisonType.EpsilonComparison => $"Mathf.Approximately(a{fieldName}, b{fieldName})",
+                    ComparisonType.EpsilonComparison => $"UnityEngine.Mathf.Approximately(a{fieldName}, b{fieldName})",
                     ComparisonType.ComparerComparison => $"Comparers.Compare(a{fieldName}, b{fieldName})",
                     ComparisonType.Ignore => "true",
                     _ => throw new ArgumentException("Unsupported comparison type")
@@ -213,7 +202,7 @@ namespace RishUI.Generated
                     return needsComparer;
                 }
 
-                throw new Exception($"{typeSymbol} hasn't been registered");
+                return AnalyzeForAutoComparer(typeSymbol);
             }
             
             private bool AnalyzeForAutoComparer(ITypeSymbol typeSymbol)
@@ -256,7 +245,6 @@ namespace RishUI.Generated
                         }
                     
                         var fieldType = fieldSymbol.Type;
-
                         if (AnalyzeForAutoComparer(fieldType))
                         {
                             needsComparer = true;
@@ -287,7 +275,7 @@ namespace RishUI.Generated
                     var attributeClass = attributeData.AttributeClass;
                     while (attributeClass != null)
                     {
-                        var attributeFullName = attributeClass.GetFullName();
+                        var attributeFullName = attributeClass.GetFullName(false);
                         switch (attributeFullName)
                         {
                             case "RishUI.IgnoreComparisonAttribute":
@@ -296,7 +284,7 @@ namespace RishUI.Generated
                                 return ComparisonType.EqualityOperator;
                             case "RishUI.EqualsFunctionComparisonAttribute":
                                 return ComparisonType.EqualsFunction;
-                            case "RishUI.EpsilonComparisonAttribute" when fieldSymbol.Type.GetFullName() == "System.Single":
+                            case "RishUI.EpsilonComparisonAttribute" when fieldSymbol.Type.GetFullName(false) == "System.Single":
                                 return ComparisonType.EpsilonComparison;
                             default:
                                 attributeClass = attributeClass.BaseType;

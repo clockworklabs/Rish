@@ -13,7 +13,9 @@ namespace Rishenerator
     {
         void ISourceGenerator.Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
+            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver || syntaxReceiver.HasExceptions) return;
+            
+            var exceptionsFileName = $"{context.Compilation.Assembly.Name}.FactoriesExceptions.g.cs";
             
             try
             {
@@ -35,12 +37,13 @@ namespace Rishenerator
                         default:
                             return;
                     }
-                    
+
                     context.AddSource($"{fileName}.g.cs", sourceCode);
                 }
             }
             catch (Exception e)
             {
+                context.AddSource(exceptionsFileName, e.ToString());
                 Logger.Log($"EXCEPTION: {e}");
             }
         }
@@ -56,6 +59,9 @@ namespace Rishenerator
             private List<INamedTypeSymbol> VisualElements { get; } = new();
             private List<IMethodSymbol> MethodElements { get; } = new();
             public int Count => RishElements.Count + VisualElements.Count + MethodElements.Count;
+
+            private List<Exception> Exceptions { get; } = new();
+            public bool HasExceptions => Exceptions.Count > 0;
 
             void ISyntaxContextReceiver.OnVisitSyntaxNode(GeneratorSyntaxContext context)
             {
@@ -115,7 +121,7 @@ namespace Rishenerator
                         }
 
                         var parameters = methodSymbol.Parameters;
-                        if (parameters.Length > 1 || methodSymbol.ReturnType.GetFullName(false) != "RishUI.Element")
+                        if (parameters.Length > 1 || methodSymbol.ReturnType.IsElement())
                         {
                             return;
                         }
@@ -146,6 +152,7 @@ namespace Rishenerator
                 }
                 catch (Exception e)
                 {
+                    Exceptions.Add(e);
                     Logger.Log($"EXCEPTION: {e}");
                 }
             }
@@ -170,7 +177,7 @@ namespace Rishenerator
             private (INamedTypeSymbol, string) GetRishElementSourceCode(int index)
             {
                 var typeSymbol = RishElements[index];
-                var typeSymbolFullName = typeSymbol.GetFullName();
+                var typeSymbolFullName = typeSymbol.GetFullName(true);
 
                 var sourceCode = new StringBuilder();
 
@@ -194,7 +201,7 @@ namespace Rishenerator
                     var t = containingType;
                     while (t != null)
                     {
-                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsName()}{t.GetGenericsConstraints()}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsName(false)}{t.GetGenericsConstraints(false)}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -203,13 +210,13 @@ namespace Rishenerator
                     sourceCode.AppendLine(containingTypes);
                 }
                 
-                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName()}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{typeSymbol.GetGenericsConstraints(false)}
     {{");
 
                 var baseTypeSymbol = typeSymbol.BaseType;
                 var typeArguments = baseTypeSymbol.TypeArguments;
                 var propsTypeSymbol = typeArguments.Length > 0 ? typeArguments[0] : null;
-                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName();
+                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName(true);
                 if (propsTypeSymbolFullName == "RishUI.NoProps")
                 {
                     propsTypeSymbol = null;
@@ -275,7 +282,7 @@ namespace Rishenerator
                             else
                             {
                                 var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
+                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
                                 var propsFieldName = propsFieldSymbol.Name;
 
                                 sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
@@ -319,7 +326,7 @@ namespace Rishenerator
                                 foreach (var propsFieldSymbol in propsFieldsSymbols)
                                 {
                                     var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                    var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
+                                    var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
                                     var propsFieldName = propsFieldSymbol.Name;
 
                                     sourceCode.Append($"{(parametersAdded ? ", " : string.Empty)}{(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
@@ -367,7 +374,7 @@ namespace Rishenerator
             private (INamedTypeSymbol, string) GetVisualElementSourceCode(int index)
             {
                 var typeSymbol = VisualElements[index];
-                var typeSymbolFullName = typeSymbol.GetFullName();
+                var typeSymbolFullName = typeSymbol.GetFullName(true);
 
                 var sourceCode = new StringBuilder();
 
@@ -391,8 +398,7 @@ namespace Rishenerator
                     var t = containingType;
                     while (t != null)
                     {
-                        var genericConstraints = t.GetGenericsConstraints();
-                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{genericConstraints}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsConstraints(false)}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -401,13 +407,13 @@ namespace Rishenerator
                     sourceCode.AppendLine(containingTypes);
                 }
                 
-                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints(false)}
     {{");
 
                 var interfaceTypeSymbol = typeSymbol.Interfaces.FirstOrDefault(s => s.GetFullName(false) == "RishUI.IVisualElement");
                 var typeArguments = interfaceTypeSymbol.TypeArguments;
                 var propsTypeSymbol = typeArguments.Length > 0 ? typeArguments[0] : null;
-                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName();
+                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName(true);
                 if (propsTypeSymbolFullName == "RishUI.NoProps")
                 {
                     propsTypeSymbol = null;
@@ -485,7 +491,7 @@ namespace Rishenerator
                             foreach (var propsFieldSymbol in propsFieldsSymbols)
                             {
                                 var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
+                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
                                 var propsFieldName = propsFieldSymbol.Name;
 
                                 sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
@@ -564,7 +570,7 @@ namespace Rishenerator
             {
                 var methodSymbol = MethodElements[index];
                 var typeSymbol = methodSymbol.ContainingType;
-                var typeSymbolFullName = typeSymbol.GetFullName();
+                var typeSymbolFullName = typeSymbol.GetFullName(true);
 
                 var methodName = methodSymbol.Name;
                 var targetName = methodName.Substring(0, methodName.Length - 7);
@@ -591,8 +597,7 @@ namespace Rishenerator
                     var t = containingType;
                     while (t != null)
                     {
-                        var genericConstraints = t.GetGenericsConstraints();
-                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{genericConstraints}
+                        containingTypes = @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsConstraints(false)}
 {{
 {containingTypes}";
                         t = t.ContainingType;
@@ -603,7 +608,7 @@ namespace Rishenerator
                 
                 var parameters = methodSymbol.Parameters;
                 var propsTypeSymbol = parameters.Length > 0 ? parameters[0].Type : null;
-                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName();
+                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName(true);
                 if (propsTypeSymbolFullName == "RishUI.NoProps")
                 {
                     propsTypeSymbol = null;
@@ -611,7 +616,7 @@ namespace Rishenerator
 
                 var hasProps = propsTypeSymbol != null;
                 
-                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints()}
+                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints(false)}
     {{
         {methodSymbol.DeclaredAccessibility.ToModifiers()} class {targetName} : RishUI.RishElement{(hasProps ? $"<{propsTypeSymbolFullName}>" : string.Empty)}
         {{
@@ -680,7 +685,7 @@ namespace Rishenerator
                             else
                             {
                                 var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
+                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
                                 var propsFieldName = propsFieldSymbol.Name;
 
                                 sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
@@ -726,7 +731,7 @@ namespace Rishenerator
                                     }
                                     
                                     var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                    var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName();
+                                    var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
                                     var propsFieldName = propsFieldSymbol.Name;
 
                                     sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");

@@ -10,7 +10,7 @@ namespace Rishenerator
     {
         void ISourceGenerator.Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
+            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver || syntaxReceiver.HasExceptions) return;
             
             try
             {
@@ -19,8 +19,9 @@ namespace Rishenerator
                 {
                     return;
                 }
-                
-                context.AddSource("ReferencesGettersProvider.g.cs", sourceCode);
+
+                var fileName = $"{context.Compilation.Assembly.Name}.ReferencesGettersProvider.g.cs";
+                context.AddSource(fileName, sourceCode);
             }
             catch (Exception e)
             {
@@ -38,6 +39,9 @@ namespace Rishenerator
             private Dictionary<INamedTypeSymbol, bool> References { get; } = new();
             private List<INamedTypeSymbol> ReferencesGetterTypes { get; } = new();
 
+            private List<Exception> Exceptions { get; } = new();
+            public bool HasExceptions => Exceptions.Count > 0;
+
             void ISyntaxContextReceiver.OnVisitSyntaxNode(GeneratorSyntaxContext context)
             {
                 try
@@ -54,6 +58,7 @@ namespace Rishenerator
                 }
                 catch (Exception e)
                 {
+                    Exceptions.Add(e);
                     Logger.Log($"EXCEPTION: {e}");
                 }
             }
@@ -77,7 +82,6 @@ namespace Rishenerator
 
                 foreach (var typeSymbol in ReferencesGetterTypes)
                 {
-                    var isGenericDefinition = false;
                     if (typeSymbol.IsGenericType)
                     {
                         if (typeSymbol.IsGenericDefinition())
@@ -88,7 +92,6 @@ namespace Rishenerator
                                 continue;
                             }
                             unboundTypesGenerated.Add(unboundType);
-                            isGenericDefinition = true;
                         } else if(typeSymbol.HasGenericParameters())
                         {
                             continue;
@@ -100,21 +103,8 @@ namespace Rishenerator
                         continue;
                     }
                     
-                    var typeGenericsName = typeSymbol.GetGenericsName() ?? string.Empty;
-                    var typeFullName = $"{typeSymbol.GetFullName(false)}{typeGenericsName}";
-                    string genericsConstraints;
-                    if (isGenericDefinition)
-                    {
-                        genericsConstraints = typeSymbol.GetGenericsConstraints();
-                    }
-                    else
-                    {
-                        typeGenericsName = string.Empty;
-                        genericsConstraints = string.Empty;
-                    }
-
                     stringBuilder.AppendLine($@"        [ReferencesGetter]
-        private static References GetReferences{typeGenericsName}({typeFullName} value){genericsConstraints}
+        private static References GetReferences{typeSymbol.GetGenericsParametersName(true)}({typeSymbol.GetFullName(true)} value){typeSymbol.GetGenericsConstraints(true)}
         {{
             return new References(true) {{ {typeSourceCode} }};
         }}");

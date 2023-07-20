@@ -5,10 +5,34 @@ namespace Rishenerator
 {
     public static class SymbolExtensions
     {
+        public static bool IsElement(this ITypeSymbol typeSymbol)
+        {
+            if(typeSymbol is not INamedTypeSymbol { IsValueType: true } namedTypeSymbol)
+            {
+                return false;
+            }
+            
+            if (namedTypeSymbol.IsGenericType || namedTypeSymbol.Interfaces.Length > 0)
+            {
+                return false;
+            }
+            
+            var fullName = typeSymbol.GetFullName(false);
+            return fullName is "RishUI.Element";
+        }
         public static bool IsRishReferenceType(this ITypeSymbol typeSymbol)
         {
-            var fullName = typeSymbol.GetFullName();
-
+            if(typeSymbol is not INamedTypeSymbol { IsValueType: true } namedTypeSymbol)
+            {
+                return false;
+            }
+            
+            if (namedTypeSymbol.IsGenericType || namedTypeSymbol.Interfaces.Length > 0)
+            {
+                return false;
+            }
+            
+            var fullName = typeSymbol.GetFullName(false);
             return fullName is "RishUI.Element" or "RishUI.Children";
         }
         
@@ -69,17 +93,17 @@ namespace Rishenerator
             return typeSymbol.DeclaredAccessibility is Accessibility.Public or Accessibility.ProtectedOrInternal or Accessibility.Internal;
         }
         
-        public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics = true)
+        public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics)
         {
             var name = typeSymbol.Name;
             if (typeSymbol is ITypeParameterSymbol)
             {
                 return name;
             }
-            
+
             if (includeGenerics)
             {
-                var genericName = typeSymbol.GetGenericsName();
+                var genericName = typeSymbol.GetGenericsName(false);
                 if (!string.IsNullOrWhiteSpace(genericName))
                 {
                     name = $"{name}{genericName}";
@@ -89,7 +113,7 @@ namespace Rishenerator
             var containingType = typeSymbol.ContainingType;
             if (containingType != null)
             {
-                return $"{containingType.GetFullName()}.{name}";
+                return $"{containingType.GetFullName(includeGenerics)}.{name}";
             }
 
             var containingNamespace = typeSymbol.ContainingNamespace;
@@ -134,80 +158,162 @@ namespace Rishenerator
             return false;
         }
         
-        public static string GetGenericsName(this ITypeSymbol typeSymbol)
+        public static string GetGenericsName(this ITypeSymbol typeSymbol, bool containingTypes)
         {
-            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return null;
-            
-            var genericTypes = "<";
-            var typeArguments = namedTypeSymbol.TypeArguments;
-            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            var genericTypes = typeSymbol.GetGenericsTypes(containingTypes);
+            if (!string.IsNullOrWhiteSpace(genericTypes))
             {
-                var typeArgument = typeArguments[i];
-                var typeArgumentFullName = typeArgument.GetFullName();
-                genericTypes = $"{genericTypes}{(i != 0 ? ", " : string.Empty)}{typeArgumentFullName}";
+                genericTypes = $"<{genericTypes}>";
             }
-                
-            return $"{genericTypes}>";
+
+            return genericTypes;
         }
         
-        public static string GetGenericsConstraints(this ITypeSymbol typeSymbol)
+        private static string GetGenericsTypes(this ITypeSymbol typeSymbol, bool containingTypes)
         {
-            if (typeSymbol is not INamedTypeSymbol { Arity: > 0 } namedTypeSymbol) return null;
+            string genericTypes = null;
 
-            string constraintsString = null;
-            
-            var typeArguments = namedTypeSymbol.TypeArguments;
-            for(int i = 0, n = typeArguments.Length; i < n; i++)
+            if (containingTypes)
             {
-                var typeArgument = typeArguments[i];
-                var hasConstraints = false;
-                if (typeArgument is not ITypeParameterSymbol typeParameter)
+                var containingType = typeSymbol.ContainingType;
+                if (containingType != null)
                 {
-                    continue;
-                }
-
-                var parameterConstraints = $" where {typeParameter.Name} : ";
-
-                if (typeParameter.HasNotNullConstraint)
-                {
-                    parameterConstraints = $"{parameterConstraints}notnull";
-                    hasConstraints = true;
-                }
-
-                var constraintTypes = typeParameter.ConstraintTypes;
-                foreach (var constraintType in constraintTypes)
-                {
-                    var constraintFullName = constraintType.GetFullName();
-                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}{constraintFullName}";
-                    hasConstraints = true;
-                }
-
-                if (typeParameter.HasReferenceTypeConstraint)
-                {
-                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}class";
-                    hasConstraints = true;
-                } else if (typeParameter.HasUnmanagedTypeConstraint)
-                {
-                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}unmanaged";
-                    hasConstraints = true;
-                } else if (typeParameter.HasValueTypeConstraint)
-                {
-                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}struct";
-                    hasConstraints = true;
-                }
-
-                if (typeParameter.HasConstructorConstraint)
-                {
-                    parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}new()";
-                    hasConstraints = true;
-                }
-
-                if (hasConstraints)
-                {
-                    constraintsString = $"{constraintsString}{parameterConstraints}";
+                    genericTypes = containingType.GetGenericsTypes(true);
                 }
             }
-                
+
+            var hasGenericTypes = !string.IsNullOrWhiteSpace(genericTypes);
+            
+            if (typeSymbol is INamedTypeSymbol { Arity: > 0 } namedTypeSymbol)
+            {
+                var typeArguments = namedTypeSymbol.TypeArguments;
+                for (int i = 0, n = typeArguments.Length; i < n; i++)
+                {
+                    var typeArgument = typeArguments[i];
+                    var typeArgumentFullName = typeArgument.GetFullName(true);
+                    genericTypes = $"{genericTypes}{(hasGenericTypes ? ", " : string.Empty)}{typeArgumentFullName}";
+
+                    hasGenericTypes = true;
+                }
+            }
+
+            return genericTypes;
+        }
+        
+        public static string GetGenericsParametersName(this ITypeSymbol typeSymbol, bool containingTypes)
+        {
+            var genericTypes = typeSymbol.GetGenericsParameters(containingTypes);
+            if (!string.IsNullOrWhiteSpace(genericTypes))
+            {
+                genericTypes = $"<{genericTypes}>";
+            }
+
+            return genericTypes;
+        }
+        
+        private static string GetGenericsParameters(this ITypeSymbol typeSymbol, bool containingTypes)
+        {
+            string genericTypes = null;
+
+            if (containingTypes)
+            {
+                var containingType = typeSymbol.ContainingType;
+                if (containingType != null)
+                {
+                    genericTypes = containingType.GetGenericsTypes(true);
+                }
+            }
+
+            var hasGenericTypes = !string.IsNullOrWhiteSpace(genericTypes);
+            
+            if (typeSymbol is INamedTypeSymbol { Arity: > 0 } namedTypeSymbol)
+            {
+                var typeArguments = namedTypeSymbol.TypeArguments;
+                for (int i = 0, n = typeArguments.Length; i < n; i++)
+                {
+                    var typeArgument = typeArguments[i];
+                    if (typeArgument is not ITypeParameterSymbol typeParameter)
+                    {
+                        continue;
+                    }
+                    var typeArgumentFullName = typeParameter.GetFullName(true);
+                    genericTypes = $"{genericTypes}{(hasGenericTypes ? ", " : string.Empty)}{typeArgumentFullName}";
+
+                    hasGenericTypes = true;
+                }
+            }
+
+            return genericTypes;
+        }
+        
+        public static string GetGenericsConstraints(this ITypeSymbol typeSymbol, bool containingTypes)
+        {
+            string constraintsString = null;
+
+            if (containingTypes)
+            {
+                var containingType = typeSymbol.ContainingType;
+                if (containingType != null)
+                {
+                    constraintsString = containingType.GetGenericsConstraints(true);
+                }
+            }
+
+            if (typeSymbol is INamedTypeSymbol { Arity: > 0 } namedTypeSymbol)
+            {
+                var typeArguments = namedTypeSymbol.TypeArguments;
+                for(int i = 0, n = typeArguments.Length; i < n; i++)
+                {
+                    var typeArgument = typeArguments[i];
+                    var hasConstraints = false;
+                    if (typeArgument is not ITypeParameterSymbol typeParameter)
+                    {
+                        continue;
+                    }
+
+                    var parameterConstraints = $" where {typeParameter.Name} : ";
+
+                    if (typeParameter.HasNotNullConstraint)
+                    {
+                        parameterConstraints = $"{parameterConstraints}notnull";
+                        hasConstraints = true;
+                    }
+
+                    if (typeParameter.HasReferenceTypeConstraint)
+                    {
+                        parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}class";
+                        hasConstraints = true;
+                    } else if (typeParameter.HasUnmanagedTypeConstraint)
+                    {
+                        parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}unmanaged";
+                        hasConstraints = true;
+                    } else if (typeParameter.HasValueTypeConstraint)
+                    {
+                        parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}struct";
+                        hasConstraints = true;
+                    }
+
+                    var constraintTypes = typeParameter.ConstraintTypes;
+                    foreach (var constraintType in constraintTypes)
+                    {
+                        var constraintFullName = constraintType.GetFullName(true);
+                        parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}{constraintFullName}";
+                        hasConstraints = true;
+                    }
+
+                    if (typeParameter.HasConstructorConstraint)
+                    {
+                        parameterConstraints = $"{parameterConstraints}{(hasConstraints ? ", " : string.Empty)}new()";
+                        hasConstraints = true;
+                    }
+
+                    if (hasConstraints)
+                    {
+                        constraintsString = $"{constraintsString}{parameterConstraints}";
+                    }
+                }
+            }
+
             return constraintsString;
         }
         
@@ -218,7 +324,7 @@ namespace Rishenerator
                 var attributeClass = attributeData.AttributeClass;
                 while (attributeClass != null)
                 {
-                    var attributeFullName = attributeClass.GetFullName();
+                    var attributeFullName = attributeClass.GetFullName(false);
                     if (attributeFullName == fullName)
                     {
                         return true;
@@ -238,7 +344,7 @@ namespace Rishenerator
                 var attributeClass = attributeData.AttributeClass;
                 while (attributeClass != null)
                 {
-                    var attributeFullName = attributeClass.GetFullName();
+                    var attributeFullName = attributeClass.GetFullName(false);
                     if (attributeFullName == "RishUI.RishValueTypeAttribute")
                     {
                         return true;
@@ -258,7 +364,7 @@ namespace Rishenerator
                 var attributeClass = attributeData.AttributeClass;
                 while (attributeClass != null)
                 {
-                    var attributeFullName = attributeClass.GetFullName();
+                    var attributeFullName = attributeClass.GetFullName(false);
                     if (attributeFullName == "RishUI.AutoComparerAttribute")
                     {
                         return true;
@@ -296,8 +402,8 @@ namespace Rishenerator
                 var attributeClass = attributeData.AttributeClass;
                 while (attributeClass != null)
                 {
-                    var attributeFullName = attributeClass.GetFullName();
-                    if (attributeFullName == "RishUI.CustomComparer")
+                    var attributeFullName = attributeClass.GetFullName(false);
+                    if (attributeFullName == "RishUI.CustomComparerAttribute")
                     {
                         return true;
                     }

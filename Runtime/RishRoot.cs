@@ -9,7 +9,6 @@ namespace RishUI
     public delegate void RishStart(RishRoot root);
     
     [RequireComponent(typeof(UIDocument))]
-    [DisallowMultipleComponent]
     public class RishRoot : MonoBehaviour
     {
         public static event RishStart OnStart;
