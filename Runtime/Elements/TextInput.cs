@@ -74,30 +74,41 @@ namespace RishUI.Elements
         }
 
         [IgnoreWarnings]
-        private class RishTextField : TextField, IVisualElement<RishTextFieldProps>
+        private class RishTextField : TextField, IVisualElement<RishTextFieldProps>, IStyledProps<RishTextField, RishTextFieldProps>
         {
             VisualElement IElement.GetDOMChild() => this;
             
             private PickingManager PickingManager { get; }
             PickingManager ICustomPicking.Manager => PickingManager;
+        
+            private StyledPropsManager<RishTextField, RishTextFieldProps> PropsManager { get; }
+            StyledPropsManager<RishTextField, RishTextFieldProps> IStyledProps<RishTextField, RishTextFieldProps>.Manager => PropsManager;
             
             private string[] TextInputClasses { get; }
             
-            private RishTextFieldProps _preStylingProps;
+            private static readonly CustomStyleProperty<int> MaxLengthProp = new("--props-max-length"); 
+            private static readonly CustomStyleProperty<bool> MultiClickInteractionProp = new("--props-multi-click-interaction"); 
+            private static readonly CustomStyleProperty<Color> CursorColorProp = new("--props-cursor-color"); 
+            private static readonly CustomStyleProperty<Color> SelectionColorProp = new("--props-selection-color");
+
             private RishTextFieldProps _props;
-            private ICustomStyle CustomStyle { get; set; }
 
             public RishTextField()
             {
                 this.RegisterValueChangedCallback(OnNewValue);
-
-                PickingManager = new DefaultPickingManager(this);
+                
+                PickingManager = new RectPickingManager(this);
+                PropsManager = new StyledPropsManager<RishTextField, RishTextFieldProps>(this);
+                
                 textInputBase.name = null;
                 TextInputClasses = textInputBase.GetClasses().ToArray();
             }
-            
-            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props)
+        
+            void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => PropsManager.Setup(props);
+            void IStyledProps<RishTextField, RishTextFieldProps>.Setup(RishTextFieldProps props, bool dirty)
             {
+                _props = props;
+                
                 text = props.text.Value;
                 multiline = props.multiline;
                 isPasswordField = props.isPassword;
@@ -123,6 +134,14 @@ namespace RishUI.Elements
                 }
                 descriptor.style.SetInlineStyle(textInputBase);
             }
+
+            void IStyledProps<RishTextField, RishTextFieldProps>.OnCustomStyle(ref RishTextFieldProps props)
+            {
+                props.maxLength ??= customStyle.TryGetValue(MaxLengthProp, out var customMaxLength) ? customMaxLength : -1;
+                props.multiClickInteraction ??= !customStyle.TryGetValue(MultiClickInteractionProp, out var customMultiClickInteraction) || customMultiClickInteraction;
+                props.cursorColor ??= customStyle.TryGetValue(CursorColorProp, out var customCursorColor) ? customCursorColor : Color.black;
+                props.selectionColor ??= customStyle.TryGetValue(SelectionColorProp, out var customSelectionColor) ? customSelectionColor : new Color(0.39f, 0.58f, 0.93f);
+            }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
 
@@ -136,15 +155,23 @@ namespace RishUI.Elements
             public bool multiline;
             public bool isPassword;
             public bool readOnly;
-            // TODO: [StyledProp("--props-max-length", -1)]
+            /// <summary>
+            /// Styled Prop as --prop-max-length
+            /// </summary>
             public int? maxLength { get; set; }
-            // TODO: [StyledProp("--props-multi-click-interaction", true)]
+            /// <summary>
+            /// Styled Prop as --props-multi-click-interaction
+            /// </summary>
             public bool? multiClickInteraction { get; set; }
             public DOMDescriptor textInputDescriptor;
             
-            // TODO: [StyledProp("--props-cursor-color", 0, 0, 0)]
+            /// <summary>
+            /// Styled Prop as --props-cursor-color
+            /// </summary>
             public Color? cursorColor { get; set; }
-            // TODO: [StyledProp("--props-selection-color", 0.39f, 0.58f, 0.93f)]
+            /// <summary>
+            /// Styled Prop as --props-selection-color
+            /// </summary>
             public Color? selectionColor { get; set; }
 
             [IgnoreComparison]
