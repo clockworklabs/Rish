@@ -85,11 +85,6 @@ namespace RishUI
             var customComparerType = provider.IsValueType && Attribute.IsDefined(provider, typeof(CustomComparerAttribute))
                 ? provider
                 : null;
-
-            if (customComparerType != null)
-            {
-                Debug.Log(customComparerType);
-            }
             
             foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
