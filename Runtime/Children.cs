@@ -11,12 +11,12 @@ namespace RishUI
     public struct ElementsList : IEnumerable<Element>
     {
         internal FixedList4096Bytes<Element> children;
-
+    
         public void Add(Element element)
         {
             children.Add(element);
         }
-
+    
         IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
     }
@@ -24,12 +24,116 @@ namespace RishUI
     public struct ChildrenList : IEnumerable<Children>
     {
         internal FixedList4096Bytes<Children> children;
-
+    
         public void Add(Children element)
         {
             children.Add(element);
         }
-
+    
+        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 127
+    public struct ElementsList127 : IEnumerable<Element>
+    {
+        internal FixedList512Bytes<Element> children;
+    
+        public void Add(Element element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 127
+    public struct ChildrenList127 : IEnumerable<Children>
+    {
+        internal FixedList512Bytes<Children> children;
+    
+        public void Add(Children element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 31
+    public struct ElementsList31 : IEnumerable<Element>
+    {
+        internal FixedList128Bytes<Element> children;
+    
+        public void Add(Element element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 31
+    public struct ChildrenList31 : IEnumerable<Children>
+    {
+        internal FixedList128Bytes<Children> children;
+    
+        public void Add(Children element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 15
+    public struct ElementsList15 : IEnumerable<Element>
+    {
+        internal FixedList64Bytes<Element> children;
+    
+        public void Add(Element element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 15
+    public struct ChildrenList15 : IEnumerable<Children>
+    {
+        internal FixedList64Bytes<Children> children;
+    
+        public void Add(Children element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 7
+    public struct ElementsList7 : IEnumerable<Element>
+    {
+        internal FixedList32Bytes<Element> children;
+    
+        public void Add(Element element)
+        {
+            children.Add(element);
+        }
+    
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
+    }
+    // Max count: 7
+    public struct ChildrenList7 : IEnumerable<Children>
+    {
+        internal FixedList32Bytes<Children> children;
+    
+        public void Add(Children element)
+        {
+            children.Add(element);
+        }
+    
         IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
     }
@@ -113,8 +217,21 @@ namespace RishUI
         public static implicit operator Children(FixedList4096Bytes<Children> children) => Rish.Children(children);
         public static implicit operator Children(ElementsList list) => Rish.Children(list.children);
         public static implicit operator Children(ChildrenList list) => Rish.Children(list.children);
+        public static implicit operator Children(ElementsList127 list) => Rish.Children(list.children);
+        public static implicit operator Children(ChildrenList127 list) => Rish.Children(list.children);
+        public static implicit operator Children(ElementsList31 list) => Rish.Children(list.children);
+        public static implicit operator Children(ChildrenList31 list) => Rish.Children(list.children);
+        public static implicit operator Children(ElementsList15 list) => Rish.Children(list.children);
+        public static implicit operator Children(ChildrenList15 list) => Rish.Children(list.children);
+        public static implicit operator Children(ElementsList7 list) => Rish.Children(list.children);
+        public static implicit operator Children(ChildrenList7 list) => Rish.Children(list.children);
         
         public static implicit operator Children(string text) => Label.Create(text: text);
+        public static implicit operator Children(FixedString32Bytes text) => Label.Create(text: text.Value);
+        public static implicit operator Children(FixedString64Bytes text) => Label.Create(text: text.Value);
+        public static implicit operator Children(FixedString128Bytes text) => Label.Create(text: text.Value);
+        public static implicit operator Children(FixedString512Bytes text) => Label.Create(text: text.Value);
+        public static implicit operator Children(FixedString4096Bytes text) => Label.Create(text: text.Value);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 

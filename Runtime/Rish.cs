@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace RishUI
@@ -13,6 +12,9 @@ namespace RishUI
     {
         private const int InitialPoolSize = 64;
         private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
+
+        private static List<IReferencesPool> NewPoolsList { get; } = new();
+        private static Dictionary<Type, IReferencesPool> NewPools { get; } = new();
 
         private static uint _nextElementId;
         private static uint DefinitionId
@@ -87,6 +89,19 @@ namespace RishUI
 
                 return _playerTypes;
             }
+        }
+
+        public static uint GetFromNewPool<T>() where T : class, IRishReferenceType, new()
+        {
+            var type = typeof(T);
+            if (!NewPools.TryGetValue(type, out var pool))
+            {
+                pool = new ReferencesPool<T>();
+                NewPools[type] = pool;
+                NewPoolsList.Add(pool);
+            }
+
+            return pool.Get<T>();
         }
         
         private static T GetFromPool<T>() where T : ElementDefinition, new()
@@ -163,6 +178,11 @@ namespace RishUI
 
         internal static void CleanGarbage()
         {
+            foreach (var pool in NewPoolsList)
+            {
+                pool.CleanGarbage();
+            }
+            
             for (int i = 0, n = Garbage.Count; i < n; i++)
             {
                 ReturnToPool(Garbage[i]);
@@ -192,6 +212,27 @@ namespace RishUI
 
             GarbageSet.Remove(id);
             Garbage.Remove(id);
+        }
+
+        public static void RegisterReferenceTo<T>(uint id, IOwner owner) where T : class, IRishReferenceType, new()
+        {
+            var type = typeof(T);
+            if (!NewPools.TryGetValue(type, out var pool))
+            {
+                throw new UnityException("Unknown element");
+            }
+
+            pool.RegisterReference(id, owner);
+        }
+        public static void UnregisterReferenceTo<T>(uint id, IOwner owner) where T : class, IRishReferenceType, new()
+        {
+            var type = typeof(T);
+            if (!NewPools.TryGetValue(type, out var pool))
+            {
+                throw new UnityException("Unknown element");
+            }
+
+            pool.UnregisterReference(id, owner);
         }
 
         internal static void RegisterReferenceTo(uint id, IOwner owner)
