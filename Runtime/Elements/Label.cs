@@ -1,4 +1,3 @@
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -30,7 +29,7 @@ namespace RishUI.Elements
         {
             WidthRange = props.widthRange;
             HeightRange = props.heightRange;
-            text = props.text.Value;
+            text = props.text;
         }
 
         private void OnMounted(AttachToPanelEvent evt)
@@ -89,10 +88,10 @@ namespace RishUI.Elements
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
-    [RishValueType]
+    // [RishValueType]
     public struct LabelProps
     {
-        public FixedString4096Bytes text;
+        public string text;
         public LengthRange? widthRange;
         public LengthRange? heightRange;
     }
