@@ -58,16 +58,8 @@ namespace RishUI
         //     return definition is SingleElementDefinition singleElementDefinition && singleElementDefinition.TryGetProps(out props);
         // }
 
-        internal void Invoke(Node node)
-        {
-            var definition = GetDefinition();
-            if (definition == null)
-            {
-                Debug.Log("Null");
-            }
-            GetDefinition()?.Invoke(node);
-        }
-        
+        internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
+
         public static implicit operator Children(Element element) => new Children
         {
             element
