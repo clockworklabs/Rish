@@ -1,6 +1,6 @@
 {
   "name": "com.clockworklabs.rish",
-  "version": "3.0.0-pre.94",
+  "version": "3.0.0-pre.95",
   "displayName": "Rish",
   "description": "R[eact]ish UI system for Unity",
   "unity": "2022.3",
@@ -10,10 +10,7 @@
     "url": "https://lisandroct.com"
   },
   "dependencies": {
-    "com.unity.collections": "0.9.0-preview.6",
-    "com.unity.editorcoroutines": "1.0.0",
-    "com.unity.textmeshpro": "3.0.6",
-    "com.malee.reorderablelist": "1.0.1"
+    "com.unity.collections": "1.2.4"
   },
   "samples": [
     {
