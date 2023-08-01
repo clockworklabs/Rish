@@ -15,7 +15,7 @@ namespace RishUI
         Ignore,
         Rect,
         Alpha,
-        ImageAlpha,
+        ImageAlpha, // Remove and keep only Alpha?
         ForceIgnore
     }
 
@@ -140,7 +140,18 @@ namespace RishUI
         }
 
         protected abstract void Setup();
-        public abstract bool ContainsPoint(Vector2 localPoint);
+
+        public bool ContainsPoint(Vector2 localPoint)
+        {
+            if (PointerDetection == PointerDetectionMode.Ignore || PointerDetection == PointerDetectionMode.ForceIgnore)
+            {
+                return false;
+            }
+            
+            return Raycast(localPoint);
+        }
+        
+        protected abstract bool Raycast(Vector2 localPoint);
     }
 
     public class RectPickingManager : PickingManager
@@ -149,13 +160,16 @@ namespace RishUI
 
         protected override void Setup() { }
         
-        public override bool ContainsPoint(Vector2 localPoint)
+        protected override bool Raycast(Vector2 localPoint)
         {
             var layout = Element.layout;
             var rect = new Rect(0.0f, 0.0f, layout.width, layout.height);
-
-            // TODO: Check rounded corners
-            return rect.Contains(localPoint);
+            if (!rect.Contains(localPoint))
+            {
+                return false;
+            }
+            
+            return PointerDetection == PointerDetectionMode.Rect;
         }
     }
 
@@ -265,7 +279,7 @@ namespace RishUI
             BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode.value;
         }
         
-        public override bool ContainsPoint(Vector2 localPoint)
+        protected override bool Raycast(Vector2 localPoint)
         {
             var layout = Element.layout;
             var rect = new Rect(0.0f, 0.0f, layout.width, layout.height);
