@@ -265,9 +265,44 @@ namespace RishUI
 
         public void SetClasses(VisualElement visualElement)
         {
-            foreach (var className in this)
+            var currentCount = (visualElement.GetClasses() as List<string>)?.Count ?? 0;
+            if (currentCount == Count)
             {
-                visualElement.AddToClassList(className.Value);
+                var equals = true;
+                foreach (var fixedClassName in this)
+                {
+                    var className = fixedClassName.Value;
+                    if (!visualElement.ClassListContains(className))
+                    {
+                        equals = false;
+                    }
+                }
+                
+                if (equals)
+                {
+                    return;
+                }
+            }
+            
+            if (visualElement is ICustomPicking customPicking)
+            {
+                customPicking.Manager.StyleSheetsPointerDetection = null;
+            }
+            
+            visualElement.ClearClassList();
+            
+            if (Count <= 0)
+            {
+                return;
+            }
+
+            foreach (var fixedClassName in this)
+            {
+                var className = fixedClassName.Value;
+                if (!string.IsNullOrWhiteSpace(className))
+                {
+                    visualElement.AddToClassList(className);
+                }
             }
         }
 
