@@ -1,26 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RishUI
+namespace RishUI.MemoryManagement
 {
-    public class ElementWrapper<T> where T : class, IRishReferenceType, new()
+    public class Wrapper
     {
         public uint ID { get; }
-        public T Element { get; }
+        public IManaged Managed { get; }
         
         private Dictionary<uint, int> References { get; } = new();
         internal int ReferencesCount { get; private set; }
 
-        public ElementWrapper(uint id, T element)
+        public Wrapper(uint id, IManaged managed)
         {
             ID = id;
-            Element = element;
+            Managed = managed;
         }
 
         internal int RegisterReference(IOwner owner)
         {
-            // TODO: Register references to elements in Children
-            
             var id = owner.GetID();
             if (References.TryGetValue(id, out var currentCount))
             {
@@ -31,17 +29,17 @@ namespace RishUI
                 References.Add(id, 1);
                 ReferencesCount++;
             }
+            
+            Managed.ReferenceRegistered(owner);
 
             return ReferencesCount;
         }
         internal int UnregisterReference(IOwner owner)
         {
-            // TODO: Unregister references to elements in Children
-            
             var id = owner.GetID();
             if (!References.TryGetValue(id, out var currentCount))
             {
-                throw new UnityException($"Element {owner.GetType()} ({id}) doesn't own this reference");
+                throw new UnityException($"{owner.GetType()} ({id}) doesn't own this reference");
             }
 
             if (currentCount == 1)
@@ -53,6 +51,8 @@ namespace RishUI
             {
                 References[id] = currentCount - 1;
             }
+            
+            Managed.ReferenceUnregistered(owner);
 
             return ReferencesCount;
         }

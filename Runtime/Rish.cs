@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RishUI.MemoryManagement;
 using UnityEngine;
 
 namespace RishUI
@@ -10,28 +11,9 @@ namespace RishUI
 
     public static partial class Rish
     {
-        private const int InitialPoolSize = 64;
-        private static Dictionary<Type, Stack<ElementDefinition>> Pools { get; } = new();
-
-        private static List<IReferencesPool> NewPoolsList { get; } = new();
-        private static Dictionary<Type, IReferencesPool> NewPools { get; } = new();
-
-        private static uint _nextElementId;
-        private static uint DefinitionId
-        {
-            get
-            {
-                if (_nextElementId == uint.MaxValue)
-                {
-                    _nextElementId = 0;
-                }
-                _nextElementId += 1;
-
-                return _nextElementId;
-            }
-        }
-        private static Dictionary<uint, ElementDefinition> DefinitionsInUse { get; } = new();
-         
+        private static List<IPool> PoolsList { get; } = new();
+        private static Dictionary<Type, int> PoolsIndices { get; } = new();
+        
         private static Type[] _playerTypes;
         internal static Type[] PlayerTypes
         {
@@ -91,201 +73,166 @@ namespace RishUI
             }
         }
 
-        public static uint GetFromNewPool<T>() where T : class, IRishReferenceType, new()
+        public static Reference GetReferenceTo<T>(uint id) where T : class, IManaged => new Reference
+        {
+            poolIndex = GetPoolIndex<T>(),
+            managedID = id
+        };
+        private static int GetPoolIndex<T>() where T : class, IManaged
         {
             var type = typeof(T);
-            if (!NewPools.TryGetValue(type, out var pool))
+            if (!PoolsIndices.TryGetValue(type, out var poolIndex))
             {
-                pool = new ReferencesPool<T>();
-                NewPools[type] = pool;
-                NewPoolsList.Add(pool);
+                Type poolType;
+                if (Attribute.IsDefined(type, typeof(CustomManagedAttribute)))
+                {
+                    var attribute = (CustomManagedAttribute)Attribute.GetCustomAttribute(type, typeof(CustomManagedAttribute));
+                    poolType = attribute.poolType;
+                }
+                else
+                {
+                    return -1;
+                }
+                
+                poolIndex = PoolsList.FindIndex(p => p.GetType() == poolType);
+                if (poolIndex < 0)
+                {
+                    return -1;
+                }
+
+                PoolsIndices[type] = poolIndex;
             }
 
-            return pool.Get<T>();
+            return poolIndex;
+        }
+        private static IPool GetPool<T>() where T : class, IManaged
+        {
+            var type = typeof(T);
+            if (!PoolsIndices.TryGetValue(type, out var poolIndex))
+            {
+                Type poolType;
+                if (Attribute.IsDefined(type, typeof(CustomManagedAttribute)))
+                {
+                    var attribute = (CustomManagedAttribute)Attribute.GetCustomAttribute(type, typeof(CustomManagedAttribute));
+                    poolType = attribute.poolType;
+                }
+                else
+                {
+                    throw new UnityException("Invalid pool");
+                }
+                
+                poolIndex = PoolsList.FindIndex(p => p.GetType() == poolType);
+                if (poolIndex < 0)
+                {
+                    throw new UnityException("Invalid pool");
+                }
+
+                PoolsIndices[type] = poolIndex;
+            }
+
+            return PoolsList[poolIndex];
+        }
+        private static IPool GetPoolOrCreate<T>() where T : class, IManaged, new()
+        {
+            var type = typeof(T);
+            if (!PoolsIndices.TryGetValue(type, out var poolIndex))
+            {
+                Type poolType;
+                if (Attribute.IsDefined(type, typeof(CustomManagedAttribute)))
+                {
+                    var attribute = (CustomManagedAttribute)Attribute.GetCustomAttribute(type, typeof(CustomManagedAttribute));
+                    poolType = attribute.poolType;
+                }
+                else
+                {
+                    poolType = typeof(GenericPool<T>);
+                }
+                
+                poolIndex = PoolsList.FindIndex(p => p.GetType() == poolType);
+                if (poolIndex < 0)
+                {
+                    poolIndex = PoolsList.Count;
+                    var pool = (IPool) Activator.CreateInstance(poolType);
+                    PoolsList.Add(pool);
+                }
+
+                PoolsIndices[type] = poolIndex;
+            }
+            
+            return PoolsList[poolIndex];
+        }
+
+        public static uint GetFreeID<T>() where T : class, IManaged, new() => GetPoolOrCreate<T>().GetFreeID<T>();
+
+        private static (uint, T) GetFree<T>() where T : class, IManaged, new()
+        {
+            var id = GetFreeID<T>();
+            var element = GetManaged<T>(id);
+        
+            return (id, element);
         }
         
-        private static T GetFromPool<T>() where T : ElementDefinition, new()
+        internal static T GetManaged<T>(uint id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
+        
+        public static void RegisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
         {
-            var type = typeof(T);
-            if (!Pools.TryGetValue(type, out var pool))
+            if (id <= 0)
             {
-                pool = new Stack<ElementDefinition>(InitialPoolSize);
-                Pools[type] = pool;
-            }
-
-            T element;
-            if (pool.Count < 1)
-            {
-                element = new T();
-            }
-            else
-            {
-                element = (T)pool.Pop();
+                return;
             }
             
-            return element;
+            GetPool<T>()?.RegisterReference(id, owner);
         }
-
-        private static void ReturnToPool(uint id)
+        public static void UnregisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
         {
-            var definition = GetDefinition(id);
-            if (definition == null)
+            if (id <= 0)
+            {
+                return;
+            }
+            
+            GetPool<T>()?.UnregisterReference(id, owner);
+        }
+        public static void RegisterReferenceTo(Reference reference, IOwner owner)
+        {
+            var poolIndex = reference.poolIndex;
+            if (poolIndex < 0)
             {
                 return;
             }
 
-            if (definition.ReferencesCount > 0)
-            {
-                throw new UnityException("Element isn't ready to be returned to the pool.");
-            }
-            
-            var type = definition.GetType();
-            if (!Pools.TryGetValue(type, out var pool))
-            {
-                throw new UnityException($"{type} is an invalid element type. No pool found.");
-            }
-            
-            definition.Dispose();
-            pool.Push(definition);
-            DefinitionsInUse.Remove(id);
-        }
-
-        internal static ElementDefinition GetDefinition(uint id) => DefinitionsInUse.TryGetValue(id, out var definition) ? definition : null;
-
-        internal static int GetLength(uint id)
-        {
-            var definition = GetDefinition(id);
-            return definition switch
-            {
-                null => 0,
-                ChildrenDefinition children => children.Length,
-                _ => 1
-            };
-        }
-        internal static Element GetChild(uint id, int index)
-        {
-            var definition = GetDefinition(id);
-            return definition switch
-            {
-                null => throw new ArgumentNullException(),
-                ChildrenDefinition children => children[index],
-                _ => index == 0 ? new Element(id) : throw new ArgumentNullException()
-            };
-        }
-
-        private static HashSet<uint> GarbageSet { get; } = new(InitialPoolSize);
-        private static List<uint> Garbage { get; } = new(InitialPoolSize);
-
-        internal static void CleanGarbage()
-        {
-            foreach (var pool in NewPoolsList)
-            {
-                pool.CleanGarbage();
-            }
-            
-            for (int i = 0, n = Garbage.Count; i < n; i++)
-            {
-                ReturnToPool(Garbage[i]);
-            }
-            
-            GarbageSet.Clear();
-            Garbage.Clear();
-        }
-
-        private static void AddGarbage(uint id)
-        {
-            if (GarbageSet.Contains(id))
+            var id = reference.managedID;
+            if (id <= 0)
             {
                 return;
             }
 
-            GarbageSet.Add(id);
-            Garbage.Add(id);
-        }
-
-        private static void RemoveGarbage(uint id)
-        {
-            if (!GarbageSet.Contains(id))
-            {
-                return;
-            }
-
-            GarbageSet.Remove(id);
-            Garbage.Remove(id);
-        }
-
-        public static void RegisterReferenceTo<T>(uint id, IOwner owner) where T : class, IRishReferenceType, new()
-        {
-            var type = typeof(T);
-            if (!NewPools.TryGetValue(type, out var pool))
-            {
-                throw new UnityException("Unknown element");
-            }
-
+            var pool = PoolsList[poolIndex];
             pool.RegisterReference(id, owner);
         }
-        public static void UnregisterReferenceTo<T>(uint id, IOwner owner) where T : class, IRishReferenceType, new()
+        public static void UnregisterReferenceTo(Reference reference, IOwner owner)
         {
-            var type = typeof(T);
-            if (!NewPools.TryGetValue(type, out var pool))
+            var poolIndex = reference.poolIndex;
+            if (poolIndex < 0)
             {
-                throw new UnityException("Unknown element");
+                return;
             }
 
+            var id = reference.managedID;
+            if (id <= 0)
+            {
+                return;
+            }
+
+            var pool = PoolsList[poolIndex];
             pool.UnregisterReference(id, owner);
         }
 
-        internal static void RegisterReferenceTo(uint id, IOwner owner)
+        internal static void CleanGarbage()
         {
-            if (id == 0)
+            foreach (var pool in PoolsList)
             {
-                return;
+                pool.CleanGarbage();
             }
-            var definition = GetDefinition(id);
-            if (definition == null)
-            {
-                return;
-            }
-            
-            if (definition.RegisterReference(owner) == 1)
-            {
-                RemoveGarbage(id);
-            }
-        }
-        internal static void UnregisterReferenceTo(uint id, IOwner owner)
-        {
-            if (id == 0)
-            {
-                return;
-            }
-            var definition = GetDefinition(id);
-            if (definition == null)
-            {
-                return;
-            }
-            
-            if (definition.UnregisterReference(owner) <= 0)
-            {
-                AddGarbage(id);
-            }
-        }
-
-        private static Children CreateChildren(ElementDefinition definition)
-        {
-            var id = DefinitionId;
-            DefinitionsInUse[id] = definition;
-            var element = new Children(id);
-            AddGarbage(id);
-
-            return element;
-        }
-        
-        public static T RefProps<T>(RefAction<T> func) where T : struct => RefProps(Defaults.GetValue<T>(), func);
-        public static T RefProps<T>(T d, RefAction<T> func) where T : struct
-        {
-            func?.Invoke(ref d);
-                
-            return d;
         }
     }
 }

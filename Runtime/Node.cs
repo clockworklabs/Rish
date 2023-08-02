@@ -262,7 +262,7 @@ namespace RishUI
             AttachElement(rishElement.Render());
         }
 
-        internal void AttachElement(Children element)
+        internal void AttachElement(Element element)
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -279,6 +279,30 @@ namespace RishUI
             Clear();
 
             element.Invoke(this);
+            
+            Clean();
+        }
+
+        internal void AttachChildren(Children children)
+        {
+#if UNITY_EDITOR
+            if (!IsActive())
+            {
+                throw new UnityException("Node isn't mounted");
+            }
+
+            if (Rendering)
+            {
+                throw new UnityException("Node is already rendering");
+            }
+#endif
+            
+            Clear();
+
+            foreach (var element in children)
+            {
+                element.Invoke(this);
+            }
             
             Clean();
         }

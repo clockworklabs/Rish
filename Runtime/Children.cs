@@ -2,230 +2,230 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using RishUI.Elements;
+using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
 {
-    // Max count: 1023
-    public struct ElementsList : IEnumerable<Element>
-    {
-        internal FixedList4096Bytes<Element> children;
-    
-        public void Add(Element element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 1023
-    public struct ChildrenList : IEnumerable<Children>
-    {
-        internal FixedList4096Bytes<Children> children;
-    
-        public void Add(Children element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 127
-    public struct ElementsList127 : IEnumerable<Element>
-    {
-        internal FixedList512Bytes<Element> children;
-    
-        public void Add(Element element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 127
-    public struct ChildrenList127 : IEnumerable<Children>
-    {
-        internal FixedList512Bytes<Children> children;
-    
-        public void Add(Children element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 31
-    public struct ElementsList31 : IEnumerable<Element>
-    {
-        internal FixedList128Bytes<Element> children;
-    
-        public void Add(Element element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 31
-    public struct ChildrenList31 : IEnumerable<Children>
-    {
-        internal FixedList128Bytes<Children> children;
-    
-        public void Add(Children element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 15
-    public struct ElementsList15 : IEnumerable<Element>
-    {
-        internal FixedList64Bytes<Element> children;
-    
-        public void Add(Element element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 15
-    public struct ChildrenList15 : IEnumerable<Children>
-    {
-        internal FixedList64Bytes<Children> children;
-    
-        public void Add(Children element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 7
-    public struct ElementsList7 : IEnumerable<Element>
-    {
-        internal FixedList32Bytes<Element> children;
-    
-        public void Add(Element element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    // Max count: 7
-    public struct ChildrenList7 : IEnumerable<Children>
-    {
-        internal FixedList32Bytes<Children> children;
-    
-        public void Add(Children element)
-        {
-            children.Add(element);
-        }
-    
-        IEnumerator<Children> IEnumerable<Children>.GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)children).GetEnumerator();
-    }
-    
     [CustomComparer]
-    public readonly struct Children : IEquatable<Children>
+    public struct Children : IReference<ManagedChildren>, IEnumerable<Element>, IEquatable<Children>
     {
-        private readonly uint _id;
+        private uint _id;
+        public uint ID => _id;
 
         public bool Valid => _id > 0;
-        
+    
         public static Children Null => new();
 
-        internal Children(uint id)
+        public int Count => Rish.GetManaged<ManagedChildren>(_id)?.Count ?? 0;
+        public Element this[int index] => Rish.GetManaged<ManagedChildren>(_id)?.Get(index) ?? default;
+
+        public void Add(Element element)
         {
-            _id = id;
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedChildren>();
+            }
+
+            var managed = Rish.GetManaged<ManagedChildren>(_id);
+            managed.Add(element);
         }
-
-        private ElementDefinition GetDefinition() => Rish.GetDefinition(_id);
-
-        public int Length => Valid ? Rish.GetLength(_id) : 0;
-
-        internal Element ToElement() => new Element(_id);
-
-        public Element this[int index] => Rish.GetChild(_id, index);
-
-        internal void Invoke(Node node)
+        public void Add(Children children)
         {
-            if (!Valid)
+            if (_id == 0)
             {
-                return;
+                _id = Rish.GetFreeID<ManagedChildren>();
             }
-            
-            var definition = GetDefinition();
-            if (definition == null)
-            {
-#if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
-#endif
-                return;
-            }
-            
-            definition.Invoke(node);
-        }
-
-        internal void RegisterReference(IOwner owner) => Rish.RegisterReferenceTo(_id, owner);
-        internal void UnregisterReference(IOwner owner) => Rish.UnregisterReferenceTo(_id, owner);
-
-        public static implicit operator Children((Children, Children) children) => Rish.Children(children.Item1, children.Item2);
-        public static implicit operator Children((Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3);
-        public static implicit operator Children((Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4);
-        public static implicit operator Children((Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19);
-        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => Rish.Children(children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20);
-        public static implicit operator Children(Children[] children) => Rish.Children(children);
-        public static implicit operator Children(Element[] children) => Rish.Children(children);
-        public static implicit operator Children(List<Children> children) => Rish.Children(children);
-        public static implicit operator Children(List<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList32Bytes<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList64Bytes<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList128Bytes<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList512Bytes<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList4096Bytes<Element> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList32Bytes<Children> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList64Bytes<Children> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList128Bytes<Children> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList512Bytes<Children> children) => Rish.Children(children);
-        public static implicit operator Children(FixedList4096Bytes<Children> children) => Rish.Children(children);
-        public static implicit operator Children(ElementsList list) => Rish.Children(list.children);
-        public static implicit operator Children(ChildrenList list) => Rish.Children(list.children);
-        public static implicit operator Children(ElementsList127 list) => Rish.Children(list.children);
-        public static implicit operator Children(ChildrenList127 list) => Rish.Children(list.children);
-        public static implicit operator Children(ElementsList31 list) => Rish.Children(list.children);
-        public static implicit operator Children(ChildrenList31 list) => Rish.Children(list.children);
-        public static implicit operator Children(ElementsList15 list) => Rish.Children(list.children);
-        public static implicit operator Children(ChildrenList15 list) => Rish.Children(list.children);
-        public static implicit operator Children(ElementsList7 list) => Rish.Children(list.children);
-        public static implicit operator Children(ChildrenList7 list) => Rish.Children(list.children);
         
+            var managed = Rish.GetManaged<ManagedChildren>(_id);
+            foreach (var element in children)
+            {
+                managed.Add(element);
+            }
+        }
+
+        IEnumerator<Element> IEnumerable<Element>.GetEnumerator()
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedChildren>();
+            }
+
+            var enumerable = (IEnumerable<Element>) Rish.GetManaged<ManagedChildren>(_id);
+            return enumerable.GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator() {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedChildren>();
+            }
+
+            var enumerable = (IEnumerable) Rish.GetManaged<ManagedChildren>(_id);
+            return enumerable.GetEnumerator();
+        }
+        
+        public static implicit operator Children((Children, Children) children) => new Children { children.Item1, children.Item2 };
+        public static implicit operator Children((Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3 };
+        public static implicit operator Children((Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4 };
+        public static implicit operator Children((Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19 };
+        public static implicit operator Children((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) children) => new Children { children.Item1, children.Item2, children.Item3, children.Item4, children.Item5, children.Item6, children.Item7, children.Item8, children.Item9, children.Item10, children.Item11, children.Item12, children.Item13, children.Item14, children.Item15, children.Item16, children.Item17, children.Item18, children.Item19, children.Item20};
+
+        public static implicit operator Children(Children[] array)
+        {
+            var children = new Children();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(Element[] array)
+        {
+            var children = new Children();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(List<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(List<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList32Bytes<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList64Bytes<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList128Bytes<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList512Bytes<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList4096Bytes<Element> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList32Bytes<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList64Bytes<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList128Bytes<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList512Bytes<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator Children(FixedList4096Bytes<Children> list)
+        {
+            var children = new Children();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+
         public static implicit operator Children(string text) => Label.Create(text: text);
         public static implicit operator Children(FixedString32Bytes text) => Label.Create(text: text.Value);
         public static implicit operator Children(FixedString64Bytes text) => Label.Create(text: text.Value);
@@ -249,28 +249,59 @@ namespace RishUI
                 return true;
             }
             
-            var aDefinition = a.GetDefinition();
-            var bDefinition = b.GetDefinition();
+            var aManaged = Rish.GetManaged<ManagedChildren>(a._id);
+            var bManaged = Rish.GetManaged<ManagedChildren>(b._id);
 
-            var aInUse = aDefinition != null;
+            var aInUse = aManaged != null;
             if (!aInUse)
             {
-                Debug.LogError($"Element {a._id} was disposed");
+                Debug.LogError($"Children {a._id} was disposed");
             }
-            var bInUse = bDefinition != null;
+            var bInUse = bManaged != null;
             if (!bInUse)
             {
-                Debug.LogError($"Element {b._id} was disposed");
+                Debug.LogError($"Children {b._id} was disposed");
             }
             if (!aInUse || !bInUse)
             {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen. Make sure you implemented Copy in every Props and State that has Element or Children fields.");
+                Debug.LogError("Disposed Children. This should never happen.");
 #endif
                 return false;
             }
 
-            return aDefinition.Equals(bDefinition);
+            return aManaged.Equals(bManaged);
+        }
+
+        public Enumerator GetEnumerator() => new Enumerator(this);
+
+        public struct Enumerator
+        {
+            private readonly Children _list;
+        
+            private int _index;
+            private Element _current;
+        
+            public Enumerator(Children list)
+            {
+                _list = list;
+                _index = 0;
+                _current = default;
+            }
+        
+            public Element Current => _current;
+        
+            public bool MoveNext()
+            {
+                if (_index >= _list.Count)
+                {
+                    return false;
+                }
+                
+                _current = _list[_index++];
+                
+                return true;
+            }
         }
     }
 }

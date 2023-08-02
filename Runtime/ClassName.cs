@@ -1,414 +1,343 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using RishUI.MemoryManagement;
 using Unity.Collections;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public struct ClassName : IEnumerable<FixedString32Bytes>
+    [CustomComparer]
+    public struct ClassName : IReference<ManagedClassName>, IEnumerable<FixedString32Bytes>, IEquatable<ClassName>
     {
-        // MaxCount: 4096 -> 128, 512 -> 16, 128 -> 4, 64 -> 2, 32 -> 1
-        private FixedList512Bytes<FixedString32Bytes> _elements;
+        private uint _id;
+        public uint ID => _id;
+
+        public bool Valid => _id > 0;
+    
+        public static ClassName Null => new();
+
+        public int Count => Rish.GetManaged<ManagedClassName>(_id)?.Count ?? 0;
+        public FixedString32Bytes this[int index] => Rish.GetManaged<ManagedClassName>(_id)?.Get(index) ?? default;
+
+        public ClassName(FixedString32Bytes className)
+        {
+            _id = Rish.GetFreeID<ManagedClassName>();
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            managed.Add(className);
+        }
+        public ClassName(string className)
+        {
+            _id = Rish.GetFreeID<ManagedClassName>();
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            managed.Add(className);
+        }
+        public ClassName(ClassName className)
+        {
+            _id = Rish.GetFreeID<ManagedClassName>();
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            foreach (var element in className)
+            {
+                managed.Add(element);
+            }
+        }
+
         
-        public int Count => _elements.Length;
-
-        public ClassName(FixedList512Bytes<FixedString32Bytes> elements)
+        public void Add(FixedString32Bytes element)
         {
-            _elements = elements;
-        }
-
-        public ClassName(ClassName other)
-        {
-            _elements = other._elements;
-        }
-
-        public ClassName(string element)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
+            if (_id == 0)
             {
-                element
-            };
-        }
-        public ClassName(string element0, string element1)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1
-            };
-        }
-        public ClassName(string element0, string element1, string element2)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10, string element11)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10,
-                element11
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10, string element11, string element12)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10,
-                element11,
-                element12
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10, string element11, string element12, string element13)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10,
-                element11,
-                element12,
-                element13
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10, string element11, string element12, string element13, string element14)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10,
-                element11,
-                element12,
-                element13,
-                element14
-            };
-        }
-        public ClassName(string element0, string element1, string element2, string element3, string element4, string element5, string element6, string element7, string element8, string element9, string element10, string element11, string element12, string element13, string element14, string element15)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>
-            {
-                element0,
-                element1,
-                element2,
-                element3,
-                element4,
-                element5,
-                element6,
-                element7,
-                element8,
-                element9,
-                element10,
-                element11,
-                element12,
-                element13,
-                element14,
-                element15
-            };
-        }
-
-        public ClassName(params string[] elements)
-        {
-            _elements = new FixedList512Bytes<FixedString32Bytes>();
-            foreach (var element in elements)
-            {
-                _elements.Add(element);
+                _id = Rish.GetFreeID<ManagedClassName>();
             }
+
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            managed.Add(element);
         }
-        public ClassName(params FixedString32Bytes[] elements)
+        public void Add(string element)
         {
-            _elements = new FixedList512Bytes<FixedString32Bytes>();
-            foreach (var element in elements)
+            if (_id == 0)
             {
-                _elements.Add(element);
+                _id = Rish.GetFreeID<ManagedClassName>();
+            }
+
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            managed.Add(element);
+        }
+        public void Add(ClassName className)
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedClassName>();
+            }
+        
+            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            foreach (var element in className)
+            {
+                managed.Add(element);
             }
         }
 
-        public string this[int index] => _elements[index].Value;
-
-        public void Add(FixedString32Bytes element) => _elements.Add(element);
-
-        public static implicit operator ClassName(string element0) => new ClassName(element0);
-        public static implicit operator ClassName((string e0, string e1) elements) => new ClassName(elements.e0, elements.e1);
-        public static implicit operator ClassName((string e0, string e1, string e2) elements) => new ClassName(elements.e0, elements.e1, elements.e2);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10, string e11) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10, elements.e11);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10, string e11, string e12) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10, elements.e11, elements.e12);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10, string e11, string e12, string e13) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10, elements.e11, elements.e12, elements.e13);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10, string e11, string e12, string e13, string e14) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10, elements.e11, elements.e12, elements.e13, elements.e14);
-        public static implicit operator ClassName((string e0, string e1, string e2, string e3, string e4, string e5, string e6, string e7, string e8, string e9, string e10, string e11, string e12, string e13, string e14, string e15) elements) => new ClassName(elements.e0, elements.e1, elements.e2, elements.e3, elements.e4, elements.e5, elements.e6, elements.e7, elements.e8, elements.e9, elements.e10, elements.e11, elements.e12, elements.e13, elements.e14, elements.e15);
-
-        IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator() => _elements.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
-
-        public override string ToString()
+        IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator()
         {
-            var builder = new StringBuilder("(");
-            for(int i = 0, n = _elements.Length, lastIndex = n - 1; i < n; i++)
+            if (_id == 0)
             {
-                var element = _elements[i];
-                builder.Append(element);
-                if (i < lastIndex)
-                {
-                    builder.Append(", ");
-                }
+                _id = Rish.GetFreeID<ManagedClassName>();
             }
-            builder.Append(")");
 
-            return builder.ToString();
+            var enumerable = (IEnumerable<FixedString32Bytes>) Rish.GetManaged<ManagedClassName>(_id);
+            return enumerable.GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator() {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedClassName>();
+            }
+
+            var enumerable = (IEnumerable) Rish.GetManaged<ManagedClassName>(_id);
+            return enumerable.GetEnumerator();
         }
         
-        public void SetClasses(VisualElement element)
+        public static implicit operator ClassName(FixedString32Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(string element) => new ClassName { element };
+        public static implicit operator ClassName((string, string) elements) => new ClassName { elements.Item1, elements.Item2 };
+        public static implicit operator ClassName((string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3 };
+        public static implicit operator ClassName((string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4 };
+        public static implicit operator ClassName((string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5 };
+        public static implicit operator ClassName((string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19 };
+        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19, elements.Item20};
+
+        public static implicit operator ClassName(ClassName[] array)
         {
-            var currentCount = (element.GetClasses() as List<string>)?.Count ?? 0;
-            if (currentCount == Count)
+            var children = new ClassName();
+            foreach (var element in array)
             {
-                var equals = true;
-                foreach (var className in this)
-                {
-                    if (!element.ClassListContains(className))
-                    {
-                        equals = false;
-                    }
-                }
-                
-                if (equals)
-                {
-                    return;
-                }
+                children.Add(element);
             }
-            
-            if (element is ICustomPicking customPicking)
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedString32Bytes[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
             {
-                customPicking.Manager.StyleSheetsPointerDetection = null;
+                children.Add(element);
             }
-            
-            element.ClearClassList();
-            
-            if (Count <= 0)
+
+            return children;
+        }
+        public static implicit operator ClassName(List<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
             {
-                return;
+                children.Add(element);
             }
-            
+
+            return children;
+        }
+        public static implicit operator ClassName(List<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<ClassName> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+
+        bool IEquatable<ClassName>.Equals(ClassName other) => Equals(this, other);
+
+        public void SetClasses(VisualElement visualElement)
+        {
             foreach (var className in this)
             {
-                if (!string.IsNullOrWhiteSpace(className))
-                {
-                    element.AddToClassList(className);
-                }
+                visualElement.AddToClassList(className.Value);
             }
         }
 
-        public Enumerator GetEnumerator()
+        [Comparer]
+        private static bool Equals(ClassName a, ClassName b)
         {
-            return new Enumerator(this);
+            var aSet = a.Valid;
+            var bSet = b.Valid;
+            if (aSet ^ bSet)
+            {
+                return false;
+            }
+            if (!aSet)
+            {
+                return true;
+            }
+            
+            var aManaged = Rish.GetManaged<ManagedClassName>(a._id);
+            var bManaged = Rish.GetManaged<ManagedClassName>(b._id);
+
+            var aInUse = aManaged != null;
+            if (!aInUse)
+            {
+                Debug.LogError($"ClassName {a._id} was disposed");
+            }
+            var bInUse = bManaged != null;
+            if (!bInUse)
+            {
+                Debug.LogError($"ClassName {b._id} was disposed");
+            }
+            if (!aInUse || !bInUse)
+            {
+#if UNITY_EDITOR
+                Debug.LogError("Disposed ClassName. This should never happen.");
+#endif
+                return false;
+            }
+
+            return aManaged.Equals(bManaged);
         }
+
+        public Enumerator GetEnumerator() => new Enumerator(this);
 
         public struct Enumerator
         {
-            private readonly ClassName _className;
-
+            private readonly ClassName _list;
+        
             private int _index;
-            private string _current;
-
-            public Enumerator(ClassName className)
+            private FixedString32Bytes _current;
+        
+            public Enumerator(ClassName list)
             {
-                _className = className;
+                _list = list;
                 _index = 0;
                 _current = default;
             }
-
-            public string Current => _current;
-
+        
+            public FixedString32Bytes Current => _current;
+        
             public bool MoveNext()
             {
-                if (_index >= _className.Count)
+                if (_index >= _list.Count)
                 {
                     return false;
                 }
                 
-                _current = _className[_index++];
+                _current = _list[_index++];
                 
                 return true;
             }
         }
     }
-    // public struct ClassName16 : IEnumerable<FixedString32Bytes>
-    // {
-    //     private FixedList512Bytes<FixedString32Bytes> _elements;
-    //
-    //     public void Add(FixedString32Bytes element) => _elements.Add(element);
-    //
-    //     IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator() => _elements.GetEnumerator();
-    //     IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
-    //
-    //     public static implicit operator ClassName(ClassName16 className) => new ClassName(className._elements);
-    // }
-    // public struct ClassName4 : IEnumerable<FixedString32Bytes>
-    // {
-    //     private FixedList128Bytes<FixedString32Bytes> _elements;
-    //
-    //     public void Add(FixedString32Bytes element) => _elements.Add(element);
-    //
-    //     IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator() => _elements.GetEnumerator();
-    //     IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
-    //
-    //     public static implicit operator ClassName(ClassName4 className) => new ClassName(className._elements);
-    // }
 }

@@ -19,6 +19,8 @@ namespace Rishenerator
                 {
                     return;
                 }
+                
+                Logger.Log(sourceCode);
 
                 var fileName = $"{context.Compilation.Assembly.Name}.ReferencesGettersProvider.g.cs";
                 context.AddSource(fileName, sourceCode);
@@ -36,8 +38,9 @@ namespace Rishenerator
         
         private class SyntaxReceiver : ISyntaxContextReceiver
         {
-            private Dictionary<INamedTypeSymbol, bool> References { get; } = new();
+            private Dictionary<INamedTypeSymbol, bool> ReferencesTypes { get; } = new();
             private List<INamedTypeSymbol> ReferencesGetterTypes { get; } = new();
+            private Dictionary<INamedTypeSymbol, bool> RequiresGetter { get; } = new();
 
             private List<Exception> Exceptions { get; } = new();
             public bool HasExceptions => Exceptions.Count > 0;
@@ -76,7 +79,7 @@ namespace Rishenerator
 
                 stringBuilder.AppendLine(@"namespace RishUI.Generated 
 {
-    [ReferencesGettersProvider]
+    [RishUI.MemoryManagement.ReferencesGettersProvider]
     public static class AutoReferencesGettersProvider
     {");
 
@@ -103,10 +106,10 @@ namespace Rishenerator
                         continue;
                     }
                     
-                    stringBuilder.AppendLine($@"        [ReferencesGetter]
-        private static References GetReferences{typeSymbol.GetGenericsParametersName(true)}({typeSymbol.GetFullName(true)} value){typeSymbol.GetGenericsConstraints(true)}
+                    stringBuilder.AppendLine($@"        [RishUI.MemoryManagement.ReferencesGetter]
+        private static RishUI.MemoryManagement.References GetReferences{typeSymbol.GetGenericsParametersName(true)}({typeSymbol.GetFullName(true)} value){typeSymbol.GetGenericsConstraints(true)}
         {{
-            return new References(true) {{ {typeSourceCode} }};
+            return new RishUI.MemoryManagement.References(true) {{ {typeSourceCode} }};
         }}");
                 }
                 
@@ -116,7 +119,7 @@ namespace Rishenerator
                 return stringBuilder.ToString();
             }
 
-            private static bool GetAllReferences(ITypeSymbol typeSymbol, string parentSymbol, out string sourceCode)
+            private bool GetAllReferences(ITypeSymbol typeSymbol, string parentSymbol, out string sourceCode)
             {
                 sourceCode = string.Empty;
                 
@@ -136,12 +139,21 @@ namespace Rishenerator
                     string fieldSourceCode = null;
                     
                     var fieldName = $"{parentSymbol}.{fieldSymbol.Name}";
-                    if (fieldTypeSymbol.IsRishReferenceType())
+                    var isFieldNullable = fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+                    var fieldAccessName = isFieldNullable ? $"{fieldName}.Value" : fieldName;
+                    if (IsReferenceType(fieldTypeSymbol))
                     {
-                        fieldSourceCode = fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated ? $"({fieldName}?.Value ?? default)" : fieldName;
-                    } else if (fieldTypeSymbol.IsTupleType)
+                        var managedType = GetManagedType(fieldTypeSymbol);
+                        var managedTypeFullName = managedType.GetFullName(true);
+                        
+                        var referenceGetter = $"RishUI.Rish.GetReferenceTo<{managedTypeFullName}>({fieldAccessName}.ID)";
+                        fieldSourceCode = isFieldNullable ? $"({fieldName}.HasValue ? {referenceGetter} : default)" : referenceGetter;
+                    } else if (fieldTypeSymbol.IsTupleType || AnalyzeForReferenceGetter(fieldTypeSymbol))
                     {
-                        GetAllReferences(fieldTypeSymbol, fieldName, out fieldSourceCode);
+                        if (GetAllReferences(fieldTypeSymbol, fieldAccessName, out fieldSourceCode))
+                        {
+                            fieldSourceCode = isFieldNullable ? $"({fieldName}.HasValue ? {fieldSourceCode} : default)" : fieldSourceCode;
+                        }
                     }
 
                     if (fieldSourceCode == null) continue;
@@ -160,23 +172,22 @@ namespace Rishenerator
                     return false;
                 }
                 
-                if (References.TryGetValue(namedTypeSymbol, out var needsReferencesGetter))
+                if (RequiresGetter.TryGetValue(namedTypeSymbol, out var needsReferencesGetter))
                 {
                     return needsReferencesGetter;
+                }
+                if (ReferencesTypes.TryGetValue(namedTypeSymbol, out var isReferenceType) && isReferenceType)
+                {
+                    RequiresGetter[namedTypeSymbol] = false;
+                    return false;
                 }
 
                 if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern || !namedTypeSymbol.IsInternallyAccessible())
                 {
-                    References[namedTypeSymbol] = false;
+                    RequiresGetter[namedTypeSymbol] = false;
                     return false;
                 }
                 
-                if (namedTypeSymbol.IsRishReferenceType())
-                {
-                    References[namedTypeSymbol] = true;
-                    return true;
-                }
-
                 foreach (var member in namedTypeSymbol.GetMembers())
                 {
                     if (member is not IFieldSymbol fieldSymbol || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
@@ -185,20 +196,78 @@ namespace Rishenerator
                     }
                     
                     var fieldTypeSymbol = fieldSymbol.Type;
-                    
-                    if (AnalyzeForReferenceGetter(fieldTypeSymbol))
+                    if(IsReferenceType(fieldTypeSymbol) || AnalyzeForReferenceGetter(fieldTypeSymbol))
                     {
                         needsReferencesGetter = true;
                     }
                 }
                 
-                References[namedTypeSymbol] = needsReferencesGetter;
+                RequiresGetter[namedTypeSymbol] = needsReferencesGetter;
                 if (needsReferencesGetter)
                 {
                     ReferencesGetterTypes.Add(namedTypeSymbol);
                 }
 
                 return needsReferencesGetter;
+            }
+
+            private bool IsReferenceType(ITypeSymbol typeSymbol)
+            {
+                if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+                {
+                    return false;
+                }
+
+                if (ReferencesTypes.TryGetValue(namedTypeSymbol, out var isReferenceType))
+                {
+                    return isReferenceType;
+                }
+
+                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern || !namedTypeSymbol.IsInternallyAccessible())
+                {
+                    ReferencesTypes[namedTypeSymbol] = false;
+                    return false;
+                }
+                
+                foreach (var interfaceTypeSymbol in namedTypeSymbol.AllInterfaces)
+                {
+                    var interfaceName = interfaceTypeSymbol.GetFullName(false);
+                    if (interfaceName == "RishUI.MemoryManagement.IReference")
+                    {
+                        ReferencesTypes[namedTypeSymbol] = true;
+                        return true;
+                    }
+                }
+                
+                ReferencesTypes[namedTypeSymbol] = false;
+                return false;
+            }
+
+            private ITypeSymbol GetManagedType(ITypeSymbol typeSymbol)
+            {
+                if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+                {
+                    return null;
+                }
+                
+                if (!ReferencesTypes.TryGetValue(namedTypeSymbol, out var isReferenceType) || !isReferenceType)
+                {
+                    return null;
+                }
+                
+                foreach (var interfaceTypeSymbol in namedTypeSymbol.AllInterfaces)
+                {
+                    var interfaceName = interfaceTypeSymbol.GetFullName(false);
+                    if (interfaceName != "RishUI.MemoryManagement.IReference")
+                    {
+                        continue;
+                    }
+                    
+                    var typeArgument = interfaceTypeSymbol.TypeArguments[0];
+                    return typeArgument;
+                }
+                
+                return null;
             }
         }
     }

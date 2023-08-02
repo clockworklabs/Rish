@@ -20,21 +20,6 @@ namespace Rishenerator
             var fullName = typeSymbol.GetFullName(false);
             return fullName is "RishUI.Element";
         }
-        public static bool IsRishReferenceType(this ITypeSymbol typeSymbol)
-        {
-            // if(typeSymbol is not INamedTypeSymbol { IsValueType: true } namedTypeSymbol)
-            // {
-            //     return false;
-            // }
-            //
-            // if (namedTypeSymbol.IsGenericType || namedTypeSymbol.Interfaces.Length > 0)
-            // {
-            //     return false;
-            // }
-            
-            var fullName = typeSymbol.GetFullName(false);
-            return fullName is "RishUI.Element" or "RishUI.Children";
-        }
         
         public static bool IsRishElement(this ITypeSymbol typeSymbol)
         {

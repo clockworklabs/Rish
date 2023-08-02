@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine.Scripting;
 
-namespace RishUI
+namespace RishUI.MemoryManagement
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class ReferencesGetterAttribute : PreserveAttribute { }
