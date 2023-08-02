@@ -280,21 +280,23 @@ namespace RishUI
                 child.AttachChildren(Children);
             }
 
+            protected override void Dispose() { }
+            
             protected override void ReferenceRegistered(IOwner owner)
             {
                 foreach (var element in Children)
                 {
-                    RegisterReferenceTo<ManagedElement>(element._id, owner);
+                    RegisterReferenceTo<ManagedElement>(element.ID, owner);
                 }
-                // TODO: Register reference to ClassName
+                RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
                 foreach (var element in Children)
                 {
-                    UnregisterReferenceTo<ManagedElement>(element._id, owner);
+                    UnregisterReferenceTo<ManagedElement>(element.ID, owner);
                 }
-                // TODO: Unregister reference to ClassName
+                UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
 
             public override bool Equals(ManagedElement other)
@@ -332,22 +334,24 @@ namespace RishUI
                 
                 child.AttachChildren(Children);
             }
+            
+            protected override void Dispose() { }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
                 foreach (var element in Children)
                 {
-                    RegisterReferenceTo<ManagedElement>(element._id, owner);
+                    RegisterReferenceTo<ManagedElement>(element.ID, owner);
                 }
-                // TODO: Register reference to ClassName
+                RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
                 foreach (var element in Children)
                 {
-                    UnregisterReferenceTo<ManagedElement>(element._id, owner);
+                    UnregisterReferenceTo<ManagedElement>(element.ID, owner);
                 }
-                // TODO: Unregister reference to ClassName
+                UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
 
             public override bool Equals(ManagedElement other)

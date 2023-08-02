@@ -1,4 +1,5 @@
 using System;
+using RishUI.MemoryManagement;
 
 namespace RishUI
 {
@@ -32,11 +33,15 @@ namespace RishUI
             public override Type Type => typeof(T);
             
             private P Props { get; set; }
+            private References References { get; set; } 
 
             public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
+                
+                References.Dispose();
+                References = ReferencesGetters.GetReferences(props);
             }
 
             public override void Invoke(Node node)
@@ -44,14 +49,26 @@ namespace RishUI
                 var (_, element) = node.AddChild<T>(Key);
                 element.Props = Props;
             }
+ 
+            protected override void Dispose()
+            {
+                References.Dispose();
+                References = default;
+            }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
-                // TODO: Register references to Props.GetReferences()
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(owner);
+                }
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
-                // TODO: Unregister references to Props.GetReferences()
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(owner);
+                }
             }
 
             public override bool Equals(ManagedElement other)

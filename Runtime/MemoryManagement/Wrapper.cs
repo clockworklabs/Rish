@@ -39,7 +39,7 @@ namespace RishUI.MemoryManagement
             var id = owner.GetID();
             if (!References.TryGetValue(id, out var currentCount))
             {
-                Debug.LogError($"{owner.GetType()} ({id}) doesn't own this reference");
+                Debug.LogError($"{owner.GetType()} ({id}) doesn't own this reference ({Managed.GetType()} - {ID})");
                 // throw new UnityException($"{owner.GetType()} ({id}) doesn't own this reference");
             }
 
