@@ -181,6 +181,8 @@ namespace RishUI
                 return;
             }
             
+            Debug.Log($"Register {typeof(T)}({id}) to {owner.GetType()}");
+            
             GetPool<T>()?.RegisterReference(id, owner);
         }
         public static void UnregisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
@@ -189,6 +191,8 @@ namespace RishUI
             {
                 return;
             }
+            
+            Debug.Log($"Unregister {typeof(T)}({id}) from {owner.GetType()}");
             
             GetPool<T>()?.UnregisterReference(id, owner);
         }
@@ -205,8 +209,9 @@ namespace RishUI
             {
                 return;
             }
-
+            
             var pool = PoolsList[poolIndex];
+            Debug.Log($"Register {pool.GetType()}({id}) to {owner.GetType()}");
             pool.RegisterReference(id, owner);
         }
         public static void UnregisterReferenceTo(Reference reference, IOwner owner)
@@ -224,6 +229,7 @@ namespace RishUI
             }
 
             var pool = PoolsList[poolIndex];
+            Debug.Log($"Unregister {pool.GetType()}({id}) from {owner.GetType()}");
             pool.UnregisterReference(id, owner);
         }
 

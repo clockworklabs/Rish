@@ -100,6 +100,7 @@ namespace RishUI
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
 
+        private Element RenderedElement { get; set; }
         private References References { get; set; }
 
         protected T GetFirstAncestorOfType<T>() where T : class
@@ -239,6 +240,8 @@ namespace RishUI
             {
                 mountingListener.ComponentWillUnmount();
             }
+            
+            Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
 
             if (References.Count > 0)
             {
@@ -249,6 +252,8 @@ namespace RishUI
             }
             
             OnUnmounted?.Invoke();
+            
+            RenderedElement = default;
 
             References.Dispose();
             References = default;
@@ -270,7 +275,12 @@ namespace RishUI
             }
 #endif
             
-            return Render();
+            var element = Render();
+            Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
+            RenderedElement = element;
+            Rish.RegisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
+
+            return element;
         }
 
         protected abstract Element Render();
