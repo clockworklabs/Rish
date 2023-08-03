@@ -275,12 +275,14 @@ namespace RishUI
             }
 #endif
             
-            var element = Render();
-            Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
-            RenderedElement = element;
+            var prevElement = RenderedElement;
+            
+            RenderedElement = Render();
+            
             Rish.RegisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
+            Rish.UnregisterReferenceTo<ManagedElement>(prevElement.ID, this);
 
-            return element;
+            return RenderedElement;
         }
 
         protected abstract Element Render();

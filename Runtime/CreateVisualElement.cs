@@ -284,18 +284,12 @@ namespace RishUI
             
             protected override void ReferenceRegistered(IOwner owner)
             {
-                foreach (var element in Children)
-                {
-                    RegisterReferenceTo<ManagedElement>(element.ID, owner);
-                }
+                RegisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
-                foreach (var element in Children)
-                {
-                    UnregisterReferenceTo<ManagedElement>(element.ID, owner);
-                }
+                UnregisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
 
@@ -339,18 +333,12 @@ namespace RishUI
 
             protected override void ReferenceRegistered(IOwner owner)
             {
-                foreach (var element in Children)
-                {
-                    RegisterReferenceTo<ManagedElement>(element.ID, owner);
-                }
+                RegisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
-                foreach (var element in Children)
-                {
-                    UnregisterReferenceTo<ManagedElement>(element.ID, owner);
-                }
+                UnregisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
             }
 
