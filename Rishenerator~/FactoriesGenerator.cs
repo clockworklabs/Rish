@@ -615,6 +615,11 @@ namespace Rishenerator
             }
             private static void AppendItemizedFactory(ItemizedProps props, string str0, string str1, string str2, StringBuilder sourceCode)
             {
+                if (props.SkipItemization)
+                {
+                    return;
+                }
+                
                 sourceCode.Append(str0);
                 AppendItemizedParameters(props, sourceCode);
                 sourceCode.Append(str1);
@@ -751,6 +756,8 @@ namespace Rishenerator
                 public int Count => Items?.Count ?? 0;
                 public bool Empty => Count <= 0;
                 
+                public bool SkipItemization { get; }
+                
                 public ItemizedProps(ITypeSymbol propsTypeSymbol, bool simple)
                 {
                     FullTypeName = propsTypeSymbol.GetFullName(true);
@@ -777,6 +784,11 @@ namespace Rishenerator
                         Items ??= new List<PropItem>();
                         var item = new PropItem(propsFieldSymbol, simple);
                         Items.Add(item);
+                    }
+
+                    if (Items is { Count: 1 } && Items[0].TypeFullName == "System.UInt64")
+                    {
+                        SkipItemization = true;
                     }
                 }
 
