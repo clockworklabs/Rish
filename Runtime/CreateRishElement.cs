@@ -75,6 +75,18 @@ namespace RishUI
             {
                 return other is RishDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.SmartCompare(Props, otherDefinition.Props);
             }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                if (Props is not P1 p)
+                {
+                    return false;
+                }
+
+                props = p;
+                return true;
+            }
         }
     }
 }

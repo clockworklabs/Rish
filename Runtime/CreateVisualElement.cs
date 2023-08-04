@@ -297,6 +297,12 @@ namespace RishUI
             {
                 return other is VisualDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && Comparers.Compare(Children, otherDefinition.Children);
             }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = Defaults.GetValue<P1>();
+                return false;
+            }
         }
 
         private class VisualDefinition<T, P> : ManagedElement where T: VisualElement, IVisualElement<P>, new() where P : struct
@@ -345,6 +351,18 @@ namespace RishUI
             public override bool Equals(ManagedElement other)
             {
                 return other is VisualDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && RishUtils.SmartCompare(Props, otherDefinition.Props) && Comparers.Compare(Children, otherDefinition.Children);
+            }
+            
+            public override bool TryGetProps<P1>(out P1 props)
+            {
+                props = default;
+                if (Props is not P1 p)
+                {
+                    return false;
+                }
+
+                props = p;
+                return true;
             }
         }
     } 

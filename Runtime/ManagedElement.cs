@@ -14,6 +14,8 @@ namespace RishUI
         protected abstract void ReferenceUnregistered(IOwner owner);
         public abstract void Invoke(Node node);
         public abstract bool Equals(ManagedElement other);
+        
+        public abstract bool TryGetProps<P>(out P props) where P : struct;
 
         void IManaged.Dispose() => Dispose();
         void IManaged.ReferenceRegistered(IOwner owner) => ReferenceRegistered(owner);

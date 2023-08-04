@@ -46,17 +46,17 @@ namespace RishUI
             
             return true;
         }
-        // public bool TryGetProps<P>(out P props)
-        // {
-        //     props = default;
-        //     if (!Valid)
-        //     {
-        //         return false;
-        //     }
-        //     
-        //     var definition = GetDefinition();
-        //     return definition is SingleElementDefinition singleElementDefinition && singleElementDefinition.TryGetProps(out props);
-        // }
+        public bool TryGetProps<P>(out P props) where P : struct
+        {
+            props = default;
+            if (!Valid)
+            {
+                return false;
+            }
+
+            var definition = GetDefinition();
+            return definition.TryGetProps(out props);
+        }
 
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
 
