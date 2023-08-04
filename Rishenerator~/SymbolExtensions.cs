@@ -78,6 +78,8 @@ namespace Rishenerator
             return typeSymbol.DeclaredAccessibility is Accessibility.Public or Accessibility.ProtectedOrInternal or Accessibility.Internal;
         }
         
+        public static string GetDefault(this ITypeSymbol typeSymbol) => $"default({typeSymbol.GetFullName(true)})";
+
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics)
         {
             var name = typeSymbol.Name;

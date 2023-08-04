@@ -20,8 +20,6 @@ namespace Rishenerator
                     return;
                 }
                 
-                Logger.Log(sourceCode);
-
                 var fileName = $"{context.Compilation.Assembly.Name}.ReferencesGettersProvider.g.cs";
                 context.AddSource(fileName, sourceCode);
             }
