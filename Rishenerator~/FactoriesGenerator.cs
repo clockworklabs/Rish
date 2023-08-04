@@ -193,175 +193,8 @@ namespace Rishenerator
             private (IMethodSymbol, string) GetMethodElementSourceCode(int index)
             {
                 var methodSymbol = MethodElements[index];
-                var typeSymbol = methodSymbol.ContainingType;
-                var typeSymbolFullName = typeSymbol.GetFullName(true);
-
-                var methodName = methodSymbol.Name;
-                var targetName = methodName.Substring(0, methodName.Length - 7);
-
-                var sourceCode = new StringBuilder();
                 
-                var parameters = methodSymbol.Parameters;
-                var propsTypeSymbol = parameters.Length > 0 ? parameters[0].Type : null;
-                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName(true);
-                if (propsTypeSymbolFullName == "RishUI.NoProps")
-                {
-                    propsTypeSymbol = null;
-                }
-
-                var hasProps = propsTypeSymbol != null;
-                
-                sourceCode.AppendLine(@$"    {typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints(false)}
-    {{
-        {methodSymbol.DeclaredAccessibility.ToModifiers()} class {targetName} : RishUI.RishElement{(hasProps ? $"<{propsTypeSymbolFullName}>" : string.Empty)}
-        {{
-            protected override RishUI.Element Render()
-            {{
-                return {typeSymbolFullName}.{methodName}({(hasProps ? "Props" : string.Empty)});
-            }}
-
-");
-
-                if (hasProps)
-                {
-                    var propsFieldsSymbols = new List<IFieldSymbol>();
-                    IFieldSymbol domDescriptorField = null;
-                    foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
-                    {
-                        if (propsMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } propsFieldSymbol)
-                        {
-                            continue;
-                        }
-                        
-                        propsFieldsSymbols.Add(propsFieldSymbol);
-                        if (domDescriptorField == null && propsFieldSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
-                        {
-                            domDescriptorField = propsFieldSymbol;
-                        }
-                    }
-
-                    var defaultProps = $"default({propsTypeSymbolFullName})";
-                    if (propsFieldsSymbols.Count <= 0)
-                    {
-                        sourceCode.AppendLine($"            public static RishUI.Element Create(ulong key = 0) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, {defaultProps});");
-                    }
-                    else
-                    {
-                        var hasDefaultProps = false;
-                        foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
-                        {
-                            if (propsMemberSymbol is not IPropertySymbol
-                                {
-                                    IsStatic: true, DeclaredAccessibility: Accessibility.Public
-                                } propsPropertySymbol || propsPropertySymbol.Type != propsTypeSymbol ||
-                                !propsPropertySymbol.HasAttribute("RishUI.DefaultAttribute"))
-                            {
-                                continue;
-                            }
-
-                            hasDefaultProps = true;
-                            defaultProps = $"{propsTypeSymbolFullName}.{propsPropertySymbol.Name}";
-                            break;
-                        }
-
-                        sourceCode.AppendLine($"            public static RishUI.Element Create(ulong key) => Create(key, {defaultProps});");
-                        sourceCode.AppendLine($"            public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(0, props);");
-                        sourceCode.AppendLine($"            public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, props);");
-
-                        sourceCode.Append("            public static RishUI.Element Create(ulong key = 0");
-                        foreach (var propsFieldSymbol in propsFieldsSymbols)
-                        {
-                            if (propsFieldSymbol == domDescriptorField)
-                            {
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Name>" : "RishUI.Name")} name = default");
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.ClassName>" : "RishUI.ClassName")} className = default");
-                                sourceCode.Append($", {(hasDefaultProps ? "RishUI.Overridable<RishUI.Style>" : "RishUI.Style")} style = default");
-                            }
-                            else
-                            {
-                                var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
-                                var propsFieldName = propsFieldSymbol.Name;
-
-                                sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
-                            }
-                        }
-
-                        sourceCode.AppendLine($@")
-            {{
-                return Create(key, new {propsTypeSymbolFullName}
-                {{");
-                        foreach (var propsFieldSymbol in propsFieldsSymbols)
-                        {
-                            var propsFieldName = propsFieldSymbol.Name;
-                            if (propsFieldSymbol == domDescriptorField)
-                            {
-                                sourceCode.AppendLine($@"                    {propsFieldName} = new RishUI.DOMDescriptor
-                    {{
-                        name = {(hasDefaultProps ? $"name.GetValue({defaultProps}.{propsFieldName}.name)" : "name")},
-                        className = {(hasDefaultProps ? $"className.GetValue({defaultProps}.{propsFieldName}.className)" : "className")},
-                        style = {(hasDefaultProps ? $"style.GetValue({defaultProps}.{propsFieldName}.style)" : "style")}
-                    }},");
-                            }
-                            else
-                            {
-                                sourceCode.AppendLine($"                    {propsFieldName} = {(hasDefaultProps ? $"{propsFieldName}.GetValue({defaultProps}.{propsFieldName})" : propsFieldName)},");
-                            }
-                        }
-
-                        sourceCode.AppendLine(@"                });
-            }");
-
-                        if (domDescriptorField != null)
-                        {
-                            for (var i = 0; i < 2; i++)
-                            {
-                                sourceCode.Append($"            public static RishUI.Element Create({(i == 0 ? "ulong key, " : string.Empty)}{(hasDefaultProps ? "RishUI.Overridable<RishUI.DOMDescriptor>" : "RishUI.DOMDescriptor")} descriptor = default");
-
-                                foreach (var propsFieldSymbol in propsFieldsSymbols)
-                                {
-                                    if (propsFieldSymbol == domDescriptorField)
-                                    {
-                                        continue;
-                                    }
-                                    
-                                    var propsFieldTypeSymbol = propsFieldSymbol.Type;
-                                    var propsFieldTypeSymbolFullName = propsFieldTypeSymbol.GetFullName(true);
-                                    var propsFieldName = propsFieldSymbol.Name;
-
-                                    sourceCode.Append($", {(hasDefaultProps ? $"RishUI.Overridable<{propsFieldTypeSymbolFullName}>" : propsFieldTypeSymbolFullName)} {propsFieldName} = default");
-                                }
-
-                                sourceCode.AppendLine($@")
-            {{
-                return Create({(i == 0 ? "key, " : string.Empty)}new {propsTypeSymbolFullName}
-                {{");
-                                foreach (var propsFieldSymbol in propsFieldsSymbols)
-                                {
-                                    var propsFieldName = propsFieldSymbol.Name;
-                                    sourceCode.AppendLine(propsFieldSymbol == domDescriptorField
-                                        ? $"                    {propsFieldName} = {(hasDefaultProps ? $"descriptor.GetValue({defaultProps}.{propsFieldName})" : "descriptor")},"
-                                        : $"                    {propsFieldName} = {(hasDefaultProps ? $"{propsFieldName}.GetValue({defaultProps}.{propsFieldName})" : propsFieldName)},");
-                                }
-
-                                sourceCode.AppendLine(@"                });
-            }");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    sourceCode.AppendLine($"            public static RishUI.Element Create(ulong key = 0) => RishUI.Rish.Create<{targetName}>(key);");
-                }
-                
-                sourceCode.AppendLine(@"        }
-    }");
-
-                
-                Wrap(typeSymbol, sourceCode);
-                
-                return (methodSymbol, sourceCode.ToString());
+                return (methodSymbol, CreateMethodElementFactories(methodSymbol));
             }
 
             private static void Wrap(INamedTypeSymbol typeSymbol, StringBuilder sourceCode)
@@ -389,12 +222,12 @@ namespace Rishenerator
 ");
                     sourceCode.AppendLine("}");
                 }
-            }
-
-            private static INamespaceSymbol GetContainingNamespace(INamedTypeSymbol typeSymbol)
-            {
-                var containingNamespace = typeSymbol.ContainingNamespace;
-                return containingNamespace is { IsGlobalNamespace: true } ? null : containingNamespace;
+                
+                static INamespaceSymbol GetContainingNamespace(INamedTypeSymbol typeSymbol)
+                {
+                    var containingNamespace = typeSymbol.ContainingNamespace;
+                    return containingNamespace is { IsGlobalNamespace: true } ? null : containingNamespace;
+                }
             }
 
             private static string CreateRishElementFactories(INamedTypeSymbol typeSymbol)
@@ -702,6 +535,79 @@ namespace Rishenerator
                 }
                 
                 sourceCode.AppendLine("}");
+                
+                Wrap(typeSymbol, sourceCode);
+                
+                return sourceCode.ToString();
+            }
+            private static string CreateMethodElementFactories(IMethodSymbol methodSymbol)
+            {
+                var sourceCode = new StringBuilder();
+                
+                var typeSymbol = methodSymbol.ContainingType;
+                var typeSymbolFullName = typeSymbol.GetFullName(true);
+
+                var methodName = methodSymbol.Name;
+                var targetName = methodName.Substring(0, methodName.Length - 7);
+                
+                var parameters = methodSymbol.Parameters;
+                var propsTypeSymbol = parameters.Length > 0 ? parameters[0].Type : null;
+                var propsTypeSymbolFullName = propsTypeSymbol?.GetFullName(true);
+                if (propsTypeSymbolFullName == "RishUI.NoProps")
+                {
+                    propsTypeSymbol = null;
+                }
+
+                var hasProps = propsTypeSymbol != null;
+                
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsConstraints(false)}
+{{
+    {methodSymbol.DeclaredAccessibility.ToModifiers()} class {targetName} : RishUI.RishElement{(hasProps ? $"<{propsTypeSymbolFullName}>" : string.Empty)}
+    {{
+        protected override RishUI.Element Render()
+        {{
+            return {typeSymbolFullName}.{methodName}({(hasProps ? "Props" : string.Empty)});
+        }}
+
+");
+                
+                if (hasProps)
+                {
+                    var propsItems = new ItemizedProps(propsTypeSymbol, false);
+                    
+                    if (propsItems.Empty)
+                    {
+                        // EMPTY
+                        sourceCode.AppendLine("        public static RishUI.Element Create() => Create(default(ulong));");
+                        // KEY
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, {propsItems.DefaultValue});");
+                    }
+                    else
+                    {
+                        // EMPTY
+                        sourceCode.AppendLine($"        public static RishUI.Element Create() => Create(default(ulong), {propsItems.DefaultValue});");
+                        // KEY
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key) => Create(key, {propsItems.DefaultValue});");
+                        // PROPS
+                        sourceCode.AppendLine($"        public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(default(ulong), props);");
+                        // ITEMIZED PROPS
+                        AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(", ") => Create(default(ulong), ", ");", sourceCode);
+                        // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, props);");
+                        // KEY, ITEMIZED PROPS
+                        AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(ulong key, ", ") => Create(key, ", ");", sourceCode);
+                    }
+                }
+                else
+                {
+                    // EMPTY
+                    sourceCode.AppendLine("        public static RishUI.Element Create() => Create(default(ulong));");
+                    // KEY
+                    sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key = 0) => RishUI.Rish.Create<{targetName}>(key);");
+                }
+                
+                sourceCode.AppendLine(@"    }
+}");
                 
                 Wrap(typeSymbol, sourceCode);
                 
