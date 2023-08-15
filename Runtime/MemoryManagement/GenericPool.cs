@@ -32,8 +32,8 @@ namespace RishUI.MemoryManagement
             if (!FreeStack.TryPop(out var id))
             {
                 id = CreateNew();
-                AddGarbage(id);
             }
+            AddGarbage(id);
 
             return id;
         }
@@ -132,7 +132,6 @@ namespace RishUI.MemoryManagement
             {
                 return;
             }
-
             if (wrapper.ReferencesCount > 0)
             {
                 throw new UnityException("There are still active references pointing to this managed element.");

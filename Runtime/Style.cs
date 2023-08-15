@@ -99,6 +99,7 @@ namespace RishUI
         
         public StyleColorsShorthand borderColor
         {
+            get => new StyleColorsShorthand(borderTopColor, borderRightColor, borderBottomColor, borderLeftColor);
             set
             {
                 borderTopColor = value.top;

@@ -51,8 +51,8 @@ namespace RishUI
             if (!freeStack.TryPop(out var id))
             {
                 id = CreateNew<T>();
-                AddGarbage(id);
             }
+            AddGarbage(id);
 
             return id;
         }

@@ -147,7 +147,7 @@ namespace Rishenerator
                     case ComparisonType.MemoryComparison when fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated:
                     {
                         var defaultComparison = GetFieldComparisonSourceCode($"{fieldName}.Value", GetDefaultComparisonType(fieldTypeSymbol)).Replace("ref ", string.Empty);
-                        sourceCode = $"a{fieldName}.HasValue == b{fieldName}.HasValue && a{fieldName}.HasValue && {defaultComparison}";
+                        sourceCode = $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {defaultComparison})";
                         break;
                     }
                     case ComparisonType.MemoryComparison when fieldTypeSymbol.IsTupleType:

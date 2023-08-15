@@ -52,7 +52,7 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("ClassName already closed. You can't modify it after the initial creation.");
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
             }
             
             Elements.Add(element);
