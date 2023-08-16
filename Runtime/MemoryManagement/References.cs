@@ -29,6 +29,29 @@ namespace RishUI.MemoryManagement
             _list.Add(reference);
         }
 
+        public void Add(References references)
+        {
+            foreach (var reference in references)
+            {
+                _list.Add(reference);
+            }
+        }
+
+        public void RegisterReference(IOwner owner)
+        {
+            foreach (var reference in this)
+            {
+                reference.RegisterReference(owner);
+            }
+        }
+        public void UnregisterReference(IOwner owner)
+        {
+            foreach (var reference in this)
+            {
+                reference.UnregisterReference(owner);
+            }
+        }
+
         internal void Dispose()
         {
             if (!_initialized)

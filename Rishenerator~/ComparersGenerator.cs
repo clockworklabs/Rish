@@ -211,6 +211,15 @@ namespace Rishenerator
                 {
                     return false;
                 }
+
+                if (namedTypeSymbol.IsTupleType)
+                {
+                    var underlyingType = namedTypeSymbol.TupleUnderlyingType;
+                    if (underlyingType != null)
+                    {
+                        namedTypeSymbol = underlyingType;
+                    }
+                }
                 
                 if (Comparers.TryGetValue(namedTypeSymbol, out var needsComparer))
                 {

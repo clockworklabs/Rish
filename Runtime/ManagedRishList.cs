@@ -12,17 +12,35 @@ namespace RishUI
         public int Count => Elements.Count;
 
         private bool Open { get; set; } = true;
+        private References References { get; set; }
 
         void IManaged.Dispose()
         {
             Elements.Clear();
             Open = true;
+            
+            References.Dispose();
+            References = default;
         }
         void IManaged.ReferenceRegistered(IOwner owner)
         {
-            Open = false;
+            if (Open)
+            {
+                Open = false;
+            
+                References.Dispose();
+                References = new References();
+                foreach(var element in this)
+                {
+                    References.Add(ReferencesGetters.GetReferences(element));
+                }
+            }
+            
+            References.RegisterReference(owner);
         }
-        void IManaged.ReferenceUnregistered(IOwner owner) { }
+        void IManaged.ReferenceUnregistered(IOwner owner) {
+            References.UnregisterReference(owner);
+        }
 
         public T Get(int index) => Elements[index];
 

@@ -245,7 +245,7 @@ namespace RishUI
         private T MountAs<T>(Node parent, ulong key) where T : class, IElement, new() => Machine.MountAs<T>(parent, key);
 
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
-
+        
         internal void Render()
         {
 #if UNITY_EDITOR
@@ -262,7 +262,7 @@ namespace RishUI
             AttachElement(rishElement.Render());
         }
 
-        internal void AttachElement(Element element)
+        private void AttachElement(Element element)
         {
 #if UNITY_EDITOR
             if (!IsActive())

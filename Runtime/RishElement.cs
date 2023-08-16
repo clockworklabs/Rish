@@ -132,20 +132,11 @@ namespace RishUI
                 propsListener?.PropsWillChange();
             }
 
-            if (References.Count > 0)
-            {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
-            }
-
+            References.UnregisterReference(this);
             References.Dispose();
+            
             References = ReferencesGetters.GetReferences(value);
-            foreach (var reference in References)
-            {
-                reference.RegisterReference(this);
-            }
+            References.RegisterReference(this);
             
             _props = value;
 
@@ -243,13 +234,7 @@ namespace RishUI
             
             Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
 
-            if (References.Count > 0)
-            {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
-            }
+            References.UnregisterReference(this);
             
             OnUnmounted?.Invoke();
             
@@ -578,50 +563,5 @@ namespace RishUI
         {
             Props = default;
         }
-    }
-
-    public delegate Element FunctionElement();
-    public delegate Element FunctionElement<P>(P props) where P : struct;
-
-    [IgnoreWarnings]
-    internal class FunctionalElement : RishElement
-    {
-        private FunctionElement _delegate;
-        internal FunctionElement Delegate
-        {
-            private get => _delegate;
-            set
-            {
-                if (_delegate == value)
-                {
-                    return;
-                }
-                _delegate = value;
-                Dirty();
-            }
-        }
-
-        protected override Element Render() => Delegate?.Invoke() ?? Element.Null;
-    }
-    
-    [IgnoreWarnings]
-    internal class FunctionalElement<P> : RishElement<P> where P : struct
-    {
-        private FunctionElement<P> _delegate;
-        internal FunctionElement<P> Delegate
-        {
-            private get => _delegate;
-            set
-            {
-                if (_delegate == value)
-                {
-                    return;
-                }
-                _delegate = value;
-                Dirty();
-            }
-        }
-
-        protected override Element Render() => Delegate?.Invoke(Props) ?? Element.Null;
     }
 }
