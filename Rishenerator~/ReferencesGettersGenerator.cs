@@ -36,9 +36,9 @@ namespace Rishenerator
         
         private class SyntaxReceiver : ISyntaxContextReceiver
         {
-            private Dictionary<INamedTypeSymbol, bool> ReferencesTypes { get; } = new();
+            private Dictionary<INamedTypeSymbol, bool> ReferencesTypes { get; } = new(SymbolEqualityComparer.Default);
             private List<INamedTypeSymbol> ReferencesGetterTypes { get; } = new();
-            private Dictionary<INamedTypeSymbol, bool> RequiresGetter { get; } = new();
+            private Dictionary<INamedTypeSymbol, bool> RequiresGetter { get; } = new(SymbolEqualityComparer.Default);
 
             private List<Exception> Exceptions { get; } = new();
             public bool HasExceptions => Exceptions.Count > 0;
@@ -71,7 +71,7 @@ namespace Rishenerator
                     return null;
                 }
 
-                var unboundTypesGenerated = new HashSet<INamedTypeSymbol>();
+                var unboundTypesGenerated = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
                 var stringBuilder = new StringBuilder();
 

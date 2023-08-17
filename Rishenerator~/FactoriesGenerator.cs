@@ -696,7 +696,7 @@ namespace Rishenerator
             {
                 foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                 {
-                    if (propsMemberSymbol is not IPropertySymbol { IsStatic: true, DeclaredAccessibility: Accessibility.Public } propsPropertySymbol || propsPropertySymbol.Type != propsTypeSymbol || !propsPropertySymbol.HasAttribute("RishUI.DefaultAttribute"))
+                    if (propsMemberSymbol is not IPropertySymbol { IsStatic: true, DeclaredAccessibility: Accessibility.Public } propsPropertySymbol || !propsPropertySymbol.Type.Equals(propsTypeSymbol, SymbolEqualityComparer.IncludeNullability) || !propsPropertySymbol.HasAttribute("RishUI.DefaultAttribute"))
                     {
                         continue;
                     }

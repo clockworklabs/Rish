@@ -17,7 +17,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Warning,
             true,
-            "RishElements should be partial for factory methods to be generated",
+            "RishElements should be partial for factory methods to be generated.",
             null // TODO: Help link to documentation
         );
         private static readonly DiagnosticDescriptor PartialVisualElementRule = new(
@@ -27,7 +27,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Warning,
             true,
-            "VisualElements should be partial for factory methods to be generated",
+            "VisualElements should be partial for factory methods to be generated.",
             null // TODO: Help link to documentation
         );
         private static readonly DiagnosticDescriptor PropsRishValueTypeRule = new(
@@ -37,7 +37,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "Props types must have the RishValueType attribute",
+            "Props types must have the RishValueType attribute.",
             null // TODO: Help link to documentation
         );
         private static readonly DiagnosticDescriptor StateRishValueTypeRule = new(
@@ -47,7 +47,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "State types must have the RishValueType attribute",
+            "State types must have the RishValueType attribute.",
             null // TODO: Help link to documentation
         );
 
@@ -58,7 +58,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "Structs with RishValueType attribute must be at least internal",
+            "Structs with RishValueType attribute must be at least internal.",
             null // TODO: Help link to documentation
         );
         
@@ -69,7 +69,7 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "Structs flagged for an auto comparer must be at least internal",
+            "Structs flagged for an auto comparer must be at least internal.",
             null // TODO: Help link to documentation
         );
         
@@ -80,13 +80,12 @@ namespace Rishenerator
             "Usage",
             DiagnosticSeverity.Error,
             true,
-            "DOMDescriptor attribute is valid only on DOMDescriptor fields",
+            "DOMDescriptor attribute is valid only on DOMDescriptor fields.",
             null // TODO: Help link to documentation
         );
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
-
-
+        
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
