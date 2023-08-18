@@ -1,202 +1,170 @@
-using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Rishenerator
 {
     [Generator]
-    public class FactoriesGenerator : ISourceGenerator
+    public class FactoriesGenerator : IIncrementalGenerator
     {
-        void ISourceGenerator.Execute(GeneratorExecutionContext context)
+        void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver || syntaxReceiver.HasExceptions) return;
+            var flaggedForAutoComparer = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: static (s, _) => IsSyntaxTargetForGeneration(s), 
+                    transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
+                .Where(static m => m is not null);
             
-            var exceptionsFileName = $"{context.Compilation.Assembly.Name}.FactoriesExceptions.g.cs";
-            
-            try
-            {
-                for (int i = 0, n = syntaxReceiver.Count; i < n; i++)
-                {
-                    var (symbol, sourceCode) = syntaxReceiver.GetSourceCode(i);
-                    string fileName;
-                    switch (symbol)
-                    {
-                        case INamedTypeSymbol namedTypeSymbol:
-                            fileName = namedTypeSymbol.GetFullName(false);
-                            break;
-                        case IMethodSymbol methodSymbol:
-                        {
-                            var containingType = methodSymbol.ContainingType;
-                            fileName = $"{containingType.GetFullName(false)}.{methodSymbol.Name}";
-                            break;
-                        }
-                        default:
-                            return;
-                    }
+            var compilationAndFlaggedTypes = context.CompilationProvider.Combine(flaggedForAutoComparer.Collect());
 
-                    context.AddSource($"{fileName}.g.cs", sourceCode);
-                }
-            }
-            catch (Exception e)
-            {
-                context.AddSource(exceptionsFileName, e.ToString());
-                Logger.Log($"EXCEPTION: {e}");
-            }
+            context.RegisterSourceOutput(compilationAndFlaggedTypes, static (spc, source) => Execute(source.Item1, source.Item2, spc));
         }
 
-        void ISourceGenerator.Initialize(GeneratorInitializationContext context)
+        private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+            return node switch
+            {
+                ClassDeclarationSyntax classDeclaration => classDeclaration.BaseList?.Types.Count > 0,
+                MethodDeclarationSyntax methodDeclaration => methodDeclaration.ReturnType is not PredefinedTypeSyntax &&
+                                                             methodDeclaration.ParameterList.Parameters.Count <= 1,
+                _ => false
+            };
+        }
+
+        private static SyntaxNode GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
+        {
+            var semanticModel = context.SemanticModel;
+            var node = context.Node;
+            var symbol = semanticModel.GetDeclaredSymbol(node);
+            
+            if (symbol is INamedTypeSymbol typeSymbol)
+            {
+                if (typeSymbol.IsAbstract || typeSymbol.IsStatic)
+                {
+                    return null;
+                }
+            
+                if (!typeSymbol.IsRishElement() && !typeSymbol.IsVisualElement())
+                {
+                    return null;
+                }
+            
+                var classDeclaration = (ClassDeclarationSyntax)node;
+                
+                var isPartial = classDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
+                if (!isPartial)
+                {
+                    return null;
+                }
+                        
+                var parent = classDeclaration.Parent;
+                while (parent is ClassDeclarationSyntax containingClassDeclaration)
+                {
+                    var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
+                    if (!containingTypeIsPartial)
+                    {
+                        return null;
+                    }
+            
+                    parent = parent.Parent;
+                }
+            
+                return classDeclaration;
+            } else if (symbol is IMethodSymbol methodSymbol)
+            {
+                if (methodSymbol.IsAbstract || !methodSymbol.IsStatic || methodSymbol.IsGenericMethod || methodSymbol.Name.Length <= 7 || !methodSymbol.Name.EndsWith("Element"))
+                {
+                    return null;
+                }
+            
+                var parameters = methodSymbol.Parameters;
+                if (parameters.Length > 1 || methodSymbol.ReturnType.IsElement())
+                {
+                    return null;
+                }
+            
+                if (parameters.Length > 0)
+                {
+                    var parameterType = parameters[0].Type;
+                    if (!parameterType.HasAttribute("RishUI.RishValueTypeAttribute"))
+                    {
+                        return null;
+                    }
+                }
+                        
+                var methodDeclaration = (MethodDeclarationSyntax)node;
+                
+                var parent = methodDeclaration.Parent;
+                while (parent is ClassDeclarationSyntax containingClassDeclaration)
+                {
+                    var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
+                    if (!containingTypeIsPartial)
+                    {
+                        return null;
+                    }
+            
+                    parent = parent.Parent;
+                }
+            
+                return methodDeclaration;
+            }
+            
+            return null;
         }
         
-        private class SyntaxReceiver : ISyntaxContextReceiver
+        private static void Execute(Compilation compilation, ImmutableArray<SyntaxNode> nodes, SourceProductionContext context)
         {
-            private List<INamedTypeSymbol> RishElements { get; } = new();
-            private List<INamedTypeSymbol> VisualElements { get; } = new();
-            private List<IMethodSymbol> MethodElements { get; } = new();
-            public int Count => RishElements.Count + VisualElements.Count + MethodElements.Count;
-
-            private List<Exception> Exceptions { get; } = new();
-            public bool HasExceptions => Exceptions.Count > 0;
-
-            void ISyntaxContextReceiver.OnVisitSyntaxNode(GeneratorSyntaxContext context)
+            if (nodes.IsDefaultOrEmpty)
             {
-                try
+                // nothing to do yet
+                return;
+            }
+
+            var distinctNodes = nodes.Distinct();
+            foreach (var node in distinctNodes)
+            {
+                context.CancellationToken.ThrowIfCancellationRequested();
+
+                var semanticModel = compilation.GetSemanticModel(node.SyntaxTree);
+                var symbol = semanticModel.GetDeclaredSymbol(node);
+                
+                string fileName;
+                string sourceCode;
+                if (symbol is INamedTypeSymbol namedTypeSymbol)
                 {
-                    var node = context.Node;
-                    if (node is ClassDeclarationSyntax classDeclaration)
+                    fileName = namedTypeSymbol.GetFullName(false);
+                    if (namedTypeSymbol.IsRishElement())
                     {
-                        var semanticModel = context.SemanticModel;
-                        if (semanticModel.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol typeSymbol || typeSymbol.IsAbstract)
-                        {
-                            return;
-                        }
-
-                        var isRishElement = typeSymbol.IsRishElement();
-                        var isVisualElement = !isRishElement && typeSymbol.IsVisualElement();
-
-                        if (!isRishElement && !isVisualElement)
-                        {
-                            return;
-                        }
-                    
-                        var isPartial = classDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
-                        if (!isPartial)
-                        {
-                            return;
-                        }
-                        
-                        var parent = classDeclaration.Parent;
-                        while (parent is ClassDeclarationSyntax containingClassDeclaration)
-                        {
-                            var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
-                            if (!containingTypeIsPartial)
-                            {
-                                return;
-                            }
-
-                            parent = parent.Parent;
-                        }
-
-                        if (isRishElement)
-                        {
-                            RishElements.Add(typeSymbol);
-                        }
-                        else
-                        {
-                            VisualElements.Add(typeSymbol);
-                        }
-                    } else if (node is MethodDeclarationSyntax methodDeclaration)
-                    {
-                        var semanticModel = context.SemanticModel;
-                        if (semanticModel.GetDeclaredSymbol(methodDeclaration) is not IMethodSymbol methodSymbol || 
-                            methodSymbol.IsAbstract || !methodSymbol.IsStatic || 
-                            methodSymbol.IsGenericMethod || methodSymbol.Name.Length <= 7 || !methodSymbol.Name.EndsWith("Element"))
-                        {
-                            return;
-                        }
-
-                        var parameters = methodSymbol.Parameters;
-                        if (parameters.Length > 1 || methodSymbol.ReturnType.IsElement())
-                        {
-                            return;
-                        }
-
-                        if (parameters.Length > 0)
-                        {
-                            var parameterType = parameters[0].Type;
-                            if (!parameterType.HasAttribute("RishUI.RishValueTypeAttribute"))
-                            {
-                                return;
-                            }
-                        }
-                        
-                        var parent = methodDeclaration.Parent;
-                        while (parent is ClassDeclarationSyntax containingClassDeclaration)
-                        {
-                            var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
-                            if (!containingTypeIsPartial)
-                            {
-                                return;
-                            }
-
-                            parent = parent.Parent;
-                        }
-                        
-                        MethodElements.Add(methodSymbol);
+                        sourceCode = Emitter.CreateRishElementFactories(namedTypeSymbol);
                     }
-                }
-                catch (Exception e)
+                    else
+                    {
+                        sourceCode = Emitter.CreateVisualElementFactories(namedTypeSymbol);
+                    }
+                } else if (symbol is IMethodSymbol methodSymbol)
                 {
-                    Exceptions.Add(e);
-                    Logger.Log($"EXCEPTION: {e}");
+                    var containingType = methodSymbol.ContainingType;
+                    fileName = $"{containingType.GetFullName(false)}.{methodSymbol.Name}";
+                    sourceCode = Emitter.CreateMethodElementFactories(methodSymbol);
                 }
-            }
-
-            public (ISymbol, string) GetSourceCode(int index)
-            {
-                if (index < RishElements.Count)
+                else
                 {
-                    return GetRishElementSourceCode(index);
+                    continue;
                 }
 
-                index -= RishElements.Count;
-                if (index < VisualElements.Count)
-                {
-                    return GetVisualElementSourceCode(index);
-                }
-
-                index -= VisualElements.Count;
-                return GetMethodElementSourceCode(index);
+                var sourceText = SourceText.From(sourceCode, Encoding.UTF8);
+                context.AddSource(fileName, sourceText);
             }
+        }
 
-            private (INamedTypeSymbol, string) GetRishElementSourceCode(int index)
-            {
-                var typeSymbol = RishElements[index];
-                
-                return (typeSymbol, CreateRishElementFactories(typeSymbol));
-            }
-
-            private (INamedTypeSymbol, string) GetVisualElementSourceCode(int index)
-            {
-                var typeSymbol = VisualElements[index];
-
-                return (typeSymbol, CreateVisualElementFactories(typeSymbol));
-            }
-
-            private (IMethodSymbol, string) GetMethodElementSourceCode(int index)
-            {
-                var methodSymbol = MethodElements[index];
-                
-                return (methodSymbol, CreateMethodElementFactories(methodSymbol));
-            }
-
+        private static class Emitter
+        {
             private static void Wrap(INamedTypeSymbol typeSymbol, StringBuilder sourceCode)
             {
                 var containingType = typeSymbol.ContainingType;
@@ -230,7 +198,7 @@ namespace Rishenerator
                 }
             }
 
-            private static string CreateRishElementFactories(INamedTypeSymbol typeSymbol)
+            public static string CreateRishElementFactories(INamedTypeSymbol typeSymbol)
             {
                 var sourceCode = new StringBuilder();
                 
@@ -289,7 +257,7 @@ namespace Rishenerator
                 
                 return sourceCode.ToString();
             }
-            private static string CreateVisualElementFactories(INamedTypeSymbol typeSymbol)
+            public static string CreateVisualElementFactories(INamedTypeSymbol typeSymbol)
             {
                 var sourceCode = new StringBuilder();
                 
@@ -540,7 +508,7 @@ namespace Rishenerator
                 
                 return sourceCode.ToString();
             }
-            private static string CreateMethodElementFactories(IMethodSymbol methodSymbol)
+            public static string CreateMethodElementFactories(IMethodSymbol methodSymbol)
             {
                 var sourceCode = new StringBuilder();
                 
