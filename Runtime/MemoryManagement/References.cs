@@ -6,31 +6,39 @@ namespace RishUI.MemoryManagement
 {
     public struct References : IEnumerable<Reference>
     {
-        private readonly bool _initialized;
+        private bool _temp;
+        private bool _initialized;
         private NativeList<Reference> _list;
         public int Count => _initialized ? _list.Length : 0;
 
-        public References(bool initialize)
+        public References(bool temp)
         {
-            if (!initialize)
-            {
-                _initialized = false;
-                _list = default;
-            }
-            else
-            {
-                _initialized = true;
-                _list = new NativeList<Reference>(Allocator.Persistent);
-            }
+            _temp = temp;
+            _initialized = false;
+            _list = default;
         }
 
         public void Add(Reference reference)
         {
+            if (_initialized)
+            {
+                var allocator = _temp ? Allocator.Persistent : Allocator.Temp;
+                _list = new NativeList<Reference>(allocator);
+                _initialized = true;
+            }
+            
             _list.Add(reference);
         }
 
         public void Add(References references)
         {
+            if (_initialized)
+            {
+                var allocator = _temp ? Allocator.Persistent : Allocator.Temp;
+                _list = new NativeList<Reference>(allocator);
+                _initialized = true;
+            }
+            
             foreach (var reference in references)
             {
                 _list.Add(reference);

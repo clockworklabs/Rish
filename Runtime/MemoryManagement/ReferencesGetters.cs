@@ -15,7 +15,7 @@ namespace RishUI.MemoryManagement
 
         public static int Count => Methods.Count;
 
-        private delegate References ReferencesGetter<in T>(T owner);
+        private delegate References ReferencesGetter<in T>(T owner, bool temp);
         
         static ReferencesGetters()
         {
@@ -25,7 +25,7 @@ namespace RishUI.MemoryManagement
             }
         }
 
-        public static References GetReferences<T>(T owner) where T : struct
+        public static References GetReferences<T>(T owner, bool temp = false) where T : struct
         {
             if (!Contains<T>())
             {
@@ -33,7 +33,7 @@ namespace RishUI.MemoryManagement
             }
             
             var getter = GetDelegate<T>();
-            var references = getter?.Invoke(owner) ?? default;
+            var references = getter?.Invoke(owner, temp) ?? default;
             if (references.IsValid())
             {
                 return references;

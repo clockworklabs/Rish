@@ -32,7 +32,9 @@ namespace RishUI
                 References = new References(true);
                 foreach(var element in this)
                 {
-                    References.Add(ReferencesGetters.GetReferences(element));
+                    var references = ReferencesGetters.GetReferences(element, true);
+                    References.Add(references);
+                    references.Dispose();
                 }
             }
             

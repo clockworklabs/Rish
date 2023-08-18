@@ -352,9 +352,9 @@ namespace Rishenerator
         
         private class Emitter
         {
-            public string Emit(IReadOnlyCollection<AutoComparer> autoComparerTypes, CancellationToken contextCancellationToken)
+            public string Emit(IReadOnlyCollection<AutoComparer> autoComparers, CancellationToken contextCancellationToken)
             {
-                if (autoComparerTypes.Count <= 0)
+                if (autoComparers.Count <= 0)
                 {
                     return string.Empty;
                 }
@@ -367,7 +367,7 @@ namespace Rishenerator
     public static class AutoComparersProvider
     {");
 
-                foreach (var autoComparer in autoComparerTypes)
+                foreach (var autoComparer in autoComparers)
                 {
                     contextCancellationToken.ThrowIfCancellationRequested();
                     

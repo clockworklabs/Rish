@@ -82,6 +82,11 @@ namespace Rishenerator
 
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics)
         {
+            if (typeSymbol == null)
+            {
+                return string.Empty;
+            }
+            
             var name = typeSymbol.Name;
             if (typeSymbol is ITypeParameterSymbol)
             {
