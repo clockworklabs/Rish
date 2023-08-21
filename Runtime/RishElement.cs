@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RishUI.Events;
 using RishUI.MemoryManagement;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -101,7 +102,7 @@ namespace RishUI
         private bool ReadyToUnmount { get; set; }
 
         private Element RenderedElement { get; set; }
-        private References References { get; set; }
+        private NativeList<Reference> References { get; set; }
 
         protected T GetFirstAncestorOfType<T>() where T : class
         {
@@ -132,11 +133,22 @@ namespace RishUI
                 propsListener?.PropsWillChange();
             }
 
-            References.UnregisterReference(this);
-            References.Dispose();
-            
+            if (References.IsCreated)
+            {
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+                References.Dispose();
+            }
             References = ReferencesGetters.GetReferences(value);
-            References.RegisterReference(this);
+            if (References.IsCreated)
+            {
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(this);
+                }
+            }
             
             _props = value;
 
@@ -233,15 +245,19 @@ namespace RishUI
             }
             
             Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
-
-            References.UnregisterReference(this);
-            
-            OnUnmounted?.Invoke();
-            
             RenderedElement = default;
 
-            References.Dispose();
+            if (References.IsCreated)
+            {
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+                References.Dispose();
+            }
             References = default;
+            
+            OnUnmounted?.Invoke();
             
             Node = null;
             
@@ -493,19 +509,21 @@ namespace RishUI
             {
                 var dirty = !RishUtils.SmartCompare(value, _state);
 
-                if (References.Count > 0)
+                if (References.IsCreated)
                 {
                     foreach (var reference in References)
                     {
                         reference.UnregisterReference(this);
                     }
+                    References.Dispose();
                 }
-                
-                References.Dispose();
                 References = ReferencesGetters.GetReferences(value);
-                foreach (var reference in References)
+                if (References.IsCreated)
                 {
-                    reference.RegisterReference(this);
+                    foreach (var reference in References)
+                    {
+                        reference.RegisterReference(this);
+                    }
                 }
                 
                 _state = value;
@@ -517,12 +535,12 @@ namespace RishUI
             }
         }
 
-        private References References { get; set; }
+        private NativeList<Reference> References { get; set; }
         
         protected RishElement()
         {
             OnMounted += SetDefaultState;
-            OnUnmounted += UnregisterReferences;
+            OnUnmounted += DisposeReferences;
         }
 
         private void SetDefaultState()
@@ -530,16 +548,17 @@ namespace RishUI
             State = Defaults.GetValue<S>();
         }
 
-        private void UnregisterReferences()
+        private void DisposeReferences()
         {
-            if (References.Count > 0)
+            if (!References.IsCreated)
             {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
+                return;
             }
-            
+
+            foreach (var reference in References)
+            {
+                reference.UnregisterReference(this);
+            }
             References.Dispose();
             References = default;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using RishUI.MemoryManagement;
+using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
@@ -12,14 +13,17 @@ namespace RishUI
         public int Count => Elements.Count;
 
         private bool Open { get; set; } = true;
-        private References References { get; set; }
+        private NativeList<Reference> References { get; set; }
 
         void IManaged.Dispose()
         {
             Elements.Clear();
             Open = true;
-            
-            References.Dispose();
+
+            if (References.IsCreated)
+            {
+                References.Dispose();
+            }
             References = default;
         }
         void IManaged.ReferenceRegistered(IOwner owner)
@@ -27,21 +31,45 @@ namespace RishUI
             if (Open)
             {
                 Open = false;
-            
-                References.Dispose();
-                References = new References(true);
+
+                if (References.IsCreated)
+                {
+                    References.Dispose();
+                }
+                References = new NativeList<Reference>(Allocator.Temp);
                 foreach(var element in this)
                 {
                     var references = ReferencesGetters.GetReferences(element, true);
-                    References.Add(references);
+                    if (references.IsCreated)
+                    {
+                        foreach (var reference in references)
+                        {
+                            References.Add(reference);
+                        }
+                    }
                     references.Dispose();
                 }
+                if (References.Length <= 0)
+                {
+                    References = default;
+                }
             }
+
+            if (!References.IsCreated) return;
             
-            References.RegisterReference(owner);
+            foreach (var reference in References)
+            {
+                reference.RegisterReference(owner);
+            }
         }
-        void IManaged.ReferenceUnregistered(IOwner owner) {
-            References.UnregisterReference(owner);
+        void IManaged.ReferenceUnregistered(IOwner owner)
+        {
+            if (!References.IsCreated) return;
+            
+            foreach (var reference in References)
+            {
+                reference.UnregisterReference(owner);
+            }
         }
 
         public T Get(int index) => Elements[index];

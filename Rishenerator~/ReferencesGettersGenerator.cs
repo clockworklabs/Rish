@@ -105,15 +105,15 @@ namespace Rishenerator
                 FullName = typeSymbol.GetFullName(true);
                 Generics = typeSymbol.GetGenericsParametersName(true);
                 GenericsConstraints = typeSymbol.GetGenericsConstraints(true);
+
+                if (parser.DoesNotContainReferences(typeSymbol))
+                {
+                    return;
+                }
                 
                 foreach (var member in typeSymbol.GetMembers())
                 {
                     if (member is not IFieldSymbol fieldSymbol)
-                    {
-                        continue;
-                    }
-
-                    if (parser.DoesNotContainReferences(fieldSymbol.Type))
                     {
                         continue;
                     }
@@ -127,7 +127,7 @@ namespace Rishenerator
             private void AddField(Parser parser, IFieldSymbol fieldSymbol)
             {
                 var field = new Field(parser, fieldSymbol);
-                if (!field.ContainsReferences)
+                if (string.IsNullOrWhiteSpace(field.Name) || !field.ContainsReferences)
                 {
                     return;
                 }
@@ -149,6 +149,11 @@ namespace Rishenerator
             
             public Field(Parser parser, IFieldSymbol fieldSymbol)
             {
+                if (fieldSymbol.AssociatedSymbol is IPropertySymbol)
+                {
+                    return;
+                }
+                
                 Name = fieldSymbol.Name;
                 
                 var fieldTypeSymbol = fieldSymbol.Type;
@@ -163,10 +168,15 @@ namespace Rishenerator
                 {
                     return;
                 }
-                
-                if (fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public || !fieldTypeSymbol.IsValueType)
+
+                if (!fieldTypeSymbol.IsValueType)
                 {
                     parser.Register(fieldTypeSymbol, false);
+                    return;
+                }
+                
+                if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
+                {
                     return;
                 }
                 
@@ -176,8 +186,7 @@ namespace Rishenerator
                     return;
                 }
                 
-                var childMembers = fieldTypeSymbol.GetMembers();
-                foreach (var childMember in childMembers)
+                foreach (var childMember in fieldTypeSymbol.GetMembers())
                 {
                     if (childMember is not IFieldSymbol childField)
                     {
@@ -258,7 +267,7 @@ namespace Rishenerator
                     return;
                 }
 
-                if (IsReferenceType(namedTypeSymbol, out _))
+                if (IsReferenceType(namedTypeSymbol, out _) || DoesNotContainReferences(namedTypeSymbol))
                 {
                     return;
                 }
@@ -366,9 +375,9 @@ namespace Rishenerator
                     contextCancellationToken.ThrowIfCancellationRequested();
                     
                     stringBuilder.AppendLine($@"        [RishUI.MemoryManagement.ReferencesGetter]
-        private static RishUI.MemoryManagement.References GetReferences{referencesGetter.Generics}({referencesGetter.FullName} value, bool temp){referencesGetter.GenericsConstraints}
+        private static Unity.Collections.NativeList<RishUI.MemoryManagement.Reference> GetReferences{referencesGetter.Generics}({referencesGetter.FullName} value, bool temp){referencesGetter.GenericsConstraints}
         {{
-            return new RishUI.MemoryManagement.References(temp)
+            return new Unity.Collections.NativeList<RishUI.MemoryManagement.Reference>(temp ? Unity.Collections.Allocator.Temp : Unity.Collections.Allocator.Persistent)
             {{");
                     
                     foreach (var field in referencesGetter.Fields)

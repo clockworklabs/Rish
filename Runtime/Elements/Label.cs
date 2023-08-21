@@ -88,7 +88,6 @@ namespace RishUI.Elements
         public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
     }
     
-    // [RishValueType]
     public struct LabelProps
     {
         public string text;

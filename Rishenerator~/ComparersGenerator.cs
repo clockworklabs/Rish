@@ -97,73 +97,170 @@ namespace Rishenerator
             
             private List<Field> _fields;
             public IReadOnlyList<Field> Fields => _fields.AsReadOnly();
+
+            public bool ShouldCompare { get; }
             
-            public AutoComparer(INamedTypeSymbol typeSymbol)
+            public AutoComparer(Parser parser, INamedTypeSymbol typeSymbol)
             {
                 FullName = typeSymbol.GetFullName(true);
                 Generics = typeSymbol.GetGenericsParametersName(true);
                 GenericsConstraints = typeSymbol.GetGenericsConstraints(true);
+
+                if (parser.DoesNotNeedAutoComparer(typeSymbol) || parser.HasCustomComparer(typeSymbol))
+                {
+                    return;
+                }
+                
+                foreach (var member in typeSymbol.GetMembers())
+                {
+                    if (member is not IFieldSymbol fieldSymbol)
+                    {
+                        continue;
+                    }
+
+                    var shouldCompare = AddField(parser, fieldSymbol);
+                    ShouldCompare |= shouldCompare;
+                }
+
+                if (!ShouldCompare)
+                {
+                    _fields = null;
+                }
+                
+                parser.Register(typeSymbol, ShouldCompare ? TypeComparison.AutoComparer : TypeComparison.MemoryComparison);
             }
 
-            public bool AddField(Parser parser, IFieldSymbol fieldSymbol)
+            private bool AddField(Parser parser, IFieldSymbol fieldSymbol)
             {
-                if (fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
+                var field = new Field(parser, fieldSymbol);
+                if (string.IsNullOrWhiteSpace(field.Name))
                 {
                     return false;
                 }
                 
-                var field = new Field(parser, fieldSymbol);
-                
                 _fields ??= new List<Field>();
                 _fields.Add(field);
                 
-                return !field.DefaultComparison;
+                return !field.Default;
             }
         }
 
         private class Field
         {
             public string Name { get; }
-            public ComparisonType ComparisonType { get; }
-            public bool DefaultComparison { get; }
             public bool Nullable { get; }
+            public FieldComparison Comparison { get; }
+            public TypeComparison TypeComparison { get; }
+            public bool Default => Comparison == FieldComparison.Default &&
+                                   TypeComparison is TypeComparison.MemoryComparison or TypeComparison.ReferenceComparison;
+            
             private List<Field> _children;
             public IReadOnlyList<Field> Children => _children?.AsReadOnly();
 
             public Field(Parser parser, IFieldSymbol fieldSymbol)
             {
+                if (fieldSymbol.AssociatedSymbol is IPropertySymbol)
+                {
+                    return;
+                }
+                
                 Name = fieldSymbol.Name;
-                (ComparisonType, DefaultComparison) = GetComparisonType(parser, fieldSymbol);
 
-                if (ComparisonType != ComparisonType.MemoryComparison)
+                var fieldTypeSymbol = fieldSymbol.Type;
+
+                if (fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+                {
+                    Nullable = true;
+                    fieldTypeSymbol = ((INamedTypeSymbol)fieldTypeSymbol).TypeArguments[0];
+                }
+                
+                if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
+                {
+                    return;
+                }
+                
+                Comparison = GetComparison(fieldSymbol);
+                if (Comparison != FieldComparison.Default)
                 {
                     return;
                 }
 
-                var typeSymbol = fieldSymbol.Type;
-
-                if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+                var isValueType = fieldTypeSymbol.IsValueType;
+                bool isTuple;
+                if (isValueType)
                 {
-                    Nullable = true;
-                }
-                else if (typeSymbol.IsTupleType)
-                {
-                    var tupleMembers = typeSymbol.GetMembers();
-
-                    _children = new List<Field>(tupleMembers.Length);
-                    foreach (var tupleMemberSymbol in tupleMembers)
+                    if (fieldTypeSymbol is INamedTypeSymbol { IsTupleType: true } namedFieldTypeSymbol)
                     {
-                        if (tupleMemberSymbol is not IFieldSymbol tupleFieldSymbol)
+                        var underlyingType = namedFieldTypeSymbol.TupleUnderlyingType;
+                        if (underlyingType != null)
                         {
-                            continue;
+                            fieldTypeSymbol = underlyingType;
                         }
 
-                        _children.Add(new Field(parser, tupleFieldSymbol));
+                        isTuple = true;
+                    }
+                    else
+                    {
+                        isTuple = false;
                     }
                 }
+                else
+                {
+                    isTuple = false;
+                }
+
+                if (!isTuple)
+                {
+                    if (parser.TryGetKnownComparison(fieldTypeSymbol, out var typeComparison))
+                    {
+                        TypeComparison = typeComparison;
+                        if (typeComparison != TypeComparison.AutoComparer)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (!isValueType)
+                    {
+                        TypeComparison = TypeComparison.ReferenceComparison;
+                        parser.Register(fieldTypeSymbol, TypeComparison.ReferenceComparison);
+                        return;
+                    }
+
+                    if (parser.HasCustomComparer(fieldTypeSymbol))
+                    {
+                        TypeComparison = TypeComparison.CustomComparer;
+                        return;
+                    }
+                }
+
+                var shouldCompare = false;
+                
+                foreach (var childMember in fieldTypeSymbol.GetMembers())
+                {
+                    if (childMember is not IFieldSymbol childField)
+                    {
+                        continue;
+                    }
+
+                    var child = new Field(parser, childField);
+
+                    _children ??= new List<Field>();
+                    _children.Add(child);
+
+                    shouldCompare |= !child.Default;
+                }
+
+                if (!shouldCompare)
+                {
+                    _children = null;
+                }
+                
+                TypeComparison = shouldCompare ? TypeComparison.AutoComparer : TypeComparison.MemoryComparison;
+                parser.Register(fieldTypeSymbol, TypeComparison);
             }
 
-            private static (ComparisonType, bool) GetComparisonType(Parser parser, IFieldSymbol fieldSymbol)
+            private static FieldComparison GetComparison(IFieldSymbol fieldSymbol)
             {
                 foreach (var attributeData in fieldSymbol.GetAttributes())
                 {
@@ -174,13 +271,13 @@ namespace Rishenerator
                         switch (attributeFullName)
                         {
                             case "RishUI.IgnoreComparisonAttribute":
-                                return (ComparisonType.Ignore, false);
+                                return FieldComparison.Ignore;
                             case "RishUI.EqualityOperatorComparisonAttribute":
-                                return (ComparisonType.EqualityOperator, false);
+                                return FieldComparison.EqualityOperator;
                             case "RishUI.EqualsFunctionComparisonAttribute":
-                                return (ComparisonType.EqualsFunction, false);
+                                return FieldComparison.EqualsFunction;
                             case "RishUI.EpsilonComparisonAttribute" when fieldSymbol.Type.GetFullName(false) == "System.Single":
-                                return (ComparisonType.EpsilonComparison, false);
+                                return FieldComparison.EpsilonComparison;
                             default:
                                 attributeClass = attributeClass.BaseType;
                                 break;
@@ -188,27 +285,12 @@ namespace Rishenerator
                     }
                 }
 
-                var defaultComparisonType = GetDefaultComparisonType(parser, fieldSymbol.Type);
-
-                return (defaultComparisonType, defaultComparisonType != ComparisonType.ComparerComparison);
-            }
-            private static ComparisonType GetDefaultComparisonType(Parser parser, ITypeSymbol typeSymbol)
-            {
-                if (typeSymbol.IsValueType)
-                {
-                    if (typeSymbol.IsFlaggedForCustomComparer() || typeSymbol.IsFlaggedForAutoComparer() && parser.HasComparer(typeSymbol))
-                    {
-                        return ComparisonType.ComparerComparison;
-                    }
-
-                    return ComparisonType.MemoryComparison;
-                }
-
-                return ComparisonType.ReferenceComparison;
+                return FieldComparison.Default;
             }
         }
         
-        private enum ComparisonType { MemoryComparison, ReferenceComparison, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison, ComparerComparison }
+        private enum FieldComparison { Default, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison }
+        private enum TypeComparison { MemoryComparison, ReferenceComparison, AutoComparer, CustomComparer }
         
         private class Parser
         {
@@ -216,10 +298,12 @@ namespace Rishenerator
             private Action<Diagnostic> ReportDiagnostic { get; }
             private CancellationToken ContextCancellationToken { get; }
             
-            private Dictionary<INamedTypeSymbol, bool> Comparers { get; } = new(SymbolEqualityComparer.Default);
+            private HashSet<ITypeSymbol> Analyzed { get; } = new(SymbolEqualityComparer.Default);
             
             private HashSet<INamedTypeSymbol> UnboundTypes = new(SymbolEqualityComparer.Default);
             private List<AutoComparer> AutoComparers { get; } = new();
+            
+            private Dictionary<ITypeSymbol, TypeComparison> TypeComparisons { get; } = new(SymbolEqualityComparer.Default);
             
             public Parser(Compilation compilation, Action<Diagnostic> reportDiagnostic, CancellationToken contextCancellationToken)
             {
@@ -230,8 +314,10 @@ namespace Rishenerator
 
             public IReadOnlyList<AutoComparer> GetAllAutoComparers(IEnumerable<StructDeclarationSyntax> flaggedTypes)
             {
-                Comparers.Clear();
+                Analyzed.Clear();
+                UnboundTypes.Clear();
                 AutoComparers.Clear();
+                TypeComparisons.Clear();
                 
                 foreach (var structDeclaration in flaggedTypes)
                 {
@@ -250,104 +336,84 @@ namespace Rishenerator
                     ? null
                     : AutoComparers.AsReadOnly();
             }
-
-            public bool HasComparer(ITypeSymbol typeSymbol)
-            {
-                if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
-                {
-                    return false;
-                }
-                
-                if (Comparers.TryGetValue(namedTypeSymbol, out var needsComparer))
-                {
-                    return needsComparer;
-                }
-
-                return AnalyzeForAutoComparer(typeSymbol);
-            }
             
-            private bool AnalyzeForAutoComparer(ITypeSymbol typeSymbol)
+            private void AnalyzeForAutoComparer(ITypeSymbol typeSymbol)
             {
+                if (Analyzed.Contains(typeSymbol))
+                {
+                    return;
+                }
+                
+                Analyzed.Add(typeSymbol);
+                
                 if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
                 {
-                    return false;
+                    return;
                 }
 
-                if (namedTypeSymbol.IsTupleType)
+                if (HasCustomComparer(namedTypeSymbol) || DoesNotNeedAutoComparer(namedTypeSymbol))
                 {
-                    var underlyingType = namedTypeSymbol.TupleUnderlyingType;
-                    if (underlyingType != null)
-                    {
-                        namedTypeSymbol = underlyingType;
-                    }
+                    return;
                 }
                 
-                if (Comparers.TryGetValue(namedTypeSymbol, out var needsComparer))
+                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern || !namedTypeSymbol.IsInternallyAccessible())
                 {
-                    return needsComparer;
+                    return;
                 }
 
-                if (!namedTypeSymbol.IsValueType || namedTypeSymbol.IsExtern)
+                var autoComparer = new AutoComparer(this, namedTypeSymbol);
+                if (!autoComparer.ShouldCompare)
                 {
-                    Comparers[namedTypeSymbol] = false;
-                    return false;
-                }
-
-                if (namedTypeSymbol.IsFlaggedForCustomComparer())
-                {
-                    Comparers[namedTypeSymbol] = true;
-                    return true;
-                }
-
-                if (!namedTypeSymbol.IsFlaggedForAutoComparer())
-                {
-                    return false;
-                }
-
-                var autoComparer = new AutoComparer(namedTypeSymbol);
-
-                foreach (var member in namedTypeSymbol.GetMembers())
-                {
-                    if (member is not IFieldSymbol fieldSymbol)
-                    {
-                        continue;
-                    }
-                    
-                    needsComparer |= autoComparer.AddField(this, fieldSymbol);
+                    return;
                 }
                 
-                Comparers[namedTypeSymbol] = needsComparer;
-                if (needsComparer)
+                var mustBeAdded = true;
+                if (namedTypeSymbol.IsGenericType)
                 {
-                    var mustBeAdded = true;
-                    if (namedTypeSymbol.IsGenericType)
+                    if (namedTypeSymbol.IsGenericDefinition())
                     {
-                        if (namedTypeSymbol.IsGenericDefinition())
-                        {
-                            var unboundType = namedTypeSymbol.ConstructUnboundGenericType();
-                            if (UnboundTypes.Contains(unboundType))
-                            {
-                                mustBeAdded = false;
-                            }
-                            else
-                            {
-                                UnboundTypes.Add(unboundType);
-                            }
-                        }
-                        else if (typeSymbol.HasGenericParameters())
+                        var unboundType = namedTypeSymbol.ConstructUnboundGenericType();
+                        if (UnboundTypes.Contains(unboundType))
                         {
                             mustBeAdded = false;
                         }
+                        else
+                        {
+                            UnboundTypes.Add(unboundType);
+                        }
                     }
-
-                    if (mustBeAdded)
+                    else if (typeSymbol.HasGenericParameters())
                     {
-                        AutoComparers.Add(autoComparer);
+                        mustBeAdded = false;
                     }
                 }
 
-                return needsComparer;
+                if (mustBeAdded)
+                {
+                    AutoComparers.Add(autoComparer);
+                }
             }
+
+            public bool HasCustomComparer(ITypeSymbol type)
+            {
+                if (KnownCustomComparer(type))
+                {
+                    return true;
+                }
+
+                if(type.IsFlaggedForCustomComparer())
+                {
+                    Register(type, TypeComparison.CustomComparer);
+                    return true;
+                }
+
+                return false;
+            }
+
+            private bool KnownCustomComparer(ITypeSymbol type) => TypeComparisons.TryGetValue(type, out var comparison) && comparison == TypeComparison.CustomComparer;
+            public bool DoesNotNeedAutoComparer(ITypeSymbol type) => TypeComparisons.TryGetValue(type, out var comparison) && comparison != TypeComparison.AutoComparer;
+            public bool TryGetKnownComparison(ITypeSymbol type, out TypeComparison comparison) => TypeComparisons.TryGetValue(type, out comparison);
+            public void Register(ITypeSymbol type, TypeComparison comparison) => TypeComparisons[type] = comparison;
         }
         
         private class Emitter
@@ -385,7 +451,7 @@ namespace Rishenerator
                             continue;
                         }
                     
-                        stringBuilder.Append($"{(fieldsCount > 0 ? " && " : string.Empty)}{sourceCode}");
+                        stringBuilder.Append($"{(fieldsCount > 0 ? " &&\n                " : string.Empty)}{sourceCode}");
                         fieldsCount++;
                     }
     
@@ -402,48 +468,53 @@ namespace Rishenerator
             private static string GetFieldComparisonSourceCode(string parent, Field field)
             {
                 var fieldName = $"{parent}.{field.Name}";
+                var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
                 
+                string sourceCode;
                 if (field.Children == null)
                 {
-                    if (field.Nullable)
-                    {
-                        var sourceCode = GetFieldComparisonSourceCode($"{fieldName}.Value", field.ComparisonType).Replace("ref ", string.Empty);
-                        return $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {sourceCode})";
-                    }
-                    
-                    return GetFieldComparisonSourceCode(fieldName, field.ComparisonType);
+                    sourceCode = GetFieldComparisonSourceCode(nullableFieldName, field.Comparison, field.TypeComparison);
                 }
-
-                var stringBuilder = new StringBuilder();
-                
-                var fieldsCount = 0;
-                foreach (var child in field.Children)
+                else
                 {
-                    var sourceCode = GetFieldComparisonSourceCode(fieldName, child);
-                    if (string.IsNullOrWhiteSpace(sourceCode))
-                    {
-                        continue;
-                    }
-                        
-                    stringBuilder.Append($"{(fieldsCount > 0 ? " && " : string.Empty)}{sourceCode}");
-                    fieldsCount++;
-                }
+                    var stringBuilder = new StringBuilder();
 
-                return stringBuilder.ToString();
+                    var childCount = 0;
+                    foreach (var child in field.Children)
+                    {
+                        var childSourceCode = GetFieldComparisonSourceCode(fieldName, child);
+                        if (string.IsNullOrWhiteSpace(childSourceCode))
+                        {
+                            continue;
+                        }
+                        
+                        stringBuilder.Append($"{(childCount > 0 ? " && " : string.Empty)}{childSourceCode}");
+                        childCount++;
+                    }
+
+                    sourceCode = stringBuilder.ToString();
+                }
+                
+                return field.Nullable ? $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {(field.Children == null ? sourceCode.Replace("ref ", string.Empty) : sourceCode)})" : sourceCode;
             }
 
-            private static string GetFieldComparisonSourceCode(string fieldName, ComparisonType comparisonType)
+            private static string GetFieldComparisonSourceCode(string fieldName, FieldComparison fieldComparison, TypeComparison typeComparison)
             {
-                return comparisonType switch
+                return fieldComparison switch
                 {
-                    ComparisonType.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
-                    ComparisonType.ReferenceComparison => $"System.Object.ReferenceEquals(a{fieldName}, b{fieldName})",
-                    ComparisonType.EqualityOperator => $"a{fieldName} == b{fieldName}",
-                    ComparisonType.EqualsFunction => $"a{fieldName}.Equals(b{fieldName})",
-                    ComparisonType.EpsilonComparison => $"UnityEngine.Mathf.Approximately(a{fieldName}, b{fieldName})",
-                    ComparisonType.ComparerComparison => $"Comparers.Compare(a{fieldName}, b{fieldName})",
-                    ComparisonType.Ignore => "true",
-                    _ => throw new ArgumentException("Unsupported comparison type")
+                    FieldComparison.Default => typeComparison switch
+                    {
+                        TypeComparison.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
+                        TypeComparison.ReferenceComparison => $"System.Object.ReferenceEquals(a{fieldName}, b{fieldName})",
+                        // TypeComparison.AutoComparer => $"Comparers.Compare(a{fieldName}, b{fieldName})",
+                        TypeComparison.CustomComparer => $"Comparers.Compare(a{fieldName}, b{fieldName})",
+                        _ => throw new ArgumentOutOfRangeException(nameof(typeComparison), typeComparison, null)
+                    },
+                    FieldComparison.Ignore => string.Empty,
+                    FieldComparison.EqualityOperator => $"a{fieldName} == b{fieldName}",
+                    FieldComparison.EqualsFunction => $"a{fieldName}.Equals(b{fieldName})",
+                    FieldComparison.EpsilonComparison => $"UnityEngine.Mathf.Approximately(a{fieldName}, b{fieldName})",
+                    _ => throw new ArgumentOutOfRangeException(nameof(fieldComparison), fieldComparison, null)
                 };
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using RishUI.MemoryManagement;
+using Unity.Collections;
 
 namespace RishUI
 {
@@ -33,14 +34,18 @@ namespace RishUI
             public override Type Type => typeof(T);
             
             private P Props { get; set; }
-            private References References { get; set; } 
+            private NativeList<Reference> References { get; set; } 
 
             public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
-                
-                References.Dispose();
+
+                if (References.IsCreated)
+                {
+                    References.Dispose();
+                }
+
                 References = ReferencesGetters.GetReferences(props);
             }
 
@@ -52,12 +57,21 @@ namespace RishUI
  
             protected override void Dispose()
             {
-                References.Dispose();
+                if (References.IsCreated)
+                {
+                    References.Dispose();
+                }
+
                 References = default;
             }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
+                if (!References.IsCreated)
+                {
+                    return;
+                }
+                
                 foreach (var reference in References)
                 {
                     reference.RegisterReference(owner);
@@ -65,6 +79,11 @@ namespace RishUI
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
+                if (!References.IsCreated)
+                {
+                    return;
+                }
+                
                 foreach (var reference in References)
                 {
                     reference.UnregisterReference(owner);

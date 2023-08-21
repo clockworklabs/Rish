@@ -148,31 +148,33 @@ namespace RishUI.Elements
             private void OnNewValue(ChangeEvent<string> value) => _props.onChange?.Invoke(value.newValue);
         }
 
-        [RishValueType]
         public struct RishTextFieldProps
         {
             public FixedString4096Bytes text;
             public bool multiline;
             public bool isPassword;
             public bool readOnly;
+
             /// <summary>
             /// Styled Prop as --prop-max-length
             /// </summary>
-            public int? maxLength { get; set; }
+            public int? maxLength;
+
             /// <summary>
             /// Styled Prop as --props-multi-click-interaction
             /// </summary>
-            public bool? multiClickInteraction { get; set; }
+            public bool? multiClickInteraction;
             public DOMDescriptor textInputDescriptor;
-            
+
             /// <summary>
             /// Styled Prop as --props-cursor-color
             /// </summary>
-            public Color? cursorColor { get; set; }
+            public Color? cursorColor;
+
             /// <summary>
             /// Styled Prop as --props-selection-color
             /// </summary>
-            public Color? selectionColor { get; set; }
+            public Color? selectionColor;
 
             [IgnoreComparison]
             public Action<string> onChange;

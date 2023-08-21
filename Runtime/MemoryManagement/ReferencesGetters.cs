@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Collections;
 using UnityEngine.Scripting;
 
 namespace RishUI.MemoryManagement
@@ -15,7 +16,7 @@ namespace RishUI.MemoryManagement
 
         public static int Count => Methods.Count;
 
-        private delegate References ReferencesGetter<in T>(T owner, bool temp);
+        private delegate NativeList<Reference> ReferencesGetter<in T>(T owner, bool temp);
         
         static ReferencesGetters()
         {
@@ -25,7 +26,7 @@ namespace RishUI.MemoryManagement
             }
         }
 
-        public static References GetReferences<T>(T owner, bool temp = false) where T : struct
+        public static NativeList<Reference> GetReferences<T>(T owner, bool temp = false) where T : struct
         {
             if (!Contains<T>())
             {
@@ -34,7 +35,7 @@ namespace RishUI.MemoryManagement
             
             var getter = GetDelegate<T>();
             var references = getter?.Invoke(owner, temp) ?? default;
-            if (references.IsValid())
+            if (references.IsCreated)
             {
                 return references;
             }
@@ -81,7 +82,7 @@ namespace RishUI.MemoryManagement
             foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
-                if (parameters.Length != 1 || method.ReturnType != typeof(References) || !Attribute.IsDefined(method, typeof(ReferencesGetterAttribute)))
+                if (parameters.Length != 2 || method.ReturnType != typeof(NativeList<Reference>) || parameters[1].ParameterType != typeof(bool) || !Attribute.IsDefined(method, typeof(ReferencesGetterAttribute)))
                 {
                     continue;
                 }
