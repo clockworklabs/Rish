@@ -51,6 +51,7 @@ namespace RishUI
                 }
                 if (References.Length <= 0)
                 {
+                    References.Dispose();
                     References = default;
                 }
             }
