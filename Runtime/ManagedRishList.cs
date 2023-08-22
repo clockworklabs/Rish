@@ -36,8 +36,8 @@ namespace RishUI
                 {
                     References.Dispose();
                 }
-                References = new NativeList<Reference>(Allocator.Temp);
-                foreach(var element in this)
+                References = new NativeList<Reference>(Allocator.Persistent);
+                foreach(var element in Elements)
                 {
                     var references = ReferencesGetters.GetReferences(element, true);
                     if (references.IsCreated)
@@ -49,7 +49,7 @@ namespace RishUI
                         references.Dispose();
                     }
                 }
-                if (References.Length <= 0)
+                if (References.IsEmpty)
                 {
                     References.Dispose();
                     References = default;

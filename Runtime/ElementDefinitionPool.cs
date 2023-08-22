@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RishUI.MemoryManagement;
+using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
@@ -129,7 +130,8 @@ namespace RishUI
             }
 
             GarbageSet.Remove(id);
-            GarbageList.Remove(id);
+            var index = GarbageList.IndexOf(id);
+            GarbageList.RemoveAtSwapBack(index);
         }
 
         private uint CreateNew<T>() where T : IManaged, new()

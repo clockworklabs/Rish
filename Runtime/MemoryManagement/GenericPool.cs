@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI.MemoryManagement
@@ -110,7 +111,8 @@ namespace RishUI.MemoryManagement
             }
 
             GarbageSet.Remove(id);
-            GarbageList.Remove(id);
+            var index = GarbageList.IndexOf(id);
+            GarbageList.RemoveAtSwapBack(index);
         }
 
         private uint CreateNew()
@@ -137,8 +139,9 @@ namespace RishUI.MemoryManagement
                 throw new UnityException("There are still active references pointing to this managed element.");
             }
             
-            var element = wrapper.Managed;
-            element.Dispose();
+            var managed = wrapper.Managed;
+            managed.Dispose();
+            
             FreeStack.Push(wrapper.ID);
         }
 
