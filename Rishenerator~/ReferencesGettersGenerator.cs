@@ -163,29 +163,50 @@ namespace Rishenerator
                     Nullable = true;
                     fieldTypeSymbol = ((INamedTypeSymbol)fieldTypeSymbol).TypeArguments[0];
                 }
-                
-                if (parser.DoesNotContainReferences(fieldTypeSymbol))
-                {
-                    return;
-                }
 
-                if (!fieldTypeSymbol.IsValueType)
+                bool isTuple;
+                if (fieldTypeSymbol.IsValueType)
+                {
+                    if (fieldTypeSymbol is INamedTypeSymbol { IsTupleType: true } namedFieldTypeSymbol)
+                    {
+                        var underlyingType = namedFieldTypeSymbol.TupleUnderlyingType;
+                        if (underlyingType != null)
+                        {
+                            fieldTypeSymbol = underlyingType;
+                        }
+
+                        isTuple = true;
+                    }
+                    else
+                    {
+                        isTuple = false;
+                    }
+                }
+                else
                 {
                     parser.Register(fieldTypeSymbol, false);
                     return;
                 }
-                
+
                 if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
                 {
                     return;
                 }
-                
-                if (parser.IsReferenceType(fieldTypeSymbol, out var managedType))
+
+                if (!isTuple)
                 {
-                    ManagedTypeFullName = managedType.GetFullName(true);
-                    return;
+                    if (parser.DoesNotContainReferences(fieldTypeSymbol))
+                    {
+                        return;
+                    }
+                    
+                    if (parser.IsReferenceType(fieldTypeSymbol, out var managedType))
+                    {
+                        ManagedTypeFullName = managedType.GetFullName(true);
+                        return;
+                    }
                 }
-                
+
                 foreach (var childMember in fieldTypeSymbol.GetMembers())
                 {
                     if (childMember is not IFieldSymbol childField)

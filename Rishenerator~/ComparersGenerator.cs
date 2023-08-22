@@ -482,7 +482,7 @@ namespace Rishenerator
                     var childCount = 0;
                     foreach (var child in field.Children)
                     {
-                        var childSourceCode = GetFieldComparisonSourceCode(fieldName, child);
+                        var childSourceCode = GetFieldComparisonSourceCode(nullableFieldName, child);
                         if (string.IsNullOrWhiteSpace(childSourceCode))
                         {
                             continue;
@@ -495,7 +495,7 @@ namespace Rishenerator
                     sourceCode = stringBuilder.ToString();
                 }
                 
-                return field.Nullable ? $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {(field.Children == null ? sourceCode.Replace("ref ", string.Empty) : sourceCode)})" : sourceCode;
+                return field.Nullable ? $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {sourceCode.Replace("ref ", string.Empty)})" : sourceCode;
             }
 
             private static string GetFieldComparisonSourceCode(string fieldName, FieldComparison fieldComparison, TypeComparison typeComparison)

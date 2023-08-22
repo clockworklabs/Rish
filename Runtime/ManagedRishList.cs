@@ -46,8 +46,8 @@ namespace RishUI
                         {
                             References.Add(reference);
                         }
+                        references.Dispose();
                     }
-                    references.Dispose();
                 }
                 if (References.Length <= 0)
                 {
