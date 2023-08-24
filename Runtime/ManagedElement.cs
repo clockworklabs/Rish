@@ -12,7 +12,7 @@ namespace RishUI
         protected abstract void Dispose();
         protected abstract void ReferenceRegistered(IOwner owner);
         protected abstract void ReferenceUnregistered(IOwner owner);
-        public abstract void Invoke(Node node);
+        internal abstract void Invoke(Node node);
         public abstract bool Equals(ManagedElement other);
         
         public abstract bool TryGetProps<P>(out P props) where P : struct;

@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class DragManipulator : RishManipulator
+    public class DragManipulator : ToolkitManipulator
     {
         private Pointer[] Pointers { get; }
 

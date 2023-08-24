@@ -21,15 +21,15 @@ namespace RishUI
         void Unmount();
 
         Element Render();
-
-        IEnumerable<RishManipulator> Manipulators { get; }
-        IEnumerable<ICallbackWrapper> Callbacks { get; }
+        
+        IEnumerable<ToolkitManipulator> ToolkitManipulators { get; }
+        IEnumerable<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
         
         Node Node { get; }
         int FocusIndex { get; }
     }
 
-    public abstract class RishElement<P> : IRishElement, IOwner where P : struct
+    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
         private event Action<bool> OnDirty;
         event Action<bool> IRishElement.OnDirty
@@ -47,28 +47,30 @@ namespace RishUI
 
         protected internal event Action OnMounted;
         protected internal event Action OnUnmounted;
+        
+        private List<ICallbackWrapper> Callbacks { get; set; }
 
-        private List<RishManipulator> Manipulators { get; set; }
-        IEnumerable<RishManipulator> IRishElement.Manipulators
+        private List<ToolkitManipulator> ToolkitManipulators { get; set; }
+        IEnumerable<ToolkitManipulator> IRishElement.ToolkitManipulators
         {
             get
             {
-                var n = Manipulators?.Count ?? 0;
+                var n = ToolkitManipulators?.Count ?? 0;
                 for (var i = 0; i < n; i++)
                 {
-                    yield return Manipulators[i];
+                    yield return ToolkitManipulators[i];
                 }
             }
         }
-        private List<ICallbackWrapper> Callbacks { get; set; }
-        IEnumerable<ICallbackWrapper> IRishElement.Callbacks
+        private List<IToolkitCallbackWrapper> ToolkitCallbacks { get; set; }
+        IEnumerable<IToolkitCallbackWrapper> IRishElement.ToolkitCallbacks
         {
             get
             {
-                var n = Callbacks?.Count ?? 0;
+                var n = ToolkitCallbacks?.Count ?? 0;
                 for (var i = 0; i < n; i++)
                 {
-                    yield return Callbacks[i];
+                    yield return ToolkitCallbacks[i];
                 }
             }
         }
@@ -194,9 +196,9 @@ namespace RishUI
             UnmountRequested = false;
             ReadyToUnmount = false;
 
-            if (Manipulators != null)
+            if (ToolkitManipulators != null)
             {
-                foreach (var manipulator in Manipulators)
+                foreach (var manipulator in ToolkitManipulators)
                 {
                     manipulator.Reset();
                 }
@@ -288,7 +290,46 @@ namespace RishUI
 
         protected abstract Element Render();
 
-        protected void AddManipulator(RishManipulator manipulator)
+        public void SendEvent(RishEventBase evt) => EventsDispatcher.Dispatch(evt);
+
+        protected void RegisterRishCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : RishEventBase<TEventType>, new()
+        {
+            var wrapper = CallbacksPool.Get(this, callback, phase);
+
+            Callbacks ??= new List<ICallbackWrapper>(10);
+            Callbacks.Add(wrapper);
+        }
+
+        protected void UnregisterRishCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : RishEventBase<TEventType>, new()
+        {
+            if (Callbacks == null)
+            {
+                return;
+            }
+
+            for (var i = Callbacks.Count - 1; i >= 0; i--)
+            {
+                var wrapper = Callbacks[i];
+                if (!wrapper.Wraps(callback)) continue;
+                Callbacks.RemoveAtSwapBack(i);
+                CallbacksPool.Return(wrapper);
+            }
+        }
+
+        void IRishEventTarget.HandleRishEvent(RishEventBase evt, EventPhase phase)
+        {
+            if (Callbacks == null)
+            {
+                return;
+            }
+            
+            foreach (var callback in Callbacks)
+            {
+                callback.Handle(evt, phase);
+            }
+        }
+
+        protected void AddManipulator(ToolkitManipulator manipulator)
         {
             if (manipulator.Owner != null)
             {
@@ -303,15 +344,15 @@ namespace RishUI
             manipulator.Reset();
             manipulator.Owner = this;
 
-            Manipulators ??= new List<RishManipulator>(3);
+            ToolkitManipulators ??= new List<ToolkitManipulator>(5);
             
-            Manipulators.Add(manipulator);
-            Node?.EventSystem.AddManipulator(manipulator);
+            ToolkitManipulators.Add(manipulator);
+            Node?.ToolkitEventsManager.AddManipulator(manipulator);
         }
         
-        protected void RemoveManipulator(RishManipulator manipulator)
+        protected void RemoveManipulator(ToolkitManipulator manipulator)
         {
-            if (Manipulators == null)
+            if (ToolkitManipulators == null)
             {
                 return;
             }
@@ -323,35 +364,35 @@ namespace RishUI
 
             manipulator.Owner = null;
             
-            Manipulators.Remove(manipulator);
-            Node?.EventSystem.RemoveManipulator(manipulator);
+            ToolkitManipulators.Remove(manipulator);
+            Node?.ToolkitEventsManager.RemoveManipulator(manipulator);
         }
 
         protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
         {
-            var wrapper = CallbacksPool.Get(callback, phase);
+            var wrapper = ToolkitCallbacksPool.Get(callback, phase);
 
-            Callbacks ??= new List<ICallbackWrapper>(3);
+            ToolkitCallbacks ??= new List<IToolkitCallbackWrapper>(10);
             
-            Callbacks.Add(wrapper);
-            Node?.EventSystem.AddCallback(wrapper);
+            ToolkitCallbacks.Add(wrapper);
+            Node?.ToolkitEventsManager.AddCallback(wrapper);
         }
 
         protected void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
         {
-            if (Callbacks == null)
+            if (ToolkitCallbacks == null)
             {
                 return;
             }
 
-            for (var i = Callbacks.Count - 1; i >= 0; i--)
+            for (var i = ToolkitCallbacks.Count - 1; i >= 0; i--)
             {
-                var wrapper = Callbacks[i];
+                var wrapper = ToolkitCallbacks[i];
                 if (!wrapper.Wraps(callback)) continue;
-                Callbacks.RemoveAt(i);
-                Node?.EventSystem.RemoveCallback(wrapper);
+                ToolkitCallbacks.RemoveAtSwapBack(i);
+                Node?.ToolkitEventsManager.RemoveCallback(wrapper);
                 
-                CallbacksPool.Return(wrapper);
+                ToolkitCallbacksPool.Return(wrapper);
             }
         }
         

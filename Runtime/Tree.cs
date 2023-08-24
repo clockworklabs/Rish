@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public class Tree
+    internal class Tree
     {
         private const int MaxDirtySize = 256;
 

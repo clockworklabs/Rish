@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public class Node : FastPriorityQueueNode, IOwner
+    internal class Node : FastPriorityQueueNode, IOwner
     {
         private event Action OnClean;
         private event Action<Node> OnReadyToUnmount; // TODO: Maybe uint?
@@ -25,7 +25,7 @@ namespace RishUI
         // --- Never changes -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         public uint ID { get; }
-        internal EventSystem EventSystem { get; }
+        internal ToolkitEventsManager ToolkitEventsManager { get; }
         internal InputSystem InputSystem { get; }
         private StateMachine Machine { get; }
         private FastRandom PRNG { get; }
@@ -64,17 +64,8 @@ namespace RishUI
         private int ChildCount { get; set; }
         private List<Node> VirtualChildren { get; set; }
         private List<Node> UnmountingChildren { get; set; }
-        internal IEnumerable<Node> Children
-        {
-            get
-            {
-                var n = VirtualChildren?.Count ?? 0;
-                for (var i = 0; i < n; i++)
-                {
-                    yield return VirtualChildren[i];
-                }
-            }
-        }
+        private IReadOnlyList<Node> _children;
+        public IReadOnlyList<Node> Children => _children ??= VirtualChildren?.AsReadOnly();
 
         private int _virtualIndex = -1;
         private int VirtualIndex
@@ -223,7 +214,7 @@ namespace RishUI
         private Node(uint id)
         {
             ID = id;
-            EventSystem = new EventSystem(this);
+            ToolkitEventsManager = new ToolkitEventsManager(this);
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
             PRNG = new FastRandom();
@@ -668,7 +659,7 @@ namespace RishUI
 
                 Node.MountedHashCode = Node.ComputeHashCodeInTree();
                 
-                Node.EventSystem.OnMounted();
+                Node.ToolkitEventsManager.OnMounted();
                 Node.InputSystem.OnMounted();
 
                 GoTo<MountedState>();
@@ -1026,7 +1017,7 @@ namespace RishUI
                 }
                 
                 Node.InputSystem.OnUnmounted();
-                Node.EventSystem.OnUnmounted();
+                Node.ToolkitEventsManager.OnUnmounted();
             }
 
             public override T MountAs<T>(Node parent, ulong key)

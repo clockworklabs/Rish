@@ -49,7 +49,7 @@ namespace RishUI
                 References = ReferencesGetters.GetReferences(props);
             }
 
-            public override void Invoke(Node node)
+            internal override void Invoke(Node node)
             {
                 var (_, element) = node.AddChild<T>(Key);
                 element.Props = Props;

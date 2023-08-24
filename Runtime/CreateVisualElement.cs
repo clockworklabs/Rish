@@ -265,7 +265,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override void Invoke(Node node)
+            internal override void Invoke(Node node)
             {
                 var (child, element) = node.AddChild<T>(Key);
                 
@@ -320,7 +320,7 @@ namespace RishUI
                 Children = children;
             }
 
-            public override void Invoke(Node node)
+            internal override void Invoke(Node node)
             {
                 var (child, element) = node.AddChild<T>(Key);
 

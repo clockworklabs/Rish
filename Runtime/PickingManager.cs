@@ -154,6 +154,15 @@ namespace RishUI
         protected abstract bool Raycast(Vector2 localPoint);
     }
 
+    public class DiscardPickingManager : PickingManager
+    {
+        public DiscardPickingManager(VisualElement element) : base(element) { }
+
+        protected override void Setup() { }
+        
+        protected override bool Raycast(Vector2 localPoint) => false;
+    }
+
     public class RectPickingManager : PickingManager
     {
         public RectPickingManager(VisualElement element) : base(element) { }

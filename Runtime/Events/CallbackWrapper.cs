@@ -7,48 +7,22 @@ namespace RishUI.Events
 {
     internal interface ICallbackWrapper
     {
-        bool Wraps<T>(EventCallback<T> callback) where T : EventBase<T>, new();
-        void SetTarget(VisualElement visualElement);
+        bool Wraps<T>(EventCallback<T> callback) where T : RishEventBase<T>, new();
+        void Handle<T>(T evt, EventPhase phase) where T : RishEventBase;
     }
-    
-    public enum EventPhase { TrickleDown, BubbleUp, AtTargetOnly }
 
-    internal class CallbackWrapper<T> : ICallbackWrapper where T : EventBase<T>, new()
+    internal class CallbackWrapper<T> : ICallbackWrapper where T : RishEventBase<T>, new()
     {
-        private TrickleDown TrickleDown { get; set; }
         private EventCallback<T> Callback { get; set; }
-        private bool OnlyAtTarget { get; set; }
+        private EventPhase EventPhase { get; set; }
 
-        private VisualElement _target;
-        private VisualElement target
+        private IRishElement Element { get; set; }
+
+        public void Setup(IRishElement element, EventCallback<T> callback, EventPhase phase)
         {
-            get => _target;
-            set
-            {
-                if (value == _target)
-                {
-                    return;
-                }
-        
-                if (_target != null)
-                {
-                    Unregister();
-                }
-        
-                _target = value;
-
-                if (value != null)
-                {
-                    Register();
-                }
-            }
-        }
-
-        public void Setup(EventCallback<T> callback, EventPhase phase)
-        {
+            Element = element;
             Callback = callback;
-            TrickleDown = phase == EventPhase.TrickleDown ? TrickleDown.TrickleDown : TrickleDown.NoTrickleDown;
-            OnlyAtTarget = phase == EventPhase.AtTargetOnly;
+            EventPhase = phase;
         }
 
         bool ICallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback)
@@ -60,19 +34,23 @@ namespace RishUI.Events
             
             return Callback == typedCallback;
         }
-        void ICallbackWrapper.SetTarget(VisualElement visualElement) => target = visualElement;
-
-        private void Register() => target.RegisterCallback<T>(OnEvent, TrickleDown);
-        private void Unregister() => target.UnregisterCallback<T>(OnEvent, TrickleDown);
-
-        private void OnEvent(T evt)
+        void ICallbackWrapper.Handle<TEvent>(TEvent evt, EventPhase phase)
         {
-            if (OnlyAtTarget && (evt.target != evt.currentTarget || evt.target != target))
+            if (evt is not T typedEvent)
             {
                 return;
             }
-            
-            Callback?.Invoke(evt);
+
+            switch (phase)
+            {
+                case EventPhase.TrickleDown when EventPhase != EventPhase.TrickleDown:
+                case EventPhase.BubbleUp when EventPhase == EventPhase.AtTargetOnly:
+                    return;
+                case EventPhase.AtTargetOnly:
+                default:
+                    Callback.Invoke(typedEvent);
+                    break;
+            }
         }
     }
 
@@ -80,7 +58,7 @@ namespace RishUI.Events
     {
         private static Dictionary<Type, Stack<ICallbackWrapper>> Pools { get; } = new();
         
-        public static ICallbackWrapper Get<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
+        public static ICallbackWrapper Get<T>(IRishElement element, EventCallback<T> callback, EventPhase phase) where T : RishEventBase<T>, new()
         {
             var type = typeof(CallbackWrapper<T>);
             if (!Pools.TryGetValue(type, out var pool))
@@ -88,22 +66,22 @@ namespace RishUI.Events
                 pool = new Stack<ICallbackWrapper>(10);
                 Pools[type] = pool;
             }
-
+    
             var wrapper = pool.Count <= 0 ? new CallbackWrapper<T>() : (CallbackWrapper<T>) pool.Pop();
-            wrapper.Setup(callback, phase);
+            wrapper.Setup(element, callback, phase);
             
             return wrapper;
         }
         
-        public static void Return(ICallbackWrapper callback)
+        public static void Return(ICallbackWrapper toolkitCallback)
         {
-            var type = callback.GetType();
+            var type = toolkitCallback.GetType();
             if (!Pools.TryGetValue(type, out var pool))
             {
                 return;
             }
             
-            pool.Push(callback);
+            pool.Push(toolkitCallback);
         }
     }
 }
