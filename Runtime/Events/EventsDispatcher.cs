@@ -73,14 +73,17 @@ namespace RishUI.Events
         
         private static List<Node> GetPathToRoot(Node node)
         {
+            List<Node> list;
             if (Paths.Count <= 0)
             {
-                return new List<Node>(100);
+                list = new List<Node>(100);
             }
-
-            var list = Paths.Pop();
-            list.Clear();
-
+            else
+            {
+                list = Paths.Pop();
+                list.Clear();
+            }
+            
             while (node != null)
             {
                 if (node.Element is IRishEventTarget)
