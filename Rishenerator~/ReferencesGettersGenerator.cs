@@ -398,7 +398,7 @@ namespace Rishenerator
                     stringBuilder.AppendLine($@"        [RishUI.MemoryManagement.ReferencesGetter]
         private static Unity.Collections.NativeList<RishUI.MemoryManagement.Reference> GetReferences{referencesGetter.Generics}({referencesGetter.FullName} value, bool temp){referencesGetter.GenericsConstraints}
         {{
-            return new Unity.Collections.NativeList<RishUI.MemoryManagement.Reference>(temp ? Unity.Collections.Allocator.Temp : Unity.Collections.Allocator.Persistent)
+            return new Unity.Collections.NativeList<RishUI.MemoryManagement.Reference>({referencesGetter.Fields.Count}, temp ? Unity.Collections.Allocator.Temp : Unity.Collections.Allocator.Persistent)
             {{");
                     
                     foreach (var field in referencesGetter.Fields)

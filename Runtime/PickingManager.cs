@@ -167,8 +167,11 @@ namespace RishUI
     {
         public RectPickingManager(VisualElement element) : base(element) { }
 
-        protected override void Setup() { }
-        
+        protected override void Setup()
+        {
+            Element.pickingMode = PointerDetection is PointerDetectionMode.Ignore or PointerDetectionMode.ForceIgnore ? PickingMode.Ignore : PickingMode.Position;
+        }
+
         protected override bool Raycast(Vector2 localPoint)
         {
             var layout = Element.layout;
