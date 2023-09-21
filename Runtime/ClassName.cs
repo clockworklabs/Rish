@@ -272,9 +272,10 @@ namespace RishUI
                 foreach (var fixedClassName in this)
                 {
                     var className = fixedClassName.Value;
-                    if (!visualElement.ClassListContains(className))
+                    if (!string.IsNullOrWhiteSpace(className) && !visualElement.ClassListContains(className))
                     {
                         equals = false;
+                        break;
                     }
                 }
                 

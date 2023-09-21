@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    
     public static class VisualElementExtensions
     {
         public static void ResetDOM(this VisualElement element)

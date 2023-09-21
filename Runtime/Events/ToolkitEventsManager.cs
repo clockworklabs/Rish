@@ -11,7 +11,6 @@ namespace RishUI.Events
         private List<ToolkitManipulator> Manipulators { get; set; }
         private List<IToolkitCallbackWrapper> Callbacks { get; set; }
         
-        
         public ToolkitEventsManager(Node node)
         {
             Node = node;

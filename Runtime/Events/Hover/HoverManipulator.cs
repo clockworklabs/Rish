@@ -29,6 +29,18 @@ namespace RishUI.Events
 
         private void Reset(DetachFromPanelEvent evt)
         {
+            if (_pointers > 0)
+            {
+                for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+                {
+                    if ((_pointers & 1 << i) > 0)
+                    {
+                        using var pooled = HoverEventBase<HoverEndEvent>.GetPooled(i, Vector2.zero, target);
+                        target.SendEvent(pooled);
+                    }
+                }
+            }
+            
             _pointers = 0;
         }
 

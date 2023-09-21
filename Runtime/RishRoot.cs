@@ -16,7 +16,9 @@ namespace RishUI
         [SerializeField]
         private StyleSheet[] _styleSheets;
         private StyleSheet[] StyleSheets => _styleSheets;
-        
+
+        [SerializeField]
+        private int _rootScriptId;
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;
