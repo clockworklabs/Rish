@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using RishUI.MemoryManagement;
 using UnityEngine;
 
@@ -179,6 +180,26 @@ namespace RishUI
             }
 
             return aManaged.Equals(bManaged);
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            
+            builder.Append("(");
+
+            for (var i = 0; i < Count; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(", ");
+                }
+                builder.Append(this[i]);
+            }
+            
+            builder.Append(")");
+
+            return builder.ToString();
         }
 
         public Enumerator GetEnumerator() => new Enumerator(this);

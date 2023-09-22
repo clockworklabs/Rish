@@ -55,6 +55,11 @@ namespace RishUI
             {
                 throw new UnityException("ClassName already closed. You can't modify it after the initial creation.");
             }
+
+            if (className.IsEmpty || string.IsNullOrWhiteSpace(className.Value))
+            {
+                return;
+            }
             
             ClassNames.Add(className);
         }
