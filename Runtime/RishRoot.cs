@@ -17,8 +17,10 @@ namespace RishUI
         private StyleSheet[] _styleSheets;
         private StyleSheet[] StyleSheets => _styleSheets;
 
+        #if UNITY_EDITOR
         [SerializeField]
-        private int _rootScriptId;
+        private string _rootGUID;
+        #endif
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;

@@ -8,7 +8,7 @@ namespace RishUI.Editor
     [CustomEditor(typeof(RishRoot))]
     public class RishRootInspector : UnityEditor.Editor
     {
-        private SerializedProperty RootScriptIdProperty { get; set; }
+        private SerializedProperty RootGUIDProperty { get; set; }
         private SerializedProperty RootClassNameProperty { get; set; }
         
         public override VisualElement CreateInspectorGUI()
@@ -17,18 +17,23 @@ namespace RishUI.Editor
 
             container.Add(new PropertyField(serializedObject.FindProperty("_styleSheets")));
 
-            RootScriptIdProperty = serializedObject.FindProperty("_rootScriptId");
+            RootGUIDProperty = serializedObject.FindProperty("_rootGUID");
             RootClassNameProperty = serializedObject.FindProperty("_rootClassName");
-            
+
+            var script = AssetDatabase.LoadAssetAtPath<MonoScript>(AssetDatabase.GUIDToAssetPath(RootGUIDProperty.stringValue));
             var scriptField = new ObjectField("Root App")
             {
                 allowSceneObjects = false,
                 objectType = typeof(MonoScript),
-                value = EditorUtility.InstanceIDToObject(RootScriptIdProperty.intValue)
+                value = script
             };
             scriptField.RegisterValueChangedCallback(OnRootChange);
             
             container.Add(scriptField);
+            if (script != null)
+            {
+                container.Add(new Label($"\t({RootClassNameProperty.stringValue})"));
+            }
             
             return container;
         }
@@ -42,7 +47,7 @@ namespace RishUI.Editor
 
             if (evt.newValue is not MonoScript monoScript)
             {
-                RootScriptIdProperty.intValue = -1;
+                RootGUIDProperty.stringValue = null;
                 RootClassNameProperty.stringValue = null;
                 serializedObject.ApplyModifiedProperties();
                 return;
@@ -58,7 +63,9 @@ namespace RishUI.Editor
             }
             else
             {
-                RootScriptIdProperty.intValue = monoScript.GetInstanceID();
+                var guid = AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(monoScript)).ToString();
+                
+                RootGUIDProperty.stringValue = guid;
                 RootClassNameProperty.stringValue = type.FullName;
                 serializedObject.ApplyModifiedProperties();
             }
