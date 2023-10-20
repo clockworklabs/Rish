@@ -19,22 +19,6 @@ namespace RishUI
 
         public int Count => Rish.GetManaged<ManagedRishList<T>>(_id)?.Count ?? 0;
         public T this[int index] => Rish.GetManaged<ManagedRishList<T>>(_id)?.Get(index) ?? default;
-
-        public RishList(T element)
-        {
-            _id = Rish.GetFreeID<ManagedRishList<T>>();
-            var managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            managed.Add(element);
-        }
-        public RishList(RishList<T> other)
-        {
-            _id = Rish.GetFreeID<ManagedRishList<T>>();
-            var managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            foreach (var element in other)
-            {
-                managed.Add(element);
-            }
-        }
         
         public void Add(T element)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor.Graphs;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -10,14 +11,17 @@ namespace RishUI
     
     public static class Defaults
     {
-        private static Dictionary<Type, object> Values { get; }
+        private delegate T DefaultValueGetter<out T>() where T : struct;
+        
+        private static Dictionary<Type, MethodInfo> Methods { get; }
+        private static Dictionary<Type, Delegate> Delegates { get; } = new();
         private static HashSet<Type> GenericTypes { get; }
 
-        public static int Count => Values.Count + GenericTypes.Count;
+        public static int Count => Methods.Count + GenericTypes.Count;
 
         static Defaults()
         {
-            Values = new Dictionary<Type, object>(200);
+            Methods = new Dictionary<Type, MethodInfo>(200);
             GenericTypes = new HashSet<Type>();
             foreach (var type in Rish.PlayerTypes)
             {
@@ -32,12 +36,8 @@ namespace RishUI
                         }
                         else
                         {
-                            var val = property.GetValue(null);
-                            if (val != null)
-                            {
-                                Values.Add(type, val);
-                                break;
-                            }
+                            var getter = property.GetGetMethod(true);
+                            Methods.Add(type, getter);
                         }
                     }
                 }
@@ -60,12 +60,20 @@ namespace RishUI
                 return (T)property.GetValue(null);
             }
 
-            if (!Values.TryGetValue(type, out var value))
+            if (Delegates.TryGetValue(type, out var getterDelegate))
             {
-                return default;
+                var getter = (DefaultValueGetter<T>) getterDelegate;
+
+                return getter?.Invoke() ?? default;
+            } else if (Methods.TryGetValue(type, out var getterMethod))
+            {
+                var getter = (DefaultValueGetter<T>) Delegate.CreateDelegate(typeof(DefaultValueGetter<T>), null, getterMethod);
+                Delegates.Add(type, getter);
+                
+                return getter?.Invoke() ?? default;
             }
 
-            return (T)value;
+            return default;
         }
     }
 }
