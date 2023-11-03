@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using RishUI.Events;
 using Unity.Collections;
 using UnityEngine;
@@ -37,10 +38,12 @@ namespace RishUI.Elements
             text = Props.text,
             multiline = Props.multiline,
             isPassword = Props.isPassword,
+            richTextEnabled = Props.richTextEnabled,
             readOnly = Props.readOnly,
             maxLength = Props.maxLength,
             multiClickInteraction = Props.multiClickInteraction,
             textInputDescriptor = Props.textInputDescriptor,
+            textElementDescriptor = Props.textElementDescriptor,
             cursorColor = Props.cursorColor,
             selectionColor = Props.selectionColor,
             onChange = OnChange
@@ -85,6 +88,7 @@ namespace RishUI.Elements
             StyledPropsManager<RishTextField, RishTextFieldProps> IStyledProps<RishTextField, RishTextFieldProps>.Manager => PropsManager;
             
             private string[] TextInputClasses { get; }
+            private string[] TextElementClasses { get; }
             
             private static readonly CustomStyleProperty<int> MaxLengthProp = new("--props-max-length"); 
             private static readonly CustomStyleProperty<bool> MultiClickInteractionProp = new("--props-multi-click-interaction"); 
@@ -92,7 +96,11 @@ namespace RishUI.Elements
             private static readonly CustomStyleProperty<Color> SelectionColorProp = new("--props-selection-color");
 
             private RishTextFieldProps _props;
-
+            
+            private delegate TextElement TextElementGetter(TextInputBase textInputBase);
+            private static TextElementGetter TextElementGetMethod { get; set; }
+            private TextElement TextElement { get; }
+            
             public RishTextField()
             {
                 this.RegisterValueChangedCallback(OnNewValue);
@@ -102,6 +110,17 @@ namespace RishUI.Elements
                 
                 textInputBase.name = null;
                 TextInputClasses = textInputBase.GetClasses().ToArray();
+
+                if (TextElementGetMethod == null)
+                {
+                    var propertyInfo = textInputBase.GetType().GetProperty("textElement", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    TextElementGetMethod = (TextElementGetter) Delegate.CreateDelegate(typeof(TextElementGetter), propertyInfo.GetGetMethod(true));
+                }
+
+                TextElement = TextElementGetMethod(textInputBase);
+
+                TextElement.name = null;
+                TextElementClasses = TextElement.GetClasses().ToArray();
             }
         
             void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => PropsManager.Setup(props);
@@ -125,14 +144,25 @@ namespace RishUI.Elements
                 textInputBase.cursorColor = props.cursorColor.Value;
                 textInputBase.selectionColor = props.selectionColor.Value;
 
-                var descriptor = props.textInputDescriptor;
-                textInputBase.name = descriptor.name;
-                descriptor.className.SetClasses(textInputBase);
+                var textInputDescriptor = props.textInputDescriptor;
+                textInputBase.name = textInputDescriptor.name;
+                textInputDescriptor.className.SetClasses(textInputBase);
                 foreach (var className in TextInputClasses)
                 {
                     textInputBase.AddToClassList(className);
                 }
-                descriptor.style.SetInlineStyle(textInputBase);
+                textInputDescriptor.style.SetInlineStyle(textInputBase);
+
+                var textElementDescriptor = props.textElementDescriptor;
+                TextElement.name = textElementDescriptor.name;
+                textElementDescriptor.className.SetClasses(TextElement);
+                foreach (var className in TextElementClasses)
+                {
+                    TextElement.AddToClassList(className);
+                }
+                textElementDescriptor.style.SetInlineStyle(TextElement);
+
+                TextElement.enableRichText = props.richTextEnabled;
             }
 
             void IStyledProps<RishTextField, RishTextFieldProps>.OnCustomStyle(ref RishTextFieldProps props)
@@ -154,9 +184,10 @@ namespace RishUI.Elements
             public bool multiline;
             public bool isPassword;
             public bool readOnly;
+            public bool richTextEnabled;
 
             /// <summary>
-            /// Styled Prop as --prop-max-length
+            /// Styled Prop as --props-max-length
             /// </summary>
             public int? maxLength;
 
@@ -165,6 +196,7 @@ namespace RishUI.Elements
             /// </summary>
             public bool? multiClickInteraction;
             public DOMDescriptor textInputDescriptor;
+            public DOMDescriptor textElementDescriptor;
 
             /// <summary>
             /// Styled Prop as --props-cursor-color
@@ -188,6 +220,8 @@ namespace RishUI.Elements
         public DOMDescriptor descriptor;
         [DOMDescriptor]
         public DOMDescriptor textInputDescriptor;
+        [DOMDescriptor]
+        public DOMDescriptor textElementDescriptor;
         public FixedString4096Bytes text;
         public bool multiline;
         public bool isPassword;
@@ -195,6 +229,7 @@ namespace RishUI.Elements
         public int? maxLength;
         public bool? multiClickInteraction;
         public bool autoFocus;
+        public bool richTextEnabled;
         public Color? cursorColor;
         public Color? selectionColor;
         [IgnoreComparison]
