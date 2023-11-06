@@ -57,6 +57,16 @@ namespace RishUI
             var definition = GetDefinition();
             return definition.TryGetProps(out props);
         }
+        public bool TrySetProps<P>(P props) where P : struct
+        {
+            if (!Valid)
+            {
+                return false;
+            }
+
+            var definition = GetDefinition();
+            return definition.TrySetProps(props);
+        }
 
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
 

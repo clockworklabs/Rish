@@ -302,6 +302,7 @@ namespace RishUI
                 props = Defaults.GetValue<P1>();
                 return false;
             }
+            public override bool TrySetProps<P1>(P1 props) => false;
         }
 
         private class VisualDefinition<T, P> : ManagedElement where T: VisualElement, IVisualElement<P>, new() where P : struct
@@ -361,6 +362,16 @@ namespace RishUI
                 }
 
                 props = p;
+                return true;
+            }
+            public override bool TrySetProps<P1>(P1 props)
+            {
+                if (props is not P p)
+                {
+                    return false;
+                }
+
+                Props = p;
                 return true;
             }
         }

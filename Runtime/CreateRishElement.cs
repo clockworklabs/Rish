@@ -106,6 +106,17 @@ namespace RishUI
                 props = p;
                 return true;
             }
+            
+            public override bool TrySetProps<P1>(P1 props)
+            {
+                if (props is not P p)
+                {
+                    return false;
+                }
+
+                Props = p;
+                return true;
+            }
         }
     }
 }
