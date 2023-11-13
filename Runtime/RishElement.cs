@@ -183,7 +183,7 @@ namespace RishUI
 
         void IRishElement.Mount(Node node)
         {
-            if (this is ICustomElement customComponent)
+            if (this is IManualState customComponent)
             {
                 customComponent.Restart();
             }

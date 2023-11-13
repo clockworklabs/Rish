@@ -371,7 +371,7 @@ namespace RishUI
                     return false;
                 }
 
-                Props = p;
+                Factory(Key, Descriptor, p, Children);
                 return true;
             }
         }

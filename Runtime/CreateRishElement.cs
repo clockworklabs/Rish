@@ -114,7 +114,7 @@ namespace RishUI
                     return false;
                 }
 
-                Props = p;
+                Factory(Key, p);
                 return true;
             }
         }

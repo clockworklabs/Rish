@@ -1,6 +1,6 @@
 ﻿namespace RishUI
 {
-    public interface ICustomElement
+    public interface IManualState
     {
         void Restart();
     }
