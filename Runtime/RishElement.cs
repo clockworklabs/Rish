@@ -106,7 +106,7 @@ namespace RishUI
         private Element RenderedElement { get; set; }
         private NativeList<Reference> References { get; set; }
 
-        protected T GetFirstAncestorOfType<T>() where T : class
+        public T GetFirstAncestorOfType<T>() where T : class
         {
             for (var parent = Node.Parent; parent != null; parent = parent.Parent)
             {
@@ -292,7 +292,7 @@ namespace RishUI
 
         public void SendEvent(RishEventBase evt) => EventsDispatcher.Dispatch(evt);
 
-        protected void RegisterRishCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : RishEventBase<TEventType>, new()
+        public void RegisterRishCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : RishEventBase<TEventType>, new()
         {
             var wrapper = CallbacksPool.Get(this, callback, phase);
 
@@ -300,7 +300,7 @@ namespace RishUI
             Callbacks.Add(wrapper);
         }
 
-        protected void UnregisterRishCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : RishEventBase<TEventType>, new()
+        public void UnregisterRishCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : RishEventBase<TEventType>, new()
         {
             if (Callbacks == null)
             {
@@ -329,7 +329,7 @@ namespace RishUI
             }
         }
 
-        protected void AddManipulator(ToolkitManipulator manipulator)
+        public void AddManipulator(ToolkitManipulator manipulator)
         {
             if (manipulator.Owner != null)
             {
@@ -350,7 +350,7 @@ namespace RishUI
             Node?.ToolkitEventsManager.AddManipulator(manipulator);
         }
         
-        protected void RemoveManipulator(ToolkitManipulator manipulator)
+        public void RemoveManipulator(ToolkitManipulator manipulator)
         {
             if (ToolkitManipulators == null)
             {
@@ -368,7 +368,7 @@ namespace RishUI
             Node?.ToolkitEventsManager.RemoveManipulator(manipulator);
         }
 
-        protected void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
+        public void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
         {
             var wrapper = ToolkitCallbacksPool.Get(callback, phase);
 
@@ -378,7 +378,7 @@ namespace RishUI
             Node?.ToolkitEventsManager.AddCallback(wrapper);
         }
 
-        protected void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
+        public void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
         {
             if (ToolkitCallbacks == null)
             {
