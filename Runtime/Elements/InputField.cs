@@ -218,10 +218,10 @@ namespace RishUI.Elements
 
             void IStyledProps<RishTextField, RishTextFieldProps>.OnCustomStyle(ref RishTextFieldProps props)
             {
-                props.maxLength ??= customStyle.TryGetValue(MaxLengthProp, out var customMaxLength) ? customMaxLength : -1;
-                props.multiClickInteraction ??= !customStyle.TryGetValue(MultiClickInteractionProp, out var customMultiClickInteraction) || customMultiClickInteraction;
-                props.cursorColor ??= customStyle.TryGetValue(CursorColorProp, out var customCursorColor) ? customCursorColor : Color.black;
-                props.selectionColor ??= customStyle.TryGetValue(SelectionColorProp, out var customSelectionColor) ? customSelectionColor : new Color(0.39f, 0.58f, 0.93f);
+                PropsManager.SetValue(MaxLengthProp, ref props.maxLength, -1);
+                PropsManager.SetValue(MultiClickInteractionProp, ref props.multiClickInteraction, true);
+                PropsManager.SetValue(CursorColorProp, ref props.cursorColor, Color.black);
+                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f));
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
@@ -352,10 +352,10 @@ namespace RishUI.Elements
 
             void IStyledProps<RishIntegerField, RishIntegerFieldProps>.OnCustomStyle(ref RishIntegerFieldProps props)
             {
-                props.maxLength ??= customStyle.TryGetValue(MaxLengthProp, out var customMaxLength) ? customMaxLength : -1;
-                props.multiClickInteraction ??= !customStyle.TryGetValue(MultiClickInteractionProp, out var customMultiClickInteraction) || customMultiClickInteraction;
-                props.cursorColor ??= customStyle.TryGetValue(CursorColorProp, out var customCursorColor) ? customCursorColor : Color.black;
-                props.selectionColor ??= customStyle.TryGetValue(SelectionColorProp, out var customSelectionColor) ? customSelectionColor : new Color(0.39f, 0.58f, 0.93f);
+                PropsManager.SetValue(MaxLengthProp, ref props.maxLength, -1);
+                PropsManager.SetValue(MultiClickInteractionProp, ref props.multiClickInteraction, true);
+                PropsManager.SetValue(CursorColorProp, ref props.cursorColor, Color.black);
+                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f));
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
@@ -485,10 +485,10 @@ namespace RishUI.Elements
 
             void IStyledProps<RishLongField, RishLongFieldProps>.OnCustomStyle(ref RishLongFieldProps props)
             {
-                props.maxLength ??= customStyle.TryGetValue(MaxLengthProp, out var customMaxLength) ? customMaxLength : -1;
-                props.multiClickInteraction ??= !customStyle.TryGetValue(MultiClickInteractionProp, out var customMultiClickInteraction) || customMultiClickInteraction;
-                props.cursorColor ??= customStyle.TryGetValue(CursorColorProp, out var customCursorColor) ? customCursorColor : Color.black;
-                props.selectionColor ??= customStyle.TryGetValue(SelectionColorProp, out var customSelectionColor) ? customSelectionColor : new Color(0.39f, 0.58f, 0.93f);
+                PropsManager.SetValue(MaxLengthProp, ref props.maxLength, -1);
+                PropsManager.SetValue(MultiClickInteractionProp, ref props.multiClickInteraction, true);
+                PropsManager.SetValue(CursorColorProp, ref props.cursorColor, Color.black);
+                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f));
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
@@ -618,10 +618,10 @@ namespace RishUI.Elements
 
             void IStyledProps<RishFloatField, RishFloatFieldProps>.OnCustomStyle(ref RishFloatFieldProps props)
             {
-                props.maxLength ??= customStyle.TryGetValue(MaxLengthProp, out var customMaxLength) ? customMaxLength : -1;
-                props.multiClickInteraction ??= !customStyle.TryGetValue(MultiClickInteractionProp, out var customMultiClickInteraction) || customMultiClickInteraction;
-                props.cursorColor ??= customStyle.TryGetValue(CursorColorProp, out var customCursorColor) ? customCursorColor : Color.black;
-                props.selectionColor ??= customStyle.TryGetValue(SelectionColorProp, out var customSelectionColor) ? customSelectionColor : new Color(0.39f, 0.58f, 0.93f);
+                PropsManager.SetValue(MaxLengthProp, ref props.maxLength, -1);
+                PropsManager.SetValue(MultiClickInteractionProp, ref props.multiClickInteraction, true);
+                PropsManager.SetValue(CursorColorProp, ref props.cursorColor, Color.black);
+                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f));
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);

@@ -109,8 +109,24 @@ namespace RishUI
             }
         }
 
-        public void AddStyleSheet(StyleSheet styleSheet) => Root?.styleSheets.Add(styleSheet);
-        public void RemoveStyleSheet(StyleSheet styleSheet) => Root?.styleSheets.Remove(styleSheet);
+        public void AddStyleSheet(StyleSheet styleSheet)
+        {
+            if (styleSheet == null)
+            {
+                return;
+            }
+
+            Root?.styleSheets.Add(styleSheet);
+        }
+        public void RemoveStyleSheet(StyleSheet styleSheet)
+        {
+            if (styleSheet == null)
+            {
+                return;
+            }
+
+            Root?.styleSheets.Remove(styleSheet);
+        }
 
         public bool HasAnyPointerOver() => Root?.IsHover() ?? false;
         public bool HasAnyPointerCaptured()
