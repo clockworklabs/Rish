@@ -108,6 +108,11 @@ namespace RishUI
 
         public T GetFirstAncestorOfType<T>() where T : class
         {
+            if (Node == null)
+            {
+                return null;
+            }
+
             for (var parent = Node.Parent; parent != null; parent = parent.Parent)
             {
                 if (parent.Element is T element)
