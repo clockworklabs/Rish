@@ -24,14 +24,14 @@ namespace RishUI.Elements
         void IMountingListener.ComponentDidMount()
         {
             Form = GetFirstAncestorOfType<Form>();
-            var index = Form?.RegisterElement() ?? 0;
+            var index = Form?.RegisterElement(this) ?? 0;
             Focusable(index);
             
             JustMounted = true;
         }
         void IMountingListener.ComponentWillUnmount()
         {
-            Form?.UnregisterElement();
+            Form?.UnregisterElement(this);
             NotFocusable();
         }
 
