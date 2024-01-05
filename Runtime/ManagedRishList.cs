@@ -96,6 +96,16 @@ namespace RishUI
     
             return true;
         }
+        
+        public void Set(int index, T element)
+        {
+            if (!Open)
+            {
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+            }
+            
+            Elements[index] = element;
+        }
 
         public void Add(T element)
         {
@@ -105,6 +115,43 @@ namespace RishUI
             }
             
             Elements.Add(element);
+        }
+
+        public void Sort()
+        {
+            if (!Open)
+            {
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+            }
+
+            Elements.Sort();
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (!Open)
+            {
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+            }
+
+            Elements.Sort(comparer);
+        }
+        public void Sort(int index, int count, IComparer<T> comparer)
+        {
+            if (!Open)
+            {
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+            }
+
+            Elements.Sort(index, count, comparer);
+        }
+        public void Sort(Comparison<T> comparison)
+        {
+            if (!Open)
+            {
+                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+            }
+
+            Elements.Sort(comparison);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Elements.GetEnumerator();

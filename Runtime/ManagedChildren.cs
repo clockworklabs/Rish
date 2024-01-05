@@ -58,6 +58,16 @@ namespace RishUI
     
             return true;
         }
+        
+        public void Set(int index, Element element)
+        {
+            if (!Open)
+            {
+                throw new UnityException("Children already closed. You can't modify it after the initial creation.");
+            }
+            
+            Elements[index] = element;
+        }
 
         public void Add(Element element)
         {

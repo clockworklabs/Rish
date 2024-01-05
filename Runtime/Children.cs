@@ -18,8 +18,21 @@ namespace RishUI
     
         public static Children Null => new();
 
-        public int Count => Rish.GetManaged<ManagedChildren>(_id)?.Count ?? 0;
-        public Element this[int index] => Rish.GetManaged<ManagedChildren>(_id)?.Get(index) ?? default;
+        private ManagedChildren Managed => Rish.GetManaged<ManagedChildren>(_id);
+        public int Count => Managed?.Count ?? 0;
+        public Element this[int index]
+        {
+            get => Managed?.Get(index) ?? default;
+            set
+            {
+                var managed = Managed;
+                if (managed == null)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                managed.Set(index, value);
+            }
+        }
 
         public void Add(Element element)
         {

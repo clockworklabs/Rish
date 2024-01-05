@@ -17,8 +17,21 @@ namespace RishUI
     
         public static RishList<T> Null => new();
 
-        public int Count => Rish.GetManaged<ManagedRishList<T>>(_id)?.Count ?? 0;
-        public T this[int index] => Rish.GetManaged<ManagedRishList<T>>(_id)?.Get(index) ?? default;
+        private ManagedRishList<T> Managed => Rish.GetManaged<ManagedRishList<T>>(_id);
+        public int Count => Managed?.Count ?? 0;
+        public T this[int index]
+        {
+            get => Managed?.Get(index) ?? default;
+            set
+            {
+                var managed = Managed;
+                if (managed == null)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                managed.Set(index, value);
+            }
+        }
         
         public void Add(T element)
         {
@@ -43,6 +56,11 @@ namespace RishUI
                 managed.Add(element);
             }
         }
+
+        public void Sort() => Managed.Sort();
+        public void Sort(IComparer<T> comparer) => Managed.Sort(comparer);
+        public void Sort(int index, int count, IComparer<T> comparer) => Managed.Sort(index, count, comparer);
+        public void Sort(Comparison<T> comparison) => Managed.Sort(comparison);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
