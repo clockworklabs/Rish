@@ -57,10 +57,10 @@ namespace RishUI
             }
         }
 
-        public void Sort() => Managed.Sort();
-        public void Sort(IComparer<T> comparer) => Managed.Sort(comparer);
-        public void Sort(int index, int count, IComparer<T> comparer) => Managed.Sort(index, count, comparer);
-        public void Sort(Comparison<T> comparison) => Managed.Sort(comparison);
+        public void Sort() => Managed?.Sort();
+        public void Sort(IComparer<T> comparer) => Managed?.Sort(comparer);
+        public void Sort(int index, int count, IComparer<T> comparer) => Managed?.Sort(index, count, comparer);
+        public void Sort(Comparison<T> comparison) => Managed?.Sort(comparison);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
