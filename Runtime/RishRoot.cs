@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,6 +25,23 @@ namespace RishUI
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;
+
+        public Type RootType
+        {
+            get
+            {
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    var type = assembly.GetType(RootClassName);
+                    if (type != null)
+                    {
+                        return type;
+                    }
+                }
+
+                return null;
+            }
+        }
         
         private bool Recovered { get; set; }
 
