@@ -94,12 +94,11 @@ namespace RishUI.MemoryManagement
 
         private void AddGarbage(uint id)
         {
-            if (GarbageSet.Contains(id))
+            if (!GarbageSet.Add(id))
             {
                 return;
             }
 
-            GarbageSet.Add(id);
             GarbageList.Add(id);
         }
 

@@ -276,13 +276,11 @@ namespace Rishenerator
             
             private void AnalyzeForReferenceGetter(ITypeSymbol typeSymbol)
             {
-                if (Analyzed.Contains(typeSymbol))
+                if (!Analyzed.Add(typeSymbol))
                 {
                     return;
                 }
-                
-                Analyzed.Add(typeSymbol);
-                
+
                 if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
                 {
                     return;
@@ -310,13 +308,9 @@ namespace Rishenerator
                     if (namedTypeSymbol.IsGenericDefinition())
                     {
                         var unboundType = namedTypeSymbol.ConstructUnboundGenericType();
-                        if (UnboundTypes.Contains(unboundType))
+                        if (!UnboundTypes.Add(unboundType))
                         {
                             mustBeAdded = false;
-                        }
-                        else
-                        {
-                            UnboundTypes.Add(unboundType);
                         }
                     }
                     else if (typeSymbol.HasGenericParameters())

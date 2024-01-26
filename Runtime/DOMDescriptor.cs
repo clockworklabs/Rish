@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    [RishValueType]
     public struct DOMDescriptor
     {
         public Name name;

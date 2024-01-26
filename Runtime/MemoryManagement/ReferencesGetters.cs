@@ -109,8 +109,8 @@ namespace RishUI.MemoryManagement
             }
         }
 
-        internal static bool Contains<T>() => Contains(typeof(T));
-        internal static bool Contains(Type type)
+        public static bool Contains<T>() => Contains(typeof(T));
+        public static bool Contains(Type type)
         {
             if (Methods.ContainsKey(type))
             {

@@ -1,5 +1,7 @@
 using System;
 using RishUI.Events;
+using RishUI.MemoryManagement;
+using Unity.Collections;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -294,7 +296,7 @@ namespace RishUI
 
             public override bool Equals(ManagedElement other)
             {
-                return other is VisualDefinition<T> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && Comparers.Compare(Children, otherDefinition.Children);
+                return other is VisualDefinition<T> otherDefinition && Key == otherDefinition.Key && Comparers.Compare(Descriptor, otherDefinition.Descriptor) && Comparers.Compare(Children, otherDefinition.Children);
             }
             
             public override bool TryGetProps<P1>(out P1 props)
@@ -312,6 +314,8 @@ namespace RishUI
             private DOMDescriptor Descriptor { get; set; }
             private P Props { get; set; }
             private Children Children { get; set; }
+            
+            private NativeList<Reference> References { get; set; } 
 
             public void Factory(ulong key, DOMDescriptor descriptor, P props, Children children)
             {
@@ -319,6 +323,13 @@ namespace RishUI
                 Descriptor = descriptor;
                 Props = props;
                 Children = children;
+
+                if (References.IsCreated)
+                {
+                    References.Dispose();
+                }
+
+                References = ReferencesGetters.GetReferences(props);
             }
 
             internal override void Invoke(Node node)
@@ -334,23 +345,51 @@ namespace RishUI
                 
                 child.AttachChildren(Children);
             }
-            
-            protected override void Dispose() { }
+
+            protected override void Dispose()
+            {
+                if (References.IsCreated)
+                {
+                    References.Dispose();
+                }
+
+                References = default;
+            }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
                 RegisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
+                
+                if (!References.IsCreated)
+                {
+                    return;
+                }
+                
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(owner);
+                }
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
                 UnregisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
+                
+                if (!References.IsCreated)
+                {
+                    return;
+                }
+                
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(owner);
+                }
             }
 
             public override bool Equals(ManagedElement other)
             {
-                return other is VisualDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.MemCmp(Descriptor, otherDefinition.Descriptor) && RishUtils.SmartCompare(Props, otherDefinition.Props) && Comparers.Compare(Children, otherDefinition.Children);
+                return other is VisualDefinition<T, P> otherDefinition && Key == otherDefinition.Key && Comparers.Compare(Descriptor, otherDefinition.Descriptor) && RishUtils.SmartCompare(Props, otherDefinition.Props) && Comparers.Compare(Children, otherDefinition.Children);
             }
             
             public override bool TryGetProps<P1>(out P1 props)
