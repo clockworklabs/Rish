@@ -102,21 +102,23 @@ namespace RishUI
                 {
                     return false;
                 }
-
+            
                 props = p;
                 return true;
             }
             
-            public override bool TrySetProps<P1>(P1 props)
-            {
-                if (props is not P p)
-                {
-                    return false;
-                }
-
-                Factory(Key, p);
-                return true;
-            }
+            // public override bool TrySetProps<P1>(P1 props)
+            // {
+            //     if (props is not P p)
+            //     {
+            //         return false;
+            //     }
+            //
+            //     Factory(Key, p);
+            //     return true;
+            // }
+            //
+            // public override void UpdateKey(ulong key) => Factory(key, Props);
         }
     }
 }

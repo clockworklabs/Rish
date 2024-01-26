@@ -57,16 +57,39 @@ namespace RishUI
             var definition = GetDefinition();
             return definition.TryGetProps(out props);
         }
-        public bool TrySetProps<P>(P props) where P : struct
+        // public bool TrySetProps<P>(P props) where P : struct
+        // {
+        //     if (!Valid)
+        //     {
+        //         return false;
+        //     }
+        //
+        //     var definition = GetDefinition();
+        //     return definition.TrySetProps(props);
+        // }
+        public bool TryGetKey(out ulong key)
         {
+            key = default;
             if (!Valid)
             {
                 return false;
             }
 
             var definition = GetDefinition();
-            return definition.TrySetProps(props);
+            key = definition.Key;
+            
+            return true;
         }
+        // public bool TrySetKey(ulong key)
+        // {
+        //     if (!Valid)
+        //     {
+        //         return false;
+        //     }
+        //
+        //     var definition = GetDefinition();
+        //     return definition.TrySetProps(props);
+        // }
 
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
 

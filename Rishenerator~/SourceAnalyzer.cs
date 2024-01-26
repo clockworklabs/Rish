@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -50,6 +51,16 @@ namespace Rishenerator
             "State types must have the RishValueType attribute.",
             null // TODO: Help link to documentation
         );
+        // private static readonly DiagnosticDescriptor RishValueTypeRule = new(
+        //     "RishValueTypeRule",
+        //     "Types holding Rish-reference types must be RishValueType",
+        //     "Type {0} contains a Rish-reference types and must be RishValueType",
+        //     "Usage",
+        //     DiagnosticSeverity.Error,
+        //     true,
+        //     "Types containing Rish-reference types must have the RishValueType attribute.",
+        //     null // TODO: Help link to documentation
+        // );
 
         private static readonly DiagnosticDescriptor AccessibilityRishValueTypeRule = new(
             "AccessibilityRishValueTypeRule",
@@ -84,10 +95,13 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
-        
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
+
+        // private static Dictionary<ITypeSymbol, bool> NeedsRishValueType { get; } = new(); 
         public override void Initialize(AnalysisContext context)
         {
+            // NeedsRishValueType.Clear();
+            
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.RegisterSyntaxNodeAction(AnalyzeRishElements, SyntaxKind.ClassDeclaration);
@@ -181,28 +195,32 @@ namespace Rishenerator
 
             if (structSymbol.IsFlaggedAsRishValueType())
             {
-                foreach (var memberSymbol in structSymbol.GetMembers())
-                {
-                    if (memberSymbol is not IFieldSymbol fieldSymbol)
-                    {
-                        continue;
-                    }
-
-                    if (memberSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
-                    {
-                        if (fieldSymbol.Type.GetFullName(false) != "RishUI.DOMDescriptor")
-                        {
-                            var fieldDeclaration = fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
-                            var diagnostic = Diagnostic.Create(DOMDescriptorTypeRule, fieldDeclaration.GetLocation(), fieldSymbol);
-                            context.ReportDiagnostic(diagnostic);
-                        }
-                    }
-                }
-                
                 if (!isAccessible)
                 {
                     var diagnostic = Diagnostic.Create(AccessibilityRishValueTypeRule, declarationSyntax.GetLocation(), structSymbol);
                     context.ReportDiagnostic(diagnostic);
+                }
+                else
+                {
+                    foreach (var memberSymbol in structSymbol.GetMembers())
+                    {
+                        if (memberSymbol is not IFieldSymbol fieldSymbol)
+                        {
+                            continue;
+                        }
+
+                        if (memberSymbol.HasAttribute("RishUI.DOMDescriptorAttribute"))
+                        {
+                            if (fieldSymbol.Type.GetFullName(false) != "RishUI.DOMDescriptor")
+                            {
+                                var fieldDeclaration = fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+                                var diagnostic = Diagnostic.Create(DOMDescriptorTypeRule, fieldDeclaration.GetLocation(), fieldSymbol);
+                                context.ReportDiagnostic(diagnostic);
+                            }
+                        }
+                    }
+                    
+                    // CheckForRishValueType(context, structSymbol);
                 }
             }
             else
@@ -217,5 +235,68 @@ namespace Rishenerator
                 }
             }
         }
+
+        // private bool CheckForRishValueType(SyntaxNodeAnalysisContext context, ITypeSymbol symbol)
+        // {
+        //     bool needsRishValueType;
+        //     if (NeedsRishValueType.TryGetValue(symbol, out needsRishValueType))
+        //     {
+        //         return needsRishValueType;
+        //     }
+        //
+        //     bool shouldNotify;
+        //     if (!symbol.IsValueType || symbol is not INamedTypeSymbol)
+        //     {
+        //         needsRishValueType = false;
+        //         shouldNotify = false;
+        //     }
+        //     else
+        //     {
+        //         var isRishReference = false;
+        //         foreach (var interfaceTypeSymbol in symbol.Interfaces)
+        //         {
+        //             var interfaceName = interfaceTypeSymbol.GetFullName(false);
+        //             if (interfaceName == "RishUI.MemoryManagement.IReference")
+        //             {
+        //                 isRishReference = true;
+        //                 break;
+        //             }
+        //         }
+        //
+        //         if (isRishReference)
+        //         {
+        //             needsRishValueType = true;
+        //             shouldNotify = false;
+        //         } else {
+        //             needsRishValueType = false;
+        //             shouldNotify = true;
+        //             foreach (var memberSymbol in symbol.GetMembers())
+        //             {
+        //                 if (memberSymbol is not IFieldSymbol fieldSymbol)
+        //                 {
+        //                     continue;
+        //                 }
+        //         
+        //                 var fieldTypeSymbol = fieldSymbol.Type;
+        //             
+        //                 if (fieldTypeSymbol.IsFlaggedAsRishValueType() || CheckForRishValueType(context, fieldTypeSymbol))
+        //                 {
+        //                     needsRishValueType = true;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     
+        //     NeedsRishValueType[symbol] = needsRishValueType;
+        //
+        //     if (shouldNotify && needsRishValueType && !symbol.IsFlaggedAsRishValueType())
+        //     {
+        //         var declarationSyntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+        //         var diagnostic = Diagnostic.Create(RishValueTypeRule, declarationSyntax?.GetLocation(), symbol);
+        //         context.ReportDiagnostic(diagnostic);
+        //     }
+        //
+        //     return needsRishValueType;
+        // }
     }
 }

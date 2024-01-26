@@ -348,42 +348,14 @@ namespace Rishenerator
 
             return false;
         }
-        
-        public static bool IsFlaggedAsRishValueType(this ITypeSymbol typeSymbol)
-        {
-            foreach (var attributeData in typeSymbol.GetAttributes())
-            {
-                var attributeClass = attributeData.AttributeClass;
-                while (attributeClass != null)
-                {
-                    var attributeFullName = attributeClass.GetFullName(false);
-                    if (attributeFullName == "RishUI.RishValueTypeAttribute")
-                    {
-                        return true;
-                    }
-            
-                    attributeClass = attributeClass.BaseType;
-                }
-            }
 
-            return false;
-        }
+        public static bool IsFlaggedAsRishValueType(this ITypeSymbol typeSymbol) => typeSymbol.HasAttribute("RishUI.RishValueTypeAttribute");
         
         public static bool IsFlaggedForAutoComparer(this ITypeSymbol typeSymbol)
         {
-            foreach (var attributeData in typeSymbol.GetAttributes())
+            if (typeSymbol.HasAttribute("RishUI.AutoComparerAttribute"))
             {
-                var attributeClass = attributeData.AttributeClass;
-                while (attributeClass != null)
-                {
-                    var attributeFullName = attributeClass.GetFullName(false);
-                    if (attributeFullName == "RishUI.AutoComparerAttribute")
-                    {
-                        return true;
-                    }
-            
-                    attributeClass = attributeClass.BaseType;
-                }
+                return true;
             }
 
             if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
@@ -409,19 +381,9 @@ namespace Rishenerator
         
         public static bool IsFlaggedForCustomComparer(this ITypeSymbol typeSymbol)
         {
-            foreach (var attributeData in typeSymbol.GetAttributes())
+            if (typeSymbol.HasAttribute("RishUI.CustomComparerAttribute"))
             {
-                var attributeClass = attributeData.AttributeClass;
-                while (attributeClass != null)
-                {
-                    var attributeFullName = attributeClass.GetFullName(false);
-                    if (attributeFullName == "RishUI.CustomComparerAttribute")
-                    {
-                        return true;
-                    }
-            
-                    attributeClass = attributeClass.BaseType;
-                }
+                return true;
             }
 
             if (typeSymbol.IsTupleType || typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)

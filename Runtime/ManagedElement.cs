@@ -16,7 +16,9 @@ namespace RishUI
         public abstract bool Equals(ManagedElement other);
         
         public abstract bool TryGetProps<P>(out P props) where P : struct;
-        public abstract bool TrySetProps<P>(P props) where P : struct;
+        // public abstract bool TrySetProps<P>(P props) where P : struct;
+        //
+        // public abstract void UpdateKey(ulong key);
 
         void IManaged.Dispose() => Dispose();
         void IManaged.ReferenceRegistered(IOwner owner) => ReferenceRegistered(owner);
