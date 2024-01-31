@@ -14,7 +14,9 @@ namespace RishUI.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var container = new VisualElement();
-
+            
+            container.Add(new PropertyField(serializedObject.FindProperty("_debugRender")));
+            
             container.Add(new PropertyField(serializedObject.FindProperty("_styleSheets")));
 
             RootGUIDProperty = serializedObject.FindProperty("_rootGUID");

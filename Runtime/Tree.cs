@@ -57,7 +57,11 @@ namespace RishUI
             DirtyQueue.Enqueue(node, node.DirtyPriority);
         }
 
+        #if UNITY_EDITOR
+        public void Update(bool debug)
+        #else
         public void Update()
+        #endif
         {
             (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
             
@@ -79,6 +83,12 @@ namespace RishUI
 
                 CurrentDepth = node.Depth;
 
+#if UNITY_EDITOR
+                if (debug)
+                {
+                    Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
+                }
+#endif
                 node.Render();
             }
 

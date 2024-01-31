@@ -34,7 +34,7 @@ namespace RishUI
         // --- Changes when mounted ------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         private Tree Tree { get; set; }
-        private ulong Key { get; set; }
+        internal ulong Key { get; private set; }
         internal IElement Element { get; private set; }
         private Node _parent;
         internal Node Parent

@@ -20,6 +20,10 @@ namespace RishUI
 
         #if UNITY_EDITOR
         [SerializeField]
+        private bool _debugRender;
+        private bool DebugRender => _debugRender;
+        
+        [SerializeField]
         private string _rootGUID;
         #endif
         [SerializeField]
@@ -110,7 +114,11 @@ namespace RishUI
         {
             try
             {
+                #if UNITY_EDITOR
+                Tree.Update(DebugRender);
+                #else
                 Tree.Update();
+                #endif
                 Rish.CleanGarbage();
             }
             catch (Exception e)
