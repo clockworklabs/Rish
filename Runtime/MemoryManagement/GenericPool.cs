@@ -28,8 +28,13 @@ namespace RishUI.MemoryManagement
             }
         }
 
-        uint IPool.GetFreeID<T>()
+        uint IPool.GetFreeID<T1>()
         {
+            if (typeof(T1) != typeof(T))
+            {
+                throw new UnityException($"Pool type mismatch. Pool is of type {typeof(T)}, not {typeof(T1)}.");
+            }
+            
             if (!FreeStack.TryPop(out var id))
             {
                 id = CreateNew();
@@ -39,14 +44,19 @@ namespace RishUI.MemoryManagement
             return id;
         }
 
-        T IPool.GetManaged<T>(uint id)
+        T1 IPool.GetManaged<T1>(uint id)
         {
+            if (typeof(T1) != typeof(T))
+            {
+                throw new UnityException($"Pool type mismatch. Pool is of type {typeof(T)}, not {typeof(T1)}.");
+            }
+            
             var wrapper = GetWrapper(id);
             if (wrapper == null)
             {
                 throw new UnityException("Invalid reference.");
             }
-            if (wrapper.Managed is not T managed)
+            if (wrapper.Managed is not T1 managed)
             {
                 throw new UnityException($"Reference is not of type {typeof(T)}.");
             }

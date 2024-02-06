@@ -39,7 +39,7 @@ namespace RishUI
 
             return freeStack;
         }
-        private Stack<uint> GetFreeStack(Type type) => FreeStacks.TryGetValue(type, out var stack) ? stack : null;
+        private Stack<uint> GetFreeStack(Type type) => FreeStacks.GetValueOrDefault(type);
 
         uint IPool.GetFreeID<T>()
         {
