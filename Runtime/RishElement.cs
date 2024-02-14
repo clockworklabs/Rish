@@ -22,8 +22,8 @@ namespace RishUI
 
         Element Render();
         
-        IEnumerable<ToolkitManipulator> ToolkitManipulators { get; }
-        IEnumerable<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
+        IReadOnlyCollection<ToolkitManipulator> ToolkitManipulators { get; }
+        IReadOnlyCollection<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
         
         Node Node { get; }
         int FocusIndex { get; }
@@ -51,29 +51,14 @@ namespace RishUI
         private List<ICallbackWrapper> Callbacks { get; set; }
 
         private List<ToolkitManipulator> ToolkitManipulators { get; set; }
-        IEnumerable<ToolkitManipulator> IRishElement.ToolkitManipulators
-        {
-            get
-            {
-                var n = ToolkitManipulators?.Count ?? 0;
-                for (var i = 0; i < n; i++)
-                {
-                    yield return ToolkitManipulators[i];
-                }
-            }
-        }
+        private IReadOnlyCollection<ToolkitManipulator> _readOnlyToolkitManipulators;
+        IReadOnlyCollection<ToolkitManipulator> IRishElement.ToolkitManipulators =>
+            _readOnlyToolkitManipulators ??= ToolkitManipulators?.AsReadOnly();
+
         private List<IToolkitCallbackWrapper> ToolkitCallbacks { get; set; }
-        IEnumerable<IToolkitCallbackWrapper> IRishElement.ToolkitCallbacks
-        {
-            get
-            {
-                var n = ToolkitCallbacks?.Count ?? 0;
-                for (var i = 0; i < n; i++)
-                {
-                    yield return ToolkitCallbacks[i];
-                }
-            }
-        }
+        private IReadOnlyCollection<IToolkitCallbackWrapper> _readOnlyCallbackManipulators;
+        IReadOnlyCollection<IToolkitCallbackWrapper> IRishElement.ToolkitCallbacks =>
+            _readOnlyCallbackManipulators ??= ToolkitCallbacks?.AsReadOnly();
 
         private int FocusIndex { get; set; } = -1;
         int IRishElement.FocusIndex => FocusIndex;

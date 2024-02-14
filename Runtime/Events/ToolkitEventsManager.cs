@@ -130,7 +130,7 @@ namespace RishUI.Events
             }
         }
 
-        private void AddManipulators(IEnumerable<ToolkitManipulator> manipulators)
+        private void AddManipulators(IReadOnlyCollection<ToolkitManipulator> manipulators)
         {
             if (manipulators == null)
             {
@@ -143,7 +143,7 @@ namespace RishUI.Events
             }
         }
 
-        private void AddCallbacks(IEnumerable<IToolkitCallbackWrapper> callbacks)
+        private void AddCallbacks(IReadOnlyCollection<IToolkitCallbackWrapper> callbacks)
         {
             if (callbacks == null)
             {
