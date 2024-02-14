@@ -92,7 +92,7 @@ namespace RishUI
                 return;
             }
             
-            if (wrapper.RegisterReference(owner) == 1)
+            if (wrapper.RegisterReference(owner) > 0)
             {
                 RemoveGarbage(id);
             }
@@ -155,7 +155,7 @@ namespace RishUI
 
             if (wrapper.ReferencesCount > 0)
             {
-                throw new UnityException("There are still active references pointing to this managed element.");
+                Debug.LogError("Memory leak! There are still active references pointing to this managed element.");
             }
             
             var managed = wrapper.Managed;
