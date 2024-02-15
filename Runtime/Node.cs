@@ -20,6 +20,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         private static uint _nextId;
         private static Stack<Node> Pool { get; } = new(1024);
+        private static List<Node> AllNodes { get; } = new(1024);
         
         // -------------------------------------------------------------------------------------------------------------
         // --- Never changes -------------------------------------------------------------------------------------------
@@ -446,7 +447,7 @@ namespace RishUI
 
         private static Node GetNodeFromPool(Tree tree)
         {
-            var node = Pool.Count > 0 ? Pool.Pop() : new Node(_nextId++);
+            var node = Pool.Count > 0 ? Pool.Pop() : CreateNode();
             node.Tree = tree;
 
             return node;
@@ -457,6 +458,16 @@ namespace RishUI
             node.Tree = null;
             Pool.Push(node);
         }
+
+        private static Node CreateNode()
+        {
+            var node = new Node(_nextId++);
+            AllNodes.Add(node);
+
+            return node;
+        }
+
+        internal static Node GetNode(uint id) => AllNodes[(int)id];
         
         private class StateMachine
         {

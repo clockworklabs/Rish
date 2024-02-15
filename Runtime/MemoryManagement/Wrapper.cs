@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace RishUI.MemoryManagement
@@ -10,6 +11,8 @@ namespace RishUI.MemoryManagement
         
         private Dictionary<uint, int> References { get; } = new();
         internal int ReferencesCount { get; private set; }
+        
+        internal IEnumerable<(uint, int)> ActiveReferencesDebug => References.Select(pair => (pair.Key, pair.Value));
 
         public Wrapper(uint id, IManaged managed)
         {

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
 {
-    public class ElementDefinitionPool : IPool
+    internal class ElementDefinitionPool : IPool
     {
         private const int InitialPoolSize = 64;
         
@@ -155,7 +156,15 @@ namespace RishUI
 
             if (wrapper.ReferencesCount > 0)
             {
-                Debug.LogError("Memory leak! There are still active references pointing to this managed element.");
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine($"Disposing ManagedElement with {wrapper.ReferencesCount} active references pointing to it:");
+                foreach (var (ownerId, count) in wrapper.ActiveReferencesDebug)
+                {
+                    var ownerType = Node.GetNode(ownerId).Element?.GetType();
+                    stringBuilder.AppendLine($"{ownerType}({ownerId}) owns {count} references");
+                }
+                
+                Debug.LogError(stringBuilder.ToString());
             }
             
             var managed = wrapper.Managed;

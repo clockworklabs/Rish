@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Unity.Collections;
 using UnityEngine;
 
@@ -145,7 +146,15 @@ namespace RishUI.MemoryManagement
             }
             if (wrapper.ReferencesCount > 0)
             {
-                Debug.LogError($"Memory leak! There are still active references pointing to this {typeof(T)}.");
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine($"Disposing {typeof(T)} with {wrapper.ReferencesCount} active references pointing to it:");
+                foreach (var (ownerId, count) in wrapper.ActiveReferencesDebug)
+                {
+                    var ownerType = Node.GetNode(ownerId).Element?.GetType();
+                    stringBuilder.AppendLine($"{ownerType}({ownerId}) owns {count} references");
+                }
+                
+                Debug.LogError(stringBuilder.ToString());
             }
             
             var managed = wrapper.Managed;
