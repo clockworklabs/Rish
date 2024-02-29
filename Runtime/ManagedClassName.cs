@@ -53,7 +53,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("ClassName already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("ClassName already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
 
             if (className.IsEmpty || string.IsNullOrWhiteSpace(className.Value))

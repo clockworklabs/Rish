@@ -101,7 +101,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
             
             Elements[index] = element;
@@ -111,7 +113,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
             
             Elements.Add(element);
@@ -121,7 +125,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
 
             Elements.Sort();
@@ -130,7 +136,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
 
             Elements.Sort(comparer);
@@ -139,7 +147,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
 
             Elements.Sort(index, count, comparer);
@@ -148,7 +158,9 @@ namespace RishUI
         {
             if (!Open)
             {
-                throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
             }
 
             Elements.Sort(comparison);
