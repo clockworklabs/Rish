@@ -264,10 +264,6 @@ namespace RishUI.Elements
             void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => PropsManager.Setup(props);
             void IStyledProps<RishTextField, RishTextFieldProps>.Setup(RishTextFieldProps props, bool dirty)
             {
-                if (this.IsFocus())
-                {
-                    return;
-                }
                 var targetValue = props.value.Value;
                 if (!this.IsFocus() && value != targetValue)
                 {
