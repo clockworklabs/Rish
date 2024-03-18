@@ -62,7 +62,10 @@ namespace RishUI.Elements
                     result = value;
                     break;
                 case Type.Integer:
-                    if (int.TryParse(value, out _))
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        result = "0";
+                    } else if (int.TryParse(value, out _))
                     {
                         result = value;
                     }
@@ -95,7 +98,10 @@ namespace RishUI.Elements
                     }
                     break;
                 case Type.Long:
-                    if (long.TryParse(value, out _))
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        result = "0";
+                    } else if (long.TryParse(value, out _))
                     {
                         result = value;
                     }
@@ -128,7 +134,10 @@ namespace RishUI.Elements
                     }
                     break;
                 case Type.Float:
-                    if (float.TryParse(value, out _))
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        result = "0";
+                    } else if (float.TryParse(value, out _))
                     {
                         result = value;
                     }
