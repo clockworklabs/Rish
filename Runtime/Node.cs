@@ -169,17 +169,32 @@ namespace RishUI
             if (!IsRoot && Element is VisualElement visualElement)
             {
                 var index = GetRealIndex();
-                if (index <= 0)
+                
+                var currentIndex = -1;
+                var parent = visualElement.parent;
+                for (int i = 0, n = parent?.childCount ?? 0; i < n; i++)
                 {
-                    visualElement.SendToBack();
+                    if (parent[i] == visualElement)
+                    {
+                        currentIndex = i;
+                        break;
+                    }
                 }
-                else if (index >= VisualParent.childCount)
+
+                if (currentIndex != index)
                 {
-                    visualElement.BringToFront();
-                }
-                else
-                {
-                    visualElement.PlaceBehind(VisualParent[index]);
+                    if (index <= 0)
+                    {
+                        visualElement.SendToBack();
+                    }
+                    else if (index >= VisualParent.childCount)
+                    {
+                        visualElement.BringToFront();
+                    }
+                    else
+                    {
+                        visualElement.PlaceBehind(VisualParent[index]);
+                    }
                 }
             }
 

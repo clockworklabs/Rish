@@ -240,6 +240,7 @@ namespace RishUI.Elements
             
             public RishTextField()
             {
+                RegisterCallback<BlurEvent>(OnBlur);
                 this.RegisterValueChangedCallback(OnNewValue);
                 
                 PickingManager = new RectPickingManager(this);
@@ -259,47 +260,105 @@ namespace RishUI.Elements
                 TextElement.name = null;
                 TextElementClasses = TextElement.GetClasses().ToArray();
             }
-        
+
             void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => PropsManager.Setup(props);
             void IStyledProps<RishTextField, RishTextFieldProps>.Setup(RishTextFieldProps props, bool dirty)
             {
-                _props = props;
+                if (this.IsFocus())
+                {
+                    return;
+                }
+                var targetValue = props.value.Value;
+                if (!this.IsFocus() && value != targetValue)
+                {
+                    value = targetValue;
+                }
                 
-                value = props.value.Value;
-                multiline = props.multiline;
-                isPasswordField = props.isPassword;
+                if (multiline != props.multiline)
+                {
+                    multiline = props.multiline;
+                }
+                if (isPasswordField != props.isPassword)
+                {
+                    isPasswordField = props.isPassword;
+                }
 
-                isReadOnly = props.readOnly;
+                if (isReadOnly != props.readOnly)
+                {
+                    isReadOnly = props.readOnly;
+                }
 
                 // focusable = !props.readOnly;
                 // textInputBase.focusable = !props.readOnly;
 
-                maxLength = props.maxLength.Value;
-                doubleClickSelectsWord = props.multiClickInteraction.Value;
-                tripleClickSelectsLine = props.multiClickInteraction.Value;
+                var targetMaxLength = props.maxLength.Value;
+                if (maxLength != targetMaxLength)
+                {
+                    maxLength = targetMaxLength;
+                }
+                var targetMultiClickInteraction = props.multiClickInteraction.Value;
+                if (doubleClickSelectsWord != targetMultiClickInteraction)
+                {
+                    doubleClickSelectsWord = targetMultiClickInteraction;
+                }
+                if (tripleClickSelectsLine != targetMultiClickInteraction)
+                {
+                    tripleClickSelectsLine = targetMultiClickInteraction;
+                }
 
-                textInputBase.cursorColor = props.cursorColor.Value;
-                textInputBase.selectionColor = props.selectionColor.Value;
+                var targetCursorColor = props.cursorColor.Value;
+                if (textInputBase.cursorColor != targetCursorColor)
+                {
+                    textInputBase.cursorColor = targetCursorColor;
+                }
+                var targetSelectionColor = props.selectionColor.Value;
+                if (textInputBase.selectionColor != targetSelectionColor)
+                {
+                    textInputBase.selectionColor = targetSelectionColor;
+                }
 
                 var textInputDescriptor = props.textInputDescriptor;
-                textInputBase.name = textInputDescriptor.name;
-                textInputDescriptor.className.SetClasses(textInputBase);
-                foreach (var className in TextInputClasses)
+                if (textInputBase.name != textInputDescriptor.name)
                 {
-                    textInputBase.AddToClassList(className);
+                    textInputBase.name = textInputDescriptor.name;
                 }
-                textInputDescriptor.style.SetInlineStyle(textInputBase);
+                if (!RishUtils.SmartCompare(_props.textInputDescriptor.className, textInputDescriptor.className))
+                {
+                    textInputDescriptor.className.SetClasses(textInputBase);
+                    foreach (var className in TextInputClasses)
+                    {
+                        textInputBase.AddToClassList(className);
+                    }
+                }
+                if (!RishUtils.SmartCompare(_props.textInputDescriptor.style, textInputDescriptor.style))
+                {
+                    textInputDescriptor.style.SetInlineStyle(textInputBase);
+                }
 
                 var textElementDescriptor = props.textElementDescriptor;
-                TextElement.name = textElementDescriptor.name;
-                textElementDescriptor.className.SetClasses(TextElement);
-                foreach (var className in TextElementClasses)
+                if (TextElement.name != textElementDescriptor.name)
                 {
-                    TextElement.AddToClassList(className);
+                    TextElement.name = textElementDescriptor.name;
                 }
-                textElementDescriptor.style.SetInlineStyle(TextElement);
+                if (!RishUtils.SmartCompare(_props.textElementDescriptor.className, textElementDescriptor.className))
+                {
+                    textElementDescriptor.className.SetClasses(TextElement);
+                    foreach (var className in TextElementClasses)
+                    {
+                        TextElement.AddToClassList(className);
+                    }
+                }
+                if (!RishUtils.SmartCompare(_props.textElementDescriptor.style, textElementDescriptor.style))
+                {
+                    textElementDescriptor.style.SetInlineStyle(TextElement);
+                }
 
-                TextElement.enableRichText = props.richTextEnabled;
+                if (TextElement.enableRichText != props.richTextEnabled)
+                {
+                    TextElement.enableRichText = props.richTextEnabled;
+                }
+                
+                _props = props;
             }
 
             void IStyledProps<RishTextField, RishTextFieldProps>.OnCustomStyle(ref RishTextFieldProps props)
@@ -312,9 +371,24 @@ namespace RishUI.Elements
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
 
+            private void OnBlur(BlurEvent evt)
+            {
+                if (evt.target != this)
+                {
+                    return;
+                }
+
+                value = _props.value.Value;
+            }
+
             private void OnNewValue(ChangeEvent<string> value)
             {
-                this.value = _props.onChange?.Invoke(value.newValue);
+                var result = _props.onChange?.Invoke(value.newValue);
+
+                if (value.newValue != result)
+                {
+                    this.value = result;
+                }
             }
         }
         public struct RishTextFieldProps
