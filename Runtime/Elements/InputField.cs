@@ -50,10 +50,11 @@ namespace RishUI.Elements
                 textElementDescriptor = Props.textElementDescriptor,
                 cursorColor = Props.cursorColor,
                 selectionColor = Props.selectionColor,
+                onValidation = OnValidation,
                 onChange = OnChange
             });
 
-        private string OnChange(string value)
+        private string OnValidation(string value)
         {
             string result;
             switch (Props.type)
@@ -181,11 +182,15 @@ namespace RishUI.Elements
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
-            
-            Props.onChange?.Invoke(result);
 
             return result;
+        }
+
+        private void OnChange(string value)
+        {
+            var result = OnValidation(value);
+            
+            Props.onChange?.Invoke(result);
         }
 
         private void OnVisualChange(VisualChangeEvent evt)
@@ -240,6 +245,7 @@ namespace RishUI.Elements
             
             public RishTextField()
             {
+                RegisterCallback<KeyDownEvent>(OnKeyDown);
                 RegisterCallback<BlurEvent>(OnBlur);
                 this.RegisterValueChangedCallback(OnNewValue);
                 
@@ -366,6 +372,17 @@ namespace RishUI.Elements
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
+            
+            private void OnKeyDown(KeyDownEvent evt)
+            {
+                if (evt.keyCode != KeyCode.Escape)
+                {
+                    return;
+                }
+            
+                value = _props.value.Value;
+                Blur();
+            }
 
             private void OnBlur(BlurEvent evt)
             {
@@ -373,14 +390,13 @@ namespace RishUI.Elements
                 {
                     return;
                 }
-
-                value = _props.value.Value;
+                
+                _props.onChange?.Invoke(value);
             }
 
             private void OnNewValue(ChangeEvent<string> value)
             {
-                var result = _props.onChange?.Invoke(value.newValue);
-
+                var result = _props.onValidation?.Invoke(value.newValue);
                 if (value.newValue != result)
                 {
                     this.value = result;
@@ -418,7 +434,9 @@ namespace RishUI.Elements
             public Color? selectionColor;
 
             [IgnoreComparison]
-            public Func<string, string> onChange;
+            public Func<string, string> onValidation;
+            [IgnoreComparison]
+            public Action<string> onChange;
         }
     }
 
