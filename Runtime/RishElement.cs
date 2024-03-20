@@ -91,23 +91,7 @@ namespace RishUI
         private Element RenderedElement { get; set; }
         private NativeList<Reference> References { get; set; }
 
-        public T GetFirstAncestorOfType<T>() where T : class
-        {
-            if (Node == null)
-            {
-                return null;
-            }
-
-            for (var parent = Node.Parent; parent != null; parent = parent.Parent)
-            {
-                if (parent.Element is T element)
-                {
-                    return element;
-                }
-            }
-
-            return null;
-        }
+        public T GetFirstAncestorOfType<T>() where T : class => Node?.GetFirstAncestorOfType<T>();
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
         private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;

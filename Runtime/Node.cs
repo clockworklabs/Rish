@@ -116,6 +116,35 @@ namespace RishUI
         internal VisualElement VisualElement => Element as VisualElement;
 
         private Node GetPreviousSibling() => VirtualIndex <= 0 ? null : Parent.VirtualChildren[VirtualIndex - 1];
+        
+        public T GetFirstAncestorOfType<T>() where T : class
+        {
+            var parent = Parent;
+            var isVisualElement = typeof(VisualElement).IsAssignableFrom(typeof(T));
+
+            if (parent == null)
+            {
+                if (!isVisualElement)
+                {
+                    return null;
+                }
+                
+                return Tree.RootVisualElement.GetFirstOfType<T>();
+            }
+
+            var parentElement = parent.Element;
+            if (parentElement is T element)
+            {
+                return element;
+            }
+
+            if (isVisualElement && parentElement is VisualElement parentVisualElement)
+            {
+                return parentVisualElement.GetFirstAncestorOfType<T>();
+            }
+
+            return parent.GetFirstAncestorOfType<T>();
+        }
 
         uint IOwner.GetID() => ID;
         
