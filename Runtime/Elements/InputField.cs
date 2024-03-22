@@ -40,6 +40,7 @@ namespace RishUI.Elements
             new RishTextFieldProps
             {
                 value = Props.value,
+                updateOnEveryKeystroke = Props.updateOnEveryKeystroke,
                 multiline = Props.multiline,
                 isPassword = Props.isPassword,
                 richTextEnabled = Props.richTextEnabled,
@@ -214,8 +215,20 @@ namespace RishUI.Elements
             {
                 return;
             }
-            
-            Form?.Submit();
+
+            switch (evt.keyCode)
+            {
+                case KeyCode.Escape:
+                    Blur();
+                    break;
+                case KeyCode.Return:
+                    if (!Props.multiline)
+                    {
+                        Form?.Submit();
+                    }
+                    Blur();
+                    break;
+            }
         }
 
         [IgnoreWarnings]
@@ -271,7 +284,7 @@ namespace RishUI.Elements
             void IStyledProps<RishTextField, RishTextFieldProps>.Setup(RishTextFieldProps props, bool dirty)
             {
                 var targetValue = props.value.Value;
-                if (!this.IsFocus() && value != targetValue)
+                if (value != targetValue)
                 {
                     value = targetValue;
                 }
@@ -375,13 +388,19 @@ namespace RishUI.Elements
             
             private void OnKeyDown(KeyDownEvent evt)
             {
-                if (evt.keyCode != KeyCode.Escape)
+                switch (evt.keyCode)
                 {
-                    return;
+                    case KeyCode.Escape:
+                        value = _props.value.Value;
+                        Blur();
+                        break;
+                    case KeyCode.Return:
+                        if (!_props.multiline)
+                        {
+                            Blur();
+                        }
+                        break;
                 }
-            
-                value = _props.value.Value;
-                Blur();
             }
 
             private void OnBlur(BlurEvent evt)
@@ -397,7 +416,10 @@ namespace RishUI.Elements
             private void OnNewValue(ChangeEvent<string> value)
             {
                 var result = _props.onValidation?.Invoke(value.newValue);
-                if (value.newValue != result)
+                if (_props.updateOnEveryKeystroke)
+                {
+                    _props.onChange?.Invoke(result);
+                } else if (value.newValue != result)
                 {
                     this.value = result;
                 }
@@ -406,6 +428,7 @@ namespace RishUI.Elements
         public struct RishTextFieldProps
         {
             public FixedString4096Bytes value;
+            public bool updateOnEveryKeystroke;
             public bool multiline;
             public bool isPassword;
             public bool readOnly;
@@ -452,6 +475,7 @@ namespace RishUI.Elements
         [DOMDescriptor]
         public DOMDescriptor textElementDescriptor;
         public FixedString4096Bytes value;
+        public bool updateOnEveryKeystroke;
         public bool multiline;
         public bool isPassword;
         public bool readOnly;
