@@ -405,7 +405,7 @@ namespace RishUI.Elements
 
             private void OnBlur(BlurEvent evt)
             {
-                if (evt.target != this)
+                if (_props.updateOnEveryKeystroke || evt.target != this)
                 {
                     return;
                 }
