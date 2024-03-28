@@ -35,25 +35,37 @@ namespace RishUI.Elements
             NotFocusable();
         }
 
-        protected override Element Render() => Rish.Create<RishTextField, RishTextFieldProps>(
-            descriptor: Props.descriptor,
-            new RishTextFieldProps
+        protected override Element Render()
+        {
+            var descriptor = new DOMDescriptor(Props.descriptor);
+            if (!Props.multiline)
             {
-                value = Props.value,
-                updateOnEveryKeystroke = Props.updateOnEveryKeystroke,
-                multiline = Props.multiline,
-                isPassword = Props.isPassword,
-                richTextEnabled = Props.richTextEnabled,
-                readOnly = Props.readOnly,
-                maxLength = Props.maxLength,
-                multiClickInteraction = Props.multiClickInteraction,
-                textInputDescriptor = Props.textInputDescriptor,
-                textElementDescriptor = Props.textElementDescriptor,
-                cursorColor = Props.cursorColor,
-                selectionColor = Props.selectionColor,
-                onValidation = OnValidation,
-                onChange = OnChange
-            });
+                descriptor.style = new Style(Props.descriptor.style)
+                {
+                    whiteSpace = WhiteSpace.NoWrap
+                };
+            }
+
+            return Rish.Create<RishTextField, RishTextFieldProps>(
+                descriptor: descriptor,
+                new RishTextFieldProps
+                {
+                    value = Props.value,
+                    updateOnEveryKeystroke = Props.updateOnEveryKeystroke,
+                    multiline = Props.multiline,
+                    isPassword = Props.isPassword,
+                    richTextEnabled = Props.richTextEnabled,
+                    readOnly = Props.readOnly,
+                    maxLength = Props.maxLength,
+                    multiClickInteraction = Props.multiClickInteraction,
+                    textInputDescriptor = Props.textInputDescriptor,
+                    textElementDescriptor = Props.textElementDescriptor,
+                    cursorColor = Props.cursorColor,
+                    selectionColor = Props.selectionColor,
+                    onValidation = OnValidation,
+                    onChange = OnChange
+                });
+        }
 
         private string OnValidation(string value)
         {
