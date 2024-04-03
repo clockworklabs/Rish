@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
@@ -821,8 +822,10 @@ namespace RishUI
             public override void Enter()
             {
                 CanUnmount = false;
-
                 ElementReady = false;
+                UnreadyElements.Clear();
+                UnmountingElements.Clear();
+                
                 if (Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnReadyToUnmount += ElementReadyToUnmount;
@@ -833,7 +836,6 @@ namespace RishUI
                     ElementReadyToUnmount();
                 }
 
-                UnreadyElements.Clear();
                 if (Node.VirtualChildren != null)
                 {
                     ChildrenOnEnter ??= new List<Node>(Node.VirtualChildren.Capacity);
@@ -841,24 +843,27 @@ namespace RishUI
                     for (int i = 0, n = Node.VirtualChildren.Count; i < n; i++)
                     {
                         var child = Node.VirtualChildren[i];
-                        ChildrenOnEnter.Add(child);
                         if (!child.ReadyToUnmount)
                         {
                             var childId = child.ID;
-                            if (UnreadyElements.Contains(childId))
+                            if (!UnreadyElements.Add(childId))
                             {
                                 throw new UnityException("This is very wrong");
                             }
-
-                            UnreadyElements.Add(childId);
+                            
+                            ChildrenOnEnter.Add(child);
+                            child.OnReadyToUnmount += ChildReadyToUnmount;
+                            child.Unmount(false);
                         }
-
-                        child.OnReadyToUnmount += ChildReadyToUnmount;
-                        child.Unmount(false);
+                        else
+                        {
+#if UNITY_EDITOR
+                            Debug.LogError("This child is already unmounting. It shouldn't be in VirtualChildren.");
+#endif
+                        }
                     }
                 }
 
-                UnmountingElements.Clear();
                 if (Node.UnmountingChildren != null)
                 {
                     UnmountingChildrenOnEnter ??= new List<Node>(Node.UnmountingChildren.Capacity);
@@ -868,12 +873,11 @@ namespace RishUI
                         var child = Node.UnmountingChildren[i];
                         UnmountingChildrenOnEnter.Add(child);
                         var childId = child.ID;
-                        if (UnmountingElements.Contains(childId))
+                        if (!UnmountingElements.Add(childId))
                         {
                             throw new ArgumentException("This is very wrong");
                         }
 
-                        UnmountingElements.Add(childId);
                         child.OnUnmount += ChildUnmounted;
                     }
                 }
@@ -915,13 +919,6 @@ namespace RishUI
 
             private void TryUnmount()
             {
-#if UNITY_EDITOR
-                if (UnreadyElements.Count < 0 || UnmountingElements.Count < 0)
-                {
-                    throw new UnityException("Invalid state.");
-                }
-#endif
-
                 if (!CanUnmount || !ElementReady || UnreadyElements.Count > 0 || UnmountingElements.Count > 0)
                 {
                     return;
@@ -948,6 +945,14 @@ namespace RishUI
                 var nodeId = node.ID;
                 if (!UnreadyElements.Contains(nodeId))
                 {
+                    if (ChildrenOnEnter.Any(node => node.ID == nodeId))
+                    {
+                        #if UNITY_EDITOR
+                        Debug.LogError("This child has already been unmounted. Weird.");
+                        #endif
+                        
+                        return;
+                    }
                     throw new UnityException("Child wasn't unready");
                 }
 
