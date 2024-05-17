@@ -172,7 +172,7 @@ namespace RishUI
             return (id, element);
         }
         
-        internal static T GetManaged<T>(uint id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
+        public static T GetManaged<T>(uint id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
         
         public static void RegisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
         {
