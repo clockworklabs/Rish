@@ -79,6 +79,12 @@ namespace RishUI
             }
         }
 
+        public static ClassName operator +(ClassName left, ClassName right) => new()
+        {
+            left,
+            right
+        };
+
         IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator()
         {
             if (_id == 0)

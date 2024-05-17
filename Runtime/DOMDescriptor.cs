@@ -28,16 +28,37 @@ namespace RishUI
             using var evt = InlineStyleEvent.GetPooled(element);
             element.SendEvent(evt);
         }
+
+        public static DOMDescriptor operator +(DOMDescriptor left, DOMDescriptor right) => new()
+        {
+            name = left.name,
+            className = left.className + right.className,
+            style = left.style + right.style
+        };
+
+        public static DOMDescriptor operator +(DOMDescriptor left, ClassName right) => new()
+        {
+            name = left.name,
+            className = left.className + right,
+            style = left.style
+        };
+
+        public static DOMDescriptor operator +(DOMDescriptor left, Style right) => new()
+        {
+            name = left.name,
+            className = left.className,
+            style = left.style + right
+        };
         
-        public static implicit operator DOMDescriptor(Name name) => new DOMDescriptor
+        public static implicit operator DOMDescriptor(Name name) => new()
         {
             name = name
         };
-        public static implicit operator DOMDescriptor(ClassName className) => new DOMDescriptor
+        public static implicit operator DOMDescriptor(ClassName className) => new()
         {
             className = className
         };
-        public static implicit operator DOMDescriptor(Style style) => new DOMDescriptor
+        public static implicit operator DOMDescriptor(Style style) => new()
         {
             style = style
         };
