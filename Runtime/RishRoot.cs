@@ -7,12 +7,10 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public delegate void RishStart(RishRoot root);
-    
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        public static event RishStart OnStart;
+        public static event Action<RishRoot> OnStart;
         
         [SerializeField]
         private StyleSheet[] _styleSheets;

@@ -1,18 +1,15 @@
-using Unity.Collections;
-
 namespace RishUI
 {
     public readonly struct Name
     {
-        private readonly FixedString32Bytes _name;
-        public string Value => _name.Value;
+        public readonly string value;
 
-        public Name(string name)
+        public Name(string value)
         {
-            _name = name;
+            this.value = value;
         }
         
         public static implicit operator Name(string name) => new (name);
-        public static implicit operator string(Name name) => name.Value;
+        public static implicit operator string(Name name) => name.value;
     }
 }

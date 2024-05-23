@@ -2,14 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using RishUI.MemoryManagement;
-using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
 {
-    public class ManagedClassName : IManaged, IEnumerable<FixedString32Bytes>, IEquatable<ManagedClassName>
+    public class ManagedClassName : IManaged, IEnumerable<string>, IEquatable<ManagedClassName>
     {
-        private List<FixedString32Bytes> ClassNames { get; } = new();
+        private List<string> ClassNames { get; } = new();
         public int Count => ClassNames.Count;
 
         private bool Open { get; set; } = true;
@@ -25,7 +24,7 @@ namespace RishUI
         }
         void IManaged.ReferenceUnregistered(IOwner owner) { }
 
-        public FixedString32Bytes Get(int index) => ClassNames[index];
+        public string Get(int index) => ClassNames[index];
 
         public bool Equals(ManagedClassName other)
         {
@@ -40,7 +39,7 @@ namespace RishUI
     
             for (var i = 0; i < count; i++)
             {
-                if (!RishUtils.MemCmp(aList[i], bList[i]))
+                if (aList[i] != bList[i])
                 {
                     return false;
                 }
@@ -49,7 +48,7 @@ namespace RishUI
             return true;
         }
 
-        public void Add(FixedString32Bytes className)
+        public void Add(string className)
         {
             if (!Open)
             {
@@ -58,7 +57,7 @@ namespace RishUI
                 return;
             }
 
-            if (className.IsEmpty || string.IsNullOrWhiteSpace(className.Value))
+            if (string.IsNullOrWhiteSpace(className))
             {
                 return;
             }
@@ -66,7 +65,7 @@ namespace RishUI
             ClassNames.Add(className);
         }
 
-        IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator() => ClassNames.GetEnumerator();
+        IEnumerator<string> IEnumerable<string>.GetEnumerator() => ClassNames.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)ClassNames).GetEnumerator();
 
         bool IEquatable<ManagedClassName>.Equals(ManagedClassName other) => Equals(other);

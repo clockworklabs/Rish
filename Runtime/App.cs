@@ -36,7 +36,7 @@ namespace RishUI
 //             HotReloader = new HotReloader(Props.assemblyDefinition);
 //             HotReloader.OnSuccessfulCompilation += SetAppComponent;
 // #else
-            var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassName.Value) != null);
+            var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(asm => asm.GetType(Props.rootClassName) != null);
             SetApp(asm);
 // #endif
         }
@@ -67,7 +67,7 @@ namespace RishUI
         
         private void SetApp(Assembly assembly)
         {
-            var type = assembly.GetType(Props.rootClassName.Value);
+            var type = assembly.GetType(Props.rootClassName);
             if (type == null || Activator.CreateInstance(type) is not IApp app)
             {
                 throw new UnityException("No app found");
@@ -82,7 +82,7 @@ namespace RishUI
     [RishValueType]
     public struct AppProps
     {
-        public FixedString64Bytes rootClassName;
+        public string rootClassName;
         public bool recovered;
     }
 }

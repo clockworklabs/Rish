@@ -107,7 +107,7 @@ namespace RishUI.Elements
                         
                         if (!int.TryParse(result, out _))
                         {
-                            return Props.value.Value;
+                            return Props.value;
                         }
                     }
                     break;
@@ -143,7 +143,7 @@ namespace RishUI.Elements
                         
                         if (!long.TryParse(result, out _))
                         {
-                            return Props.value.Value;
+                            return Props.value;
                         }
                     }
                     break;
@@ -188,7 +188,7 @@ namespace RishUI.Elements
                         
                         if (!float.TryParse(result, out _))
                         {
-                            return Props.value.Value;
+                            return Props.value;
                         }
                     }
                     break;
@@ -295,7 +295,7 @@ namespace RishUI.Elements
             void IVisualElement<RishTextFieldProps>.Setup(RishTextFieldProps props) => PropsManager.Setup(props);
             void IStyledProps<RishTextField, RishTextFieldProps>.Setup(RishTextFieldProps props, bool dirty)
             {
-                var targetValue = props.value.Value;
+                var targetValue = props.value;
                 if (value != targetValue)
                 {
                     value = targetValue;
@@ -403,7 +403,7 @@ namespace RishUI.Elements
                 switch (evt.keyCode)
                 {
                     case KeyCode.Escape:
-                        value = _props.value.Value;
+                        value = _props.value;
                         Blur();
                         break;
                     case KeyCode.Return:
@@ -439,7 +439,7 @@ namespace RishUI.Elements
         }
         public struct RishTextFieldProps
         {
-            public FixedString4096Bytes value;
+            public string value;
             public bool updateOnEveryKeystroke;
             public bool multiline;
             public bool isPassword;
@@ -486,7 +486,7 @@ namespace RishUI.Elements
         public DOMDescriptor textInputDescriptor;
         [DOMDescriptor]
         public DOMDescriptor textElementDescriptor;
-        public FixedString4096Bytes value;
+        public string value;
         public bool updateOnEveryKeystroke;
         public bool multiline;
         public bool isPassword;

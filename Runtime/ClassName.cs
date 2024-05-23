@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 namespace RishUI
 {
     [CustomComparer]
-    public struct ClassName : IReference<ManagedClassName>, IEnumerable<FixedString32Bytes>, IEquatable<ClassName>
+    public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
         private uint _id;
         public uint ID => _id;
@@ -20,13 +20,13 @@ namespace RishUI
         public static ClassName Null => new();
 
         public int Count => Rish.GetManaged<ManagedClassName>(_id)?.Count ?? 0;
-        public FixedString32Bytes this[int index] => Rish.GetManaged<ManagedClassName>(_id)?.Get(index) ?? default;
+        public string this[int index] => Rish.GetManaged<ManagedClassName>(_id)?.Get(index);
 
         public ClassName(FixedString32Bytes className)
         {
             _id = Rish.GetFreeID<ManagedClassName>();
             var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(className);
+            managed.Add(className.Value);
         }
         public ClassName(string className)
         {
@@ -43,7 +43,6 @@ namespace RishUI
                 managed.Add(element);
             }
         }
-
         
         public void Add(FixedString32Bytes element)
         {
@@ -53,7 +52,7 @@ namespace RishUI
             }
 
             var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(element);
+            managed.Add(element.Value);
         }
         public void Add(string element)
         {
@@ -85,14 +84,14 @@ namespace RishUI
             right
         };
 
-        IEnumerator<FixedString32Bytes> IEnumerable<FixedString32Bytes>.GetEnumerator()
+        IEnumerator<string> IEnumerable<string>.GetEnumerator()
         {
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
             }
 
-            var enumerable = (IEnumerable<FixedString32Bytes>) Rish.GetManaged<ManagedClassName>(_id);
+            var enumerable = (IEnumerable<string>) Rish.GetManaged<ManagedClassName>(_id);
             return enumerable.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() {
@@ -137,6 +136,16 @@ namespace RishUI
 
             return children;
         }
+        public static implicit operator ClassName(string[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
         public static implicit operator ClassName(FixedString32Bytes[] array)
         {
             var children = new ClassName();
@@ -157,57 +166,17 @@ namespace RishUI
 
             return children;
         }
+        public static implicit operator ClassName(List<string> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
         public static implicit operator ClassName(List<FixedString32Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        public static implicit operator ClassName(FixedList32Bytes<FixedString32Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        public static implicit operator ClassName(FixedList64Bytes<FixedString32Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        public static implicit operator ClassName(FixedList128Bytes<FixedString32Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        public static implicit operator ClassName(FixedList512Bytes<FixedString32Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        public static implicit operator ClassName(FixedList4096Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
             foreach (var element in list)
@@ -267,6 +236,56 @@ namespace RishUI
 
             return children;
         }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
 
         bool IEquatable<ClassName>.Equals(ClassName other) => Equals(this, other);
 
@@ -278,7 +297,7 @@ namespace RishUI
                 var equals = true;
                 foreach (var fixedClassName in this)
                 {
-                    var className = fixedClassName.Value;
+                    var className = fixedClassName;
                     if (!string.IsNullOrWhiteSpace(className) && !visualElement.ClassListContains(className))
                     {
                         equals = false;
@@ -306,7 +325,7 @@ namespace RishUI
 
             foreach (var fixedClassName in this)
             {
-                var className = fixedClassName.Value;
+                var className = fixedClassName;
                 if (!string.IsNullOrWhiteSpace(className))
                 {
                     visualElement.AddToClassList(className);
@@ -379,7 +398,7 @@ namespace RishUI
             private readonly ClassName _list;
         
             private int _index;
-            private FixedString32Bytes _current;
+            private string _current;
         
             public Enumerator(ClassName list)
             {
@@ -388,7 +407,7 @@ namespace RishUI
                 _current = default;
             }
         
-            public FixedString32Bytes Current => _current;
+            public string Current => _current;
         
             public bool MoveNext()
             {
