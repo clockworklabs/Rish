@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Unity.Collections;
 
 namespace RishUI
@@ -27,7 +28,7 @@ namespace RishUI
         public static implicit operator RishString(FixedString512Bytes value) => new(value.IsEmpty ? null : value.Value);
         public static implicit operator RishString(FixedString4096Bytes value) => new(value.IsEmpty ? null : value.Value);
         
-        public static implicit operator string(RishString rishString) => rishString.IsEmpty ? null : rishString.value;
+        public static implicit operator string(RishString rishString) => rishString.IsEmpty ? string.Empty : rishString.value;
 
         bool IEquatable<string>.Equals(string other) => string.Equals(value, other);
 
