@@ -35,6 +35,8 @@ namespace RishUI
         
         public static implicit operator string(RishString rishString) => rishString.IsEmpty ? string.Empty : rishString.value;
 
+        public override string ToString() => this;
+
         bool IEquatable<string>.Equals(string other) => string.Equals(value, other);
 
         public static bool operator ==(RishString left, RishString right)
