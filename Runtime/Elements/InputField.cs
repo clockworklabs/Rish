@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using RishUI.Events;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -486,7 +485,7 @@ namespace RishUI.Elements
         public DOMDescriptor textInputDescriptor;
         [DOMDescriptor]
         public DOMDescriptor textElementDescriptor;
-        public string value;
+        public RishString value;
         public bool updateOnEveryKeystroke;
         public bool multiline;
         public bool isPassword;

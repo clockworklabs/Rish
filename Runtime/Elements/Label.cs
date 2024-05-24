@@ -90,7 +90,7 @@ namespace RishUI.Elements
     
     public struct LabelProps
     {
-        public string text;
+        public RishString text;
         public LengthRange? widthRange;
         public LengthRange? heightRange;
     }

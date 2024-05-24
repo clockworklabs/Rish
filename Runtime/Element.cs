@@ -99,6 +99,7 @@ namespace RishUI
         };
         
         public static implicit operator Element(string text) => Label.Create(text: text);
+        public static implicit operator Element(RishString text) => Label.Create(text: text);
         public static implicit operator Element(FixedString32Bytes text) => Label.Create(text: text.Value);
         public static implicit operator Element(FixedString64Bytes text) => Label.Create(text: text.Value);
         public static implicit operator Element(FixedString128Bytes text) => Label.Create(text: text.Value);

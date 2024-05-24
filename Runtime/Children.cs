@@ -240,6 +240,7 @@ namespace RishUI
         }
 
         public static implicit operator Children(string text) => Label.Create(text: text);
+        public static implicit operator Children(RishString text) => Label.Create(text: text);
         public static implicit operator Children(FixedString32Bytes text) => Label.Create(text: text.Value);
         public static implicit operator Children(FixedString64Bytes text) => Label.Create(text: text.Value);
         public static implicit operator Children(FixedString128Bytes text) => Label.Create(text: text.Value);

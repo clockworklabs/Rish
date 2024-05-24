@@ -122,6 +122,12 @@ namespace RishUI
                 ? customValue
                 : defaultValue;
         }
+        public void SetValue(CustomStyleProperty<string> customProperty, ref RishString? propsValue, RishString defaultValue = default)
+        {
+            propsValue ??= TryGetValue(customProperty, out var customValue) 
+                ? customValue
+                : defaultValue;
+        }
         public void SetValue(CustomStyleProperty<string> customProperty, ref string propsValue, string defaultValue = default)
         {
             propsValue ??= TryGetValue(customProperty, out var customValue) 
