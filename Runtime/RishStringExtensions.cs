@@ -222,5 +222,24 @@ namespace RishUI
         }
         public static bool EndsWithIgnoreCase(this RishString str, char value) => EndsWith(str, value, true);
         public static bool EndsWithIgnoreCase(this RishString str, string value) => EndsWith(str, value, true);
+        
+        public static RishString Remove(this RishString str, int startIndex, int count)
+        {
+            if (str.IsEmpty)
+            {
+                return str;
+            }
+
+            return str.value.Remove(startIndex, count);
+        }
+        public static RishString Remove(this RishString str, int startIndex)
+        {
+            if (str.IsEmpty)
+            {
+                return str;
+            }
+
+            return str.value.Remove(startIndex);
+        }
     }
 }
