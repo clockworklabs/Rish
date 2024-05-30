@@ -33,6 +33,8 @@ namespace RishUI
                 managed.Set(index, value);
             }
         }
+        public Element this[Index index] => Managed?.Get(index) ?? default;
+        public Children this[Range range] => Managed?.Get(range) ?? default;
 
         public void Add(Element element)
         {

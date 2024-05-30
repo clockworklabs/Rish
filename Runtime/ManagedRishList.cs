@@ -74,6 +74,17 @@ namespace RishUI
         }
 
         public T Get(int index) => Elements[index];
+        public T Get(Index index) => Elements[index];
+        public RishList<T> Get(Range range)
+        {
+            var children = new RishList<T>();
+            for (int i = range.Start.GetOffset(Elements.Count), n = range.End.GetOffset(Elements.Count); i < n; i++)
+            {
+                children.Add(Elements[i]);
+            }
+
+            return children;
+        }
 
         public bool Equals(ManagedRishList<T> other)
         {

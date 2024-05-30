@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using Unity.Collections;
 
 namespace RishUI
@@ -23,7 +22,7 @@ namespace RishUI
 
 
         public char this[int index] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[index];
-        public char this[Index end] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[end];
+        public char this[Index index] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[index];
         public string this[Range range] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[range];
 
         public static implicit operator RishString(string value) => new(value);

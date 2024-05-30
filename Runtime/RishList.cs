@@ -32,6 +32,8 @@ namespace RishUI
                 managed.Set(index, value);
             }
         }
+        public T this[Index index] => Managed?.Get(index) ?? default;
+        public RishList<T> this[Range range] => Managed?.Get(range) ?? default;
         
         public void Add(T element)
         {

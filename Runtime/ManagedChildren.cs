@@ -36,6 +36,17 @@ namespace RishUI
         }
 
         public Element Get(int index) => Elements[index];
+        public Element Get(Index index) => Elements[index];
+        public Children Get(Range range)
+        {
+            var children = new Children();
+            for (int i = range.Start.GetOffset(Elements.Count), n = range.End.GetOffset(Elements.Count); i < n; i++)
+            {
+                children.Add(Elements[i]);
+            }
+
+            return children;
+        }
 
         public bool Equals(ManagedChildren other)
         {
