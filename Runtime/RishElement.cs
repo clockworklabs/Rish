@@ -578,6 +578,8 @@ namespace RishUI
             References = default;
         }
 
+        protected void SetState(S state) => State = state;
+
         protected void SetState(RefAction<S> action)
         {
             var state = State;

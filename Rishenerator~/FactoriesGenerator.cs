@@ -15,15 +15,15 @@ namespace Rishenerator
     {
         void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
         {
-            var flaggedForAutoComparer = context.SyntaxProvider
+            var provider = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: static (s, _) => IsSyntaxTargetForGeneration(s), 
                     transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
                 .Where(static m => m is not null);
             
-            var compilationAndFlaggedTypes = context.CompilationProvider.Combine(flaggedForAutoComparer.Collect());
+            var compilation = context.CompilationProvider.Combine(provider.Collect());
 
-            context.RegisterSourceOutput(compilationAndFlaggedTypes, static (spc, source) => Execute(source.Item1, source.Item2, spc));
+            context.RegisterSourceOutput(compilation, static (spc, source) => Execute(source.Item1, source.Item2, spc));
         }
 
         private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
@@ -226,6 +226,15 @@ namespace Rishenerator
                         sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong));");
                         // KEY
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, {propsItems.DefaultValue});");
+                    }
+                    else if (propsItems.SkipItemization)
+                    {
+                        // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(default(ulong), props);");
+                        // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, props);");
+                        // KEY, ITEMIZED PROPS
+                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key = default(long), ", ") => Create(key, ", ");", sourceCode);
                     }
                     else
                     {
@@ -550,6 +559,15 @@ namespace Rishenerator
                         // KEY
                         sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, {propsItems.DefaultValue});");
                     }
+                    else if (propsItems.SkipItemization)
+                    {
+                        // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine($"        public static RishUI.Element Create({propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(default(ulong), props);");
+                        // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, props);");
+                        // KEY, ITEMIZED PROPS
+                        AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(ulong key = default(long), ", ") => Create(key, ", ");", sourceCode);
+                    }
                     else
                     {
                         // EMPTY
@@ -583,11 +601,6 @@ namespace Rishenerator
             }
             private static void AppendItemizedFactory(ItemizedProps props, string str0, string str1, string str2, StringBuilder sourceCode)
             {
-                if (props.SkipItemization)
-                {
-                    return;
-                }
-                
                 sourceCode.Append(str0);
                 AppendItemizedParameters(props, sourceCode);
                 sourceCode.Append(str1);
