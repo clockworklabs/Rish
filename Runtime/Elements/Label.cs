@@ -30,6 +30,9 @@ namespace RishUI.Elements
             WidthRange = props.widthRange;
             HeightRange = props.heightRange;
             text = props.text;
+
+            parseEscapeSequences = props.parseEscapeSequences ?? true;
+            enableRichText = props.enableRichText ?? true;
         }
 
         private void OnMounted(AttachToPanelEvent evt)
@@ -93,5 +96,8 @@ namespace RishUI.Elements
         public RishString text;
         public LengthRange? widthRange;
         public LengthRange? heightRange;
+
+        public bool? enableRichText;
+        public bool? parseEscapeSequences;
     }
 }

@@ -81,8 +81,6 @@ namespace RishUI
                 {
                     return;
                 }
-                
-                IndexDirty = true;
             }
         }
         
@@ -105,7 +103,7 @@ namespace RishUI
             }
         }
         
-        private bool IndexDirty { get; set; }
+        // private bool IndexDirty { get; set; }
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -189,27 +187,19 @@ namespace RishUI
 
         private void UpdateRealIndices()
         {
-            if (!IndexDirty)
-            {
-                return;
-            }
-
-            IndexDirty = false;
+            // if (!IndexDirty)
+            // {
+            //     return;
+            // }
+            //
+            // IndexDirty = false;
             
             if (!IsRoot && Element is VisualElement visualElement)
             {
                 var index = GetRealIndex();
                 
-                var currentIndex = -1;
                 var parent = visualElement.parent;
-                for (int i = 0, n = parent?.childCount ?? 0; i < n; i++)
-                {
-                    if (parent[i] == visualElement)
-                    {
-                        currentIndex = i;
-                        break;
-                    }
-                }
+                var currentIndex = parent?.IndexOf(visualElement) ?? -1;
 
                 if (currentIndex != index)
                 {
@@ -228,21 +218,21 @@ namespace RishUI
                 }
             }
 
-            // if (VirtualChildren != null)
-            // {
-            //     foreach (var child in VirtualChildren)
-            //     {
-            //         child.UpdateRealIndices();
-            //     }
-            // }
-            //
-            // if (UnmountingChildren != null)
-            // {
-            //     foreach (var child in UnmountingChildren)
-            //     {
-            //         child.UpdateRealIndices();
-            //     }
-            // }
+            if (VirtualChildren != null)
+            {
+                foreach (var child in VirtualChildren)
+                {
+                    child.UpdateRealIndices();
+                }
+            }
+            
+            if (UnmountingChildren != null)
+            {
+                foreach (var child in UnmountingChildren)
+                {
+                    child.UpdateRealIndices();
+                }
+            }
         }
 
         public Node GetDOMChild()
@@ -422,12 +412,8 @@ namespace RishUI
                 for (var i = ChildCount; i < VirtualChildren.Count; i++)
                 {
                     var currentChild = VirtualChildren[i];
-                    if (currentChild.Key != key)
-                    {
-                        continue;
-                    }
                     
-                    if (currentChild.Type == type)
+                    if (currentChild.Key == key && currentChild.Type == type)
                     {
                         index = i;
                         break;
@@ -694,8 +680,6 @@ namespace RishUI
 
                 Node.VirtualIndex = -1;
                 Node.ReadyToUnmount = false;
-
-                Node.IndexDirty = false;
             }
 
             public override void Exit() { }
