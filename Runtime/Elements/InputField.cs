@@ -54,6 +54,7 @@ namespace RishUI.Elements
                     multiline = Props.multiline,
                     isPassword = Props.isPassword,
                     richTextEnabled = Props.richTextEnabled,
+                    parseEscapeSequences = Props.parseEscapeSequences,
                     readOnly = Props.readOnly,
                     maxLength = Props.maxLength,
                     multiClickInteraction = Props.multiClickInteraction,
@@ -383,6 +384,11 @@ namespace RishUI.Elements
                 {
                     TextElement.enableRichText = props.richTextEnabled;
                 }
+
+                if (TextElement.parseEscapeSequences != props.parseEscapeSequences)
+                {
+                    TextElement.parseEscapeSequences = props.parseEscapeSequences;
+                }
                 
                 _props = props;
             }
@@ -444,6 +450,7 @@ namespace RishUI.Elements
             public bool isPassword;
             public bool readOnly;
             public bool richTextEnabled;
+            public bool parseEscapeSequences;
 
             /// <summary>
             /// Styled Prop as --props-max-length
@@ -494,6 +501,7 @@ namespace RishUI.Elements
         public bool? multiClickInteraction;
         public bool autoFocus;
         public bool richTextEnabled;
+        public bool parseEscapeSequences;
         public Color? cursorColor;
         public Color? selectionColor;
         [IgnoreComparison]
