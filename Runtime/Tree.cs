@@ -16,6 +16,8 @@ namespace RishUI
         private List<Node> DirtyList { get; } = new(MaxDirtySize);
         private FastPriorityQueue<Node> DirtyQueue { get; } = new(MaxDirtySize);
 
+        private List<Node> DirtyPositionList { get; } = new(MaxDirtySize);
+
         private uint CurrentDepth { get; set; }
 
         private List<Node> FreeNodes { get; set; } = new();
@@ -41,6 +43,8 @@ namespace RishUI
 
             EnqueueDirtyNode(node);
         }
+
+        public void DirtyPosition(Node node) => DirtyPositionList.Add(node);
 
         private void EnqueueDirtyNode(Node node)
         {
@@ -93,6 +97,14 @@ namespace RishUI
             }
 
             ReturnFreeNodesToPool();
+            
+            for (int i = 0, n = DirtyPositionList.Count; i < n; i++)
+            {
+                var node = DirtyPositionList[i];
+                node.UpdateRealIndex();
+            }
+            
+            DirtyPositionList.Clear();
         }
 
         public void Dispose()

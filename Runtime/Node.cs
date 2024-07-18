@@ -75,12 +75,19 @@ namespace RishUI
             get => _virtualIndex;
             set
             {
+                if (_virtualIndex == value)
+                {
+                    return;
+                }
+                
                 _virtualIndex = value;
                 
                 if (value < 0)
                 {
                     return;
                 }
+                
+                Tree.DirtyPosition(this);
             }
         }
         
@@ -102,9 +109,6 @@ namespace RishUI
                 }
             }
         }
-        
-        // private bool IndexDirty { get; set; }
-
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Derived -------------------------------------------------------------------------------------------------
@@ -185,53 +189,44 @@ namespace RishUI
             return IsRealTree() ? prev + 1 : prev;
         }
 
-        private void UpdateRealIndices()
+        public void UpdateRealIndex()
         {
-            // if (!IndexDirty)
-            // {
-            //     return;
-            // }
-            //
-            // IndexDirty = false;
-            
-            if (!IsRoot && Element is VisualElement visualElement)
+            var visualNode = GetDOMChild();
+            var visualElement = visualNode?.VisualElement;
+            if (visualElement == null)
             {
-                var index = GetRealIndex();
-                
-                var parent = visualElement.parent;
-                var currentIndex = parent?.IndexOf(visualElement) ?? -1;
-
-                if (currentIndex != index)
-                {
-                    if (index <= 0)
-                    {
-                        visualElement.SendToBack();
-                    }
-                    else if (index >= VisualParent.childCount)
-                    {
-                        visualElement.BringToFront();
-                    }
-                    else
-                    {
-                        visualElement.PlaceBehind(VisualParent[index]);
-                    }
-                }
-            }
-
-            if (VirtualChildren != null)
-            {
-                foreach (var child in VirtualChildren)
-                {
-                    child.UpdateRealIndices();
-                }
+                return;
             }
             
-            if (UnmountingChildren != null)
+            var parent = visualElement.parent;
+            if (parent == null)
             {
-                foreach (var child in UnmountingChildren)
-                {
-                    child.UpdateRealIndices();
-                }
+                return;
+            }
+            
+            var currentIndex = parent.IndexOf(visualElement);
+            var index = visualNode.GetRealIndex();
+            
+            if (currentIndex == index)
+            {
+                return;
+            }
+            
+            if (index <= 0)
+            {
+                visualElement.SendToBack();
+            }
+            else if (index >= VisualParent.childCount - 1)
+            {
+                visualElement.BringToFront();
+            }
+            else if(currentIndex < index)
+            {
+                visualElement.PlaceInFront(VisualParent[index]);
+            }
+            else
+            {
+                visualElement.PlaceBehind(VisualParent[index]);
             }
         }
 
@@ -364,12 +359,6 @@ namespace RishUI
             var childrenCount = VirtualChildren?.Count ?? 0;
             if (childrenCount > 0)
             {
-                for (var i = 0; i < ChildCount; i++)
-                {
-                    var child = VirtualChildren[i];
-                    child.UpdateRealIndices();
-                }
-                
                 UnmountingChildren ??= new List<Node>(VirtualChildren.Capacity);
                 for (var i = childrenCount - 1; i >= ChildCount; i--)
                 {
@@ -381,7 +370,7 @@ namespace RishUI
 
                 foreach (var child in UnmountingChildren)
                 {
-                    child.UpdateRealIndices();
+                    Tree.DirtyPosition(child);
                 }
             }
             
@@ -1012,7 +1001,7 @@ namespace RishUI
                     parentUnmountingChildren.Remove(Node);
                     foreach (var child in parentUnmountingChildren)
                     {
-                        child.UpdateRealIndices();
+                        Node.Tree.DirtyPosition(child);
                     }
                 }
                 Node.OnUnmount?.Invoke(Node);
