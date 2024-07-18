@@ -58,6 +58,7 @@ namespace RishUI.Elements
                     readOnly = Props.readOnly,
                     maxLength = Props.maxLength,
                     multiClickInteraction = Props.multiClickInteraction,
+                    selectOnFocus = Props.selectOnFocus,
                     textInputDescriptor = Props.textInputDescriptor,
                     textElementDescriptor = Props.textElementDescriptor,
                     cursorColor = Props.cursorColor,
@@ -258,7 +259,8 @@ namespace RishUI.Elements
             private string[] TextElementClasses { get; }
             
             private static readonly CustomStyleProperty<int> MaxLengthProp = new("--props-max-length"); 
-            private static readonly CustomStyleProperty<bool> MultiClickInteractionProp = new("--props-multi-click-interaction"); 
+            private static readonly CustomStyleProperty<bool> MultiClickInteractionProp = new("--props-multi-click-interaction");
+            private static readonly CustomStyleProperty<bool> SelectOnFocusProp = new("--props-select-on-focus");
             private static readonly CustomStyleProperty<Color> CursorColorProp = new("--props-cursor-color"); 
             private static readonly CustomStyleProperty<Color> SelectionColorProp = new("--props-selection-color");
 
@@ -333,6 +335,12 @@ namespace RishUI.Elements
                     tripleClickSelectsLine = targetMultiClickInteraction;
                 }
 
+                var selectOnFocus = props.selectOnFocus.Value;
+                if (selectAllOnFocus != selectOnFocus)
+                {
+                    selectAllOnFocus = selectOnFocus;
+                }
+
                 var targetCursorColor = props.cursorColor.Value;
                 if (textInputBase.cursorColor != targetCursorColor)
                 {
@@ -397,8 +405,9 @@ namespace RishUI.Elements
             {
                 PropsManager.SetValue(MaxLengthProp, ref props.maxLength, -1);
                 PropsManager.SetValue(MultiClickInteractionProp, ref props.multiClickInteraction, true);
+                PropsManager.SetValue(SelectOnFocusProp, ref props.selectOnFocus, false);
                 PropsManager.SetValue(CursorColorProp, ref props.cursorColor, Color.black);
-                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f));
+                PropsManager.SetValue(SelectionColorProp, ref props.selectionColor, new Color(0.39f, 0.58f, 0.93f, 0.4f));
             }
             
             public override bool ContainsPoint(Vector2 localPoint) => PickingManager.ContainsPoint(localPoint);
@@ -461,6 +470,12 @@ namespace RishUI.Elements
             /// Styled Prop as --props-multi-click-interaction
             /// </summary>
             public bool? multiClickInteraction;
+
+            /// <summary>
+            /// Styled Prop as --props-select-on-focus
+            /// </summary>
+            public bool? selectOnFocus;
+            
             public DOMDescriptor textInputDescriptor;
             public DOMDescriptor textElementDescriptor;
 
@@ -499,6 +514,7 @@ namespace RishUI.Elements
         public bool readOnly;
         public int? maxLength;
         public bool? multiClickInteraction;
+        public bool? selectOnFocus;
         public bool autoFocus;
         public bool richTextEnabled;
         public bool parseEscapeSequences;
