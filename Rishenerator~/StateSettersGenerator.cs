@@ -28,7 +28,7 @@ namespace Rishenerator
 
         private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
         {
-            return node is ClassDeclarationSyntax { BaseList: { Types: { Count: > 1 } }, Modifiers: { Count: > 0 } };
+            return node is ClassDeclarationSyntax classDeclaration && classDeclaration.BaseList?.Types.Count > 0;
         }
 
         private static SyntaxNode GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
@@ -175,6 +175,19 @@ namespace Rishenerator
         state.{item.Name} = v;
         State = state;
     }}");
+
+                    if (item.OtherTypesFullNames != null)
+                    {
+                        foreach (var otherType in item.OtherTypesFullNames)
+                        {
+                            sourceCode.AppendLine(@$"    private void {setterName}({otherType} v)
+    {{
+        var state = State;
+        state.{item.Name} = ({item.TypeFullName})v;
+        State = state;
+    }}");
+                        }
+                    }
                 }
 
                 if (count == 0)
@@ -204,11 +217,35 @@ namespace Rishenerator
             {
                 public string Name { get; }
                 public string TypeFullName { get; }
+                public List<string> OtherTypesFullNames { get; }
 
                 public StateItem(IFieldSymbol fieldSymbol)
                 {
                     Name = fieldSymbol.Name;
                     TypeFullName = fieldSymbol.Type.GetFullName(true);
+
+                    foreach (var symbol in fieldSymbol.Type.GetMembers())
+                    {
+                        if (symbol is not IMethodSymbol methodSymbol)
+                        {
+                            continue;
+                        }
+                        
+                        if (methodSymbol.MethodKind != MethodKind.Conversion || methodSymbol.Parameters.Length != 1)
+                        {
+                            continue;
+                        }
+
+                        var otherType = methodSymbol.Parameters[0].Type.GetFullName(true);
+
+                        if (string.IsNullOrWhiteSpace(otherType) || otherType == TypeFullName)
+                        {
+                            continue;
+                        }
+
+                        OtherTypesFullNames ??= new List<string>();
+                        OtherTypesFullNames.Add(otherType);
+                    }
                 }
             }
             private class ItemizedState
@@ -221,7 +258,7 @@ namespace Rishenerator
                 {
                     foreach (var stateMemberSymbol in stateTypeSymbol.GetMembers())
                     {
-                        if (stateMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public } stateFieldSymbol)
+                        if (stateMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } stateFieldSymbol)
                         {
                             continue;
                         }
