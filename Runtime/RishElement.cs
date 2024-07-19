@@ -588,16 +588,5 @@ namespace RishUI
         }
     }
 
-    public abstract class RishElement : RishElement<NoProps>
-    {
-        protected RishElement()
-        {
-            OnMounted += SetDefaultProps;
-        }
-
-        private void SetDefaultProps()
-        {
-            Props = default;
-        }
-    }
+    public abstract class RishElement : RishElement<NoProps> { }
 }

@@ -118,7 +118,12 @@ namespace RishUI
         internal bool IsInDOM => Element is VisualElement;
         internal VisualElement VisualElement => Element as VisualElement;
 
-        private Node GetPreviousSibling() => VirtualIndex <= 0 ? null : Parent.VirtualChildren[VirtualIndex - 1];
+        private Node GetPreviousSibling()
+        {
+            var virtualIndex = Mathf.Min(VirtualIndex, Parent.VirtualChildren.Count);
+            
+            return virtualIndex <= 0 ? null : Parent.VirtualChildren[virtualIndex - 1];
+        }
         
         public T GetFirstAncestorOfType<T>() where T : class
         {
