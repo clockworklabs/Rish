@@ -234,7 +234,7 @@ namespace Rishenerator
                         // KEY, PROPS (Rish.Create)
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
-                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key = default(long), ", ") => Create(key, ", ");", sourceCode);
+                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key = default(long), ", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(key, " : ") => Create(key, ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                     }
                     else
                     {
@@ -245,11 +245,11 @@ namespace Rishenerator
                         // PROPS
                         sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(default(ulong), props);");
                         // ITEMIZED PROPS
-                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(", ") => Create(default(ulong), ", ");", sourceCode);
+                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(default(ulong), " : ") => Create(default(ulong), ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                         // KEY, PROPS (Rish.Create)
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
-                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, ", ") => Create(key, ", ");", sourceCode);
+                        AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, ", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(key, " : ") => Create(key, ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                     }
                 }
                 else
@@ -626,12 +626,12 @@ namespace Rishenerator
                                 {
                                     sourceCode.Append(", ");
                                 }
-                                sourceCode.Append($"{(props.HasCustomDefault ? $"RishUI.Overridable<{expandedItem.TypeFullName}>" : expandedItem.TypeFullName)} {expandedItem.Name} = default");
+                                sourceCode.Append($"{(props.HasCustomDefault ? string.IsNullOrWhiteSpace(expandedItem.OverridableTypeFullName) ? $"RishUI.Overridable<{expandedItem.TypeFullName}>" : expandedItem.OverridableTypeFullName : expandedItem.TypeFullName)} {expandedItem.Name} = default");
                             }
                         }
                         else
                         {
-                            sourceCode.Append($"{(props.HasCustomDefault ? $"RishUI.Overridable<{item.TypeFullName}>" : item.TypeFullName)} {item.Name} = default");
+                            sourceCode.Append($"{(props.HasCustomDefault ? string.IsNullOrWhiteSpace(item.OverridableTypeFullName) ?$"RishUI.Overridable<{item.TypeFullName}>" : item.OverridableTypeFullName : item.TypeFullName)} {item.Name} = default");
                         }
                     }
                 }
@@ -658,13 +658,13 @@ namespace Rishenerator
                                     sourceCode.Append(", ");
                                 }
                                 
-                                sourceCode.Append($"{expandedItem.NameInParent} = {(props.HasCustomDefault ? $"{expandedItem.Name}.GetValue({props.DefaultValue}.{item.Name}.{expandedItem.NameInParent})" : expandedItem.Name)}");
+                                sourceCode.Append($"{expandedItem.NameInParent} = {(props.HasCustomDefault ? $"{expandedItem.Name}.GetValue(defaultValue.{item.Name}.{expandedItem.NameInParent})" : expandedItem.Name)}");
                             }
                             sourceCode.Append(" }");
                         }
                         else
                         {
-                            sourceCode.Append($"{item.Name} = {(props.HasCustomDefault ? $"{item.Name}.GetValue({props.DefaultValue}.{item.Name})" : item.Name)}");
+                            sourceCode.Append($"{item.Name} = {(props.HasCustomDefault ? $"{item.Name}.GetValue(defaultValue.{item.Name})" : item.Name)}");
                         }
                     }
                     
@@ -677,12 +677,12 @@ namespace Rishenerator
             {
                 foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                 {
-                    if (propsMemberSymbol is not IPropertySymbol { IsStatic: true, DeclaredAccessibility: Accessibility.Public } propsPropertySymbol || !propsPropertySymbol.Type.Equals(propsTypeSymbol, SymbolEqualityComparer.IncludeNullability) || !propsPropertySymbol.HasAttribute("RishUI.DefaultAttribute"))
+                    if (propsMemberSymbol is not IPropertySymbol { IsStatic: true } propsPropertySymbol || !propsPropertySymbol.Type.Equals(propsTypeSymbol, SymbolEqualityComparer.IncludeNullability) || !propsPropertySymbol.HasAttribute("RishUI.DefaultAttribute"))
                     {
                         continue;
                     }
 
-                    return $"{propsTypeSymbol.GetFullName(true)}.{propsPropertySymbol.Name}";
+                    return propsMemberSymbol.DeclaredAccessibility == Accessibility.Public ? $"{propsTypeSymbol.GetFullName(true)}.{propsPropertySymbol.Name}" : $"RishUI.Defaults.GetValue<{propsTypeSymbol.GetFullName(true)}>()";
                 }
 
                 return propsTypeSymbol.GetDefault();
@@ -696,11 +696,19 @@ namespace Rishenerator
                 public string NameInParent { get; }
                 private List<PropItem> _expandedItems { get; }
                 public ReadOnlyCollection<PropItem> ExpandedItems => _expandedItems?.AsReadOnly();
+                
+                public string OverridableTypeFullName { get; }
 
-                public PropItem(IFieldSymbol fieldSymbol, bool simple)
+                public PropItem(IFieldSymbol fieldSymbol, bool simple, bool checkForOverridable)
                 {
                     Name = fieldSymbol.Name;
-                    TypeFullName = fieldSymbol.Type.GetFullName(true);
+                    var fieldType = fieldSymbol.Type;
+                    TypeFullName = fieldType.GetFullName(true);
+
+                    if (checkForOverridable)
+                    {
+                        OverridableTypeFullName = GetOverridableTypeFullName(fieldType);
+                    }
 
                     if (simple)
                     {
@@ -715,17 +723,44 @@ namespace Rishenerator
                         var hasPrefix = !string.IsNullOrWhiteSpace(prefix);
                         _expandedItems = new List<PropItem>(3)
                         {
-                            new PropItem(hasPrefix ? $"{prefix}Name" : "name", "RishUI.Name", "name"),
-                            new PropItem(hasPrefix ? $"{prefix}ClassName" : "className", "RishUI.ClassName", "className"),
-                            new PropItem(hasPrefix ? $"{prefix}Style" : "style", "RishUI.Style", "style")
+                            new(hasPrefix ? $"{prefix}Name" : "name", "RishUI.Name", "name", "RishUI.Name.Overridable"),
+                            new(hasPrefix ? $"{prefix}ClassName" : "className", "RishUI.ClassName", "className", "RishUI.ClassName.Overridable"),
+                            new(hasPrefix ? $"{prefix}Style" : "style", "RishUI.Style", "style", null)
                         };
                     }
                 }
-                private PropItem(string name, string typeFullName, string nameInParent)
+                private PropItem(string name, string typeFullName, string nameInParent, string overridableTypeFullName)
                 {
                     Name = name;
                     TypeFullName = typeFullName;
                     NameInParent = nameInParent;
+                    OverridableTypeFullName = overridableTypeFullName;
+                }
+
+                private static string GetOverridableTypeFullName(ITypeSymbol typeSymbol)
+                {
+                    var validOverridableInterface = $"RishUI.IOverridable<{typeSymbol.GetFullName(true)}>";
+                    
+                    foreach (var typeMemberSymbol in typeSymbol.GetMembers())
+                    {
+                        if (typeMemberSymbol is not INamedTypeSymbol { IsValueType: true } nestedTypeSymbol || !nestedTypeSymbol.IsPubliclyAccessible())
+                        {
+                            continue;
+                        }
+
+                        foreach (var interfaceTypeSymbol in nestedTypeSymbol.Interfaces)
+                        {
+                            var interfaceTypeFullName = interfaceTypeSymbol.GetFullName(true);
+                        
+                            if (interfaceTypeFullName == validOverridableInterface)
+                            {
+                                Logger.Log($"This is it! {nestedTypeSymbol.GetFullName(true)}");
+                                return nestedTypeSymbol.GetFullName(true);
+                            }
+                        }
+                    }
+
+                    return null;
                 }
             }
             private class ItemizedProps
@@ -744,16 +779,6 @@ namespace Rishenerator
                     FullTypeName = propsTypeSymbol.GetFullName(true);
                     DefaultValue = simple ? propsTypeSymbol.GetDefault() : GetDefaultProps(propsTypeSymbol);
                     HasCustomDefault = !simple && DefaultValue != propsTypeSymbol.GetDefault();
-
-                    if (simple)
-                    {
-                        DefaultValue = propsTypeSymbol.GetDefault();
-                    }
-                    else
-                    {
-                        DefaultValue = GetDefaultProps(propsTypeSymbol);
-                        HasCustomDefault = DefaultValue != propsTypeSymbol.GetDefault();
-                    }
                     
                     foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                     {
@@ -763,7 +788,7 @@ namespace Rishenerator
                         }
                     
                         Items ??= new List<PropItem>();
-                        var item = new PropItem(propsFieldSymbol, simple);
+                        var item = new PropItem(propsFieldSymbol, simple, HasCustomDefault);
                         Items.Add(item);
                     }
 

@@ -52,5 +52,29 @@ namespace RishUI
             bottom = -margins.bottom,
             left = -margins.left
         };
+        
+        public struct Overridable : IOverridable<Margins>
+        {
+            private readonly bool _custom;
+            private readonly Margins _value;
+
+            public Overridable(Margins value)
+            {
+                _custom = true;
+                _value = value;
+            }
+
+            public static implicit operator Overridable(Margins value) => new(value);
+    
+            public static implicit operator Overridable(Vector4 value) => (Margins)value;
+            public static implicit operator Overridable((float, float, float, float) value) => (Margins)value;
+            public static implicit operator Overridable(Vector3 value) => (Margins)value;
+            public static implicit operator Overridable((float, float, float) value) => (Margins)value;
+            public static implicit operator Overridable(Vector2 value) => (Margins)value;
+            public static implicit operator Overridable((float, float) value) => (Margins)value;
+            public static implicit operator Overridable(float value) => (Margins)value;
+
+            public Margins GetValue(Margins defaultValue) => _custom ? _value : defaultValue;
+        }
     }
 }

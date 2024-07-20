@@ -98,152 +98,152 @@ namespace RishUI
 
 
 
-        // 0/5 -> 1
-        public static Element Create<T, P>(Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, DOMDescriptor.Default, children);
-        // 1/5 -> 5
-        public static Element Create<T, P>(ulong key, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, DOMDescriptor.Default, children);
-        public static Element Create<T, P>(Name name, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name
-        }, children);
-        public static Element Create<T, P>(ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className
-        }, children);
-        public static Element Create<T, P>(Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            style = style
-        }, children);
-        public static Element Create<T, P>(P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default), props, children);
-        // 2/5 = 10
-        public static Element Create<T, P>(ulong key, Name name, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name
-        }, children);
-        public static Element Create<T, P>(ulong key, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className
-        }, children);
-        public static Element Create<T, P>(ulong key, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            style = style
-        }, children);
-        public static Element Create<T, P>(ulong key, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, DOMDescriptor.Default, props, children);
-        public static Element Create<T, P>(Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className
-        }, children);
-        public static Element Create<T, P>(Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            style = style
-        }, children);
-        public static Element Create<T, P>(Name name, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name
-        }, props, children);
-        public static Element Create<T, P>(ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className,
-            style = style
-        }, children);
-        public static Element Create<T, P>(ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className
-        }, props, children);
-        public static Element Create<T, P>(Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            style = style
-        }, props, children);
-        // 3/5 = 10
-        public static Element Create<T, P>(ulong key, Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className
-        }, children);
-        public static Element Create<T, P>(ulong key, Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            style = style
-        }, children);
-        public static Element Create<T, P>(ulong key, Name name, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name
-        }, props, children);
-        public static Element Create<T, P>(ulong key, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className,
-            style = style
-        }, children);
-        public static Element Create<T, P>(ulong key, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className
-        }, props, children);
-        public static Element Create<T, P>(ulong key, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            style = style
-        }, props, children);
-        public static Element Create<T, P>(Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className,
-            style = style
-        }, children);
-        public static Element Create<T, P>(Name name, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className
-        }, props, children);
-        public static Element Create<T, P>(Name name, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            style = style
-        }, props, children);
-        public static Element Create<T, P>(ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className,
-            style = style
-        }, props, children);
-        // 4/5 = 5
-        public static Element Create<T, P>(ulong key, Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className,
-            style = style
-        }, children);
-        public static Element Create<T, P>(ulong key, Name name, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className
-        }, props, children);
-        public static Element Create<T, P>(ulong key, Name name, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            style = style
-        }, props, children);
-        public static Element Create<T, P>(ulong key, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            className = className,
-            style = style
-        }, props, children);
-        public static Element Create<T, P>(Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className,
-            style = style
-        }, props, children);
-        // 5/5 = 1
-        public static Element Create<T, P>(ulong key, Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
-        {
-            name = name,
-            className = className,
-            style = style
-        }, props, children);
+        // // 0/5 -> 1
+        // public static Element Create<T, P>(Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, DOMDescriptor.Default, children);
+        // // 1/5 -> 5
+        // public static Element Create<T, P>(ulong key, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, DOMDescriptor.Default, children);
+        // public static Element Create<T, P>(Name name, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name
+        // }, children);
+        // public static Element Create<T, P>(ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className
+        // }, children);
+        // public static Element Create<T, P>(Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default), props, children);
+        // // 2/5 = 10
+        // public static Element Create<T, P>(ulong key, Name name, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name
+        // }, children);
+        // public static Element Create<T, P>(ulong key, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className
+        // }, children);
+        // public static Element Create<T, P>(ulong key, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(ulong key, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, DOMDescriptor.Default, props, children);
+        // public static Element Create<T, P>(Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className
+        // }, children);
+        // public static Element Create<T, P>(Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(Name name, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name
+        // }, props, children);
+        // public static Element Create<T, P>(ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className
+        // }, props, children);
+        // public static Element Create<T, P>(Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     style = style
+        // }, props, children);
+        // // 3/5 = 10
+        // public static Element Create<T, P>(ulong key, Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className
+        // }, children);
+        // public static Element Create<T, P>(ulong key, Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(ulong key, Name name, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name
+        // }, props, children);
+        // public static Element Create<T, P>(ulong key, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(ulong key, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className
+        // }, props, children);
+        // public static Element Create<T, P>(ulong key, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     style = style
+        // }, props, children);
+        // public static Element Create<T, P>(Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(Name name, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className
+        // }, props, children);
+        // public static Element Create<T, P>(Name name, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     style = style
+        // }, props, children);
+        // public static Element Create<T, P>(ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className,
+        //     style = style
+        // }, props, children);
+        // // 4/5 = 5
+        // public static Element Create<T, P>(ulong key, Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className,
+        //     style = style
+        // }, children);
+        // public static Element Create<T, P>(ulong key, Name name, ClassName className, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className
+        // }, props, children);
+        // public static Element Create<T, P>(ulong key, Name name, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     style = style
+        // }, props, children);
+        // public static Element Create<T, P>(ulong key, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     className = className,
+        //     style = style
+        // }, props, children);
+        // public static Element Create<T, P>(Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className,
+        //     style = style
+        // }, props, children);
+        // // 5/5 = 1
+        // public static Element Create<T, P>(ulong key, Name name, ClassName className, Style style, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, new DOMDescriptor(DOMDescriptor.Default)
+        // {
+        //     name = name,
+        //     className = className,
+        //     style = style
+        // }, props, children);
         // Descriptor
-        public static Element Create<T, P>(DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, descriptor, Defaults.GetValue<P>(), children);
-        public static Element Create<T, P>(DOMDescriptor descriptor, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, descriptor, props, children);
-        public static Element Create<T, P>(ulong key, DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, descriptor, Defaults.GetValue<P>(), children);
+        // public static Element Create<T, P>(DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, descriptor, Defaults.GetValue<P>(), children);
+        // public static Element Create<T, P>(DOMDescriptor descriptor, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(0, descriptor, props, children);
+        // public static Element Create<T, P>(ulong key, DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct => Create<T, P>(key, descriptor, Defaults.GetValue<P>(), children);
         // Descriptor
         public static Element Create<T, P>(ulong key, DOMDescriptor descriptor, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct
         {

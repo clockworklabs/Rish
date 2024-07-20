@@ -42,5 +42,26 @@ namespace RishUI
         public static implicit operator LengthRange(Length max) => new(max);
         
         public (float, float) ToSize(float parentSize) => unit == LengthUnit.Pixel ? (min, max) : (min * 0.01f * parentSize, max * 0.01f * parentSize);
+        
+        public struct Overridable : IOverridable<LengthRange>
+        {
+            private readonly bool _custom;
+            private readonly LengthRange _value;
+
+            public Overridable(LengthRange value)
+            {
+                _custom = true;
+                _value = value;
+            }
+
+            public static implicit operator Overridable(LengthRange value) => new(value);
+
+            public static implicit operator Overridable(float value) => (LengthRange)value;
+            public static implicit operator Overridable((float, float) value) => (LengthRange)value;
+            public static implicit operator Overridable(Vector2 value) => (LengthRange)value;
+            public static implicit operator Overridable(Length value) => (LengthRange)value;
+
+            public LengthRange GetValue(LengthRange defaultValue) => _custom ? _value : defaultValue;
+        }
     }
 }

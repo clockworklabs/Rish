@@ -145,5 +145,29 @@ namespace RishUI
 
             return aDefinition.Equals(bDefinition);
         }
+        
+        public struct Overridable : IOverridable<Element>
+        {
+            private readonly bool _custom;
+            private readonly Element _value;
+
+            public Overridable(Element value)
+            {
+                _custom = true;
+                _value = value;
+            }
+
+            public static implicit operator Overridable(Element value) => new(value);
+
+            public static implicit operator Overridable(string value) => (Element)value;
+            public static implicit operator Overridable(RishString value) => (Element)value;
+            public static implicit operator Overridable(FixedString32Bytes value) => (Element)value;
+            public static implicit operator Overridable(FixedString64Bytes value) => (Element)value;
+            public static implicit operator Overridable(FixedString128Bytes value) => (Element)value;
+            public static implicit operator Overridable(FixedString512Bytes value) => (Element)value;
+            public static implicit operator Overridable(FixedString4096Bytes value) => (Element)value;
+
+            public Element GetValue(Element defaultValue) => _custom ? _value : defaultValue;
+        }
     }
 }

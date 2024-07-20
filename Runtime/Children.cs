@@ -319,5 +319,63 @@ namespace RishUI
                 return true;
             }
         }
+        
+        public struct Overridable : IOverridable<Children>
+        {
+            private readonly bool _custom;
+            private readonly Children _value;
+
+            public Overridable(Children value)
+            {
+                _custom = true;
+                _value = value;
+            }
+
+            public static implicit operator Overridable(Children value) => new(value);
+        
+            public static implicit operator Overridable(Element value) => (Children)value;
+            public static implicit operator Overridable((Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable((Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children, Children) value) => (Children)value;
+            public static implicit operator Overridable(Children[] value) => (Children)value;
+            public static implicit operator Overridable(Element[] value) => (Children)value;
+            public static implicit operator Overridable(List<Children> value) => (Children)value;
+            public static implicit operator Overridable(List<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList32Bytes<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList64Bytes<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList128Bytes<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList512Bytes<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList4096Bytes<Element> value) => (Children)value;
+            public static implicit operator Overridable(FixedList32Bytes<Children> value) => (Children)value;
+            public static implicit operator Overridable(FixedList64Bytes<Children> value) => (Children)value;
+            public static implicit operator Overridable(FixedList128Bytes<Children> value) => (Children)value;
+            public static implicit operator Overridable(FixedList512Bytes<Children> value) => (Children)value;
+            public static implicit operator Overridable(FixedList4096Bytes<Children> value) => (Children)value;
+            public static implicit operator Overridable(string value) => (Children)value;
+            public static implicit operator Overridable(RishString value) => (Children)value;
+            public static implicit operator Overridable(FixedString32Bytes value) => (Children)value;
+            public static implicit operator Overridable(FixedString64Bytes value) => (Children)value;
+            public static implicit operator Overridable(FixedString128Bytes value) => (Children)value;
+            public static implicit operator Overridable(FixedString512Bytes value) => (Children)value;
+            public static implicit operator Overridable(FixedString4096Bytes value) => (Children)value;
+
+            public Children GetValue(Children defaultValue) => _custom ? _value : defaultValue;
+        }
     }
 }

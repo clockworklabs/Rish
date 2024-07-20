@@ -46,6 +46,7 @@ namespace RishUI.Elements
             }
 
             return Rish.Create<RishTextField, RishTextFieldProps>(
+                key: 0,
                 descriptor: descriptor,
                 new RishTextFieldProps
                 {

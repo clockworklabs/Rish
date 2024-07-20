@@ -1,6 +1,11 @@
 namespace RishUI
 {
-    public readonly struct Overridable<T>
+    public interface IOverridable<T>
+    {
+        T GetValue(T defaultValue);
+    }
+    
+    public readonly struct Overridable<T> : IOverridable<T>
     {
         private readonly bool _custom;
         private readonly T _value;

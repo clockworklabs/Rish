@@ -421,5 +421,59 @@ namespace RishUI
                 return true;
             }
         }
+        
+        public struct Overridable : IOverridable<ClassName>
+        {
+            private readonly bool _custom;
+            private readonly ClassName _value;
+
+            public Overridable(ClassName value)
+            {
+                _custom = true;
+                _value = value;
+            }
+
+            public static implicit operator Overridable(ClassName value) => new(value);
+
+            public static implicit operator Overridable(FixedString32Bytes value) => (ClassName)value;
+            public static implicit operator Overridable(string value) => (ClassName)value;
+            public static implicit operator Overridable((string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable(ClassName[] value) => (ClassName)value;
+            public static implicit operator Overridable(string[] value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString32Bytes[] value) => (ClassName)value;
+            public static implicit operator Overridable(List<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(List<string> value) => (ClassName)value;
+            public static implicit operator Overridable(List<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<ClassName> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<FixedString32Bytes> value) => (ClassName)value;
+
+            public ClassName GetValue(ClassName defaultValue) => _custom ? _value : defaultValue;
+        }
     }
 }

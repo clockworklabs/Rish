@@ -78,6 +78,27 @@ namespace Rishenerator
             return typeSymbol.DeclaredAccessibility is Accessibility.Public or Accessibility.ProtectedOrInternal or Accessibility.Internal;
         }
         
+        public static bool IsPubliclyAccessible(this ITypeSymbol typeSymbol)
+        {
+            var containingType = typeSymbol.ContainingType;
+            while (containingType != null)
+            {
+                if (!containingType.IsPubliclyAccessible())
+                {
+                    return false;
+                }
+
+                containingType = containingType.ContainingType;
+            }
+            
+            if (typeSymbol is ITypeParameterSymbol)
+            {
+                return true;
+            }
+            
+            return typeSymbol.DeclaredAccessibility is Accessibility.Public;
+        }
+        
         public static string GetDefault(this ITypeSymbol typeSymbol) => $"default({typeSymbol.GetFullName(true)})";
 
         public static string GetFullName(this ITypeSymbol typeSymbol, bool includeGenerics)

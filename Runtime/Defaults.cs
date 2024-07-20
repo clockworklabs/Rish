@@ -5,8 +5,17 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class DefaultAttribute : PreserveAttribute { }
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public class DefaultAttribute : PreserveAttribute
+    { 
+        public DefaultAttribute() { }
+        public DefaultAttribute(object v) { }
+    }
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public class DefaultCodeAttribute : DefaultAttribute
+    {
+        public DefaultCodeAttribute(string v) { }
+    }
     
     public static class Defaults
     {
@@ -64,12 +73,13 @@ namespace RishUI
                 var getter = (DefaultValueGetter<T>) getterDelegate;
 
                 return getter?.Invoke() ?? default;
-            } else if (Methods.TryGetValue(type, out var getterMethod))
+            }
+            if (Methods.TryGetValue(type, out var getterMethod))
             {
                 var getter = (DefaultValueGetter<T>) Delegate.CreateDelegate(typeof(DefaultValueGetter<T>), null, getterMethod);
                 Delegates.Add(type, getter);
                 
-                return getter?.Invoke() ?? default;
+                return getter.Invoke();
             }
 
             return default;
