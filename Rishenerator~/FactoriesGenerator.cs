@@ -626,12 +626,12 @@ namespace Rishenerator
                                 {
                                     sourceCode.Append(", ");
                                 }
-                                sourceCode.Append($"{(props.HasCustomDefault ? string.IsNullOrWhiteSpace(expandedItem.OverridableTypeFullName) ? $"RishUI.Overridable<{expandedItem.TypeFullName}>" : expandedItem.OverridableTypeFullName : expandedItem.TypeFullName)} {expandedItem.Name} = default");
+                                sourceCode.Append($"{(props.HasCustomDefault && string.IsNullOrWhiteSpace(expandedItem.DefaultValue) ? string.IsNullOrWhiteSpace(expandedItem.OverridableTypeFullName) ? $"RishUI.Overridable<{expandedItem.TypeFullName}>" : expandedItem.OverridableTypeFullName : expandedItem.TypeFullName)} {expandedItem.Name} = default");
                             }
                         }
                         else
                         {
-                            sourceCode.Append($"{(props.HasCustomDefault ? string.IsNullOrWhiteSpace(item.OverridableTypeFullName) ?$"RishUI.Overridable<{item.TypeFullName}>" : item.OverridableTypeFullName : item.TypeFullName)} {item.Name} = default");
+                            sourceCode.Append($"{(props.HasCustomDefault && string.IsNullOrWhiteSpace(item.DefaultValue) ? string.IsNullOrWhiteSpace(item.OverridableTypeFullName) ?$"RishUI.Overridable<{item.TypeFullName}>" : item.OverridableTypeFullName : item.TypeFullName)} {item.Name} = default");
                         }
                     }
                 }
@@ -658,13 +658,13 @@ namespace Rishenerator
                                     sourceCode.Append(", ");
                                 }
                                 
-                                sourceCode.Append($"{expandedItem.NameInParent} = {(props.HasCustomDefault ? $"{expandedItem.Name}.GetValue(defaultValue.{item.Name}.{expandedItem.NameInParent})" : expandedItem.Name)}");
+                                sourceCode.Append($"{expandedItem.NameInParent} = {(props.HasCustomDefault && string.IsNullOrWhiteSpace(expandedItem.DefaultValue) ? $"{expandedItem.Name}.GetValue(defaultValue.{item.Name}.{expandedItem.NameInParent})" : expandedItem.Name)}");
                             }
                             sourceCode.Append(" }");
                         }
                         else
                         {
-                            sourceCode.Append($"{item.Name} = {(props.HasCustomDefault ? $"{item.Name}.GetValue(defaultValue.{item.Name})" : item.Name)}");
+                            sourceCode.Append($"{item.Name} = {(props.HasCustomDefault && string.IsNullOrWhiteSpace(item.DefaultValue) ? $"{item.Name}.GetValue(defaultValue.{item.Name})" : item.Name)}");
                         }
                     }
                     
@@ -698,12 +698,25 @@ namespace Rishenerator
                 public ReadOnlyCollection<PropItem> ExpandedItems => _expandedItems?.AsReadOnly();
                 
                 public string OverridableTypeFullName { get; }
+                public string DefaultValue { get; }
 
                 public PropItem(IFieldSymbol fieldSymbol, bool simple, bool checkForOverridable)
                 {
                     Name = fieldSymbol.Name;
                     var fieldType = fieldSymbol.Type;
                     TypeFullName = fieldType.GetFullName(true);
+
+                    if (fieldSymbol.HasAttribute("RishUI.DefaultAttribute"))
+                    {
+                        var arguments = fieldSymbol.GetAttributeArguments("RishUI.DefaultAttribute");
+                        if (arguments.IsEmpty)
+                        {
+                            DefaultValue = "default";
+                        }
+                    } else if (fieldSymbol.HasAttribute("RishUI.DefaultCodeAttribute"))
+                    {
+                        
+                    }
 
                     if (checkForOverridable)
                     {

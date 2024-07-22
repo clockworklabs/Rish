@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace Rishenerator
@@ -368,6 +369,26 @@ namespace Rishenerator
             }
 
             return false;
+        }
+        
+        public static ImmutableArray<TypedConstant> GetAttributeArguments(this ISymbol typeSymbol, string fullName)
+        {
+            foreach (var attributeData in typeSymbol.GetAttributes())
+            {
+                var attributeClass = attributeData.AttributeClass;
+                while (attributeClass != null)
+                {
+                    var attributeFullName = attributeClass.GetFullName(false);
+                    if (attributeFullName == fullName)
+                    {
+                        return attributeData.ConstructorArguments;
+                    }
+            
+                    attributeClass = attributeClass.BaseType;
+                }
+            }
+
+            return default;
         }
 
         public static bool IsFlaggedAsRishValueType(this ITypeSymbol typeSymbol) => typeSymbol.HasAttribute("RishUI.RishValueTypeAttribute");
