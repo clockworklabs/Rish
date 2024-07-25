@@ -34,22 +34,6 @@ namespace RishUI
         }
         public T this[Index index] => Managed?.Get(index) ?? default;
         public RishList<T> this[Range range] => Managed?.Get(range) ?? default;
-
-        public RishList(T element)
-        {
-            _id = 0;
-            Add(element);
-        }
-        public RishList(RishList<T> other)
-        {
-            _id = 0;
-            Add(other);
-        }
-        public RishList(IEnumerable<T> other)
-        {
-            _id = 0;
-            Add(other);
-        }
         
         public void Add(T element)
         {
@@ -62,19 +46,6 @@ namespace RishUI
             managed.Add(element);
         }
         public void Add(RishList<T> other)
-        {
-            if (_id == 0)
-            {
-                _id = Rish.GetFreeID<ManagedRishList<T>>();
-            }
-        
-            var managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            foreach (var element in other)
-            {
-                managed.Add(element);
-            }
-        }
-        public void Add(IEnumerable<T> other)
         {
             if (_id == 0)
             {
