@@ -767,7 +767,6 @@ namespace Rishenerator
                         
                             if (interfaceTypeFullName == validOverridableInterface)
                             {
-                                Logger.Log($"This is it! {nestedTypeSymbol.GetFullName(true)}");
                                 return nestedTypeSymbol.GetFullName(true);
                             }
                         }
