@@ -124,13 +124,13 @@ namespace RishUI
                     reference.RegisterReference(this);
                 }
             }
-
+            
             if (!propsSet || dirty)
             {
                 propsListener?.PropsDidChange();
                 typedPropsListener?.PropsDidChange(oldValue);
             }
-            
+
             if (oldReferences.IsCreated)
             {
                 foreach (var reference in oldReferences)
@@ -220,7 +220,9 @@ namespace RishUI
         void IRishElement.Unmount()
         {
             var propsListener = this as IPropsListener;
+            var typedPropsListener = this as IPropsListener<P>;
             propsListener?.PropsWillChange();
+            typedPropsListener?.PropsWillChange();
             
             if (this is IMountingListener mountingListener)
             {
