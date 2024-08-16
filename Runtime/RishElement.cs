@@ -104,19 +104,18 @@ namespace RishUI
             var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
                 
             var propsListener = this as IPropsListener;
+            var typedPropsListener = this as IPropsListener<P>;
             if (dirty)
             {
                 propsListener?.PropsWillChange();
+                typedPropsListener?.PropsWillChange();
             }
 
-            if (References.IsCreated)
-            {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
-                References.Dispose();
-            }
+            var oldValue = _props;
+            var oldReferences = References;
+            
+            _props = value;
+            
             References = ReferencesGetters.GetReferences(value);
             if (References.IsCreated)
             {
@@ -125,12 +124,20 @@ namespace RishUI
                     reference.RegisterReference(this);
                 }
             }
-            
-            _props = value;
 
             if (!propsSet || dirty)
             {
                 propsListener?.PropsDidChange();
+                typedPropsListener?.PropsDidChange(oldValue);
+            }
+            
+            if (oldReferences.IsCreated)
+            {
+                foreach (var reference in oldReferences)
+                {
+                    reference.UnregisterReference(this);
+                }
+                oldReferences.Dispose();
             }
 
             if (dirty)

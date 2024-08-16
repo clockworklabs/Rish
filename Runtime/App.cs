@@ -8,8 +8,15 @@ using RishUI.Elements;
 
 namespace RishUI
 {
+    /// <summary>
+    /// Interface to provide the root for a Rish app.
+    /// </summary>
     public interface IApp
     {
+        /// <summary>
+        /// Interface to provide the root for a Rish app.
+        /// </summary>
+        /// <param name="recovered">This flag will be true after the Rish app has recovered from an exception.</param>
         Element GetRoot(bool recovered);
     }
     
@@ -51,7 +58,7 @@ namespace RishUI
         protected override Element Render()
         {
             // Without this monstrosity Unity can't compute Text layout and preferred size properly. Thank you, Unity. 
-            // Oh, of course it's just necessary in the Editor because in the builds (at least on Windows), it works... (sigh)
+            // Oh, of course it's just necessary in the Editor because in the builds (at least on Windows), it works... :face-exhaling:
 #if UNITY_EDITOR
             if (!Ready)
             {
