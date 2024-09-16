@@ -4,6 +4,7 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
+    // TODO: Probably we should remove this
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class AutoKeyAttribute : PreserveAttribute
     {

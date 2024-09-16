@@ -9,6 +9,9 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    /// <summary>
+    /// List of class names for styling.
+    /// </summary>
     [CustomComparer]
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
@@ -104,27 +107,12 @@ namespace RishUI
             return enumerable.GetEnumerator();
         }
         
-        public static implicit operator ClassName(FixedString32Bytes element) => new ClassName { element };
         public static implicit operator ClassName(string element) => new ClassName { element };
-        public static implicit operator ClassName((string, string) elements) => new ClassName { elements.Item1, elements.Item2 };
-        public static implicit operator ClassName((string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3 };
-        public static implicit operator ClassName((string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4 };
-        public static implicit operator ClassName((string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5 };
-        public static implicit operator ClassName((string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19 };
-        public static implicit operator ClassName((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) elements) => new ClassName { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19, elements.Item20};
+        public static implicit operator ClassName(FixedString32Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString64Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString128Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString512Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString4096Bytes element) => new ClassName { element };
 
         public static implicit operator ClassName(ClassName[] array)
         {
@@ -156,6 +144,46 @@ namespace RishUI
 
             return children;
         }
+        public static implicit operator ClassName(FixedString64Bytes[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedString128Bytes[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedString512Bytes[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedString4096Bytes[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
         public static implicit operator ClassName(List<ClassName> list)
         {
             var children = new ClassName();
@@ -177,6 +205,46 @@ namespace RishUI
             return children;
         }
         public static implicit operator ClassName(List<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(List<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(List<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(List<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(List<FixedString4096Bytes> list)
         {
             var children = new ClassName();
             foreach (var element in list)
@@ -277,6 +345,206 @@ namespace RishUI
             return children;
         }
         public static implicit operator ClassName(FixedList4096Bytes<FixedString32Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString64Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString128Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString512Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList32Bytes<FixedString4096Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList64Bytes<FixedString4096Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList128Bytes<FixedString4096Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList512Bytes<FixedString4096Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        public static implicit operator ClassName(FixedList4096Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
             foreach (var element in list)
@@ -435,33 +703,26 @@ namespace RishUI
 
             public static implicit operator Overridable(ClassName value) => new(value);
 
-            public static implicit operator Overridable(FixedString32Bytes value) => (ClassName)value;
             public static implicit operator Overridable(string value) => (ClassName)value;
-            public static implicit operator Overridable((string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
-            public static implicit operator Overridable((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString32Bytes value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString64Bytes value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString128Bytes value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString512Bytes value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString4096Bytes value) => (ClassName)value;
             public static implicit operator Overridable(ClassName[] value) => (ClassName)value;
             public static implicit operator Overridable(string[] value) => (ClassName)value;
             public static implicit operator Overridable(FixedString32Bytes[] value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString64Bytes[] value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString128Bytes[] value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString512Bytes[] value) => (ClassName)value;
+            public static implicit operator Overridable(FixedString4096Bytes[] value) => (ClassName)value;
             public static implicit operator Overridable(List<ClassName> value) => (ClassName)value;
             public static implicit operator Overridable(List<string> value) => (ClassName)value;
             public static implicit operator Overridable(List<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(List<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(List<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(List<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(List<FixedString4096Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList32Bytes<ClassName> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList64Bytes<ClassName> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList128Bytes<ClassName> value) => (ClassName)value;
@@ -472,6 +733,26 @@ namespace RishUI
             public static implicit operator Overridable(FixedList128Bytes<FixedString32Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList512Bytes<FixedString32Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList4096Bytes<FixedString32Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<FixedString64Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<FixedString128Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<FixedString512Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList32Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList64Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList128Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList512Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            public static implicit operator Overridable(FixedList4096Bytes<FixedString4096Bytes> value) => (ClassName)value;
 
             public ClassName GetValue(ClassName defaultValue) => _custom ? _value : defaultValue;
         }
