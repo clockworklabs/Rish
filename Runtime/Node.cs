@@ -403,11 +403,18 @@ namespace RishUI
             var index = -1;
             if (VirtualChildren.Count > 0)
             {
+                var firstFreeIndex = -1;
                 for (var i = ChildCount; i < VirtualChildren.Count; i++)
                 {
                     var currentChild = VirtualChildren[i];
-                    
-                    if (currentChild.Key == key && currentChild.Type == type)
+                    if (currentChild.Type != type) continue;
+
+                    if (currentChild.Key == 0 && firstFreeIndex < 0)
+                    {
+                        firstFreeIndex = i;
+                    }
+
+                    if ((key > 0 && currentChild.Key == key) || (key == 0 && currentChild.Key == 0 && currentChild.VirtualIndex == ChildCount))
                     {
                         index = i;
                         break;
@@ -419,6 +426,11 @@ namespace RishUI
 //                         break;
 //                     }
 // #endif
+                }
+
+                if (index < 0)
+                {
+                    index = firstFreeIndex;
                 }
 
                 child = index >= 0 ? VirtualChildren[index] : null;

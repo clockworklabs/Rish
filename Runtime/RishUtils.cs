@@ -4,9 +4,11 @@ namespace RishUI
 {
     public static class RishUtils
     {
+        /// <summary>
+        /// Compare value types smartly using comparers if registered or just by comparing memory. 
+        /// </summary>
         public static bool SmartCompare<T>(T first, T second) where T : struct => Comparers.Contains<T>() ? Comparers.Compare(first, second) : MemCmp<T>(ref first, ref second);
-
-
+        
         public static unsafe bool MemCmp<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second);
         public static unsafe bool MemCmp<T>(ref T first, ref T second) where T : struct => UnsafeUtility.MemCmp(UnsafeUtility.AddressOf(ref first), UnsafeUtility.AddressOf(ref second), UnsafeUtility.SizeOf<T>()) == 0;
         private static unsafe bool MemCmp<T, G>(ref T first, ref G second) where T : struct where G : struct

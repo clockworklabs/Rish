@@ -4,7 +4,9 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
-    // TODO: Probably we should remove this
+    /// <summary>
+    /// Automatically assigns a random key to elements of this type whenever a key isn't set manually. 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class AutoKeyAttribute : PreserveAttribute
     {

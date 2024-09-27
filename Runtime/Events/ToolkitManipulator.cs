@@ -2,7 +2,6 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    
     public abstract class ToolkitManipulator
     {
         internal IRishElement Owner { get; set; }

@@ -5,17 +5,12 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
+    /// <summary>
+    /// Tells Rishenerator to use this default provider.
+    /// The default value must be a static property of the RishValueType type you want to provide a default for. 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class DefaultAttribute : PreserveAttribute
-    { 
-        public DefaultAttribute() { }
-        public DefaultAttribute(object v) { }
-    }
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class DefaultCodeAttribute : DefaultAttribute
-    {
-        public DefaultCodeAttribute(string v) { }
-    }
+    public class DefaultAttribute : PreserveAttribute { }
     
     public static class Defaults
     {

@@ -8,7 +8,6 @@ namespace RishUI
     {
         StyledPropsManager<T, P> Manager { get; }
         void Setup(P props, bool dirty);
-        // void OnCustomStyle(ref P props, ICustomStyle customStyle);
         void OnCustomStyle(ref P props);
     }
     

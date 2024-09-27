@@ -1,5 +1,8 @@
 namespace RishUI
 {
+    /// <summary>
+    /// Name used for styling and identification. Equivalent to ids in HTML and CSS.
+    /// </summary>
     public readonly struct Name
     {
         public readonly string value;

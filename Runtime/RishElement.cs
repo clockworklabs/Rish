@@ -146,9 +146,19 @@ namespace RishUI
             }
         }
 
+        /// <summary>
+        /// Flag this element as Dirty.
+        /// </summary>
         protected void Dirty() => Dirty(false);
+        /// <summary>
+        /// Flag this element as Dirty.
+        /// </summary>
+        /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
         
+        /// <summary>
+        /// Flags this element as ready to be unmounted after unmounting was requested.
+        /// </summary>
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
@@ -272,9 +282,15 @@ namespace RishUI
         }
 
         protected abstract Element Render();
-
+        
+        /// <summary>
+        /// Dispatch an event.
+        /// </summary>
         public void SendEvent(RishEventBase evt) => EventsDispatcher.Dispatch(evt);
 
+        /// <summary>
+        /// Register event callback for a Rish event.
+        /// </summary>
         public void RegisterRishCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : RishEventBase<TEventType>, new()
         {
             var wrapper = CallbacksPool.Get(this, callback, phase);
@@ -283,6 +299,9 @@ namespace RishUI
             Callbacks.Add(wrapper);
         }
 
+        /// <summary>
+        /// Unregister event callback for a Rish event.
+        /// </summary>
         public void UnregisterRishCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : RishEventBase<TEventType>, new()
         {
             if (Callbacks == null)
@@ -351,6 +370,9 @@ namespace RishUI
             Node?.ToolkitEventsManager.RemoveManipulator(manipulator);
         }
 
+        /// <summary>
+        /// Register event callback for a UIToolkit event. This element must have a VisualElement descendant to be able to handle UIToolkit events.
+        /// </summary>
         public void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
         {
             var wrapper = ToolkitCallbacksPool.Get(callback, phase);
@@ -361,6 +383,9 @@ namespace RishUI
             Node?.ToolkitEventsManager.AddCallback(wrapper);
         }
 
+        /// <summary>
+        /// Unregister event callback for a UIToolkit event.
+        /// </summary>
         public void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
         {
             if (ToolkitCallbacks == null)
@@ -379,12 +404,19 @@ namespace RishUI
             }
         }
         
+        /// <summary>
+        /// Flags this element as focusable.
+        /// </summary>
+        /// <param name="index">Focus index of this element when navigating using Tab key.</param>
         public void Focusable(uint index = 0)
         {
             FocusIndex = (int)index;
 
             Node?.InputSystem.SetFocusIndex(FocusIndex);
         }
+        /// <summary>
+        /// Flags this element as not focusable.
+        /// </summary>
         public void NotFocusable()
         {
             FocusIndex = -1;
@@ -392,6 +424,9 @@ namespace RishUI
             Node?.InputSystem.SetFocusIndex(FocusIndex);
         }
         
+        /// <summary>
+        /// Whether this element has keyboard focus.
+        /// </summary>
         public bool HasFocus
         {
             get
@@ -401,7 +436,13 @@ namespace RishUI
             }
         }
 
+        /// <summary>
+        /// Get keyboard focus. If the element isn't focusable, this will have no effect.
+        /// </summary>
         public void Focus() => Node?.InputSystem.Focus();
+        /// <summary>
+        /// Lose keyboard focus.
+        /// </summary>
         public void Blur() => Node?.InputSystem.Blur();
         
         public void CapturePointer(int pointerId) => Node?.InputSystem.CapturePointer(pointerId);
@@ -410,19 +451,88 @@ namespace RishUI
         public void ReleaseMouse() => ReleasePointer(PointerId.mousePointerId);
         public bool ContainsPoint(Vector2 localPoint) => GetDOMChild()?.ContainsPoint(localPoint) ?? false;
         
+        /// <summary>
+        /// Transforms a rect from the world space to the local space of the element.
+        /// </summary>
+        /// <param name="rect">The rect to transform, in world space.</param>
+        /// <returns>
+        /// A rect in the local space of the element.
+        /// </returns>
         public Rect WorldToLocal(Rect rect) => GetDOMChild()?.WorldToLocal(rect) ?? default;
+        /// <summary>
+        /// Transforms a point from the world space to the local space of the element.
+        /// </summary>
+        /// <param name="point">The point to transform, in world space.</param>
+        /// <returns>
+        /// A point in the local space of the element.
+        /// </returns>
         public Vector2 WorldToLocal(Vector2 point) => GetDOMChild()?.WorldToLocal(point) ?? default;
+        /// <summary>
+        /// Transforms a rect from the local space of the element to the world space.
+        /// </summary>
+        /// <param name="rect">The rect to transform, in local space.</param>
+        /// <returns>
+        /// A rect in the world space.
+        /// </returns>
         public Rect LocalToWorld(Rect rect) => GetDOMChild()?.LocalToWorld(rect) ?? default;
+        /// <summary>
+        /// Transforms a point from the local space of the element to the world space.
+        /// </summary>
+        /// <param name="point">The point to transform, in local space.</param>
+        /// <returns>
+        /// A point in the world space.
+        /// </returns>
         public Vector2 LocalToWorld(Vector2 point) => GetDOMChild()?.LocalToWorld(point) ?? default;
+        /// <summary>
+        /// Transforms a rect from the local space of an element to the local space of another element.
+        /// </summary>
+        /// <param name="other">The element to use as a reference as the destination local space.</param>
+        /// <param name="rect">The rect to transform, in the local space of the source element.</param>
+        /// <returns>
+        /// A rect in the local space of destination element.
+        /// </returns>
         public Rect ChangeCoordinatesTo(IElement other, Rect rect) => ChangeCoordinatesTo(other.GetDOMChild(), rect);
+        /// <summary>
+        /// Transforms a point from the local space of an element to the local space of another element.
+        /// </summary>
+        /// <param name="other">The element to use as a reference as the destination local space.</param>
+        /// <param name="point">The point to transform, in the local space of the source element.</param>
+        /// <returns>
+        /// A point in the local space of destination element.
+        /// </returns>
         public Vector2 ChangeCoordinatesTo(IElement other, Vector2 point) => ChangeCoordinatesTo(other.GetDOMChild(), point);
+        /// <summary>
+        /// Transforms a rect from the local space of an element to the local space of another element.
+        /// </summary>
+        /// <param name="other">The element to use as a reference as the destination local space.</param>
+        /// <param name="rect">The rect to transform, in the local space of the source element.</param>
+        /// <returns>
+        /// A rect in the local space of destination element.
+        /// </returns>
         public Rect ChangeCoordinatesTo(VisualElement other, Rect rect) => GetDOMChild()?.ChangeCoordinatesTo(other, rect) ?? default;
+        /// <summary>
+        /// Transforms a point from the local space of an element to the local space of another element.
+        /// </summary>
+        /// <param name="other">The element to use as a reference as the destination local space.</param>
+        /// <param name="point">The point to transform, in the local space of the source element.</param>
+        /// <returns>
+        /// A point in the local space of destination element.
+        /// </returns>
         public Vector2 ChangeCoordinatesTo(VisualElement other, Vector2 point) => GetDOMChild()?.ChangeCoordinatesTo(other, point) ?? default;
         
+        /// <summary>
+        /// The rectangle of the content area of the element, in the local space of the element.
+        /// </summary>
         public Rect ContentRect => GetDOMChild()?.contentRect ?? default;
+        /// <summary>
+        /// The position and size of the VisualElement relative to its parent, as computed by the layout system.
+        /// </summary>
         public Rect Layout => GetDOMChild()?.layout ?? default;
         public Rect BoundingBox => GetDOMChild()?.GetBoundingBox() ?? default;
 
+        /// <summary>
+        /// The rectangle of the content area of the element, in world space.
+        /// </summary>
         public Rect WorldContentRect
         {
             get
@@ -431,6 +541,9 @@ namespace RishUI
                 return child?.LocalToWorld(child.contentRect) ?? default;
             }
         }
+        /// <summary>
+        /// The position and size of the VisualElement relative to its parent, in world space, as computed by the layout system.
+        /// </summary>
         public Rect WorldLayout
         {
             get
@@ -442,6 +555,9 @@ namespace RishUI
         }
         public Rect WorldBoundingBox => GetDOMChild()?.GetWorldBoundingBox() ?? default;
 
+        /// <summary>
+        /// The rectangle of the content area of the parent of this element, in world space.
+        /// </summary>
         public Rect ParentWorldContentRect
         {
             get
@@ -450,6 +566,9 @@ namespace RishUI
                 return parent?.LocalToWorld(parent.contentRect) ?? default;
             }
         }
+        /// <summary>
+        /// The position and size of the VisualElement relative to its parent, in world space, of the parent in this element as computed by the layout system.
+        /// </summary>
         public Rect ParentWorldLayout
         {
             get
@@ -468,17 +587,30 @@ namespace RishUI
             }
         }
 
-        public IResolvedStyle ParentStyle => GetDOMParent()?.resolvedStyle;
-
+        /// <summary>
+        /// Returns the top element at this position. Will not return elements with pickingMode set to PickingMode.Ignore.
+        /// </summary>
+        /// <param name="point">World coordinates.</param>
+        /// <returns>
+        /// Top VisualElement at the position. Null if none was found.</para>
+        /// </returns>
         public VisualElement Pick(Vector2 point) => GetDOMChild()?.panel.Pick(point);
         public VisualElement PickAll(Vector2 point, List<VisualElement> picked) => GetDOMChild()?.panel.PickAll(point, picked);
 
+        /// <summary>
+        /// Whether an element is a descendant or not.
+        /// </summary>
+        /// <param name="element">The element to search for.</param>
         public bool ContainsInTree(IElement element) => element switch
         {
             IRishElement rishElement => ContainsInTree(rishElement),
             VisualElement visualElement => ContainsInTree(visualElement),
             _ => false
         };
+        /// <summary>
+        /// Whether an element is a descendant or not.
+        /// </summary>
+        /// <param name="element">The element to search for.</param>
         public bool ContainsInTree(VisualElement element)
         {
             var domChild = GetDOMChild();
@@ -499,6 +631,10 @@ namespace RishUI
 
             return false;
         }
+        /// <summary>
+        /// Whether an element is a descendant or not.
+        /// </summary>
+        /// <param name="element">The element to search for.</param>
         private bool ContainsInTree(IRishElement element)
         {
             if (Node == null)

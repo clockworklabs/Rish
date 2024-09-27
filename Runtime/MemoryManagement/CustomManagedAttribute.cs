@@ -3,6 +3,9 @@ using UnityEngine.Scripting;
 
 namespace RishUI.MemoryManagement
 {
+    /// <summary>
+    /// Tells Rish to use a custom pool for this managed type.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class CustomManagedAttribute : PreserveAttribute
     {

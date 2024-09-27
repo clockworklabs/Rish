@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace RishUI
 {
+    /// <summary>
+    /// List of value type elements.
+    /// </summary>
     [CustomComparer]
     public struct RishList<T> : IReference<ManagedRishList<T>>, IEnumerable<T>, IEquatable<RishList<T>> where T : struct
     {

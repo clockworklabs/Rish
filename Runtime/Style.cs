@@ -4,6 +4,9 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    /// <summary>
+    /// Inline styling for VisualElements.
+    /// </summary>
     public struct Style
     {
         public StyleEnum<Align> alignContent;

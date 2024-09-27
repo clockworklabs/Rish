@@ -3,6 +3,9 @@ using Unity.Collections;
 
 namespace RishUI
 {
+    /// <summary>
+    /// String wrapper to use in RishValueTypes.
+    /// </summary>
     [AutoComparer]
     public struct RishString : IEquatable<string>
     {

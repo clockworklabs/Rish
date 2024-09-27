@@ -6,6 +6,10 @@ using UnityEngine.Scripting;
 
 namespace RishUI
 {
+    /// <summary>
+    /// Tells Rishenerator to use this comparer method.
+    /// The comparer must be a static method, return bool and have two arguments of the RishValueType type to compare. 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ComparerAttribute : PreserveAttribute { }
     

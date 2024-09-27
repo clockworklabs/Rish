@@ -3,6 +3,9 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
+    /// <summary>
+    /// Styling provider. Holds a name, a list of class names and inline style.
+    /// </summary>
     [RishValueType]
     public struct DOMDescriptor
     {
