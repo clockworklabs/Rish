@@ -17,10 +17,6 @@ namespace RishUI
             
             return new Element(id);
         }
-
-        // public static Element Create<T, P>() where T : RishElement<P>, new() where P : struct => Create<T, P>(0);
-        // public static Element Create<T, P>(ulong key) where T : RishElement<P>, new() where P : struct => Create<T, P>(key, Defaults.GetValue<P>());
-        // public static Element Create<T, P>(P props) where T : RishElement<P>, new() where P : struct => Create<T, P>(0, props);
         public static Element Create<T, P>(ulong key, P props) where T : RishElement<P>, new() where P : struct
         {
             var (id, element) = GetFree<RishDefinition<T, P>>();

@@ -35,10 +35,18 @@ namespace RishUI
             {
                 Debug.LogError("This node should not get dirty");
             }
-            if (!forceThisFrame && node.Depth <= CurrentDepth)
+
+            if (node.Depth <= CurrentDepth)
             {
-                DirtyList.Add(node);
-                return;
+                if (forceThisFrame)
+                {
+                    DirtyList.Remove(node);
+                }
+                else
+                {
+                    DirtyList.Add(node);
+                    return;
+                }
             }
 
             EnqueueDirtyNode(node);
