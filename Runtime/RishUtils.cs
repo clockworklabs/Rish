@@ -5,7 +5,7 @@ namespace RishUI
     public static class RishUtils
     {
         /// <summary>
-        /// Compare value types smartly using comparers if registered or just by comparing memory. 
+        /// Compare value types using a registered comparer or by comparing memory if no comparer was registered for this type. 
         /// </summary>
         public static bool SmartCompare<T>(T first, T second) where T : struct => Comparers.Contains<T>() ? Comparers.Compare(first, second) : MemCmp<T>(ref first, ref second);
         

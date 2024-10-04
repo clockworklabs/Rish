@@ -11,7 +11,6 @@ namespace RishUI
         private delegate int PressedButtonsGetter(int pointerId);
 
         private static Type _pointerDeviceStateType;
-
         private static Type PointerDeviceStateType
         {
             get
