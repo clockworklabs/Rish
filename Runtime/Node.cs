@@ -4,7 +4,6 @@ using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
-using SharpNeatLib.Maths;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -19,18 +18,17 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private static uint _nextId;
+        private static int _nextId;
         private static Stack<Node> Pool { get; } = new(1024);
         private static List<Node> AllNodes { get; } = new(1024);
         
         // -------------------------------------------------------------------------------------------------------------
         // --- Never changes -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        public uint ID { get; }
+        public int ID { get; }
         internal ToolkitEventsManager ToolkitEventsManager { get; }
         internal InputSystem InputSystem { get; }
         private StateMachine Machine { get; }
-        private FastRandom PRNG { get; }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes when mounted ------------------------------------------------------------------------------------
@@ -154,7 +152,7 @@ namespace RishUI
             return parent.GetFirstAncestorOfType<T>();
         }
 
-        uint IOwner.GetID() => ID;
+        int IOwner.GetID() => ID;
         
         private bool IsRealTree()
         {
@@ -247,13 +245,12 @@ namespace RishUI
         
         public bool IsActive() => Machine.IsIn<ActiveState>();
 
-        private Node(uint id)
+        private Node(int id)
         {
             ID = id;
             ToolkitEventsManager = new ToolkitEventsManager(this);
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
-            PRNG = new FastRandom();
         }
         
         public static Node CreateRoot(Tree tree, string rootClassName, bool recovered)
@@ -346,8 +343,6 @@ namespace RishUI
 #endif
             
             ChildCount = 0;
-            
-            PRNG.Reinitialise((int)MountedHashCode);
         }
 
         private void Clean()
@@ -392,11 +387,6 @@ namespace RishUI
 #endif
             
             var type = typeof(T);
-
-            if (key == 0 && AutoKeyAttribute.Contains(type))
-            {
-                key = PRNG.NextUInt();
-            }
 
             VirtualChildren ??= new List<Node>(10);
             Node child = null;
@@ -473,7 +463,14 @@ namespace RishUI
             var node = this;
             while(node != null)
             {
-                hash = (hash << 5) - hash + node.Key;
+                if (node.Key > 0)
+                {
+                    hash = (hash << 5) - hash + node.Key;
+                }
+                else
+                {
+                    hash = (hash << 5) - hash + (ulong) node.VirtualIndex;
+                }
                 hash = (hash << 5) - hash + (ulong) node.Type.GetHashCode();
                 
                 node = node.Parent;
@@ -504,7 +501,7 @@ namespace RishUI
             return node;
         }
 
-        internal static Node GetNode(uint id) => AllNodes[(int)id];
+        internal static Node GetNode(int id) => AllNodes[id];
         
         private class StateMachine
         {
@@ -799,8 +796,8 @@ namespace RishUI
         private class UnmountRequestedState : UnmountingState
         {
             private bool ElementReady { get; set; }
-            private HashSet<uint> UnreadyElements { get; } = new();
-            private HashSet<uint> UnmountingElements { get; } = new();
+            private HashSet<int> UnreadyElements { get; } = new();
+            private HashSet<int> UnmountingElements { get; } = new();
 
             private bool CanUnmount { get; set; }
 

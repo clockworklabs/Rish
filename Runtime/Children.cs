@@ -14,8 +14,8 @@ namespace RishUI
     [CustomComparer]
     public struct Children : IReference<ManagedChildren>, IEnumerable<Element>, IEquatable<Children>
     {
-        private uint _id;
-        public uint ID => _id;
+        private ulong _id;
+        public ulong ID => _id;
 
         public bool Valid => _id > 0;
     

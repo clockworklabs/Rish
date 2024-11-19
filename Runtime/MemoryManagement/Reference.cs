@@ -3,7 +3,7 @@ namespace RishUI.MemoryManagement
     public struct Reference
     {
         public int poolIndex;
-        public uint managedID;
+        public ulong managedID;
 
         internal bool Valid => poolIndex >= 0 && managedID > 0;
 

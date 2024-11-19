@@ -9,14 +9,14 @@ namespace RishUI
     [CustomComparer]
     public struct Element : IReference<ManagedElement>, IEquatable<Element>
     {
-        internal readonly uint _id;
-        public uint ID => _id;
+        internal readonly ulong _id;
+        public ulong ID => _id;
         
         public bool Valid => _id > 0;
     
         public static Element Null => new();
         
-        internal Element(uint id)
+        internal Element(ulong id)
         {
             _id = id;
         }

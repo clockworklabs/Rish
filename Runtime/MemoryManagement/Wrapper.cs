@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace RishUI.MemoryManagement
 {
     public class Wrapper
     {
-        public uint ID { get; }
+        public ulong ID { get; }
         public IManaged Managed { get; }
         
-        private Dictionary<uint, int> References { get; } = new();
+        private Dictionary<int, int> References { get; } = new();
         internal int ReferencesCount { get; private set; }
         
-        internal IEnumerable<(uint, int)> ActiveReferencesDebug => References.Select(pair => (pair.Key, pair.Value));
+        internal IEnumerable<(int, int)> ActiveReferencesDebug => References.Select(pair => (pair.Key, pair.Value));
 
-        public Wrapper(uint id, IManaged managed)
+        public Wrapper(ulong id, IManaged managed)
         {
             ID = id;
             Managed = managed;
@@ -42,8 +41,10 @@ namespace RishUI.MemoryManagement
             var id = owner.GetID();
             if (!References.TryGetValue(id, out var currentCount))
             {
+                #if UNITY_EDITOR
                 // throw new UnityException($"{owner.GetType()} ({id}) doesn't own this reference");
-                Debug.LogError($"{owner.GetType()} ({id}) doesn't own this reference");
+                UnityEngine.Debug.LogError($"{owner.GetType()} ({id}) doesn't own this reference");
+                #endif
                 return ReferencesCount;
             }
 

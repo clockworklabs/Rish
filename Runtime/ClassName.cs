@@ -15,8 +15,8 @@ namespace RishUI
     [CustomComparer]
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
-        private uint _id;
-        public uint ID => _id;
+        private ulong _id;
+        public ulong ID => _id;
 
         public bool Valid => _id > 0;
     

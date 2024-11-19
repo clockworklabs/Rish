@@ -13,8 +13,8 @@ namespace RishUI
     [CustomComparer]
     public struct RishList<T> : IReference<ManagedRishList<T>>, IEnumerable<T>, IEquatable<RishList<T>> where T : struct
     {
-        private uint _id;
-        public uint ID => _id;
+        private ulong _id;
+        public ulong ID => _id;
 
         public bool Valid => _id > 0;
     

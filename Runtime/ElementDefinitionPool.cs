@@ -11,15 +11,15 @@ namespace RishUI
     {
         private const int InitialPoolSize = 64;
         
-        private uint _nextID;
+        private ulong _nextID;
 
-        private Dictionary<Type, Stack<uint>> FreeStacks { get; } = new();
-        private Dictionary<uint, Wrapper> WrappersById { get; } = new();
+        private Dictionary<Type, Stack<ulong>> FreeStacks { get; } = new();
+        private Dictionary<ulong, Wrapper> WrappersById { get; } = new();
         
-        private HashSet<uint> GarbageSet { get; } = new(InitialPoolSize);
-        private List<uint> GarbageList { get; } = new(InitialPoolSize);
+        private HashSet<ulong> GarbageSet { get; } = new(InitialPoolSize);
+        private List<ulong> GarbageList { get; } = new(InitialPoolSize);
 
-        private Stack<uint> GetFreeStackOrCreate<T>() where T : class, IManaged, new()
+        private Stack<ulong> GetFreeStackOrCreate<T>() where T : class, IManaged, new()
         {
             var type = typeof(T);
             var freeStack = GetFreeStack(type);
@@ -28,7 +28,7 @@ namespace RishUI
                 return freeStack;
             }
 
-            freeStack = new Stack<uint>(InitialPoolSize);
+            freeStack = new Stack<ulong>(InitialPoolSize);
             
             for (var i = 0; i < InitialPoolSize; i++)
             {
@@ -40,9 +40,9 @@ namespace RishUI
 
             return freeStack;
         }
-        private Stack<uint> GetFreeStack(Type type) => FreeStacks.GetValueOrDefault(type);
+        private Stack<ulong> GetFreeStack(Type type) => FreeStacks.GetValueOrDefault(type);
 
-        uint IPool.GetFreeID<T>()
+        ulong IPool.GetFreeID<T>()
         {
             var freeStack = GetFreeStackOrCreate<T>();
             if (freeStack == null)
@@ -59,7 +59,7 @@ namespace RishUI
             return id;
         }
 
-        T IPool.GetManaged<T>(uint id)
+        T IPool.GetManaged<T>(ulong id)
         {
             var wrapper = GetWrapper(id);
             if (wrapper == null)
@@ -85,7 +85,7 @@ namespace RishUI
             GarbageList.Clear();
         }
         
-        void IPool.RegisterReference(uint id, IOwner owner)
+        void IPool.RegisterReference(ulong id, IOwner owner)
         {
             var wrapper = GetWrapper(id);
             if (wrapper == null)
@@ -98,7 +98,7 @@ namespace RishUI
                 RemoveGarbage(id);
             }
         }
-        void IPool.UnregisterReference(uint id, IOwner owner)
+        void IPool.UnregisterReference(ulong id, IOwner owner)
         {
             var wrapper = GetWrapper(id);
             if (wrapper == null)
@@ -112,7 +112,7 @@ namespace RishUI
             }
         }
 
-        private void AddGarbage(uint id)
+        private void AddGarbage(ulong id)
         {
             if (!GarbageSet.Add(id))
             {
@@ -122,7 +122,7 @@ namespace RishUI
             GarbageList.Add(id);
         }
 
-        private void RemoveGarbage(uint id)
+        private void RemoveGarbage(ulong id)
         {
             if (!GarbageSet.Contains(id))
             {
@@ -134,7 +134,7 @@ namespace RishUI
             GarbageList.RemoveAtSwapBack(index);
         }
 
-        private uint CreateNew<T>() where T : IManaged, new()
+        private ulong CreateNew<T>() where T : IManaged, new()
         {
             var id = ++_nextID;
             var element = new T();
@@ -146,7 +146,7 @@ namespace RishUI
             return id;
         }
         
-        private void Return(uint id)
+        private void Return(ulong id)
         {
             var wrapper = GetWrapper(id);
             if (wrapper == null)
@@ -154,6 +154,7 @@ namespace RishUI
                 return;
             }
 
+#if UNITY_EDITOR
             if (wrapper.ReferencesCount > 0)
             {
                 var stringBuilder = new StringBuilder();
@@ -166,6 +167,7 @@ namespace RishUI
                 
                 Debug.LogError(stringBuilder.ToString());
             }
+#endif
             
             var managed = wrapper.Managed;
             managed.Dispose();
@@ -174,6 +176,6 @@ namespace RishUI
             freeStack.Push(wrapper.ID);
         }
 
-        private Wrapper GetWrapper(uint id) => id > 0 && WrappersById.TryGetValue(id, out var wrapper) ? wrapper : null;
+        private Wrapper GetWrapper(ulong id) => id > 0 && WrappersById.TryGetValue(id, out var wrapper) ? wrapper : null;
     }
 }

@@ -65,7 +65,7 @@ namespace RishUI
         
         private Node Node { get; set; }
         Node IRishElement.Node => Node;
-        protected uint NodeID => Node?.ID ?? 0;
+        protected int NodeID => Node?.ID ?? 0;
         
         private P? _props;
         public P Props
@@ -170,7 +170,7 @@ namespace RishUI
             OnReadyToUnmount?.Invoke();
         }
 
-        uint IOwner.GetID() => NodeID;
+        int IOwner.GetID() => NodeID;
 
         void IRishElement.Mount(Node node)
         {

@@ -73,7 +73,7 @@ namespace RishUI
             }
         }
 
-        public static Reference GetReferenceTo<T>(uint id) where T : class, IManaged => new Reference
+        public static Reference GetReferenceTo<T>(ulong id) where T : class, IManaged => new Reference
         {
             poolIndex = GetPoolIndex<T>(),
             managedID = id
@@ -162,9 +162,9 @@ namespace RishUI
             return PoolsList[poolIndex];
         }
 
-        public static uint GetFreeID<T>() where T : class, IManaged, new() => GetPoolOrCreate<T>().GetFreeID<T>();
+        public static ulong GetFreeID<T>() where T : class, IManaged, new() => GetPoolOrCreate<T>().GetFreeID<T>();
 
-        private static (uint, T) GetFree<T>() where T : class, IManaged, new()
+        private static (ulong, T) GetFree<T>() where T : class, IManaged, new()
         {
             var id = GetFreeID<T>();
             var element = GetManaged<T>(id);
@@ -172,9 +172,9 @@ namespace RishUI
             return (id, element);
         }
         
-        public static T GetManaged<T>(uint id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
+        public static T GetManaged<T>(ulong id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
         
-        public static void RegisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
+        public static void RegisterReferenceTo<T>(ulong id, IOwner owner) where T : class, IManaged
         {
             if (id <= 0)
             {
@@ -183,7 +183,7 @@ namespace RishUI
             
             GetPool<T>()?.RegisterReference(id, owner);
         }
-        public static void UnregisterReferenceTo<T>(uint id, IOwner owner) where T : class, IManaged
+        public static void UnregisterReferenceTo<T>(ulong id, IOwner owner) where T : class, IManaged
         {
             if (id <= 0)
             {

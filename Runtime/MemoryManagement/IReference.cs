@@ -5,6 +5,6 @@ namespace RishUI.MemoryManagement
     /// </summary>
     public interface IReference<T> where T : class, IManaged
     {
-        uint ID { get; }
+        ulong ID { get; }
     }
 }
