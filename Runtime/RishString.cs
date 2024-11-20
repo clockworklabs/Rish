@@ -9,6 +9,7 @@ namespace RishUI
     [AutoComparer]
     public struct RishString : IEquatable<string>
     {
+        [EqualityOperatorComparison]
         public string value;
 
         public RishString(string other)
@@ -22,8 +23,7 @@ namespace RishUI
 
         public bool IsEmpty => string.IsNullOrWhiteSpace(value);
         public int Length => IsEmpty ? 0 : value.Length;
-
-
+        
         public char this[int index] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[index];
         public char this[Index index] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[index];
         public string this[Range range] => IsEmpty ? throw new ArgumentOutOfRangeException() : value[range];

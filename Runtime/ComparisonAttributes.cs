@@ -21,6 +21,12 @@ namespace RishUI
     [AttributeUsage(AttributeTargets.Field)]
     public class EqualsFunctionComparisonAttribute : PreserveAttribute { }
     
+    // /// <summary>
+    // /// Tells Rishenerator to compare references to compare this field in auto comparer.
+    // /// </summary>
+    // [AttributeUsage(AttributeTargets.Field)]
+    // public class ReferenceComparisonAttribute : PreserveAttribute { }
+    
     /// <summary>
     /// Tells Rishenerator to compare float field using UnityEngine.Math.Approximately in auto comparer.
     /// </summary>
