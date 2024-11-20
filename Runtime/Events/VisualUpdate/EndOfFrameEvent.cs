@@ -7,7 +7,6 @@ namespace RishUI.Events
         private static List<VisualChangeManipulator> JustMountedElements { get; } = new();
         
         public static void Register(VisualChangeManipulator manipulator) => JustMountedElements.Add(manipulator);
-        public static bool Unregister(VisualChangeManipulator manipulator) => JustMountedElements.Remove(manipulator);
 
         public static void SendEvents()
         {

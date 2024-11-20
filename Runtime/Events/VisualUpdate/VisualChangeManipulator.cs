@@ -31,10 +31,6 @@ namespace RishUI.Events
 
         private void OnUnmounted(UnmountedEvent evt)
         {
-            if (!FirstEventReported)
-            {
-                EndOfFrameEvent.Unregister(this);
-            }
             Mounted = false;
         }
 
@@ -65,11 +61,7 @@ namespace RishUI.Events
                 return;
             }
 
-            if (!FirstEventReported)
-            {
-                EndOfFrameEvent.Unregister(this);
-                FirstEventReported = true;
-            }
+            FirstEventReported = true;
 
             using var evt = VisualChangeEvent.GetPooled(target);
             target.SendEvent(evt);
