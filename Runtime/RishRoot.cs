@@ -27,6 +27,10 @@ namespace RishUI
         private string _rootClassName;
         private string RootClassName => _rootClassName;
 
+        [SerializeField]
+        private bool _manualUpdate;
+        private bool ManualUpdate => _manualUpdate;
+
         public Type RootType
         {
             get
@@ -109,13 +113,20 @@ namespace RishUI
 
         private void LateUpdate()
         {
+            if (ManualUpdate) return;
+            
+            Step();
+        }
+
+        public void Step()
+        {
             try
             {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 Tree.Update(DebugRender);
-                #else
+#else
                 Tree.Update();
-                #endif
+#endif
                 Rish.CleanGarbage();
             }
             catch (Exception e)
