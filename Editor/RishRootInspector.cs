@@ -15,6 +15,8 @@ namespace RishUI.Editor
         {
             var container = new VisualElement();
             
+            container.Add(new PropertyField(serializedObject.FindProperty("_manualUpdate")));
+            
             container.Add(new PropertyField(serializedObject.FindProperty("_debugRender")));
             
             container.Add(new PropertyField(serializedObject.FindProperty("_styleSheets")));
