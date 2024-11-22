@@ -10,7 +10,11 @@ namespace RishUI
     public class RishRoot : MonoBehaviour
     {
         public static event Action<RishRoot> OnStart;
-        
+
+        [SerializeField]
+        private bool _manualUpdate;
+        private bool ManualUpdate => _manualUpdate;
+
         [SerializeField]
         private StyleSheet[] _styleSheets;
         private StyleSheet[] StyleSheets => _styleSheets;
@@ -19,17 +23,13 @@ namespace RishUI
         [SerializeField]
         private bool _debugRender;
         private bool DebugRender => _debugRender;
-        
+
         [SerializeField]
         private string _rootGUID;
         #endif
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;
-
-        [SerializeField]
-        private bool _manualUpdate;
-        private bool ManualUpdate => _manualUpdate;
 
         public Type RootType
         {
@@ -47,7 +47,7 @@ namespace RishUI
                 return null;
             }
         }
-        
+
         private bool Recovered { get; set; }
 
         private UIDocument _document;
@@ -100,7 +100,7 @@ namespace RishUI
             while (true)
             {
                 yield return wait;
-            
+
                 EndOfFrameEvent.SendEvents();
             }
         }
@@ -114,7 +114,7 @@ namespace RishUI
         private void LateUpdate()
         {
             if (ManualUpdate) return;
-            
+
             Step();
         }
 
@@ -138,7 +138,7 @@ namespace RishUI
                 newRoot._styleSheets = _styleSheets;
                 newRoot._rootClassName = _rootClassName;
                 newRoot.Recovered = true;
-                
+
                 Destroy(this);
             }
         }
@@ -169,7 +169,7 @@ namespace RishUI
             {
                 return false;
             }
-            
+
             for (int i = 0, n = PointerId.maxPointers; i < n; i++)
             {
                 if (Panel.GetCapturingElement(i) != null)
