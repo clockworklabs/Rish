@@ -13,7 +13,16 @@ namespace RishUI
 
         [SerializeField]
         private bool _manualUpdate;
-        private bool ManualUpdate => _manualUpdate;
+        public bool ManualUpdate
+        {
+            get => _manualUpdate;
+            set
+            {
+                if (_manualUpdate == value) return;
+                _manualUpdate = value;
+                enabled = !value;
+            }
+        }
 
         [SerializeField]
         private StyleSheet[] _styleSheets;
@@ -113,7 +122,11 @@ namespace RishUI
 
         private void LateUpdate()
         {
-            if (ManualUpdate) return;
+            if (ManualUpdate)
+            {
+                enabled = false;
+                return;
+            }
 
             Step();
         }
