@@ -28,14 +28,14 @@ namespace RishUI
         private StyleSheet[] _styleSheets;
         private StyleSheet[] StyleSheets => _styleSheets;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [SerializeField]
         private bool _debugRender;
         private bool DebugRender => _debugRender;
 
         [SerializeField]
         private string _rootGUID;
-        #endif
+#endif
         [SerializeField]
         private string _rootClassName;
         private string RootClassName => _rootClassName;

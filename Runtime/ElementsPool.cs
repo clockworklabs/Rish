@@ -68,6 +68,10 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
+                for (int i = 0, n = visualElement.childCount; i < n; i++)
+                {
+                    Free(visualElement as IElement);
+                }
                 if (visualElement.IsHover())
                 {
                     for (int i = 0, n = PointerId.maxPointers; i < n; i++)

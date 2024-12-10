@@ -7,18 +7,17 @@ namespace RishUI
 {
     internal class Tree
     {
-        private const int MaxDirtySize = 256;
+        private const int InitialSize = 4096;
 
         public VisualElement RootVisualElement { get; }
         private Node RootNode { get; }
-        private App RootApp => RootNode.Element as App;
 
-        private List<Node> DirtyList { get; } = new(MaxDirtySize);
-        private FastPriorityQueue<Node> DirtyQueue { get; } = new(MaxDirtySize);
+        private List<Node> DirtyList { get; } = new(InitialSize);
+        private FastPriorityQueue<Node> DirtyQueue { get; } = new(InitialSize);
 
-        private List<Node> DirtyPositionList { get; } = new(MaxDirtySize);
+        private List<Node> DirtyPositionList { get; } = new(InitialSize);
 
-        private uint CurrentDepth { get; set; }
+        private uint? CurrentDepth { get; set; }
 
         private List<Node> FreeNodes { get; set; } = new();
         private List<Node> FreeNodesBuffer { get; set; } = new();
@@ -31,12 +30,12 @@ namespace RishUI
 
         public void Dirty(Node node, bool forceThisFrame)
         {
-            if (node.IsInDOM)
+            if (node.IsVisualElement)
             {
                 Debug.LogError("This node should not get dirty");
             }
 
-            if (node.Depth <= CurrentDepth)
+            if (CurrentDepth.HasValue && node.Depth <= CurrentDepth.Value)
             {
                 if (forceThisFrame)
                 {
@@ -82,7 +81,6 @@ namespace RishUI
                 var node = DirtyList[i];
                 EnqueueDirtyNode(node);
             }
-
             DirtyList.Clear();
 
             while (DirtyQueue.Count > 0)
@@ -111,8 +109,9 @@ namespace RishUI
                 var node = DirtyPositionList[i];
                 node.UpdateRealIndex();
             }
-            
             DirtyPositionList.Clear();
+
+            CurrentDepth = null;
         }
 
         public void Dispose()

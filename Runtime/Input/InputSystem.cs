@@ -84,7 +84,7 @@ namespace RishUI.Input
                     FocusIndex = -1;
 
                     var parent = Node.Parent;
-                    while (parent is { IsInDOM: false })
+                    while (parent is { IsVisualElement: false })
                     {
                         var parentSystem = parent.InputSystem;
                         if (parentSystem.IsFocusable())
@@ -151,7 +151,7 @@ namespace RishUI.Input
             }
 
             var parent = Node.Parent;
-            while (parent is { IsInDOM: false })
+            while (parent is { IsVisualElement: false })
             {
                 var parentSystem = parent.InputSystem;
                 if (parentSystem.IsFocusable())

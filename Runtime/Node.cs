@@ -113,7 +113,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         private Type Type => Element?.GetType();
         private bool IsRoot => Element is App && Parent == null;
-        internal bool IsInDOM => Element is VisualElement;
+        internal bool IsVisualElement => Element is VisualElement;
         internal VisualElement VisualElement => Element as VisualElement;
 
         private Node GetPreviousSibling()
@@ -156,7 +156,7 @@ namespace RishUI
         
         private bool IsRealTree()
         {
-            if (IsInDOM)
+            if (IsVisualElement)
             {
                 return true;
             }
@@ -183,7 +183,7 @@ namespace RishUI
                 return 0;
             }
 
-            if (!Parent.IsInDOM)
+            if (!Parent.IsVisualElement)
             {
                 return Parent.GetRealIndex();
             }
@@ -235,7 +235,7 @@ namespace RishUI
 
         public Node GetDOMChild()
         {
-            if (IsInDOM)
+            if (IsVisualElement)
             {
                 return this;
             }
@@ -772,9 +772,7 @@ namespace RishUI
 
         private abstract class UnmountingState : ActiveState
         {
-            protected UnmountingState(StateMachine machine, Node node) : base(machine, node)
-            {
-            }
+            protected UnmountingState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void Enter()
             {

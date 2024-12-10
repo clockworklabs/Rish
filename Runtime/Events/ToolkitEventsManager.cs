@@ -24,7 +24,7 @@ namespace RishUI.Events
                 AddCallbacks(rishElement.ToolkitCallbacks);
             }
             
-            if (!Node.Parent?.IsInDOM ?? false)
+            if (!Node.Parent?.IsVisualElement ?? false)
             {
                 AddManipulators(Node.Parent?.ToolkitEventsManager.Manipulators);
                 AddCallbacks(Node.Parent?.ToolkitEventsManager.Callbacks);
