@@ -1078,8 +1078,8 @@ namespace RishUI
 
             public override void Exit()
             {
-                ReturnNodeToPool(Node);
                 ElementsPool.ReturnToPool(Node.Element);
+                ReturnNodeToPool(Node);
             }
 
             public override T MountAs<T>(Node parent, ulong key)

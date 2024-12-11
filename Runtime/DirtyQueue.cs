@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Priority_Queue;
+using UnityEngine;
 
 namespace RishUI
 {
     internal class DirtyQueue
     {
         private int InitialSize { get; }
-        private uint MaxUpdatesPerFrame { get; }
         private HashSet<int> Ids { get; }
         private List<FastPriorityQueue<Node>> Queues { get; } = new();
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
@@ -14,10 +15,9 @@ namespace RishUI
         
         private uint? CurrentDepth { get; set; }
         
-        public DirtyQueue(int initialSize, uint maxUpdatesPerFrame)
+        public DirtyQueue(int initialSize)
         {
             InitialSize = initialSize;
-            MaxUpdatesPerFrame = maxUpdatesPerFrame;
             Ids = new HashSet<int>(initialSize);
             QueuedUpNodes = new List<Node>(initialSize);
         }
@@ -65,11 +65,12 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        public void Update(bool debug)
+        public double Update(uint maxCount, float? maxTime, bool debug)
 #else
-        public void Update()
+        public double Update(int maxCount, float? maxUpdateTime)
 #endif
         {
+            var startTime = DateTime.Now;
             for (int i = 0, n = QueuedUpNodes.Count; i < n; i++)
             {
                 var node = QueuedUpNodes[i];
@@ -78,11 +79,14 @@ namespace RishUI
             QueuedUpNodes.Clear();
             
             var count = 0;
+            var time = 0f;
             for (var i = Queues.Count - 1; i >= 0; i--)
             {
                 var queue = Queues[i];
-                while ((MaxUpdatesPerFrame <= 0 || count < MaxUpdatesPerFrame) && TryDequeue(queue, out var node) )
+                while ((maxCount <= 0 || count < maxCount) && (!maxTime.HasValue || time < maxTime.Value) && TryDequeue(queue, out var node))
                 {
+                    if (!node.IsActive()) continue;
+                    
                     if (i == 0)
                     {
                         CurrentDepth = node.Depth;
@@ -90,10 +94,11 @@ namespace RishUI
 #if UNITY_EDITOR
                     if (debug)
                     {
-                        UnityEngine.Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
+                        Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
                     }
 #endif
                     count++;
+                    time = (float)(DateTime.Now - startTime).TotalSeconds;
                     node.Render();
                 }
 
@@ -106,8 +111,15 @@ namespace RishUI
                 Queues.RemoveAt(i);
                 Free(queue);
             }
-            
+
+            if (count > 0)
+            {
+                Debug.Log($"Rendered: {count}");
+            }
+
             CurrentDepth = null;
+            
+            return (DateTime.Now - startTime).TotalSeconds;
         }
 
         public void Dispose()
@@ -133,7 +145,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (queue.Count > 0)
             {
-                UnityEngine.Debug.LogError("This queue still has elements in it.");
+                Debug.LogError("This queue still has elements in it.");
                 return false;
             }
 #endif
@@ -197,8 +209,8 @@ namespace RishUI
             
             node = queue.Dequeue();
             Reset(node, queue);
-            
-            return node.IsActive();
+
+            return true;
         }
 
         private void Reset(Node node, FastPriorityQueue<Node> queue = null)
@@ -213,19 +225,28 @@ namespace RishUI
 #if UNITY_EDITOR
             if (!IsDirty(node))
             {
-                UnityEngine.Debug.LogError("This node isn't dirty and can't be removed.");
+                Debug.LogError("This node isn't dirty and can't be removed.");
                 return;
             }
 #endif
 
             foreach (var queue in Queues)
             {
-                if (queue.Contains(node))
+#if UNITY_EDITOR
+                if (node.Queue == queue && queue.Contains(node))
                 {
                     queue.Remove(node);
                     Reset(node, queue);
                     return;
                 }
+#else
+                if (node.QueueIndex < queue.Count && queue.Contains(node))
+                {
+                    queue.Remove(node);
+                    Reset(node, queue);
+                    return;
+                }
+#endif
             }
 
             QueuedUpNodes.Remove(node);

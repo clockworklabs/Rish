@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -17,9 +19,11 @@ namespace RishUI
         private List<Node> FreeNodes { get; set; } = new(InitialSize);
         private List<Node> FreeNodesBuffer { get; set; } = new(InitialSize);
 
-        public Tree(UIDocument document, string rootClassName, bool recovered, uint maxUpdatesPerFrame)
+        private float TotalExtraTime { get; set; }
+
+        public Tree(UIDocument document, string rootClassName, bool recovered)
         {
-            DirtyQueue = new DirtyQueue(InitialSize, maxUpdatesPerFrame);
+            DirtyQueue = new DirtyQueue(InitialSize);
             RootVisualElement = document.rootVisualElement;
             RootNode = Node.CreateRoot(this, rootClassName, recovered);
         }
@@ -32,22 +36,37 @@ namespace RishUI
             DirtyPositionList.Add(node);
         }
 
+        private const int AverageTimeFramesCount = 10;
+        private Queue<float> ExtraTimes { get; } = new(AverageTimeFramesCount);
+
         #if UNITY_EDITOR
-        public void Update(bool debug)
+        public void Update(uint maxUpdates, float maxTargetTime, bool debug)
         #else
         public void Update()
         #endif
         {
+            var startTime = DateTime.Now;
             (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
+            
+            var timeLimited = maxTargetTime > 0 && !Mathf.Approximately(maxTargetTime, 0);
 
+            float? maxUpdateTime;
+            if (timeLimited)
+            {
+                var averageExtraTime = TotalExtraTime / ExtraTimes.Count;
+                maxUpdateTime = maxTargetTime - averageExtraTime;
+            }
+            else
+            {
+                maxUpdateTime = default;
+            }
+            
 #if UNITY_EDITOR
-            DirtyQueue.Update(debug);
+            var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime, debug);
 #else
-            DirtyQueue.Update();
+            var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime);
 #endif
 
-            ReturnFreeNodesToPool();
-            
             for (int i = 0, n = DirtyPositionList.Count; i < n; i++)
             {
                 var node = DirtyPositionList[i];
@@ -55,16 +74,30 @@ namespace RishUI
             }
             DirtyPositionIds.Clear();
             DirtyPositionList.Clear();
+
+            ReturnFreeNodesToPool();
+
+            if (!timeLimited) return;
+
+            var totalTime = (DateTime.Now - startTime).TotalSeconds;
+            var extraTime = (float)(totalTime - updateTime);
+
+            if (ExtraTimes.Count >= AverageTimeFramesCount)
+            {
+                TotalExtraTime -= ExtraTimes.Dequeue();
+            }
+            TotalExtraTime += extraTime;
+            ExtraTimes.Enqueue(extraTime);
         }
 
         public void Dispose()
         {
             RootNode.Unmount(true);
             DirtyQueue.Dispose();
-            ReturnFreeNodesToPool();
-            ReturnNodesToPool(FreeNodesBuffer);
             DirtyPositionIds.Clear();
             DirtyPositionList.Clear();
+            ReturnFreeNodesToPool();
+            ReturnNodesToPool(FreeNodesBuffer);
         }
 
         internal void NodeFreed(Node node)

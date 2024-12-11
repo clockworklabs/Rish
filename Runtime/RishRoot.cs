@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using RishUI.Events;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -28,6 +27,10 @@ namespace RishUI
         [SerializeField]
         private uint _maxUpdatesPerFrame;
         private uint MaxUpdatesPerFrame => _maxUpdatesPerFrame;
+
+        [SerializeField]
+        private float _maxTargetTimePerFrame;
+        private float MaxTargetTimePerFrame => _maxTargetTimePerFrame;
 
         [SerializeField]
         private StyleSheet[] _styleSheets;
@@ -106,7 +109,7 @@ namespace RishUI
                 AddStyleSheet(styleSheet);
             }
             
-            Tree = new Tree(Document, RootClassName, Recovered, MaxUpdatesPerFrame);
+            Tree = new Tree(Document, RootClassName, Recovered);
             
             OnStart?.Invoke(this);
 
@@ -141,9 +144,9 @@ namespace RishUI
             try
             {
 #if UNITY_EDITOR
-                Tree.Update(DebugRender);
+                Tree.Update(MaxUpdatesPerFrame, MaxTargetTimePerFrame, DebugRender);
 #else
-                Tree.Update();
+                Tree.Update(MaxUpdatesPerFrame, MaxTargetTimePerFrame, );
 #endif
                 Rish.CleanGarbage();
             }
