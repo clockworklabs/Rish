@@ -112,11 +112,6 @@ namespace RishUI
                 Free(queue);
             }
 
-            if (count > 0)
-            {
-                Debug.Log($"Rendered: {count}");
-            }
-
             CurrentDepth = null;
             
             return (DateTime.Now - startTime).TotalSeconds;
