@@ -189,7 +189,7 @@ namespace RishUI
             {
                 queue.Resize(queue.MaxSize * 2);
             }
-            queue.Enqueue(node, uint.MaxValue - node.Depth);
+            queue.Enqueue(node, node.Depth);
 
             return true;
         }

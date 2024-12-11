@@ -68,9 +68,9 @@ namespace RishUI
 
             if (element is VisualElement visualElement)
             {
-                for (int i = 0, n = visualElement.childCount; i < n; i++)
+                for (var i = visualElement.childCount - 1; i >= 0; i--)
                 {
-                    Free(visualElement as IElement);
+                    Free(visualElement[i] as IElement);
                 }
                 if (visualElement.IsHover())
                 {
