@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Priority_Queue;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -94,7 +93,7 @@ namespace RishUI
 #if UNITY_EDITOR
                     if (debug)
                     {
-                        Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
+                        UnityEngine.Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
                     }
 #endif
                     count++;
@@ -140,7 +139,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (queue.Count > 0)
             {
-                Debug.LogError("This queue still has elements in it.");
+                UnityEngine.Debug.LogError("This queue still has elements in it.");
                 return false;
             }
 #endif
@@ -220,7 +219,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (!IsDirty(node))
             {
-                Debug.LogError("This node isn't dirty and can't be removed.");
+                UnityEngine.Debug.LogError("This node isn't dirty and can't be removed.");
                 return;
             }
 #endif
