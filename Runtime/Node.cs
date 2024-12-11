@@ -13,7 +13,7 @@ namespace RishUI
     {
         private event Action OnClean;
         private event Action<Node> OnReadyToUnmount; // TODO: Maybe uint?
-        private event Action<Node> OnUnmount; // TODO: Maybe uint?
+        internal event Action<Node> OnUnmount; // TODO: Maybe uint?
         
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
@@ -51,7 +51,6 @@ namespace RishUI
         }
         private VisualElement VisualParent { get; set; }
         public uint Depth { get; private set; }
-        internal uint DirtyPriority => uint.MaxValue - Depth;
         
         internal ulong MountedHashCode { get; private set; }
 
@@ -196,12 +195,7 @@ namespace RishUI
         {
             var visualNode = GetDOMChild();
             var visualElement = visualNode?.VisualElement;
-            if (visualElement == null)
-            {
-                return;
-            }
-            
-            var parent = visualElement.parent;
+            var parent = visualElement?.parent;
             if (parent == null)
             {
                 return;
@@ -495,7 +489,7 @@ namespace RishUI
 
         private static Node CreateNode()
         {
-            var node = new Node(_nextId++);
+            var node = new Node(++_nextId);
             AllNodes.Add(node);
 
             return node;
@@ -723,9 +717,7 @@ namespace RishUI
 
         private abstract class ActiveState : State
         {
-            protected ActiveState(StateMachine machine, Node node) : base(machine, node)
-            {
-            }
+            protected ActiveState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override T MountAs<T>(Node parent, ulong key)
             {
@@ -740,9 +732,7 @@ namespace RishUI
 
         private class MountedState : ActiveState
         {
-            public MountedState(StateMachine machine, Node node) : base(machine, node)
-            {
-            }
+            public MountedState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void Enter()
             {
@@ -972,9 +962,7 @@ namespace RishUI
 
         private class ReadyToUnmountState : UnmountingState
         {
-            public ReadyToUnmountState(StateMachine machine, Node node) : base(machine, node)
-            {
-            }
+            public ReadyToUnmountState(StateMachine machine, Node node) : base(machine, node) { }
 
             public override void Enter()
             {
@@ -983,9 +971,7 @@ namespace RishUI
                 Node.ReadyToUnmount = true;
             }
 
-            public override void Exit()
-            {
-            }
+            public override void Exit() { }
 
             public override void Unmount() => TryUnmounting();
 

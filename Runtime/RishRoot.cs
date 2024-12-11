@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using RishUI.Events;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -23,6 +24,10 @@ namespace RishUI
                 enabled = !value;
             }
         }
+
+        [SerializeField]
+        private uint _maxUpdatesPerFrame;
+        private uint MaxUpdatesPerFrame => _maxUpdatesPerFrame;
 
         [SerializeField]
         private StyleSheet[] _styleSheets;
@@ -101,7 +106,7 @@ namespace RishUI
                 AddStyleSheet(styleSheet);
             }
             
-            Tree = new Tree(Document, RootClassName, Recovered);
+            Tree = new Tree(Document, RootClassName, Recovered, MaxUpdatesPerFrame);
             
             OnStart?.Invoke(this);
 

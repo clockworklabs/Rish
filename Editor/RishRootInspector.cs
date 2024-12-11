@@ -16,6 +16,7 @@ namespace RishUI.Editor
             var container = new VisualElement();
             
             container.Add(new PropertyField(serializedObject.FindProperty("_manualUpdate")));
+            container.Add(new PropertyField(serializedObject.FindProperty("_maxUpdatesPerFrame")));
             
             container.Add(new PropertyField(serializedObject.FindProperty("_debugRender")));
             
