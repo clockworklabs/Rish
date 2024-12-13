@@ -15,6 +15,7 @@ namespace RishUI
     public class RishBridge<P> : IRishBridge where P : struct
     {
         private VisualElement Element { get; }
+        private bool PropsAlwaysDirty { get; }
 
         private Name Name
         {
@@ -117,7 +118,7 @@ namespace RishUI
             }
             internal set
             {
-                if (_props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
+                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
 
                 _props = value;
                 
@@ -159,9 +160,10 @@ namespace RishUI
         
         private NativeList<Reference> References { get; set; }
 
-        public RishBridge(VisualElement element)
+        public RishBridge(VisualElement element, bool propsAlwaysDirty = false)
         {
             Element = element;
+            PropsAlwaysDirty = propsAlwaysDirty;
         }
 
         void IRishBridge.Mount(Node node)

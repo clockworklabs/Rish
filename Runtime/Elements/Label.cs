@@ -98,8 +98,8 @@ namespace RishUI.Elements
     public struct LabelProps
     {
         public RishString text;
-        public LengthRange? widthRange;
-        public LengthRange? heightRange;
+        public LengthRange widthRange;
+        public LengthRange heightRange;
 
         public bool? enableRichText;
         public bool? parseEscapeSequences;
