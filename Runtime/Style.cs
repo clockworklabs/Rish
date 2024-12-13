@@ -185,7 +185,7 @@ namespace RishUI
             }
         }
 
-        private static Style Default = default;
+        // private static Style Default = default;
 
         public Style(Style other)
         {
@@ -272,7 +272,7 @@ namespace RishUI
             pointerDetection = other.pointerDetection;
         }
 
-        public bool IsEmpty() => RishUtils.MemCmp(this, Default);
+        public bool IsEmpty() => RishUtils.MemCmp(this, new Style());
 
         public Style WithLayout(LayoutStyle layoutStyle) => layoutStyle.Combine(this);
 
