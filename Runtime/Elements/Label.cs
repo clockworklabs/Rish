@@ -5,6 +5,9 @@ namespace RishUI.Elements
 {
     public partial class Label : TextElement, IVisualElement<LabelProps>
     {
+        private RishBridge<LabelProps> RishBridge { get; }
+        RishBridge<LabelProps> IVisualElement<LabelProps>.Bridge => RishBridge;
+        
         VisualElement IElement.GetDOMChild() => this;
         
         private PickingManager PickingManager { get; }
@@ -17,6 +20,7 @@ namespace RishUI.Elements
 
         public Label()
         {
+            RishBridge = new RishBridge<LabelProps>(this);
             PickingManager = new RectPickingManager(this);
             
             RegisterCallback<AttachToPanelEvent>(OnMounted);

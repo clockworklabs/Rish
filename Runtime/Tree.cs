@@ -19,8 +19,6 @@ namespace RishUI
         private List<Node> FreeNodes { get; set; } = new(InitialSize);
         private List<Node> FreeNodesBuffer { get; set; } = new(InitialSize);
 
-        private float TotalExtraTime { get; set; }
-
         public Tree(UIDocument document, string rootClassName, bool recovered)
         {
             DirtyQueue = new DirtyQueue(InitialSize);
@@ -36,30 +34,13 @@ namespace RishUI
             DirtyPositionList.Add(node);
         }
 
-        private const int AverageTimeFramesCount = 10;
-        private Queue<float> ExtraTimes { get; } = new(AverageTimeFramesCount);
-
         #if UNITY_EDITOR
-        public void Update(uint maxUpdates, float maxTargetTime, bool debug)
+        public double Update(uint maxUpdates, float? maxUpdateTime, bool debug)
         #else
-        public void Update()
+        public double Update()
         #endif
         {
-            var startTime = DateTime.Now;
             (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
-            
-            var timeLimited = maxTargetTime > 0 && !Mathf.Approximately(maxTargetTime, 0);
-
-            float? maxUpdateTime;
-            if (timeLimited)
-            {
-                var averageExtraTime = TotalExtraTime / ExtraTimes.Count;
-                maxUpdateTime = maxTargetTime - averageExtraTime;
-            }
-            else
-            {
-                maxUpdateTime = default;
-            }
             
 #if UNITY_EDITOR
             var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime, debug);
@@ -74,20 +55,10 @@ namespace RishUI
             }
             DirtyPositionIds.Clear();
             DirtyPositionList.Clear();
-
+            
             ReturnFreeNodesToPool();
 
-            if (!timeLimited) return;
-
-            var totalTime = (DateTime.Now - startTime).TotalSeconds;
-            var extraTime = (float)(totalTime - updateTime);
-
-            if (ExtraTimes.Count >= AverageTimeFramesCount)
-            {
-                TotalExtraTime -= ExtraTimes.Dequeue();
-            }
-            TotalExtraTime += extraTime;
-            ExtraTimes.Enqueue(extraTime);
+            return updateTime;
         }
 
         public void Dispose()

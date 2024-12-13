@@ -557,50 +557,6 @@ namespace RishUI
 
         bool IEquatable<ClassName>.Equals(ClassName other) => Equals(this, other);
 
-        public void SetClasses(VisualElement visualElement)
-        {
-            var currentCount = (visualElement.GetClasses() as List<string>)?.Count ?? 0;
-            if (currentCount == Count)
-            {
-                var equals = true;
-                foreach (var fixedClassName in this)
-                {
-                    var className = fixedClassName;
-                    if (!string.IsNullOrWhiteSpace(className) && !visualElement.ClassListContains(className))
-                    {
-                        equals = false;
-                        break;
-                    }
-                }
-                
-                if (equals)
-                {
-                    return;
-                }
-            }
-            
-            if (visualElement is ICustomPicking customPicking)
-            {
-                customPicking.Manager.StyleSheetsPointerDetection = null;
-            }
-            
-            visualElement.ClearClassList();
-            
-            if (Count <= 0)
-            {
-                return;
-            }
-
-            foreach (var fixedClassName in this)
-            {
-                var className = fixedClassName;
-                if (!string.IsNullOrWhiteSpace(className))
-                {
-                    visualElement.AddToClassList(className);
-                }
-            }
-        }
-
         [Comparer]
         private static bool Equals(ClassName a, ClassName b)
         {

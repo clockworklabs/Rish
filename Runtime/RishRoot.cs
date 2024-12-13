@@ -1,14 +1,21 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using RishUI.Events;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
+using Debug = UnityEngine.Debug;
 
 namespace RishUI
 {
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
+        public delegate void AppRecovered(RishRoot oldRishRoot, RishRoot newRishRoot);
+        
+        public static event AppRecovered OnRecovered;
         public static event Action<RishRoot> OnStart;
 
         [SerializeField]
@@ -25,12 +32,12 @@ namespace RishUI
         }
 
         [SerializeField]
-        private uint _maxUpdatesPerFrame;
-        private uint MaxUpdatesPerFrame => _maxUpdatesPerFrame;
+        private uint _maxUpdatesPerStep;
+        private uint MaxUpdatesPerStep => _maxUpdatesPerStep;
 
         [SerializeField]
-        private float _maxTargetTimePerFrame;
-        private float MaxTargetTimePerFrame => _maxTargetTimePerFrame;
+        private float _maxTargetTimePerStep;
+        private float MaxTargetTimePerStep => _maxTargetTimePerStep;
 
         [SerializeField]
         private StyleSheet[] _styleSheets;
@@ -85,6 +92,10 @@ namespace RishUI
         private IPanel Panel => Root?.panel;
         
         private Tree Tree { get; set; }
+
+        private const int RecordedStepsCount = 10;
+        private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
+        private float TotalRecordedExtraTime { get; set; }
         
         private IEnumerator Start()
         {
@@ -141,27 +152,69 @@ namespace RishUI
 
         public void Step()
         {
+            var sw = Stopwatch.StartNew();
+            
+            var timeLimited = MaxTargetTimePerStep > 0;
+
+            float? maxUpdateTime;
+            if (timeLimited)
+            {
+                var averageExtraTime = TotalRecordedExtraTime / RecordedExtraTimes.Count;
+                maxUpdateTime = MaxTargetTimePerStep - averageExtraTime;
+            }
+            else
+            {
+                maxUpdateTime = default;
+            }
+
+            double? updateTime;
             try
             {
 #if UNITY_EDITOR
-                Tree.Update(MaxUpdatesPerFrame, MaxTargetTimePerFrame, DebugRender);
+                updateTime = Tree.Update(MaxUpdatesPerStep, maxUpdateTime, DebugRender);
 #else
-                Tree.Update(MaxUpdatesPerFrame, MaxTargetTimePerFrame, );
+                updateTime = Tree.Update(MaxUpdatesPerFrame, maxUpdateTime);
 #endif
-                Rish.CleanGarbage();
             }
             catch (Exception e)
             {
 #if UNITY_EDITOR
                 Debug.LogException(e);
 #endif
+                updateTime = null;
+                
                 var newRoot = gameObject.AddComponent<RishRoot>();
+                newRoot._manualUpdate = _manualUpdate;
+                newRoot._maxUpdatesPerStep = _maxUpdatesPerStep;
+                newRoot._maxTargetTimePerStep = _maxTargetTimePerStep;
                 newRoot._styleSheets = _styleSheets;
+#if UNITY_EDITOR
+                newRoot._debugRender = _debugRender;
+                newRoot._rootGUID = _rootGUID;
+#endif
                 newRoot._rootClassName = _rootClassName;
                 newRoot.Recovered = true;
+                
+                OnRecovered?.Invoke(this, newRoot);
 
                 Destroy(this);
             }
+            
+            Rish.CleanGarbage();
+
+            if (!timeLimited || !updateTime.HasValue) return;
+
+            sw.Stop();
+            
+            var stepTime = sw.Elapsed.TotalSeconds;
+            var extraTime = (float)(stepTime - updateTime.Value);
+
+            if (RecordedExtraTimes.Count >= RecordedStepsCount)
+            {
+                TotalRecordedExtraTime -= RecordedExtraTimes.Dequeue();
+            }
+            TotalRecordedExtraTime += extraTime;
+            RecordedExtraTimes.Enqueue(extraTime);
         }
 
         public void AddStyleSheet(StyleSheet styleSheet)

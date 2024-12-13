@@ -1,6 +1,3 @@
-using RishUI.Events;
-using UnityEngine.UIElements;
-
 namespace RishUI
 {
     /// <summary>
@@ -20,16 +17,6 @@ namespace RishUI
             name = other.name;
             className = other.className;
             style = other.style;
-        }
-
-        public void Setup(VisualElement element)
-        {
-            element.name = name;
-            className.SetClasses(element);
-            style.SetInlineStyle(element);
-            
-            using var evt = InlineStyleEvent.GetPooled(element);
-            element.SendEvent(evt);
         }
 
         public static DOMDescriptor operator +(DOMDescriptor left, DOMDescriptor right) => new()

@@ -33,6 +33,7 @@ namespace RishUI
         RishStyleKeyword keyword { get; }
     }
     
+    [ComparersProvider]
     public readonly struct StyleBackground : IStyleValue<Background>
     {
         public readonly Background value;
@@ -160,6 +161,7 @@ namespace RishUI
             };
         }
     }
+    [ComparersProvider]
     public readonly struct StyleBackgroundHorizontalPosition : IStyleValue<BackgroundPosition>
     {
         public readonly BackgroundPosition value;
@@ -285,6 +287,7 @@ namespace RishUI
             };
         }
     }
+    [ComparersProvider]
     public readonly struct StyleBackgroundVerticalPosition : IStyleValue<BackgroundPosition>
     {
         public readonly BackgroundPosition value;
@@ -477,6 +480,7 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
+    [ComparersProvider]
     public readonly struct StyleCursor : IStyleValue<Cursor>
     {
         public readonly Cursor value;
@@ -599,6 +603,7 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
+    [ComparersProvider]
     public readonly struct StyleFont : IStyleValue<Font>
     {
         public readonly Font value;
@@ -648,7 +653,7 @@ namespace RishUI
             return aNotNull == bNotNull;
         }
     }
-    
+    [ComparersProvider]
     public readonly struct StyleFontDefinition : IStyleValue<FontDefinition>
     {
         public readonly FontDefinition value;
@@ -779,6 +784,7 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
+    [ComparersProvider]
     public readonly struct StyleList<T> : IStyleValue<List<T>>
     {
         public readonly List<T> value;

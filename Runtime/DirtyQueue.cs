@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Priority_Queue;
 
 namespace RishUI
@@ -69,7 +70,7 @@ namespace RishUI
         public double Update(int maxCount, float? maxUpdateTime)
 #endif
         {
-            var startTime = DateTime.Now;
+            var sw = Stopwatch.StartNew();
             for (int i = 0, n = QueuedUpNodes.Count; i < n; i++)
             {
                 var node = QueuedUpNodes[i];
@@ -78,7 +79,7 @@ namespace RishUI
             QueuedUpNodes.Clear();
             
             var count = 0;
-            var time = 0f;
+            var time = 0d;
             for (var i = Queues.Count - 1; i >= 0; i--)
             {
                 var queue = Queues[i];
@@ -97,7 +98,7 @@ namespace RishUI
                     }
 #endif
                     count++;
-                    time = (float)(DateTime.Now - startTime).TotalSeconds;
+                    time = sw.Elapsed.TotalSeconds;
                     node.Render();
                 }
 
@@ -113,7 +114,9 @@ namespace RishUI
 
             CurrentDepth = null;
             
-            return (DateTime.Now - startTime).TotalSeconds;
+            sw.Stop();
+            
+            return sw.Elapsed.TotalSeconds;
         }
 
         public void Dispose()

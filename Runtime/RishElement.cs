@@ -656,7 +656,7 @@ namespace RishUI
             return false;
         }
 
-        protected ulong GetNodeHashCode() => Node.MountedHashCode;
+        protected ulong GetNodeHashCode() => Node.HashCode;
     }
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
