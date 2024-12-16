@@ -125,23 +125,22 @@ namespace RishUI
             var aDefinition = a.GetDefinition();
             var bDefinition = b.GetDefinition();
 
-            var aInUse = aDefinition != null;
-            if (!aInUse)
-            {
-                Debug.LogError($"Element {a._id} was disposed");
-            }
-            var bInUse = bDefinition != null;
-            if (!bInUse)
-            {
-                Debug.LogError($"Element {b._id} was disposed");
-            }
-            if (!aInUse || !bInUse)
-            {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed Element. This should never happen.");
-#endif
+            var aDisposed = aDefinition == null;
+            var bDisposed = bDefinition == null;
+            if (aDisposed || bDisposed)
+            {
+                if (aDisposed)
+                {
+                    Debug.LogError($"Element {a._id} was disposed. This should never happen.");
+                }
+                if (bDisposed)
+                {
+                    Debug.LogError($"Element {b._id} was disposed. This should never happen.");
+                }
                 return false;
             }
+#endif
 
             return aDefinition.Equals(bDefinition);
         }

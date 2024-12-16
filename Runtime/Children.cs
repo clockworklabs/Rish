@@ -251,23 +251,22 @@ namespace RishUI
             var aManaged = Rish.GetManaged<ManagedChildren>(a._id);
             var bManaged = Rish.GetManaged<ManagedChildren>(b._id);
 
-            var aInUse = aManaged != null;
-            if (!aInUse)
-            {
-                Debug.LogError($"Children {a._id} was disposed");
-            }
-            var bInUse = bManaged != null;
-            if (!bInUse)
-            {
-                Debug.LogError($"Children {b._id} was disposed");
-            }
-            if (!aInUse || !bInUse)
-            {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed Children. This should never happen.");
-#endif
+            var aDisposed = aManaged == null;
+            var bDisposed = bManaged == null;
+            if (aDisposed || bDisposed)
+            {
+                if (aDisposed)
+                {
+                    Debug.LogError($"Children {a._id} was disposed. This should never happen.");
+                }
+                if (bDisposed)
+                {
+                    Debug.LogError($"Children {b._id} was disposed. This should never happen.");
+                }
                 return false;
             }
+#endif
 
             return aManaged.Equals(bManaged);
         }

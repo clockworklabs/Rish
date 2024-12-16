@@ -29,7 +29,7 @@ namespace RishUI
             get => _className;
             set
             {
-                if (RishUtils.SmartCompare(_className, value)) return;
+                if (Comparers.Compare(_className, value)) return;
                 
                 _className = value;
 
@@ -43,10 +43,8 @@ namespace RishUI
             get => _style;
             set
             {
-                if (RishUtils.SmartCompare(_style, value)) return;
+                if (Comparers.Compare(_style, value)) return;
                 
-                
-            
                 var background = value.backgroundImage.keyword == RishStyleKeyword.Undefined ? value.backgroundImage.value : default;
                 var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image
                 if (isBackgroundSet)
@@ -80,7 +78,7 @@ namespace RishUI
             get => _children;
             set
             {
-                if (RishUtils.SmartCompare(_children, value)) return;
+                if (Comparers.Compare(_children, value)) return;
 
                 _children = value;
                 
@@ -221,323 +219,323 @@ namespace RishUI
 
             if (!RishUtils.MemCmp(_style.alignContent, style.alignContent))
             {
-                elementStyle.alignContent = style.alignContent.IsNotNull() ? style.alignContent : StyleKeyword.Null;
+                elementStyle.alignContent = style.alignContent;
             }
             if (!RishUtils.MemCmp(_style.alignItems, style.alignItems))
             {
-                elementStyle.alignItems = style.alignItems.IsNotNull() ? style.alignItems : StyleKeyword.Null;
+                elementStyle.alignItems = style.alignItems;
             }
             if (!RishUtils.MemCmp(_style.alignSelf, style.alignSelf))
             {
-                elementStyle.alignSelf = style.alignSelf.IsNotNull() ? style.alignSelf : StyleKeyword.Null;
+                elementStyle.alignSelf = style.alignSelf;
             }
             if (!RishUtils.MemCmp(_style.backgroundColor, style.backgroundColor))
             {
-                elementStyle.backgroundColor = style.backgroundColor.IsNotNull() ? style.backgroundColor : StyleKeyword.Null;
+                elementStyle.backgroundColor = style.backgroundColor;
             }
             if (!Comparers.Compare(_style.backgroundImage, style.backgroundImage))
             {
-                elementStyle.backgroundImage = style.backgroundImage.IsNotNull() ? style.backgroundImage : StyleKeyword.Null;
+                elementStyle.backgroundImage = style.backgroundImage;
             }
             if (!Comparers.Compare(_style.backgroundPositionX, style.backgroundPositionX))
             {
-                elementStyle.backgroundPositionX = style.backgroundPositionX.IsNotNull() ? style.backgroundPositionX : StyleKeyword.Null;
+                elementStyle.backgroundPositionX = style.backgroundPositionX;
             }
             if (!Comparers.Compare(_style.backgroundPositionY, style.backgroundPositionY))
             {
-                elementStyle.backgroundPositionY = style.backgroundPositionY.IsNotNull() ? style.backgroundPositionY : StyleKeyword.Null;
+                elementStyle.backgroundPositionY = style.backgroundPositionY;
             }
             if (!RishUtils.MemCmp(_style.backgroundRepeat, style.backgroundRepeat))
             {
-                elementStyle.backgroundRepeat = style.backgroundRepeat.IsNotNull() ? style.backgroundRepeat : StyleKeyword.Null;
+                elementStyle.backgroundRepeat = style.backgroundRepeat;
             }
             if (!RishUtils.MemCmp(_style.backgroundSize, style.backgroundSize))
             {
-                elementStyle.backgroundSize = style.backgroundSize.IsNotNull() ? style.backgroundSize : StyleKeyword.Null;
+                elementStyle.backgroundSize = style.backgroundSize;
             }
             if (!RishUtils.MemCmp(_style.borderBottomColor, style.borderBottomColor))
             {
-                elementStyle.borderBottomColor = style.borderBottomColor.IsNotNull() ? style.borderBottomColor : StyleKeyword.Null;
+                elementStyle.borderBottomColor = style.borderBottomColor;
             }
             if (!RishUtils.MemCmp(_style.borderBottomLeftRadius, style.borderBottomLeftRadius))
             {
-                elementStyle.borderBottomLeftRadius = style.borderBottomLeftRadius.IsNotNull() ? style.borderBottomLeftRadius : StyleKeyword.Null;
+                elementStyle.borderBottomLeftRadius = style.borderBottomLeftRadius;
             }
             if (!RishUtils.MemCmp(_style.borderBottomRightRadius, style.borderBottomRightRadius))
             {
-                elementStyle.borderBottomRightRadius = style.borderBottomRightRadius.IsNotNull() ? style.borderBottomRightRadius : StyleKeyword.Null;
+                elementStyle.borderBottomRightRadius = style.borderBottomRightRadius;
             }
             if (!RishUtils.MemCmp(_style.borderBottomWidth, style.borderBottomWidth))
             {
-                elementStyle.borderBottomWidth = style.borderBottomWidth.IsNotNull() ? style.borderBottomWidth : StyleKeyword.Null;
+                elementStyle.borderBottomWidth = style.borderBottomWidth;
             }
             if (!RishUtils.MemCmp(_style.borderLeftColor, style.borderLeftColor))
             {
-                elementStyle.borderLeftColor = style.borderLeftColor.IsNotNull() ? style.borderLeftColor : StyleKeyword.Null;
+                elementStyle.borderLeftColor = style.borderLeftColor;
             }
             if (!RishUtils.MemCmp(_style.borderLeftWidth, style.borderLeftWidth))
             {
-                elementStyle.borderLeftWidth = style.borderLeftWidth.IsNotNull() ? style.borderLeftWidth : StyleKeyword.Null;
+                elementStyle.borderLeftWidth = style.borderLeftWidth;
             }
             if (!RishUtils.MemCmp(_style.borderRightColor, style.borderRightColor))
             {
-                elementStyle.borderRightColor = style.borderRightColor.IsNotNull() ? style.borderRightColor : StyleKeyword.Null;
+                elementStyle.borderRightColor = style.borderRightColor;
             }
             if (!RishUtils.MemCmp(_style.borderRightWidth, style.borderRightWidth))
             {
-                elementStyle.borderRightWidth = style.borderRightWidth.IsNotNull() ? style.borderRightWidth : StyleKeyword.Null;
+                elementStyle.borderRightWidth = style.borderRightWidth;
             }
             if (!RishUtils.MemCmp(_style.borderTopColor, style.borderTopColor))
             {
-                elementStyle.borderTopColor = style.borderTopColor.IsNotNull() ? style.borderTopColor : StyleKeyword.Null;
+                elementStyle.borderTopColor = style.borderTopColor;
             }
             if (!RishUtils.MemCmp(_style.borderTopLeftRadius, style.borderTopLeftRadius))
             {
-                elementStyle.borderTopLeftRadius = style.borderTopLeftRadius.IsNotNull() ? style.borderTopLeftRadius : StyleKeyword.Null;
+                elementStyle.borderTopLeftRadius = style.borderTopLeftRadius;
             }
             if (!RishUtils.MemCmp(_style.borderTopRightRadius, style.borderTopRightRadius))
             {
-                elementStyle.borderTopRightRadius = style.borderTopRightRadius.IsNotNull() ? style.borderTopRightRadius : StyleKeyword.Null;
+                elementStyle.borderTopRightRadius = style.borderTopRightRadius;
             }
             if (!RishUtils.MemCmp(_style.borderTopWidth, style.borderTopWidth))
             {
-                elementStyle.borderTopWidth = style.borderTopWidth.IsNotNull() ? style.borderTopWidth : StyleKeyword.Null;
+                elementStyle.borderTopWidth = style.borderTopWidth;
             }
             if (!RishUtils.MemCmp(_style.bottom, style.bottom))
             {
-                elementStyle.bottom = style.bottom.IsNotNull() ? style.bottom : StyleKeyword.Null;
+                elementStyle.bottom = style.bottom;
             }
             if (!RishUtils.MemCmp(_style.color, style.color))
             {
-                elementStyle.color = style.color.IsNotNull() ? style.color : StyleKeyword.Null;
+                elementStyle.color = style.color;
             }
             if (!Comparers.Compare(_style.cursor, style.cursor))
             {
-                elementStyle.cursor = style.cursor.IsNotNull() ? style.cursor : StyleKeyword.Null;
+                elementStyle.cursor = style.cursor;
             }
             if (!RishUtils.MemCmp(_style.display, style.display))
             {
-                elementStyle.display = style.display.IsNotNull() ? style.display : StyleKeyword.Null;
+                elementStyle.display = style.display;
             }
             if (!RishUtils.MemCmp(_style.flexBasis, style.flexBasis))
             {
-                elementStyle.flexBasis = style.flexBasis.IsNotNull() ? style.flexBasis : StyleKeyword.Null;
+                elementStyle.flexBasis = style.flexBasis;
             }
             if (!RishUtils.MemCmp(_style.flexDirection, style.flexDirection))
             {
-                elementStyle.flexDirection = style.flexDirection.IsNotNull() ? style.flexDirection : StyleKeyword.Null;
+                elementStyle.flexDirection = style.flexDirection;
             }
             if (!RishUtils.MemCmp(_style.flexGrow, style.flexGrow))
             {
-                elementStyle.flexGrow = style.flexGrow.IsNotNull() ? style.flexGrow : StyleKeyword.Null;
+                elementStyle.flexGrow = style.flexGrow;
             }
             if (!RishUtils.MemCmp(_style.flexShrink, style.flexShrink))
             {
-                elementStyle.flexShrink = style.flexShrink.IsNotNull() ? style.flexShrink : StyleKeyword.Null;
+                elementStyle.flexShrink = style.flexShrink;
             }
             if (!RishUtils.MemCmp(_style.flexWrap, style.flexWrap))
             {
-                elementStyle.flexWrap = style.flexWrap.IsNotNull() ? style.flexWrap : StyleKeyword.Null;
+                elementStyle.flexWrap = style.flexWrap;
             }
             if (!RishUtils.MemCmp(_style.fontSize, style.fontSize))
             {
-                elementStyle.fontSize = style.fontSize.IsNotNull() ? style.fontSize : StyleKeyword.Null;
+                elementStyle.fontSize = style.fontSize;
             }
             if (!RishUtils.MemCmp(_style.height, style.height))
             {
-                elementStyle.height = style.height.IsNotNull() ? style.height : StyleKeyword.Null;
+                elementStyle.height = style.height;
             }
             if (!RishUtils.MemCmp(_style.justifyContent, style.justifyContent))
             {
-                elementStyle.justifyContent = style.justifyContent.IsNotNull() ? style.justifyContent : StyleKeyword.Null;
+                elementStyle.justifyContent = style.justifyContent;
             }
             if (!RishUtils.MemCmp(_style.left, style.left))
             {
-                elementStyle.left = style.left.IsNotNull() ? style.left : StyleKeyword.Null;
+                elementStyle.left = style.left;
             }
             if (!RishUtils.MemCmp(_style.letterSpacing, style.letterSpacing))
             {
-                elementStyle.letterSpacing = style.letterSpacing.IsNotNull() ? style.letterSpacing : StyleKeyword.Null;
+                elementStyle.letterSpacing = style.letterSpacing;
             }
             if (!RishUtils.MemCmp(_style.marginBottom, style.marginBottom))
             {
-                elementStyle.marginBottom = style.marginBottom.IsNotNull() ? style.marginBottom : StyleKeyword.Null;
+                elementStyle.marginBottom = style.marginBottom;
             }
             if (!RishUtils.MemCmp(_style.marginLeft, style.marginLeft))
             {
-                elementStyle.marginLeft = style.marginLeft.IsNotNull() ? style.marginLeft : StyleKeyword.Null;
+                elementStyle.marginLeft = style.marginLeft;
             }
             if (!RishUtils.MemCmp(_style.marginRight, style.marginRight))
             {
-                elementStyle.marginRight = style.marginRight.IsNotNull() ? style.marginRight : StyleKeyword.Null;
+                elementStyle.marginRight = style.marginRight;
             }
             if (!RishUtils.MemCmp(_style.marginTop, style.marginTop))
             {
-                elementStyle.marginTop = style.marginTop.IsNotNull() ? style.marginTop : StyleKeyword.Null;
+                elementStyle.marginTop = style.marginTop;
             }
             if (!RishUtils.MemCmp(_style.maxHeight, style.maxHeight))
             {
-                elementStyle.maxHeight = style.maxHeight.IsNotNull() ? style.maxHeight : StyleKeyword.Null;
+                elementStyle.maxHeight = style.maxHeight;
             }
             if (!RishUtils.MemCmp(_style.maxWidth, style.maxWidth))
             {
-                elementStyle.maxWidth = style.maxWidth.IsNotNull() ? style.maxWidth : StyleKeyword.Null;
+                elementStyle.maxWidth = style.maxWidth;
             }
             if (!RishUtils.MemCmp(_style.minHeight, style.minHeight))
             {
-                elementStyle.minHeight = style.minHeight.IsNotNull() ? style.minHeight : StyleKeyword.Null;
+                elementStyle.minHeight = style.minHeight;
             }
             if (!RishUtils.MemCmp(_style.minWidth, style.minWidth))
             {
-                elementStyle.minWidth = style.minWidth.IsNotNull() ? style.minWidth : StyleKeyword.Null;
+                elementStyle.minWidth = style.minWidth;
             }
             if (!RishUtils.MemCmp(_style.opacity, style.opacity))
             {
-                elementStyle.opacity = style.opacity.IsNotNull() ? style.opacity : StyleKeyword.Null;
+                elementStyle.opacity = style.opacity;
             }
             if (!RishUtils.MemCmp(_style.overflow, style.overflow))
             {
-                elementStyle.overflow = style.overflow.IsNotNull() ? style.overflow : StyleKeyword.Null;
+                elementStyle.overflow = style.overflow;
             }
             if (!RishUtils.MemCmp(_style.paddingBottom, style.paddingBottom))
             {
-                elementStyle.paddingBottom = style.paddingBottom.IsNotNull() ? style.paddingBottom : StyleKeyword.Null;
+                elementStyle.paddingBottom = style.paddingBottom;
             }
             if (!RishUtils.MemCmp(_style.paddingLeft, style.paddingLeft))
             {
-                elementStyle.paddingLeft = style.paddingLeft.IsNotNull() ? style.paddingLeft : StyleKeyword.Null;
+                elementStyle.paddingLeft = style.paddingLeft;
             }
             if (!RishUtils.MemCmp(_style.paddingRight, style.paddingRight))
             {
-                elementStyle.paddingRight = style.paddingRight.IsNotNull() ? style.paddingRight : StyleKeyword.Null;
+                elementStyle.paddingRight = style.paddingRight;
             }
             if (!RishUtils.MemCmp(_style.paddingTop, style.paddingTop))
             {
-                elementStyle.paddingTop = style.paddingTop.IsNotNull() ? style.paddingTop : StyleKeyword.Null;
+                elementStyle.paddingTop = style.paddingTop;
             }
             if (!RishUtils.MemCmp(_style.position, style.position))
             {
-                elementStyle.position = style.position.IsNotNull() ? style.position : StyleKeyword.Null;
+                elementStyle.position = style.position;
             }
             if (!RishUtils.MemCmp(_style.right, style.right))
             {
-                elementStyle.right = style.right.IsNotNull() ? style.right : StyleKeyword.Null;
+                elementStyle.right = style.right;
             }
             if (!RishUtils.MemCmp(_style.rotate, style.rotate))
             {
-                elementStyle.rotate = style.rotate.IsNotNull() ? style.rotate : StyleKeyword.Null;
+                elementStyle.rotate = style.rotate;
             }
             if (!RishUtils.MemCmp(_style.scale, style.scale))
             {
-                elementStyle.scale = style.scale.IsNotNull() ? style.scale : StyleKeyword.Null;
+                elementStyle.scale = style.scale;
             }
             if (!RishUtils.MemCmp(_style.textOverflow, style.textOverflow))
             {
-                elementStyle.textOverflow = style.textOverflow.IsNotNull() ? style.textOverflow : StyleKeyword.Null;
+                elementStyle.textOverflow = style.textOverflow;
             }
             if (!RishUtils.MemCmp(_style.textShadow, style.textShadow))
             {
-                elementStyle.textShadow = style.textShadow.IsNotNull() ? style.textShadow : StyleKeyword.Null;
+                elementStyle.textShadow = style.textShadow;
             }
             if (!RishUtils.MemCmp(_style.top, style.top))
             {
-                elementStyle.top = style.top.IsNotNull() ? style.top : StyleKeyword.Null;
+                elementStyle.top = style.top;
             }
             if (!RishUtils.MemCmp(_style.transformOrigin, style.transformOrigin))
             {
-                elementStyle.transformOrigin = style.transformOrigin.IsNotNull() ? style.transformOrigin : StyleKeyword.Null;
+                elementStyle.transformOrigin = style.transformOrigin;
             }
             if (!Comparers.Compare(_style.transitionDelay, style.transitionDelay))
             {
-                elementStyle.transitionDelay = style.transitionDelay.IsNotNull() ? style.transitionDelay : StyleKeyword.Null;
+                elementStyle.transitionDelay = style.transitionDelay;
             }
             if (!Comparers.Compare(_style.transitionDuration, style.transitionDuration))
             {
-                elementStyle.transitionDuration = style.transitionDuration.IsNotNull() ? style.transitionDuration : StyleKeyword.Null;
+                elementStyle.transitionDuration = style.transitionDuration;
             }
             if (!Comparers.Compare(_style.transitionProperty, style.transitionProperty))
             {
-                elementStyle.transitionProperty = style.transitionProperty.IsNotNull() ? style.transitionProperty : StyleKeyword.Null;
+                elementStyle.transitionProperty = style.transitionProperty;
             }
             if (!Comparers.Compare(_style.transitionTimingFunction, style.transitionTimingFunction))
             {
-                elementStyle.transitionTimingFunction = style.transitionTimingFunction.IsNotNull() ? style.transitionTimingFunction : StyleKeyword.Null;
+                elementStyle.transitionTimingFunction = style.transitionTimingFunction;
             }
             if (!RishUtils.MemCmp(_style.translate, style.translate))
             {
-                elementStyle.translate = style.translate.IsNotNull() ? style.translate : StyleKeyword.Null;
+                elementStyle.translate = style.translate;
             }
             if (!RishUtils.MemCmp(_style.unityBackgroundImageTintColor, style.unityBackgroundImageTintColor))
             {
-                elementStyle.unityBackgroundImageTintColor = style.unityBackgroundImageTintColor.IsNotNull() ? style.unityBackgroundImageTintColor : StyleKeyword.Null;
+                elementStyle.unityBackgroundImageTintColor = style.unityBackgroundImageTintColor;
             }
             if (!Comparers.Compare(_style.unityFont, style.unityFont))
             {
-                elementStyle.unityFont = style.unityFont.IsNotNull() ? style.unityFont : StyleKeyword.Null;
+                elementStyle.unityFont = style.unityFont;
             }
             if (!Comparers.Compare(_style.unityFontDefinition, style.unityFontDefinition))
             {
-                elementStyle.unityFontDefinition = style.unityFontDefinition.IsNotNull() ? style.unityFontDefinition : StyleKeyword.Null;
+                elementStyle.unityFontDefinition = style.unityFontDefinition;
             }
             if (!RishUtils.MemCmp(_style.unityFontStyleAndWeight, style.unityFontStyleAndWeight))
             {
-                elementStyle.unityFontStyleAndWeight = style.unityFontStyleAndWeight.IsNotNull() ? style.unityFontStyleAndWeight : StyleKeyword.Null;
+                elementStyle.unityFontStyleAndWeight = style.unityFontStyleAndWeight;
             }
             if (!RishUtils.MemCmp(_style.unityOverflowClipBox, style.unityOverflowClipBox))
             {
-                elementStyle.unityOverflowClipBox = style.unityOverflowClipBox.IsNotNull() ? style.unityOverflowClipBox : StyleKeyword.Null;
+                elementStyle.unityOverflowClipBox = style.unityOverflowClipBox;
             }
             if (!RishUtils.MemCmp(_style.unityParagraphSpacing, style.unityParagraphSpacing))
             {
-                elementStyle.unityParagraphSpacing = style.unityParagraphSpacing.IsNotNull() ? style.unityParagraphSpacing : StyleKeyword.Null;
+                elementStyle.unityParagraphSpacing = style.unityParagraphSpacing;
             }
             if (!RishUtils.MemCmp(_style.unitySliceBottom, style.unitySliceBottom))
             {
-                elementStyle.unitySliceBottom = style.unitySliceBottom.IsNotNull() ? style.unitySliceBottom : StyleKeyword.Null;
+                elementStyle.unitySliceBottom = style.unitySliceBottom;
             }
             if (!RishUtils.MemCmp(_style.unitySliceLeft, style.unitySliceLeft))
             {
-                elementStyle.unitySliceLeft = style.unitySliceLeft.IsNotNull() ? style.unitySliceLeft : StyleKeyword.Null;
+                elementStyle.unitySliceLeft = style.unitySliceLeft;
             }
             if (!RishUtils.MemCmp(_style.unitySliceRight, style.unitySliceRight))
             {
-                elementStyle.unitySliceRight = style.unitySliceRight.IsNotNull() ? style.unitySliceRight : StyleKeyword.Null;
+                elementStyle.unitySliceRight = style.unitySliceRight;
             }
             if (!RishUtils.MemCmp(_style.unitySliceTop, style.unitySliceTop))
             {
-                elementStyle.unitySliceTop = style.unitySliceTop.IsNotNull() ? style.unitySliceTop : StyleKeyword.Null;
+                elementStyle.unitySliceTop = style.unitySliceTop;
             }
             if (!RishUtils.MemCmp(_style.unityTextAlign, style.unityTextAlign))
             {
-                elementStyle.unityTextAlign = style.unityTextAlign.IsNotNull() ? style.unityTextAlign : StyleKeyword.Null;
+                elementStyle.unityTextAlign = style.unityTextAlign;
             }
             if (!RishUtils.MemCmp(_style.unityTextOutlineColor, style.unityTextOutlineColor))
             {
-                elementStyle.unityTextOutlineColor = style.unityTextOutlineColor.IsNotNull() ? style.unityTextOutlineColor : StyleKeyword.Null;
+                elementStyle.unityTextOutlineColor = style.unityTextOutlineColor;
             }
             if (!RishUtils.MemCmp(_style.unityTextOutlineWidth, style.unityTextOutlineWidth))
             {
-                elementStyle.unityTextOutlineWidth = style.unityTextOutlineWidth.IsNotNull() ? style.unityTextOutlineWidth : StyleKeyword.Null;
+                elementStyle.unityTextOutlineWidth = style.unityTextOutlineWidth;
             }
             if (!RishUtils.MemCmp(_style.unityTextOverflowPosition, style.unityTextOverflowPosition))
             {
-                elementStyle.unityTextOverflowPosition = style.unityTextOverflowPosition.IsNotNull() ? style.unityTextOverflowPosition : StyleKeyword.Null;
+                elementStyle.unityTextOverflowPosition = style.unityTextOverflowPosition;
             }
             if (!RishUtils.MemCmp(_style.visibility, style.visibility))
             {
-                elementStyle.visibility = style.visibility.IsNotNull() ? style.visibility : StyleKeyword.Null;
+                elementStyle.visibility = style.visibility;
             }
             if (!RishUtils.MemCmp(_style.whiteSpace, style.whiteSpace))
             {
-                elementStyle.whiteSpace = style.whiteSpace.IsNotNull() ? style.whiteSpace : StyleKeyword.Null;
+                elementStyle.whiteSpace = style.whiteSpace;
             }
             if (!RishUtils.MemCmp(_style.width, style.width))
             {
-                elementStyle.width = style.width.IsNotNull() ? style.width : StyleKeyword.Null;
+                elementStyle.width = style.width;
             }
             if (!RishUtils.MemCmp(_style.wordSpacing, style.wordSpacing))
             {
-                elementStyle.wordSpacing = style.wordSpacing.IsNotNull() ? style.wordSpacing : StyleKeyword.Null;
+                elementStyle.wordSpacing = style.wordSpacing;
             }
             
             if (Element is ICustomPicking customPicking)
