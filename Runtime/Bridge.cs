@@ -6,27 +6,25 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public interface IRishBridge
+    public interface IBridge
     {
         void Mount(Node node);
         void Unmount();
     }
     
-    public class RishBridge<P> : IRishBridge where P : struct
+    public class Bridge<P> : IBridge where P : struct
     {
         private VisualElement Element { get; }
         private bool PropsAlwaysDirty { get; }
 
         private Name Name
         {
-            get => Element.name;
             set => Element.name = value;
         }
 
         private ClassName _className;
         private ClassName ClassName
         {
-            get => _className;
             set
             {
                 if (Comparers.Compare(_className, value)) return;
@@ -40,7 +38,6 @@ namespace RishUI
         private Style _style;
         private Style Style
         {
-            get => _style;
             set
             {
                 if (Comparers.Compare(_style, value)) return;
@@ -67,7 +64,7 @@ namespace RishUI
                 SetStyle(value);
                 _style = value;
             
-                using var evt = InlineStyleEvent.GetPooled(Element);
+                using var evt = InlineStyleEvent.GetPooled(Element); // TODO: We can probably get rid of this event. They tend to take quite a few ms.
                 Element.SendEvent(evt);
             }
         }
@@ -75,7 +72,6 @@ namespace RishUI
         private Children _children;
         private Children Children
         {
-            get => _children;
             set
             {
                 if (Comparers.Compare(_children, value)) return;
@@ -87,21 +83,9 @@ namespace RishUI
         }
 
         private P? _props;
-        public P Props
+        private P Props
         {
-            get
-            {
-                if (!_props.HasValue)
-                {
-#if UNITY_EDITOR
-                    Debug.LogError("Accessing unset Props. Using default Props instead.");
-#endif
-                    return Defaults.GetValue<P>();
-                }
-                
-                return _props.Value;
-            }
-            internal set
+            set
             {
                 if (!PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
 
@@ -111,7 +95,7 @@ namespace RishUI
                 {
                     propsElement.Setup(value);
                 
-                    using var evt = SetupEvent.GetPooled(Element);
+                    using var evt = SetupEvent.GetPooled(Element); // TODO: We could probably get rid of this event. They tend to take quite a few ms.
                     Element.SendEvent(evt);
                 }
 #if UNITY_EDITOR
@@ -145,13 +129,13 @@ namespace RishUI
         
         private NativeList<Reference> References { get; set; }
 
-        public RishBridge(VisualElement element, bool propsAlwaysDirty = false)
+        public Bridge(VisualElement element, bool propsAlwaysDirty = false)
         {
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
         }
 
-        void IRishBridge.Mount(Node node)
+        void IBridge.Mount(Node node)
         {
             Node = node;
             
@@ -164,35 +148,41 @@ namespace RishUI
             var oldReferences = References;
             
             var classNameReferences = ReferencesGetters.GetReferences(descriptor.className, true);
-            var classNameReferencesCount = classNameReferences.IsCreated ? classNameReferences.Length : 0;
+            var classNameReferencesCreated = classNameReferences.IsCreated;
+            var classNameReferencesCount = classNameReferencesCreated ? classNameReferences.Length : 0;
             var childrenReferences = ReferencesGetters.GetReferences(children, true);
-            var childrenReferencesCount = childrenReferences.IsCreated ? childrenReferences.Length : 0;
+            var childrenReferencesCreated = childrenReferences.IsCreated;
+            var childrenReferencesCount = childrenReferencesCreated ? childrenReferences.Length : 0;
             var propsReferences = ReferencesGetters.GetReferences(props, true);
-            var propsReferencesCount = propsReferences.IsCreated ? propsReferences.Length : 0;
+            var propsReferencesCreated = propsReferences.IsCreated;
+            var propsReferencesCount = propsReferencesCreated ? propsReferences.Length : 0;
             References = new NativeList<Reference>(classNameReferencesCount + childrenReferencesCount + propsReferencesCount, Allocator.Persistent);
-            if (classNameReferencesCount > 0)
+            if (classNameReferencesCreated)
             {
                 foreach (var reference in classNameReferences)
                 {
                     References.Add(reference);
                     reference.RegisterReference(Node);
                 }
+                classNameReferences.Dispose();
             }
-            if (childrenReferencesCount > 0)
+            if (childrenReferencesCreated)
             {
                 foreach (var reference in childrenReferences)
                 {
                     References.Add(reference);
                     reference.RegisterReference(Node);
                 }
+                childrenReferences.Dispose();
             }
-            if (propsReferencesCount > 0)
+            if (propsReferencesCreated)
             {
                 foreach (var reference in propsReferences)
                 {
                     References.Add(reference);
                     reference.RegisterReference(Node);
                 }
+                propsReferences.Dispose();
             }
             
             Name = descriptor.name;
@@ -558,14 +548,65 @@ namespace RishUI
             }
         }
 
-        void IRishBridge.Unmount()
+        void IBridge.Unmount()
         {
+            if (Element.IsHover())
+            {
+                for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+                {
+                    if (!Element.ContainsPointer(i)) { continue; }
+
+                    var position = PointerUtils.GetPointerPosition(i);
+                    var pressedButtons = PointerUtils.GetPressedButtons(i);
+
+                    var parent = Element.parent;
+                    var prevContained = true;
+                    while (parent != null)
+                    {
+                        var localPosition = parent.WorldToLocal(position);
+                        var containsPointer = parent.ContainsPointer(i);
+
+                        bool mustReport;
+                        if (parent is IVisualElement)
+                        {
+                            if (containsPointer && !prevContained)
+                            {
+                                break;
+                            }
+                            prevContained = containsPointer;
+                            mustReport = !containsPointer;
+                        }
+                        else
+                        {
+                            mustReport = prevContained;
+                        }
+
+                        if (mustReport)
+                        {
+                            var e = new StructPointerEvent
+                            {
+                                pointerId = i,
+                                position = position,
+                                localPosition = localPosition,
+                                pressedButtons = pressedButtons
+                            };
+
+                            using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
+                            pointerLeaveEvent.target = parent;
+                            parent.SendEvent(pointerLeaveEvent);
+                        }
+
+                        parent = parent.parent;
+                    }
+                }
+            }
+
             using var evt = UnmountedEvent.GetPooled(Element);
             Element.SendEvent(evt);
             
             Name = null;
-            ClassName = default;
-            Style = default;
+            Element.ResetInlineStyles();
+            Element.ClearClassList();
             if (References.IsCreated)
             {
                 foreach (var reference in References)
@@ -577,11 +618,67 @@ namespace RishUI
             References = default;
             
             Node = null;
+            
+            Element.RemoveFromHierarchy();
+        }
+
+        private struct StructPointerEvent : IPointerEvent
+        {
+            public int pointerId;
+            int IPointerEvent.pointerId => pointerId;
+            public string pointerType;
+            string IPointerEvent.pointerType => pointerType;
+            public bool isPrimary;
+            bool IPointerEvent.isPrimary => isPrimary;
+            public int button;
+            int IPointerEvent.button => button;
+            public int pressedButtons;
+            int IPointerEvent.pressedButtons => pressedButtons;
+            public Vector3 position;
+            Vector3 IPointerEvent.position => position;
+            public Vector3 localPosition;
+            Vector3 IPointerEvent.localPosition => localPosition;
+            public Vector3 deltaPosition;
+            Vector3 IPointerEvent.deltaPosition => deltaPosition;
+            public float deltaTime;
+            float IPointerEvent.deltaTime => deltaTime;
+            public int clickCount;
+            int IPointerEvent.clickCount => clickCount;
+            public float pressure;
+            float IPointerEvent.pressure => pressure;
+            public float tangentialPressure;
+            float IPointerEvent.tangentialPressure => tangentialPressure;
+            public float altitudeAngle;
+            float IPointerEvent.altitudeAngle => altitudeAngle;
+            public float azimuthAngle;
+            float IPointerEvent.azimuthAngle => azimuthAngle;
+            public float twist;
+            float IPointerEvent.twist => twist;
+            public Vector2 radius;
+            Vector2 IPointerEvent.radius => radius;
+            public Vector2 radiusVariance;
+            Vector2 IPointerEvent.radiusVariance => radiusVariance;
+            public EventModifiers modifiers;
+            EventModifiers IPointerEvent.modifiers => modifiers;
+            public bool shiftKey;
+            bool IPointerEvent.shiftKey => shiftKey;
+            public bool ctrlKey;
+            bool IPointerEvent.ctrlKey => ctrlKey;
+            public bool commandKey;
+            bool IPointerEvent.commandKey => commandKey;
+            public bool altKey;
+            bool IPointerEvent.altKey => altKey;
+            public bool actionKey;
+            bool IPointerEvent.actionKey => actionKey;
+            public Vector2 tilt;
+            Vector2 IPointerEvent.tilt => tilt;
+            public PenStatus penStatus;
+            PenStatus IPointerEvent.penStatus => penStatus;
         }
     }
 
-    public class RishBridge : RishBridge<NoProps>
+    public class Bridge : Bridge<NoProps>
     {
-        public RishBridge(VisualElement element) : base(element) { }
+        public Bridge(VisualElement element) : base(element) { }
     }
 }

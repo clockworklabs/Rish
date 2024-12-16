@@ -2,7 +2,7 @@ namespace RishUI
 {
     public interface IInternalVisualElement : IElement
     {
-        IRishBridge Bridge { get; }
+        IBridge Bridge { get; }
     }
     
     /// <summary>
@@ -10,19 +10,19 @@ namespace RishUI
     /// </summary>
     public interface IVisualElement<P> : IElement, IInternalVisualElement, ICustomPicking where P : struct
     {
-        RishBridge<P> Bridge { get; }
+        Bridge<P> Bridge { get; }
         
         void Setup(P props);
 
-        IRishBridge IInternalVisualElement.Bridge => Bridge;
+        IBridge IInternalVisualElement.Bridge => Bridge;
     }
     
     /// <summary>
     /// Allows mounting a VisualElement to a Rish tree.
     /// </summary>
     public interface IVisualElement : IVisualElement<NoProps> {
-        RishBridge Bridge { get; }
-        RishBridge<NoProps> IVisualElement<NoProps>.Bridge => Bridge;
+        Bridge Bridge { get; }
+        Bridge<NoProps> IVisualElement<NoProps>.Bridge => Bridge;
         
         void Setup();
         void IVisualElement<NoProps>.Setup(NoProps props) => Setup();
