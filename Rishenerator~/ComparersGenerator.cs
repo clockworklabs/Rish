@@ -506,8 +506,8 @@ namespace Rishenerator
                     {
                         TypeComparison.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
                         TypeComparison.ReferenceComparison => $"System.Object.ReferenceEquals(a{fieldName}, b{fieldName})",
-                        // TypeComparison.AutoComparer => $"Comparers.Compare(a{fieldName}, b{fieldName})",
-                        TypeComparison.CustomComparer => $"Comparers.Compare(a{fieldName}, b{fieldName})",
+                        // TypeComparison.AutoComparer => $"RishUtils.Compare(a{fieldName}, b{fieldName})",
+                        TypeComparison.CustomComparer => $"RishUtils.Compare(a{fieldName}, b{fieldName})",
                         _ => throw new ArgumentOutOfRangeException(nameof(typeComparison), typeComparison, null)
                     },
                     FieldComparison.Ignore => string.Empty,

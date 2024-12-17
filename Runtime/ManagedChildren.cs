@@ -61,7 +61,7 @@ namespace RishUI
     
             for (var i = 0; i < count; i++)
             {
-                if (!Comparers.Compare(aList[i], bList[i]))
+                if (!RishUtils.Compare(aList[i], bList[i]))
                 {
                     return false;
                 }

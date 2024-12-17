@@ -77,7 +77,7 @@ namespace RishUI
         {
             set
             {
-                if (Comparers.Compare(_className, value)) return;
+                if (RishUtils.Compare(_className, value)) return;
                 
                 _className = value;
 
@@ -92,7 +92,7 @@ namespace RishUI
         {
             set
             {
-                if (Comparers.Compare(_style, value)) return;
+                if (RishUtils.Compare(_style, value)) return;
                 
                 var background = value.backgroundImage.keyword == RishStyleKeyword.Undefined ? value.backgroundImage.value : default;
                 var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image
@@ -125,7 +125,7 @@ namespace RishUI
         {
             set
             {
-                if (Comparers.Compare(_children, value)) return;
+                if (RishUtils.Compare(_children, value)) return;
 
                 _children = value;
                 
@@ -138,7 +138,7 @@ namespace RishUI
         {
             set
             {
-                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
+                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.Compare(_props.Value, value)) return;
 
                 _props = value;
                 
@@ -276,15 +276,15 @@ namespace RishUI
             {
                 elementStyle.backgroundColor = style.backgroundColor;
             }
-            if (!Comparers.Compare(_style.backgroundImage, style.backgroundImage))
+            if (!RishUtils.Compare(_style.backgroundImage, style.backgroundImage))
             {
                 elementStyle.backgroundImage = style.backgroundImage;
             }
-            if (!Comparers.Compare(_style.backgroundPositionX, style.backgroundPositionX))
+            if (!RishUtils.Compare(_style.backgroundPositionX, style.backgroundPositionX))
             {
                 elementStyle.backgroundPositionX = style.backgroundPositionX;
             }
-            if (!Comparers.Compare(_style.backgroundPositionY, style.backgroundPositionY))
+            if (!RishUtils.Compare(_style.backgroundPositionY, style.backgroundPositionY))
             {
                 elementStyle.backgroundPositionY = style.backgroundPositionY;
             }
@@ -352,7 +352,7 @@ namespace RishUI
             {
                 elementStyle.color = style.color;
             }
-            if (!Comparers.Compare(_style.cursor, style.cursor))
+            if (!RishUtils.Compare(_style.cursor, style.cursor))
             {
                 elementStyle.cursor = style.cursor;
             }
@@ -488,19 +488,19 @@ namespace RishUI
             {
                 elementStyle.transformOrigin = style.transformOrigin;
             }
-            if (!Comparers.Compare(_style.transitionDelay, style.transitionDelay))
+            if (!RishUtils.Compare(_style.transitionDelay, style.transitionDelay))
             {
                 elementStyle.transitionDelay = style.transitionDelay;
             }
-            if (!Comparers.Compare(_style.transitionDuration, style.transitionDuration))
+            if (!RishUtils.Compare(_style.transitionDuration, style.transitionDuration))
             {
                 elementStyle.transitionDuration = style.transitionDuration;
             }
-            if (!Comparers.Compare(_style.transitionProperty, style.transitionProperty))
+            if (!RishUtils.Compare(_style.transitionProperty, style.transitionProperty))
             {
                 elementStyle.transitionProperty = style.transitionProperty;
             }
-            if (!Comparers.Compare(_style.transitionTimingFunction, style.transitionTimingFunction))
+            if (!RishUtils.Compare(_style.transitionTimingFunction, style.transitionTimingFunction))
             {
                 elementStyle.transitionTimingFunction = style.transitionTimingFunction;
             }
@@ -512,11 +512,11 @@ namespace RishUI
             {
                 elementStyle.unityBackgroundImageTintColor = style.unityBackgroundImageTintColor;
             }
-            if (!Comparers.Compare(_style.unityFont, style.unityFont))
+            if (!RishUtils.Compare(_style.unityFont, style.unityFont))
             {
                 elementStyle.unityFont = style.unityFont;
             }
-            if (!Comparers.Compare(_style.unityFontDefinition, style.unityFontDefinition))
+            if (!RishUtils.Compare(_style.unityFontDefinition, style.unityFontDefinition))
             {
                 elementStyle.unityFontDefinition = style.unityFontDefinition;
             }

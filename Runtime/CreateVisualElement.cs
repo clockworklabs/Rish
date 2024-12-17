@@ -178,7 +178,7 @@ namespace RishUI
 
             public override bool Equals(ManagedElement other)
             {
-                return other is VisualDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.SmartCompare(Props, otherDefinition.Props) && Comparers.Compare(Descriptor, otherDefinition.Descriptor) && Comparers.Compare(Children, otherDefinition.Children);
+                return other is VisualDefinition<T, P> otherDefinition && Key == otherDefinition.Key && RishUtils.Compare(Props, otherDefinition.Props) && RishUtils.Compare(Descriptor, otherDefinition.Descriptor) && RishUtils.Compare(Children, otherDefinition.Children);
             }
             
             public override bool TryGetProps<P1>(out P1 props)
