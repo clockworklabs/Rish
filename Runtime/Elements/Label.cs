@@ -21,7 +21,7 @@ namespace RishUI.Elements
         public Label()
         {
             Bridge = new Bridge<LabelProps>(this);
-            PickingManager = new RectPickingManager(this);
+            PickingManager = new RectPickingManager(Bridge);
             
             RegisterCallback<AttachToPanelEvent>(OnMounted);
             RegisterCallback<DetachFromPanelEvent>(OnUnmounted);

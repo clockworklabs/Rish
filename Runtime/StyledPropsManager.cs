@@ -36,11 +36,11 @@ namespace RishUI
             Element = element;
             VisualElement = element;
     
-            element.RegisterCallback<UnmountedEvent>(OnUnmounted);
+            element.RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
             element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
         
-        private void OnUnmounted(UnmountedEvent evt) => Props = null;
+        private void OnUnmounted(DetachFromPanelEvent evt) => Props = null;
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {

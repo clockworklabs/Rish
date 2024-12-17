@@ -8,7 +8,7 @@ namespace RishUI
     /// <summary>
     /// Allows mounting a VisualElement to a Rish tree. The element type has Props.
     /// </summary>
-    public interface IVisualElement<P> : IElement, IInternalVisualElement, ICustomPicking where P : struct
+    public interface IVisualElement<P> : IInternalVisualElement, ICustomPicking where P : struct
     {
         Bridge<P> Bridge { get; }
         

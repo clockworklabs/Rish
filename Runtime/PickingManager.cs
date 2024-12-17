@@ -23,11 +23,12 @@ namespace RishUI
     {
         private static readonly CustomStyleProperty<string> PointerDetectionProperty = new("--pointer-detection");
         
-        protected VisualElement Element { get; }
+        private IBridge Bridge { get; }
+        protected VisualElement Element => Bridge.Element;
 
         internal PointerDetectionMode? InlinePointerDetection { get; set; }
 
-        internal PointerDetectionMode? StyleSheetsPointerDetection { private get; set; }
+        private PointerDetectionMode? StyleSheetsPointerDetection { get; set; }
 
         private PointerDetectionMode LocalPointerDetection => InlinePointerDetection ?? (StyleSheetsPointerDetection ?? PointerDetectionMode.Inherit);
 
@@ -59,18 +60,15 @@ namespace RishUI
 
         private bool Enabled { get; set; } = true;
 
-        public PickingManager(VisualElement element)
+        protected PickingManager(IBridge bridge)
         {
-            Element = element;
-
-            Element.RegisterCallback<SetupEvent>(OnSetup);
+            Bridge = bridge;
+            Bridge.OnSetup += Update;
             Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
 
         public void Enable() => Enabled = true;
         public void Disable() => Enabled = false;
-
-        private void OnSetup(SetupEvent evt) => Update();
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {
@@ -156,7 +154,7 @@ namespace RishUI
 
     public class DiscardPickingManager : PickingManager
     {
-        public DiscardPickingManager(VisualElement element) : base(element) { }
+        public DiscardPickingManager(IBridge bridge) : base(bridge) { }
 
         protected override void Setup() { }
         
@@ -165,7 +163,7 @@ namespace RishUI
 
     public class RectPickingManager : PickingManager
     {
-        public RectPickingManager(VisualElement element) : base(element) { }
+        public RectPickingManager(IBridge bridge) : base(bridge) { }
 
         protected override void Setup()
         {
@@ -230,7 +228,7 @@ namespace RishUI
             }
         }
 
-        public DefaultPickingManager(VisualElement element) : base(element) { }
+        public DefaultPickingManager(IBridge bridge) : base(bridge) { }
 
         protected override void Setup()
         {

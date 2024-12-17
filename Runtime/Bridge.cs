@@ -1,4 +1,4 @@
-﻿using RishUI.Events;
+﻿using System;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
@@ -8,18 +8,68 @@ namespace RishUI
 {
     public interface IBridge
     {
+        event Action<Name> OnName;
+        event Action<ClassName> OnClassName;
+        event Action<Style> OnStyle;
+        event Action OnSetup;
+        
+        VisualElement Element { get; }
+        
         void Mount(Node node);
         void Unmount();
     }
-    
-    public class Bridge<P> : IBridge where P : struct
+    public interface IBridge<P> : IBridge where P : struct
     {
+        event Action<P> OnProps;
+    }
+    
+    public class Bridge<P> : IBridge<P> where P : struct
+    {
+        public event Action<Name> OnName;
+        event Action<Name> IBridge.OnName
+        {
+            add => OnName += value;
+            remove => OnName -= value;
+        }
+        public event Action<ClassName> OnClassName;
+        event Action<ClassName> IBridge.OnClassName
+        {
+            add => OnClassName += value;
+            remove => OnClassName -= value;
+        }
+        public event Action<Style> OnStyle;
+        event Action<Style> IBridge.OnStyle
+        {
+            add => OnStyle += value;
+            remove => OnStyle -= value;
+        }
+        public event Action<P> OnProps;
+        event Action<P> IBridge<P>.OnProps
+        {
+            add => OnProps += value;
+            remove => OnProps -= value;
+        }
+        public event Action OnSetup;
+        event Action IBridge.OnSetup
+        {
+            add => OnSetup += value;
+            remove => OnSetup -= value;
+        }
+        
         private VisualElement Element { get; }
+        VisualElement IBridge.Element => Element;
         private bool PropsAlwaysDirty { get; }
 
         private Name Name
         {
-            set => Element.name = value;
+            set
+            {
+                if (Element.name == value) return;
+                
+                Element.name = value;
+                
+                OnName?.Invoke(value);
+            }
         }
 
         private ClassName _className;
@@ -32,6 +82,8 @@ namespace RishUI
                 _className = value;
 
                 Element.SetClassName(value);
+                
+                OnClassName?.Invoke(value);
             }
         }
 
@@ -63,9 +115,8 @@ namespace RishUI
                 
                 SetStyle(value);
                 _style = value;
-            
-                using var evt = InlineStyleEvent.GetPooled(Element); // TODO: We can probably get rid of this event. They tend to take quite a few ms.
-                Element.SendEvent(evt);
+                
+                OnStyle?.Invoke(value);
             }
         }
 
@@ -94,9 +145,8 @@ namespace RishUI
                 if (Element is IVisualElement<P> propsElement)
                 {
                     propsElement.Setup(value);
-                
-                    using var evt = SetupEvent.GetPooled(Element); // TODO: We could probably get rid of this event. They tend to take quite a few ms.
-                    Element.SendEvent(evt);
+                    
+                    OnProps?.Invoke(value);
                 }
 #if UNITY_EDITOR
                 else
@@ -134,26 +184,14 @@ namespace RishUI
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
         }
-        
-        private bool Mounted { get; set; }
 
         void IBridge.Mount(Node node)
         {
-            if (Mounted)
-            {
-                UnityEngine.Debug.LogError("WTH2");
-            }
-
-            Mounted = true;
-            
             Name = null;
             Element.ClearClassList();
             Element.ResetInlineStyles();
             
             Node = node;
-            
-            using var evt = MountedEvent.GetPooled(Element);
-            Element.SendEvent(evt);
         }
 
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
@@ -214,6 +252,8 @@ namespace RishUI
                 }
                 oldReferences.Dispose();
             }
+            
+            OnSetup?.Invoke();
         }
 
         private void SetStyle(Style style)
@@ -563,13 +603,6 @@ namespace RishUI
 
         void IBridge.Unmount()
         {
-            if (!Mounted)
-            {
-                UnityEngine.Debug.LogError("WTH3");
-            }
-
-            Mounted = false;
-            
             if (Element.IsHover())
             {
                 for (int i = 0, n = PointerId.maxPointers; i < n; i++)
@@ -620,9 +653,6 @@ namespace RishUI
                     }
                 }
             }
-
-            using var evt = UnmountedEvent.GetPooled(Element);
-            Element.SendEvent(evt);
             
             Element.RemoveFromHierarchy();
             
