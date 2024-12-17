@@ -965,17 +965,6 @@ namespace RishUI
 
             public override void Enter()
             {
-                var parentUnmountingChildren = Node.Parent?.UnmountingChildren;
-                if (parentUnmountingChildren != null)
-                {
-                    parentUnmountingChildren.Remove(Node);
-                    foreach (var child in parentUnmountingChildren)
-                    {
-                        Node.Tree.DirtyPosition(child);
-                    }
-                }
-                Node.OnUnmount?.Invoke(Node);
-
                 if (Node.VirtualChildren?.Count > 0)
                 {
                     for (var i = Node.VirtualChildren.Count - 1; i >= 0; i--)
@@ -993,6 +982,18 @@ namespace RishUI
                         child.Machine.GoTo<UnmountedState>();
                     }
                 }
+                
+                var parentUnmountingChildren = Node.Parent?.UnmountingChildren;
+                if (parentUnmountingChildren != null)
+                {
+                    parentUnmountingChildren.Remove(Node);
+                    foreach (var child in parentUnmountingChildren)
+                    {
+                        Node.Tree.DirtyPosition(child);
+                    }
+                }
+                
+                Node.OnUnmount?.Invoke(Node);
 
                 GoTo<FreeState>();
             }

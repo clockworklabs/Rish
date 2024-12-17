@@ -1,3 +1,4 @@
+using RishUI.Events;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,11 +36,11 @@ namespace RishUI
             Element = element;
             VisualElement = element;
     
-            element.RegisterCallback<DetachFromPanelEvent>(OnDetach);
+            element.RegisterCallback<UnmountedEvent>(OnUnmounted);
             element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
         
-        private void OnDetach(DetachFromPanelEvent evt) => Props = null;
+        private void OnUnmounted(UnmountedEvent evt) => Props = null;
         
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {

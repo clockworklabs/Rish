@@ -134,9 +134,22 @@ namespace RishUI
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
         }
+        
+        private bool Mounted { get; set; }
 
         void IBridge.Mount(Node node)
         {
+            if (Mounted)
+            {
+                UnityEngine.Debug.LogError("WTH2");
+            }
+
+            Mounted = true;
+            
+            Name = null;
+            Element.ClearClassList();
+            Element.ResetInlineStyles();
+            
             Node = node;
             
             using var evt = MountedEvent.GetPooled(Element);
@@ -550,6 +563,13 @@ namespace RishUI
 
         void IBridge.Unmount()
         {
+            if (!Mounted)
+            {
+                UnityEngine.Debug.LogError("WTH3");
+            }
+
+            Mounted = false;
+            
             if (Element.IsHover())
             {
                 for (int i = 0, n = PointerId.maxPointers; i < n; i++)
@@ -604,9 +624,8 @@ namespace RishUI
             using var evt = UnmountedEvent.GetPooled(Element);
             Element.SendEvent(evt);
             
-            Name = null;
-            Element.ResetInlineStyles();
-            Element.ClearClassList();
+            Element.RemoveFromHierarchy();
+            
             if (References.IsCreated)
             {
                 foreach (var reference in References)
@@ -618,8 +637,6 @@ namespace RishUI
             References = default;
             
             Node = null;
-            
-            Element.RemoveFromHierarchy();
         }
 
         private struct StructPointerEvent : IPointerEvent

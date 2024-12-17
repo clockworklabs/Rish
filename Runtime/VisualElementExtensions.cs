@@ -103,14 +103,14 @@ namespace RishUI
             }
         }
 
-        public static void SetClassName(this VisualElement visualElement, ClassName className)
+        public static void SetClassName(this VisualElement element, ClassName className)
         {
-            visualElement.ClearClassList();
+            element.ClearClassList();
             foreach (var cn in className)
             {
                 if (!string.IsNullOrWhiteSpace(cn))
                 {
-                    visualElement.AddToClassList(cn);
+                    element.AddToClassList(cn);
                 }
             }
         }
@@ -154,90 +154,86 @@ namespace RishUI
 
             var elementStyle = element.style;
 
-            UnityEngine.UIElements.StyleEnum<Align> alignContent = style.alignContent.IsNotNull() ? style.alignContent : StyleKeyword.Null;
-            if (elementStyle.alignContent != alignContent)
-            {
-                elementStyle.alignContent = alignContent;
-            }
-            elementStyle.alignItems = style.alignItems.IsNotNull() ? style.alignItems : StyleKeyword.Null;
-            elementStyle.alignSelf = style.alignSelf.IsNotNull() ? style.alignSelf : StyleKeyword.Null;
-            elementStyle.backgroundColor = style.backgroundColor.IsNotNull() ? style.backgroundColor : StyleKeyword.Null;
-            elementStyle.backgroundImage = style.backgroundImage.IsNotNull() ? style.backgroundImage : StyleKeyword.Null;
-            elementStyle.backgroundPositionX = backgroundPositionX.IsNotNull() ? backgroundPositionX : StyleKeyword.Null;
-            elementStyle.backgroundPositionY = backgroundPositionY.IsNotNull() ? backgroundPositionY : StyleKeyword.Null;
-            elementStyle.backgroundRepeat = backgroundRepeat.IsNotNull() ? backgroundRepeat : StyleKeyword.Null;
-            elementStyle.backgroundSize = backgroundSize.IsNotNull() ? backgroundSize : StyleKeyword.Null;
-            elementStyle.borderBottomColor = style.borderBottomColor.IsNotNull() ? style.borderBottomColor : StyleKeyword.Null;
-            elementStyle.borderBottomLeftRadius = style.borderBottomLeftRadius.IsNotNull() ? style.borderBottomLeftRadius : StyleKeyword.Null;
-            elementStyle.borderBottomRightRadius = style.borderBottomRightRadius.IsNotNull() ? style.borderBottomRightRadius : StyleKeyword.Null;
-            elementStyle.borderBottomWidth = style.borderBottomWidth.IsNotNull() ? style.borderBottomWidth : StyleKeyword.Null;
-            elementStyle.borderLeftColor = style.borderLeftColor.IsNotNull() ? style.borderLeftColor : StyleKeyword.Null;
-            elementStyle.borderLeftWidth = style.borderLeftWidth.IsNotNull() ? style.borderLeftWidth : StyleKeyword.Null;
-            elementStyle.borderRightColor = style.borderRightColor.IsNotNull() ? style.borderRightColor : StyleKeyword.Null;
-            elementStyle.borderRightWidth = style.borderRightWidth.IsNotNull() ? style.borderRightWidth : StyleKeyword.Null;
-            elementStyle.borderTopColor = style.borderTopColor.IsNotNull() ? style.borderTopColor : StyleKeyword.Null;
-            elementStyle.borderTopLeftRadius = style.borderTopLeftRadius.IsNotNull() ? style.borderTopLeftRadius : StyleKeyword.Null;
-            elementStyle.borderTopRightRadius = style.borderTopRightRadius.IsNotNull() ? style.borderTopRightRadius : StyleKeyword.Null;
-            elementStyle.borderTopWidth = style.borderTopWidth.IsNotNull() ? style.borderTopWidth : StyleKeyword.Null;
-            elementStyle.bottom = style.bottom.IsNotNull() ? style.bottom : StyleKeyword.Null;
-            elementStyle.color = style.color.IsNotNull() ? style.color : StyleKeyword.Null;
-            elementStyle.cursor = style.cursor.IsNotNull() ? style.cursor : StyleKeyword.Null;
-            elementStyle.display = style.display.IsNotNull() ? style.display : StyleKeyword.Null;
-            elementStyle.flexBasis = style.flexBasis.IsNotNull() ? style.flexBasis : StyleKeyword.Null;
-            elementStyle.flexDirection = style.flexDirection.IsNotNull() ? style.flexDirection : StyleKeyword.Null;
-            elementStyle.flexGrow = style.flexGrow.IsNotNull() ? style.flexGrow : StyleKeyword.Null;
-            elementStyle.flexShrink = style.flexShrink.IsNotNull() ? style.flexShrink : StyleKeyword.Null;
-            elementStyle.flexWrap = style.flexWrap.IsNotNull() ? style.flexWrap : StyleKeyword.Null;
-            elementStyle.fontSize = style.fontSize.IsNotNull() ? style.fontSize : StyleKeyword.Null;
-            elementStyle.height = style.height.IsNotNull() ? style.height : StyleKeyword.Null;
-            elementStyle.justifyContent = style.justifyContent.IsNotNull() ? style.justifyContent : StyleKeyword.Null;
-            elementStyle.left = style.left.IsNotNull() ? style.left : StyleKeyword.Null;
-            elementStyle.letterSpacing = style.letterSpacing.IsNotNull() ? style.letterSpacing : StyleKeyword.Null;
-            elementStyle.marginBottom = style.marginBottom.IsNotNull() ? style.marginBottom : StyleKeyword.Null;
-            elementStyle.marginLeft = style.marginLeft.IsNotNull() ? style.marginLeft : StyleKeyword.Null;
-            elementStyle.marginRight = style.marginRight.IsNotNull() ? style.marginRight : StyleKeyword.Null;
-            elementStyle.marginTop = style.marginTop.IsNotNull() ? style.marginTop : StyleKeyword.Null;
-            elementStyle.maxHeight = style.maxHeight.IsNotNull() ? style.maxHeight : StyleKeyword.Null;
-            elementStyle.maxWidth = style.maxWidth.IsNotNull() ? style.maxWidth : StyleKeyword.Null;
-            elementStyle.minHeight = style.minHeight.IsNotNull() ? style.minHeight : StyleKeyword.Null;
-            elementStyle.minWidth = style.minWidth.IsNotNull() ? style.minWidth : StyleKeyword.Null;
-            elementStyle.opacity = style.opacity.IsNotNull() ? style.opacity : StyleKeyword.Null;
-            elementStyle.overflow = style.overflow.IsNotNull() ? style.overflow : StyleKeyword.Null;
-            elementStyle.paddingBottom = style.paddingBottom.IsNotNull() ? style.paddingBottom : StyleKeyword.Null;
-            elementStyle.paddingLeft = style.paddingLeft.IsNotNull() ? style.paddingLeft : StyleKeyword.Null;
-            elementStyle.paddingRight = style.paddingRight.IsNotNull() ? style.paddingRight : StyleKeyword.Null;
-            elementStyle.paddingTop = style.paddingTop.IsNotNull() ? style.paddingTop : StyleKeyword.Null;
-            elementStyle.position = style.position.IsNotNull() ? style.position : StyleKeyword.Null;
-            elementStyle.right = style.right.IsNotNull() ? style.right : StyleKeyword.Null;
-            elementStyle.rotate = style.rotate.IsNotNull() ? style.rotate : StyleKeyword.Null;
-            elementStyle.scale = style.scale.IsNotNull() ? style.scale : StyleKeyword.Null;
-            elementStyle.textOverflow = style.textOverflow.IsNotNull() ? style.textOverflow : StyleKeyword.Null;
-            elementStyle.textShadow = style.textShadow.IsNotNull() ? style.textShadow : StyleKeyword.Null;
-            elementStyle.top = style.top.IsNotNull() ? style.top : StyleKeyword.Null;
-            elementStyle.transformOrigin = style.transformOrigin.IsNotNull() ? style.transformOrigin : StyleKeyword.Null;
-            elementStyle.transitionDelay = style.transitionDelay.IsNotNull() ? style.transitionDelay : StyleKeyword.Null;
-            elementStyle.transitionDuration = style.transitionDuration.IsNotNull() ? style.transitionDuration : StyleKeyword.Null;
-            elementStyle.transitionProperty = style.transitionProperty.IsNotNull() ? style.transitionProperty : StyleKeyword.Null;
-            elementStyle.transitionTimingFunction = style.transitionTimingFunction.IsNotNull() ? style.transitionTimingFunction : StyleKeyword.Null;
-            elementStyle.translate = style.translate.IsNotNull() ? style.translate : StyleKeyword.Null;
-            elementStyle.unityBackgroundImageTintColor = style.unityBackgroundImageTintColor.IsNotNull() ? style.unityBackgroundImageTintColor : StyleKeyword.Null;
-            elementStyle.unityFont = style.unityFont.IsNotNull() ? style.unityFont : StyleKeyword.Null;
-            elementStyle.unityFontDefinition = style.unityFontDefinition.IsNotNull() ? style.unityFontDefinition : StyleKeyword.Null;
-            elementStyle.unityFontStyleAndWeight = style.unityFontStyleAndWeight.IsNotNull() ? style.unityFontStyleAndWeight : StyleKeyword.Null;
-            elementStyle.unityOverflowClipBox = style.unityOverflowClipBox.IsNotNull() ? style.unityOverflowClipBox : StyleKeyword.Null;
-            elementStyle.unityParagraphSpacing = style.unityParagraphSpacing.IsNotNull() ? style.unityParagraphSpacing : StyleKeyword.Null;
-            elementStyle.unitySliceBottom = style.unitySliceBottom.IsNotNull() ? style.unitySliceBottom : StyleKeyword.Null;
-            elementStyle.unitySliceLeft = style.unitySliceLeft.IsNotNull() ? style.unitySliceLeft : StyleKeyword.Null;
-            elementStyle.unitySliceRight = style.unitySliceRight.IsNotNull() ? style.unitySliceRight : StyleKeyword.Null;
-            elementStyle.unitySliceTop = style.unitySliceTop.IsNotNull() ? style.unitySliceTop : StyleKeyword.Null;
-            elementStyle.unityTextAlign = style.unityTextAlign.IsNotNull() ? style.unityTextAlign : StyleKeyword.Null;
-            elementStyle.unityTextOutlineColor = style.unityTextOutlineColor.IsNotNull() ? style.unityTextOutlineColor : StyleKeyword.Null;
-            elementStyle.unityTextOutlineWidth = style.unityTextOutlineWidth.IsNotNull() ? style.unityTextOutlineWidth : StyleKeyword.Null;
-            elementStyle.unityTextOverflowPosition = style.unityTextOverflowPosition.IsNotNull() ? style.unityTextOverflowPosition : StyleKeyword.Null;
-            elementStyle.visibility = style.visibility.IsNotNull() ? style.visibility : StyleKeyword.Null;
-            elementStyle.whiteSpace = style.whiteSpace.IsNotNull() ? style.whiteSpace : StyleKeyword.Null;
-            elementStyle.width = style.width.IsNotNull() ? style.width : StyleKeyword.Null;
-            elementStyle.wordSpacing = style.wordSpacing.IsNotNull() ? style.wordSpacing : StyleKeyword.Null;
+            elementStyle.alignContent = style.alignContent;
+            elementStyle.alignItems = style.alignItems;
+            elementStyle.alignSelf = style.alignSelf;
+            elementStyle.backgroundColor = style.backgroundColor;
+            elementStyle.backgroundImage = style.backgroundImage;
+            elementStyle.backgroundPositionX = backgroundPositionX;
+            elementStyle.backgroundPositionY = backgroundPositionY;
+            elementStyle.backgroundRepeat = backgroundRepeat;
+            elementStyle.backgroundSize = backgroundSize;
+            elementStyle.borderBottomColor = style.borderBottomColor;
+            elementStyle.borderBottomLeftRadius = style.borderBottomLeftRadius;
+            elementStyle.borderBottomRightRadius = style.borderBottomRightRadius;
+            elementStyle.borderBottomWidth = style.borderBottomWidth;
+            elementStyle.borderLeftColor = style.borderLeftColor;
+            elementStyle.borderLeftWidth = style.borderLeftWidth;
+            elementStyle.borderRightColor = style.borderRightColor;
+            elementStyle.borderRightWidth = style.borderRightWidth;
+            elementStyle.borderTopColor = style.borderTopColor;
+            elementStyle.borderTopLeftRadius = style.borderTopLeftRadius;
+            elementStyle.borderTopRightRadius = style.borderTopRightRadius;
+            elementStyle.borderTopWidth = style.borderTopWidth;
+            elementStyle.bottom = style.bottom;
+            elementStyle.color = style.color;
+            elementStyle.cursor = style.cursor;
+            elementStyle.display = style.display;
+            elementStyle.flexBasis = style.flexBasis;
+            elementStyle.flexDirection = style.flexDirection;
+            elementStyle.flexGrow = style.flexGrow;
+            elementStyle.flexShrink = style.flexShrink;
+            elementStyle.flexWrap = style.flexWrap;
+            elementStyle.fontSize = style.fontSize;
+            elementStyle.height = style.height;
+            elementStyle.justifyContent = style.justifyContent;
+            elementStyle.left = style.left;
+            elementStyle.letterSpacing = style.letterSpacing;
+            elementStyle.marginBottom = style.marginBottom;
+            elementStyle.marginLeft = style.marginLeft;
+            elementStyle.marginRight = style.marginRight;
+            elementStyle.marginTop = style.marginTop;
+            elementStyle.maxHeight = style.maxHeight;
+            elementStyle.maxWidth = style.maxWidth;
+            elementStyle.minHeight = style.minHeight;
+            elementStyle.minWidth = style.minWidth;
+            elementStyle.opacity = style.opacity;
+            elementStyle.overflow = style.overflow;
+            elementStyle.paddingBottom = style.paddingBottom;
+            elementStyle.paddingLeft = style.paddingLeft;
+            elementStyle.paddingRight = style.paddingRight;
+            elementStyle.paddingTop = style.paddingTop;
+            elementStyle.position = style.position;
+            elementStyle.right = style.right;
+            elementStyle.rotate = style.rotate;
+            elementStyle.scale = style.scale;
+            elementStyle.textOverflow = style.textOverflow;
+            elementStyle.textShadow = style.textShadow;
+            elementStyle.top = style.top;
+            elementStyle.transformOrigin = style.transformOrigin;
+            elementStyle.transitionDelay = style.transitionDelay;
+            elementStyle.transitionDuration = style.transitionDuration;
+            elementStyle.transitionProperty = style.transitionProperty;
+            elementStyle.transitionTimingFunction = style.transitionTimingFunction;
+            elementStyle.translate = style.translate;
+            elementStyle.unityBackgroundImageTintColor = style.unityBackgroundImageTintColor;
+            elementStyle.unityFont = style.unityFont;
+            elementStyle.unityFontDefinition = style.unityFontDefinition;
+            elementStyle.unityFontStyleAndWeight = style.unityFontStyleAndWeight;
+            elementStyle.unityOverflowClipBox = style.unityOverflowClipBox;
+            elementStyle.unityParagraphSpacing = style.unityParagraphSpacing;
+            elementStyle.unitySliceBottom = style.unitySliceBottom;
+            elementStyle.unitySliceLeft = style.unitySliceLeft;
+            elementStyle.unitySliceRight = style.unitySliceRight;
+            elementStyle.unitySliceTop = style.unitySliceTop;
+            elementStyle.unityTextAlign = style.unityTextAlign;
+            elementStyle.unityTextOutlineColor = style.unityTextOutlineColor;
+            elementStyle.unityTextOutlineWidth = style.unityTextOutlineWidth;
+            elementStyle.unityTextOverflowPosition = style.unityTextOverflowPosition;
+            elementStyle.visibility = style.visibility;
+            elementStyle.whiteSpace = style.whiteSpace;
+            elementStyle.width = style.width;
+            elementStyle.wordSpacing = style.wordSpacing;
             
             if (element is ICustomPicking customPicking)
             {
