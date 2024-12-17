@@ -72,6 +72,10 @@ namespace RishUI
                 {
                     return null;
                 }
+
+#if UNITY_EDITOR
+                UnityEngine.Debug.Log($"Create new Comparer for type {type}");
+#endif
                 
                 comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
                 Delegates.Add(type, comparer);

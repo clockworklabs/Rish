@@ -66,6 +66,10 @@ namespace RishUI.MemoryManagement
                     return null;
                 }
 
+#if UNITY_EDITOR
+                UnityEngine.Debug.Log($"Create new References Getter for type {type}");
+#endif
+
                 referencesGetter = Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method);
                 Delegates.Add(type, referencesGetter);
             }
