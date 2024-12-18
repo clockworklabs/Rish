@@ -59,36 +59,10 @@ namespace RishUI
             return element as T;
         }
 
-        public static bool Free(IElement element)
-        {
-            if (element == null)
-            {
-                return false;
-            }
-
-            if (element is VisualElement visualElement)
-            {
-                for (var i = visualElement.childCount - 1; i >= 0; i--)
-                {
-                    Free(visualElement[i] as IElement);
-                }
-            }
-
-            return true;
-        }
-
         internal static void ReturnToPool(IElement element)
         {
-            if (element == null)
-            {
-                return;
-            }
-
-            var type = element.GetType();
-            if (!Pools.TryGetValue(type, out var pool))
-            {
-                return;
-            }
+            var type = element?.GetType();
+            if (type == null || !Pools.TryGetValue(type, out var pool)) return;
 
             pool.Push(element);
         }
@@ -106,12 +80,14 @@ namespace RishUI
                 {
                     var element = new T();
 
+                    // TODO: Maybe remove this? We only need them in some scenarios.
                     if (element is VisualElement visualElement)
                     {
                         visualElement.AddManipulator(new HoverManipulator());
                         visualElement.AddManipulator(new ClickManipulator());
                         visualElement.AddManipulator(new VisualChangeManipulator());
                     }
+                    
                     pool.Push(element);
                 }
                 catch (Exception exception)

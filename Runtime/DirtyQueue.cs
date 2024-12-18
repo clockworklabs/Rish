@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using Priority_Queue;
 
@@ -44,7 +43,7 @@ namespace RishUI
                 }
             }
 
-            node.OnUnmount += Remove;
+            node.OnInactive += Remove;
             Ids.Add(node.ID);
             
             if (forceThisFrame)
@@ -212,7 +211,7 @@ namespace RishUI
 
         private void Reset(Node node, FastPriorityQueue<Node> queue = null)
         {
-            node.OnUnmount -= Remove;
+            node.OnInactive -= Remove;
             Ids.Remove(node.ID);
             queue?.ResetNode(node);
         }

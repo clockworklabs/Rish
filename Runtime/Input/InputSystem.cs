@@ -21,12 +21,12 @@ namespace RishUI.Input
                 }
                 
                 // Blur previous VisualElement
-                _focused?.Node?.GetDOMChild()?.VisualElement?.Blur();
+                _focused?.Node?.GetVisualChild()?.VisualElement?.Blur();
                 
                 _focused = value;
                 
                 // Focus new VisualElement
-                _focused?.Node?.GetDOMChild()?.VisualElement?.Focus();
+                _focused?.Node?.GetVisualChild()?.VisualElement?.Focus();
             }
         }
         
@@ -48,7 +48,7 @@ namespace RishUI.Input
 
                 _focusIndex = value;
                 
-                var visualElement = Node?.GetDOMChild()?.VisualElement;
+                var visualElement = Node?.GetVisualChild()?.VisualElement;
                 if (visualElement != null)
                 {
                     visualElement.focusable = value > 0;
@@ -70,9 +70,11 @@ namespace RishUI.Input
         public InputSystem(Node node)
         {
             Node = node;
+            Node.OnMounted += OnMounted;
+            Node.OnUnmounted += OnUnmounted;
         }
 
-        public void OnMounted()
+        private void OnMounted()
         {
             switch (Element)
             {
@@ -112,7 +114,7 @@ namespace RishUI.Input
             }
         }
 
-        public void OnUnmounted()
+        private void OnUnmounted()
         {
             switch (Element)
             {
@@ -196,12 +198,12 @@ namespace RishUI.Input
                     }
                     
                     // Release previous VisualElement
-                    _capturing?.Node?.GetDOMChild()?.VisualElement?.ReleasePointer(PointerId);
+                    _capturing?.Node?.GetVisualChild()?.VisualElement?.ReleasePointer(PointerId);
                 
                     _capturing = value;
                 
                     // Capture new VisualElement
-                    _capturing?.Node?.GetDOMChild()?.VisualElement?.CapturePointer(PointerId);
+                    _capturing?.Node?.GetVisualChild()?.VisualElement?.CapturePointer(PointerId);
                 }
             }
 

@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace RishUI
 {
+    // TODO: Maybe we can use GenericPool instead?
     internal class ElementDefinitionPool : IPool
     {
         private const int InitialPoolSize = 64;

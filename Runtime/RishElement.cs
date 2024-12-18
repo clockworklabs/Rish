@@ -14,7 +14,7 @@ namespace RishUI
     internal interface IRishElement : IElement
     {
         event Action<bool> OnDirty;
-        event Action OnReadyToUnmount;
+        event Action<bool> OnReadyToUnmount;
         
         void Mount(Node node);
         void RequestUnmount();
@@ -38,8 +38,8 @@ namespace RishUI
             remove => OnDirty -= value;
         }
         
-        private event Action OnReadyToUnmount;
-        event Action IRishElement.OnReadyToUnmount
+        private event Action<bool> OnReadyToUnmount;
+        event Action<bool> IRishElement.OnReadyToUnmount
         {
             add => OnReadyToUnmount += value;
             remove => OnReadyToUnmount -= value;
@@ -94,7 +94,7 @@ namespace RishUI
         public T GetFirstAncestorOfType<T>() where T : class => Node?.GetFirstAncestorOfType<T>();
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
-        private VisualElement GetDOMChild() => Node?.GetDOMChild()?.VisualElement;
+        private VisualElement GetDOMChild() => Node?.GetVisualChild()?.VisualElement;
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
@@ -155,11 +155,16 @@ namespace RishUI
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
+
+        /// <summary>
+        /// Flags this element as ready to be unmounted after unmounting was requested.
+        /// </summary>
+        protected void CanUnmount() => CanUnmount(false);
         
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
-        protected void CanUnmount()
+        protected void CanUnmount(bool force)
         {
             if (!UnmountRequested || ReadyToUnmount)
             {
@@ -167,7 +172,7 @@ namespace RishUI
             }
             
             ReadyToUnmount = true;
-            OnReadyToUnmount?.Invoke();
+            OnReadyToUnmount?.Invoke(force);
         }
 
         int IOwner.GetID() => NodeID;
@@ -205,15 +210,7 @@ namespace RishUI
 
         void IRishElement.RequestUnmount()
         {
-            if (UnmountRequested)
-            {
-                if (ReadyToUnmount)
-                {
-                    OnReadyToUnmount?.Invoke();
-                }
-
-                return;
-            }
+            if (UnmountRequested || ReadyToUnmount) return;
 
             UnmountRequested = true;
 
@@ -223,7 +220,7 @@ namespace RishUI
             }
             else
             {
-                CanUnmount();
+                CanUnmount(false);
             }
         }
 

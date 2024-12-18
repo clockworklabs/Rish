@@ -14,9 +14,11 @@ namespace RishUI.Events
         public ToolkitEventsManager(Node node)
         {
             Node = node;
+            Node.OnMounted += OnMounted;
+            Node.OnUnmounted += OnUnmounted;
         }
 
-        public void OnMounted()
+        private void OnMounted()
         {
             if (Element is IRishElement rishElement)
             {
@@ -31,7 +33,7 @@ namespace RishUI.Events
             }
         }
 
-        public void OnUnmounted()
+        private void OnUnmounted()
         {
             if (Manipulators != null)
             {
