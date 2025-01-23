@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
@@ -12,6 +11,7 @@ namespace RishUI
     public class Node : FastPriorityQueueNode, IOwner
     {
         internal event Action OnMounted; // TODO: C# Creates garbage with these
+        internal event Action OnBeforeUnmount; // TODO: C# Creates garbage with these
         internal event Action OnUnmounted; // TODO: C# Creates garbage with these
         internal event Action<Node> OnInactive; // TODO: Maybe uint? // TODO: C# Creates garbage with these
         
@@ -439,6 +439,7 @@ namespace RishUI
                     OnMounted?.Invoke();
                     break;
                 case UnmountedState:
+                    OnBeforeUnmount?.Invoke();
                     OnUnmounted?.Invoke();
                     OnInactive?.Invoke(this);
                     break;
@@ -909,16 +910,9 @@ namespace RishUI
                     }
                 }
 
-                switch (Node.Element)
+                if (Node.Element is IRishElement rishElement)
                 {
-                    case IRishElement rishElement:
-                        rishElement.Unmount();
-                        break;
-                    case IInternalVisualElement visualElement:
-                    {
-                        visualElement.Bridge.Unmount();
-                        break;
-                    }
+                    rishElement.Unmount();
                 }
                 
                 Node.Free();
@@ -926,6 +920,11 @@ namespace RishUI
 
             public override void Exit()
             {
+                if (Node.Element is IInternalVisualElement visualElement)
+                {
+                    visualElement.Bridge.RemoveFromHierarchy();
+                }
+                
                 ElementsPool.ReturnToPool(Node.Element);
                 ReturnNodeToPool(Node);
             }

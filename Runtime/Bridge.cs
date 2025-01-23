@@ -16,7 +16,7 @@ namespace RishUI
         VisualElement Element { get; }
         
         void Mount(Node node);
-        void Unmount();
+        void RemoveFromHierarchy();
     }
     public interface IBridge<P> : IBridge where P : struct
     {
@@ -601,59 +601,8 @@ namespace RishUI
             }
         }
 
-        void IBridge.Unmount()
+        void IBridge.RemoveFromHierarchy()
         {
-            if (Element.IsHover())
-            {
-                for (int i = 0, n = PointerId.maxPointers; i < n; i++)
-                {
-                    if (!Element.ContainsPointer(i)) { continue; }
-
-                    var position = PointerUtils.GetPointerPosition(i);
-                    var pressedButtons = PointerUtils.GetPressedButtons(i);
-
-                    var parent = Element.parent;
-                    var prevContained = true;
-                    while (parent != null)
-                    {
-                        var localPosition = parent.WorldToLocal(position);
-                        var containsPointer = parent.ContainsPointer(i);
-
-                        bool mustReport;
-                        if (parent is IVisualElement)
-                        {
-                            if (containsPointer && !prevContained)
-                            {
-                                break;
-                            }
-                            prevContained = containsPointer;
-                            mustReport = !containsPointer;
-                        }
-                        else
-                        {
-                            mustReport = prevContained;
-                        }
-
-                        if (mustReport)
-                        {
-                            var e = new StructPointerEvent
-                            {
-                                pointerId = i,
-                                position = position,
-                                localPosition = localPosition,
-                                pressedButtons = pressedButtons
-                            };
-
-                            using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
-                            pointerLeaveEvent.target = parent;
-                            parent.SendEvent(pointerLeaveEvent);
-                        }
-
-                        parent = parent.parent;
-                    }
-                }
-            }
-            
             Element.RemoveFromHierarchy();
             
             if (References.IsCreated)
@@ -667,60 +616,6 @@ namespace RishUI
             References = default;
             
             Node = null;
-        }
-
-        private struct StructPointerEvent : IPointerEvent
-        {
-            public int pointerId;
-            int IPointerEvent.pointerId => pointerId;
-            public string pointerType;
-            string IPointerEvent.pointerType => pointerType;
-            public bool isPrimary;
-            bool IPointerEvent.isPrimary => isPrimary;
-            public int button;
-            int IPointerEvent.button => button;
-            public int pressedButtons;
-            int IPointerEvent.pressedButtons => pressedButtons;
-            public Vector3 position;
-            Vector3 IPointerEvent.position => position;
-            public Vector3 localPosition;
-            Vector3 IPointerEvent.localPosition => localPosition;
-            public Vector3 deltaPosition;
-            Vector3 IPointerEvent.deltaPosition => deltaPosition;
-            public float deltaTime;
-            float IPointerEvent.deltaTime => deltaTime;
-            public int clickCount;
-            int IPointerEvent.clickCount => clickCount;
-            public float pressure;
-            float IPointerEvent.pressure => pressure;
-            public float tangentialPressure;
-            float IPointerEvent.tangentialPressure => tangentialPressure;
-            public float altitudeAngle;
-            float IPointerEvent.altitudeAngle => altitudeAngle;
-            public float azimuthAngle;
-            float IPointerEvent.azimuthAngle => azimuthAngle;
-            public float twist;
-            float IPointerEvent.twist => twist;
-            public Vector2 radius;
-            Vector2 IPointerEvent.radius => radius;
-            public Vector2 radiusVariance;
-            Vector2 IPointerEvent.radiusVariance => radiusVariance;
-            public EventModifiers modifiers;
-            EventModifiers IPointerEvent.modifiers => modifiers;
-            public bool shiftKey;
-            bool IPointerEvent.shiftKey => shiftKey;
-            public bool ctrlKey;
-            bool IPointerEvent.ctrlKey => ctrlKey;
-            public bool commandKey;
-            bool IPointerEvent.commandKey => commandKey;
-            public bool altKey;
-            bool IPointerEvent.altKey => altKey;
-            public bool actionKey;
-            bool IPointerEvent.actionKey => actionKey;
-            public Vector2 tilt;
-            Vector2 IPointerEvent.tilt => tilt;
-            public PenStatus penStatus;
-            PenStatus IPointerEvent.penStatus => penStatus;
         }
     }
 
