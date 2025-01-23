@@ -339,13 +339,20 @@ namespace RishUI
                 {
                     var currentChild = VirtualChildren[i];
                     if (currentChild.Type != type) continue;
+#if UNITY_EDITOR
+                    if (!currentChild.IsActive())
+                    {
+                        Debug.LogError($"This child is in state {currentChild.Machine.CurrentState} and yet is part of the VirtualChildren.");
+                        continue;
+                    }
+#endif
 
                     if (currentChild.Key == 0 && firstFreeIndex < 0)
                     {
                         firstFreeIndex = i;
                     }
 
-                    if ((key > 0 && currentChild.Key == key) || (key == 0 && currentChild.Key == 0 && currentChild.VirtualIndex == ChildCount))
+                    if ((key > 0 && currentChild.Key == key) || (key == 0 && currentChild.Key == 0 && currentChild.VirtualIndex == targetIndex))
                     {
                         index = i;
                         break;
@@ -391,7 +398,17 @@ namespace RishUI
             return child.Element as T;
         }
 
-        private void Dirty(bool forceThisFrame) => Tree.Dirty(this, forceThisFrame);
+        private void Dirty(bool forceThisFrame)
+        {
+            if (Tree == null)
+            {
+                Debug.LogError($"Null Tree. Node is in {Machine.CurrentState}.");
+            }
+            else
+            {
+                Tree.Dirty(this, forceThisFrame);
+            }
+        }
         private void Free() => Tree.NodeFreed(this);
 
         private bool Contains(Node child) => VirtualChildren.Contains(child);
@@ -679,6 +696,14 @@ namespace RishUI
                 }
             }
 
+            public override void Exit()
+            {
+                if(Node.Element is IRishElement rishElement)
+                {
+                    rishElement.OnDirty -= Node.Dirty;
+                }
+            }
+
             public override void Unmount(bool forceUnmount)
             {
                 if (forceUnmount)
@@ -696,11 +721,6 @@ namespace RishUI
         {
             private bool ElementReady { get; set; }
 
-            private HashSet<int> ChildrenSet { get; set; }
-#if UNITY_EDITOR
-            private HashSet<int> UnmountedSet { get; set; }
-#endif
-            private List<Node> Children { get; set; }
             private HashSet<int> UnmountingSet { get; set; }
             private List<Node> Unmounting { get; set; }
 
@@ -709,58 +729,72 @@ namespace RishUI
             public override void Enter()
             {
 #if UNITY_EDITOR
-                if (ChildrenSet is { Count: > 0 } || Children is { Count: > 0 } || UnmountingSet is { Count: > 0 } || Unmounting is { Count: > 0 })
+                if (UnmountingSet is { Count: > 0 } || Unmounting is { Count: > 0 })
                 {
                     Debug.LogError("UnmountRequestedState didn't reset properly.");
                 }
 #endif
-
-                var childrenCount = Node.VirtualChildren?.Count ?? 0;
-                if (childrenCount > 0)
+                
+                if (Node.Element is IRishElement rishElement)
                 {
-#if UNITY_EDITOR
-                    if (childrenCount != Node.ChildCount)
-                    {
-                        Debug.LogError("This node seems to be in the middle of rendering. This shouldn't happen.");
-                    }
-#endif
-
-                    if (ChildrenSet == null)
-                    {
-                        var initialCapacity = Node.VirtualChildren.Capacity;
-                        ChildrenSet = new HashSet<int>(initialCapacity);
-#if UNITY_EDITOR
-                        UnmountedSet = new HashSet<int>(initialCapacity);
-#endif
-                        Children = new List<Node>(initialCapacity);
-                    }
-
-                    for (var i = 0; i < childrenCount; i++)
-                    {
-                        var child = Node.VirtualChildren[i];
-#if UNITY_EDITOR
-                        if (!child.Machine.IsIn<MountedState>())
-                        {
-                            Debug.LogError("This child is not in Mounted state. It shouldn't be in VirtualChildren.");
-                        }
-#endif
-                        
-                        var childId = child.ID;
-                        if (ChildrenSet.Add(childId))
-                        {
-                            Children.Add(child);
-                            child.Machine.OnChange += OnChildChange;
-                            child.Unmount(false);
-                        }
-#if UNITY_EDITOR
-                        else
-                        {
-                            Debug.LogError("Duplicated children in VirtualChildren. This should never happen.");
-                        }
-#endif
-                    }
+                    rishElement.OnDirty += Node.Dirty;
+                    rishElement.OnReadyToUnmount += ElementReadyToUnmount;
+                    rishElement.RequestUnmount();
                 }
+                else
+                {
+                    ElementReadyToUnmount();
+                }
+            }
 
+            public override void Exit()
+            {
+                if (!ElementReady && Node.Element is IRishElement rishElement)
+                {
+                    rishElement.OnDirty -= Node.Dirty;
+                    rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
+                }
+                ElementReady = false;
+
+                if (Unmounting != null)
+                {
+                    for (int i = 0, n = Unmounting.Count; i < n; i++)
+                    {
+                        var child = Unmounting[i];
+                        child.Machine.OnChange -= OnUnmountingChange;
+                    }
+
+                    UnmountingSet.Clear();
+                    Unmounting.Clear();
+                }
+            }
+
+            private void TryUnmount()
+            {
+                if (!ElementReady || UnmountingSet?.Count > 0) return;
+
+                GoTo<ReadyToUnmountState>();
+            }
+
+            private void ElementReadyToUnmount()
+            {
+#if UNITY_EDITOR
+                if (ElementReady)
+                {
+                    Debug.LogError("Element was already ready to unmount.");
+                }
+#endif
+                
+                ElementReady = true;
+                if (Node.Element is IRishElement rishElement)
+                {
+                    rishElement.OnDirty -= Node.Dirty;
+                    rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
+                }
+                
+                Node.Clear();
+                Node.Clean();
+                
                 var unmountingCount = Node.UnmountingChildren?.Count ?? 0;
                 if (unmountingCount > 0)
                 {
@@ -775,9 +809,9 @@ namespace RishUI
                     {
                         var child = Node.UnmountingChildren[i];
 #if UNITY_EDITOR
-                        if (!child.Machine.IsIn<UnmountRequestedState>() || !child.Machine.IsIn<ReadyToUnmountState>())
+                        if (!child.Machine.IsIn<UnmountRequestedState>() && !child.Machine.IsIn<ReadyToUnmountState>())
                         {
-                            Debug.LogError("This child is not in the right state. It shouldn't be in UnmountingChildren.");
+                            Debug.LogError($"This child is not in the right state. Its state is {child.Machine.CurrentState} and it shouldn't be in UnmountingChildren.");
                         }
 #endif
                         
@@ -795,117 +829,15 @@ namespace RishUI
 #endif
                     }
                 }
-                
-                if (Node.Element is IRishElement rishElement)
-                {
-                    rishElement.OnReadyToUnmount += ElementReadyToUnmount;
-                    rishElement.RequestUnmount();
-                }
-                else
-                {
-                    ElementReadyToUnmount(false);
-                }
 
                 TryUnmount();
-            }
-
-            public override void Exit()
-            {
-                ElementReady = false;
-                
-                if (Children != null)
-                {
-                    for (int i = 0, n = Children.Count; i < n; i++)
-                    {
-                        var child = Children[i];
-                        child.Machine.OnChange -= OnChildChange;
-                    }
-
-                    ChildrenSet.Clear();
-#if UNITY_EDITOR
-                    UnmountedSet.Clear();
-#endif
-                    Children.Clear();
-                }
-
-                if (Unmounting != null)
-                {
-                    for (int i = 0, n = Unmounting.Count; i < n; i++)
-                    {
-                        var child = Unmounting[i];
-                        child.Machine.OnChange -= OnUnmountingChange;
-                    }
-
-                    UnmountingSet.Clear();
-                    Unmounting.Clear();
-                }
-
-                if (Node.Element is IRishElement rishElement)
-                {
-                    rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
-                }
-            }
-
-            private void TryUnmount()
-            {
-                if (!ElementReady || ChildrenSet?.Count > 0 || UnmountingSet?.Count > 0) return;
-
-                GoTo<ReadyToUnmountState>();
-            }
-
-            private void ElementReadyToUnmount(bool force)
-            {
-#if UNITY_EDITOR
-                if (ElementReady)
-                {
-                    Debug.LogError("Element was already ready to unmount.");
-                }
-#endif
-                ElementReady = true;
-
-                if (force)
-                {
-                    GoTo<UnmountedState>();
-                    return;
-                }
-
-                TryUnmount();
-            }
-
-            private void OnChildChange(State state)
-            {
-                var node = state.Node;
-                var nodeId = node.ID;
-#if UNITY_EDITOR
-                if (!ChildrenSet.Contains(nodeId) && !UnmountedSet.Contains(nodeId))
-                {
-                    Debug.LogError($"Child {nodeId} wasn't added to ChildrenSet. Weird.");
-                }
-                if (!Node.VirtualChildren.Any(node => node.ID == nodeId))
-                {
-                    Debug.LogError($"Child {nodeId} isn't mounted. Weird.");
-                }
-#endif
-
-                if (state is ReadyToUnmountState or UnmountedState && ChildrenSet.Remove(nodeId))
-                {
-#if UNITY_EDITOR
-                    UnmountedSet.Add(nodeId);
-#endif
-                    TryUnmount();
-                }
             }
 
             private void OnUnmountingChange(State state)
             {
                 var node = state.Node;
                 var nodeId = node.ID;
-#if UNITY_EDITOR
-                if (!UnmountingSet.Contains(nodeId))
-                {
-                    Debug.LogError($"Child {nodeId} wasn't added to UnmountingSet. Weird.");
-                }
-#endif
+                
                 if (state is UnmountedState && UnmountingSet.Remove(nodeId))
                 {
                     TryUnmount();
@@ -926,11 +858,6 @@ namespace RishUI
 
             public override void Enter()
             {
-                if(Node.Element is IRishElement rishElement)
-                {
-                    rishElement.OnDirty -= Node.Dirty;
-                }
-
                 if (Node.Parent == null || !Node.Parent.Contains(Node))
                 {
                     GoTo<UnmountedState>();

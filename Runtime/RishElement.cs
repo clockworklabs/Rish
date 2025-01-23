@@ -14,7 +14,7 @@ namespace RishUI
     internal interface IRishElement : IElement
     {
         event Action<bool> OnDirty;
-        event Action<bool> OnReadyToUnmount;
+        event Action OnReadyToUnmount;
         
         void Mount(Node node);
         void RequestUnmount();
@@ -38,8 +38,8 @@ namespace RishUI
             remove => OnDirty -= value;
         }
         
-        private event Action<bool> OnReadyToUnmount;
-        event Action<bool> IRishElement.OnReadyToUnmount
+        private event Action OnReadyToUnmount;
+        event Action IRishElement.OnReadyToUnmount
         {
             add => OnReadyToUnmount += value;
             remove => OnReadyToUnmount -= value;
@@ -155,16 +155,11 @@ namespace RishUI
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
-
-        /// <summary>
-        /// Flags this element as ready to be unmounted after unmounting was requested.
-        /// </summary>
-        protected void CanUnmount() => CanUnmount(false);
         
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
-        protected void CanUnmount(bool force)
+        protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
             {
@@ -172,7 +167,7 @@ namespace RishUI
             }
             
             ReadyToUnmount = true;
-            OnReadyToUnmount?.Invoke(force);
+            OnReadyToUnmount?.Invoke();
         }
 
         int IOwner.GetID() => NodeID;
@@ -220,7 +215,7 @@ namespace RishUI
             }
             else
             {
-                CanUnmount(false);
+                CanUnmount();
             }
         }
 
