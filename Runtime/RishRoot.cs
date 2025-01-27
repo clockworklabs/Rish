@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using RishUI.Events;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
@@ -173,7 +172,7 @@ namespace RishUI
 #if UNITY_EDITOR
                 updateTime = Tree.Update(MaxUpdatesPerStep, maxUpdateTime, DebugRender);
 #else
-                updateTime = Tree.Update(MaxUpdatesPerFrame, maxUpdateTime);
+                updateTime = Tree.Update(MaxUpdatesPerStep, maxUpdateTime);
 #endif
             }
             catch (Exception e)

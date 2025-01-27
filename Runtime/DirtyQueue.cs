@@ -66,7 +66,7 @@ namespace RishUI
 #if UNITY_EDITOR
         public double Update(uint maxCount, float? maxTime, bool debug)
 #else
-        public double Update(int maxCount, float? maxUpdateTime)
+        public double Update(uint maxCount, float? maxTime)
 #endif
         {
             var sw = Stopwatch.StartNew();

@@ -37,7 +37,7 @@ namespace RishUI
         #if UNITY_EDITOR
         public double Update(uint maxUpdates, float? maxUpdateTime, bool debug)
         #else
-        public double Update()
+        public double Update(uint maxUpdates, float? maxUpdateTime)
         #endif
         {
             (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
