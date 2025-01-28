@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -51,6 +50,16 @@ namespace Rishenerator
             "State types must have the RishValueType attribute.",
             null // TODO: Help link to documentation
         );
+        private static readonly DiagnosticDescriptor VisualElementPropsRishValueTypeRule = new(
+            "VisualElementPropsRishValueTypeRule",
+            "VisualElement Props must be RishValueType",
+            "Props {0} of {1} must be RishValueType",
+            "Usage",
+            DiagnosticSeverity.Error,
+            true,
+            "Props types must have the RishValueType attribute.",
+            null // TODO: Help link to documentation
+        );
         // private static readonly DiagnosticDescriptor RishValueTypeRule = new(
         //     "RishValueTypeRule",
         //     "Types holding Rish-reference types must be RishValueType",
@@ -95,9 +104,10 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule);
 
-        // private static Dictionary<ITypeSymbol, bool> NeedsRishValueType { get; } = new(); 
+        // private static Dictionary<ITypeSymbol, bool> NeedsRishValueType { get; } = new();
+        
         public override void Initialize(AnalysisContext context)
         {
             // NeedsRishValueType.Clear();
@@ -146,6 +156,36 @@ namespace Rishenerator
                     }
                 }
             }
+            
+            foreach (var interfaceTypeSymbol in classSymbol.Interfaces)
+            {
+                var interfaceTypeFullName = interfaceTypeSymbol.GetFullName(false);
+                if (interfaceTypeFullName == "RishUI.IVisualElement")
+                {
+                    var typeArguments = interfaceTypeSymbol.TypeArguments;
+                    for(int i = 0, n = typeArguments.Length; i < n; i++)
+                    {
+                        var typeArgument = typeArguments[i];
+                        if (typeArgument is ITypeParameterSymbol || typeArgument.IsFlaggedAsRishValueType())
+                        {
+                            continue;
+                        }
+                        
+                        var argumentTypeDeclarationSyntax = typeArgument.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+
+                        switch (i)
+                        {
+                            case 0:
+                            {
+                                var diagnostic = Diagnostic.Create(VisualElementPropsRishValueTypeRule, argumentTypeDeclarationSyntax?.GetLocation() ?? declarationSyntax.GetLocation(), typeArgument, classSymbol);
+                                context.ReportDiagnostic(diagnostic);
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
 
             var baseTypeSymbol = classSymbol.BaseType;
             while (baseTypeSymbol != null)
@@ -180,6 +220,8 @@ namespace Rishenerator
                             }
                         }
                     }
+
+                    break;
                 }
 
                 baseTypeSymbol = baseTypeSymbol.BaseType;

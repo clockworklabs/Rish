@@ -14,7 +14,10 @@ namespace RishUI.MemoryManagement
         private static Dictionary<Type, MethodInfo> Methods { get; } = new(200);
         private static Dictionary<Type, Delegate> Delegates { get; } = new();
 
+        
+#if UNITY_EDITOR
         public static int Count => Methods.Count;
+#endif
 
         private delegate NativeList<Reference> ReferencesGetter<in T>(T owner, bool temp);
         
@@ -61,16 +64,9 @@ namespace RishUI.MemoryManagement
                     }
                 }
 
-                if (method == null)
-                {
-                    return null;
-                }
-
-#if UNITY_EDITOR
-                UnityEngine.Debug.Log($"Create new References Getter for type {type}");
-#endif
-
-                referencesGetter = Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method);
+                referencesGetter = method != null
+                    ? Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method)
+                    : null;
                 Delegates.Add(type, referencesGetter);
             }
 

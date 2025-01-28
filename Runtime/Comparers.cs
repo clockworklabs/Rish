@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace RishUI
@@ -17,9 +16,11 @@ namespace RishUI
     {
         private static Dictionary<Type, MethodInfo> Methods { get; } = new(200);
         private static Dictionary<Type, Delegate> Delegates { get; } = new();
-
+        
+#if UNITY_EDITOR
         public static int Count => Methods.Count;
-
+#endif
+        
         private delegate bool Comparer<in T>(T first, T second);
         
         static Comparers()
@@ -39,6 +40,7 @@ namespace RishUI
         private static Comparer<T> GetDelegate<T>() where T : struct
         {
             var type = typeof(T);
+
             if (!Delegates.TryGetValue(type, out var comparer))
             {
                 if (!Methods.TryGetValue(type, out var method))
@@ -53,7 +55,7 @@ namespace RishUI
                             {
                                 if (declaringType.IsGenericType)
                                 {
-                                    throw new UnityException("Generic Comparer should not be defined in a generic type");
+                                    throw new UnityEngine.UnityException("Generic Comparer should not be defined in a generic type");
                                 }
                                 method = method.MakeGenericMethod(type.GenericTypeArguments);
                             }
@@ -67,21 +69,14 @@ namespace RishUI
                         }
                     }
                 }
-
-                if (method == null)
-                {
-                    return null;
-                }
-
-#if UNITY_EDITOR
-                UnityEngine.Debug.Log($"Create new Comparer for type {type}");
-#endif
                 
-                comparer = Delegate.CreateDelegate(typeof(Comparer<T>), null, method);
+                comparer = method != null
+                    ? Delegate.CreateDelegate(typeof(Comparer<T>), null, method)
+                    : null;
                 Delegates.Add(type, comparer);
             }
 
-            return (Comparer<T>) comparer;
+            return (Comparer<T>)comparer;
         }
 
         private static void RegisterComparers(Type provider)

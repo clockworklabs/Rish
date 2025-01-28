@@ -138,7 +138,7 @@ namespace RishUI
         {
             set
             {
-                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.Compare(_props.Value, value)) return;
+                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
 
                 _props = value;
                 
