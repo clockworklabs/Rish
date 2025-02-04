@@ -12,9 +12,6 @@ namespace RishUI
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        public delegate void AppRecovered(RishRoot oldRishRoot, RishRoot newRishRoot);
-        
-        public static event AppRecovered OnRecovered;
         public static event Action<RishRoot> OnStart;
 
         [SerializeField]
@@ -95,6 +92,11 @@ namespace RishUI
         private const int RecordedStepsCount = 10;
         private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
         private float TotalRecordedExtraTime { get; set; }
+
+        public struct Test
+        {
+            private RishList<RishList<Test>> t;
+        }
         
         private IEnumerator Start()
         {
@@ -119,10 +121,8 @@ namespace RishUI
                 AddStyleSheet(styleSheet);
             }
             
-            Tree = new Tree(Document, RootClassName, Recovered);
+            RegenTree();
             
-            OnStart?.Invoke(this);
-
             var wait = new WaitForEndOfFrame();
             while (true)
             {
@@ -132,11 +132,7 @@ namespace RishUI
             }
         }
 
-        private void OnDestroy()
-        {
-            Tree.Dispose();
-            Rish.CleanGarbage();
-        }
+        private void OnDestroy() => Dispose();
 
         private void LateUpdate()
         {
@@ -147,6 +143,21 @@ namespace RishUI
             }
 
             Step();
+        }
+
+        private void Dispose()
+        {
+            if (Tree == null) return;
+            Tree.Dispose();
+            Rish.CleanGarbage();
+        }
+
+        public void RegenTree()
+        {
+            Dispose();
+
+            Tree = new Tree(Document, RootClassName, Recovered);
+            OnStart?.Invoke(this);
         }
 
         public void Step()
@@ -181,22 +192,10 @@ namespace RishUI
                 Debug.LogException(e);
 #endif
                 updateTime = null;
-                
-                var newRoot = gameObject.AddComponent<RishRoot>();
-                newRoot._manualUpdate = _manualUpdate;
-                newRoot._maxUpdatesPerStep = _maxUpdatesPerStep;
-                newRoot._maxTargetTimePerStep = _maxTargetTimePerStep;
-                newRoot._styleSheets = _styleSheets;
-#if UNITY_EDITOR
-                newRoot._debugRender = _debugRender;
-                newRoot._rootGUID = _rootGUID;
-#endif
-                newRoot._rootClassName = _rootClassName;
-                newRoot.Recovered = true;
-                
-                OnRecovered?.Invoke(this, newRoot);
 
-                Destroy(this);
+                Recovered = true;
+                
+                RegenTree();
             }
             
             Rish.CleanGarbage();
