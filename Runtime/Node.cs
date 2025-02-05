@@ -910,9 +910,14 @@ namespace RishUI
                     }
                 }
 
-                if (Node.Element is IRishElement rishElement)
+                switch (Node.Element)
                 {
-                    rishElement.Unmount();
+                    case IRishElement rishElement:
+                        rishElement.Unmount();
+                        break;
+                    case IInternalVisualElement visualElement:
+                        visualElement.Bridge.RemoveFromHierarchy();
+                        break;
                 }
                 
                 Node.Free();
@@ -920,11 +925,6 @@ namespace RishUI
 
             public override void Exit()
             {
-                if (Node.Element is IInternalVisualElement visualElement)
-                {
-                    visualElement.Bridge.RemoveFromHierarchy();
-                }
-                
                 ElementsPool.ReturnToPool(Node.Element);
                 ReturnNodeToPool(Node);
             }

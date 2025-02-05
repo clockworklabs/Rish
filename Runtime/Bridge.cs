@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.Events.Tree;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
@@ -183,6 +184,8 @@ namespace RishUI
         {
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
+
+            Element.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
         }
 
         void IBridge.Mount(Node node)
@@ -616,6 +619,12 @@ namespace RishUI
             References = default;
             
             Node = null;
+        }
+
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
+        {
+            var unmountingEvt = UnmountingEvent.GetPooled(Element);
+            Element.SendEvent(unmountingEvt);
         }
     }
 
