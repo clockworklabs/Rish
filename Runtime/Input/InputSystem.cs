@@ -11,25 +11,43 @@ namespace RishUI.Input
             get => _focused;
             set
             {
-                if (_focused == value)
-                {
-                    return;
-                }
-
-                if (value != null && !value.IsFocusable())
-                {
-                    return;
-                }
-                
-                // Blur previous VisualElement
-                _focused?.Node?.GetVisualChild()?.VisualElement?.Blur();
+                if (_focused == value || (value != null && !value.IsFocusable())) return;
                 
                 _focused = value;
-                
-                // Focus new VisualElement
-                _focused?.Node?.GetVisualChild()?.VisualElement?.Focus();
+
+                FocusedVisualElement = value?.Node?.GetVisualChild().VisualElement;
             }
         }
+        private static VisualElement _focusedVisualElement;
+        private static VisualElement FocusedVisualElement
+        {
+            get => _focusedVisualElement;
+            set
+            {
+                if (_focusedVisualElement == value) return;
+
+                if (_focusedVisualElement != null)
+                {
+                    _focusedVisualElement.UnregisterCallback<FocusOutEvent>(OnBlur);
+                    _focusedVisualElement.UnregisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+                    
+                    _focusedVisualElement.Blur();
+                }
+                
+                _focusedVisualElement = value;
+
+                if (value != null)
+                {
+                    value.RegisterCallback<FocusOutEvent>(OnBlur);
+                    value.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+                    
+                    value.Focus();
+                }
+            }
+        }
+
+        private static void OnBlur(FocusOutEvent evt) => Focused = null;
+        private static void OnDetachFromPanel(DetachFromPanelEvent evt) => Focused = null;
         
         private static Pointer[] Pointers { get; }
         
@@ -54,6 +72,11 @@ namespace RishUI.Input
                 {
                     visualElement.focusable = value > 0;
                     visualElement.tabIndex = value;
+                }
+
+                if (value < 0 && Focused == this)
+                {
+                    Blur();
                 }
             }
         }
@@ -87,7 +110,7 @@ namespace RishUI.Input
                     FocusIndex = -1;
 
                     var parent = Node.Parent;
-                    while (parent is { IsVisualElement: false })
+                    if (parent is { IsVisualElement: false })
                     {
                         var parentSystem = parent.InputSystem;
                         if (parentSystem.IsFocusable())
@@ -96,7 +119,7 @@ namespace RishUI.Input
                             visualElement.tabIndex = parentSystem.FocusIndex;
                             if (Focused == parentSystem)
                             {
-                                visualElement.Focus();
+                                FocusedVisualElement = visualElement;
                             }
                         }
                         for (int i = 0, n = PointerId.maxPointers; i < n; i++)
@@ -106,8 +129,6 @@ namespace RishUI.Input
                                 visualElement.CapturePointer(i);
                             }
                         }
-                    
-                        parent = parent.Parent;
                     }
 
                     break;
@@ -221,38 +242,81 @@ namespace RishUI.Input
             FocusIndex = -1;
         }
 
-        private bool IsFocusable()
-        {
-            if (FocusIndex < 0)
-            {
-                return false;
-            }
-
-            var parent = Node.Parent;
-            while (parent is { IsVisualElement: false })
-            {
-                var parentSystem = parent.InputSystem;
-                if (parentSystem.IsFocusable())
-                {
-                    return false;
-                }
-                    
-                parent = parent.Parent;
-            }
-
-            return true;
-        }
+        private bool IsFocusable() => FocusIndex >= 0;
         
         public void SetFocusIndex(int index) => FocusIndex = index;
-        public void Focus() => Focused = this;
-        public void Blur()
+
+        private bool TryGetFocusable(out InputSystem result) => TryGetFirstFocusable(out result, out _, out _);
+        private bool TryGetFirstFocusable(out InputSystem result, out int resultDepth, out int resultFocusIndex, int depth = 0)
         {
-            if (Focused != this)
+            if (IsFocusable())
             {
-                return;
+                result = this;
+                resultDepth = depth;
+                resultFocusIndex = FocusIndex;
+                return true;
             }
 
-            Focused = null;
+            InputSystem min = null;
+            var minDepth = -1;
+            var minIndex = -1;
+            var children = Node.Children;
+            if (children != null && children.Count > 0)
+            {
+                foreach (var child in children)
+                {
+                    var childSystem = child.InputSystem;
+                    if (childSystem.TryGetFirstFocusable(out var childResult, out var childDepth, out var childIndex, depth + 1))
+                    {
+                        if (min == null || childDepth < minDepth || childIndex < minIndex)
+                        {
+                            min = childResult;
+                            minDepth = childDepth;
+                            minIndex = childIndex;
+                        }
+                    }
+                }
+            }
+
+            result = min;
+            resultDepth = minDepth;
+            resultFocusIndex = minIndex;
+            
+            return min != null;
+        }
+        
+        public void Focus()
+        {
+            if (TryGetFocusable(out var focusable))
+            {
+                if (focusable != this)
+                {
+                    Debug.Log($"Focusing on child {focusable.Node.Element}");
+                }
+                Focused = focusable;
+            }
+        }
+        public bool Blur()
+        {
+            if (Focused == this)
+            {
+                Focused = null;
+                return true;
+            }
+
+            var children = Node.Children;
+            if (children != null && children.Count > 0)
+            {
+                foreach (var child in children)
+                {
+                    if (child.InputSystem.Blur())
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void CapturePointer(int pointerId) => Pointers[pointerId].Capture(this);
