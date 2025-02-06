@@ -134,6 +134,30 @@ namespace RishUI.Input
                     visualElement.focusable = false;
                     visualElement.tabIndex = -1;
                     
+                    // if (visualElement.IsHover())
+                    // {
+                    //     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+                    //     {
+                    //         if (!visualElement.ContainsPointer(i)) { continue; }
+                    //         
+                    //         var position = PointerUtils.GetPointerPosition(i);
+                    //
+                    //         var parent = visualElement.parent;
+                    //         while (parent != null)
+                    //         {
+                    //             var containsPointer = parent.ContainsPointer(i);
+                    //             if (containsPointer && parent.ContainsPoint(parent.WorldToLocal(position)))
+                    //             {
+                    //                 break;
+                    //             }
+                    //
+                    //             parent.SetPseudoStates(parent.GetPseudoStates() & ~VisualElementExtensions.HoverValue);
+                    //
+                    //             parent = parent.parent;
+                    //         }
+                    //     }
+                    // }
+                    
                     if (visualElement.IsHover())
                     {
                         for (int i = 0, n = PointerId.maxPointers; i < n; i++)
@@ -272,9 +296,8 @@ namespace RishUI.Input
                 Capturing = null;
             }
         }
-
         private struct StructPointerEvent : IPointerEvent
-        {
+        { 
             public int pointerId;
             int IPointerEvent.pointerId => pointerId;
             public string pointerType;

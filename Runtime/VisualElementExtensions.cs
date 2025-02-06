@@ -257,6 +257,7 @@ namespace RishUI
         
         private delegate Rect RectGetter(VisualElement visualElement);
         private delegate int IntGetter(VisualElement visualElement);
+        // private delegate void IntSetter(VisualElement visualElement, int value);
         
         private static Type _visualElementType;
         private static Type VisualElementType => _visualElementType ??= typeof(VisualElement);
@@ -298,18 +299,21 @@ namespace RishUI
         private static PropertyInfo PseudoStatesProperty => _pseudoStatesProperty ??= VisualElementType.GetProperty("pseudoStates", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private static IntGetter _pseudoStatesGetter;
-        private static IntGetter PseudoStatesGetter
-        {
-            get
-            {
-                if (_pseudoStatesGetter == null)
-                {
-                    _pseudoStatesGetter = (IntGetter) Delegate.CreateDelegate(typeof(IntGetter), PseudoStatesProperty.GetGetMethod(true));
-                }
+        private static IntGetter PseudoStatesGetter => _pseudoStatesGetter ??= (IntGetter)Delegate.CreateDelegate(typeof(IntGetter), PseudoStatesProperty.GetGetMethod(true));
 
-                return _pseudoStatesGetter;
-            }
-        }
+        // private static IntSetter _pseudoStatesSetter;
+        // private static IntSetter PseudoStatesSetter
+        // {
+        //     get
+        //     {
+        //         if (_pseudoStatesSetter == null)
+        //         {
+        //             _pseudoStatesSetter = (IntSetter) Delegate.CreateDelegate(typeof(IntSetter), PseudoStatesProperty.GetSetMethod(true));
+        //         }
+        //
+        //         return _pseudoStatesSetter;
+        //     }
+        // }
         
         private static Type _pseudoStatesType;
         private static Type PseudoStatesType => _pseudoStatesType ??= PseudoStatesProperty.PropertyType;
@@ -319,7 +323,8 @@ namespace RishUI
         private static int[] PseudoStatesValues => _pseudoStatesValues ??= (int[]) Enum.GetValues(PseudoStatesType);
         
         
-        public static int GetPseudoStates(this VisualElement visualElement) => PseudoStatesGetter?.Invoke(visualElement) ?? default;
+        public static int GetPseudoStates(this VisualElement visualElement) => PseudoStatesGetter?.Invoke(visualElement) ?? 0;
+        // public static void SetPseudoStates(this VisualElement visualElement, int value) => PseudoStatesSetter?.Invoke(visualElement, value);
         
         private static int? _activeValue;
         public static int ActiveValue

@@ -431,6 +431,8 @@ namespace RishUI
             
             return hash;
         }
+
+        private void AboutToUnmount() => OnBeforeUnmount?.Invoke();
         private void OnStateChange(State state)
         {
             switch (state)
@@ -439,19 +441,13 @@ namespace RishUI
                     OnMounted?.Invoke();
                     break;
                 case UnmountedState:
-                    OnBeforeUnmount?.Invoke();
                     OnUnmounted?.Invoke();
-                    OnInactive?.Invoke(this);
                     break;
-                default:
-                {
-                    if (state is not ActiveState)
-                    {
-                        OnInactive?.Invoke(this);
-                    }
+            }
 
-                    break;
-                }
+            if (state is not ActiveState)
+            {
+                OnInactive?.Invoke(this);
             }
         }
 
@@ -909,6 +905,8 @@ namespace RishUI
                         child.Unmount(true);
                     }
                 }
+
+                Node.AboutToUnmount();
 
                 switch (Node.Element)
                 {

@@ -184,8 +184,6 @@ namespace RishUI
         {
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
-
-            Element.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
         }
 
         void IBridge.Mount(Node node)
@@ -606,6 +604,9 @@ namespace RishUI
 
         void IBridge.RemoveFromHierarchy()
         {
+            // var unmountingEvt = UnmountingEvent.GetPooled(Element);
+            // Element.SendEvent(unmountingEvt);
+            
             Element.RemoveFromHierarchy();
             
             if (References.IsCreated)
@@ -619,12 +620,6 @@ namespace RishUI
             References = default;
             
             Node = null;
-        }
-
-        private void OnDetachFromPanel(DetachFromPanelEvent evt)
-        {
-            var unmountingEvt = UnmountingEvent.GetPooled(Element);
-            Element.SendEvent(unmountingEvt);
         }
     }
 
