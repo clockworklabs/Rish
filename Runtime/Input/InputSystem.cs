@@ -15,7 +15,7 @@ namespace RishUI.Input
                 
                 _focused = value;
 
-                FocusedVisualElement = value?.Node?.GetVisualChild().VisualElement;
+                FocusedVisualElement = value?.Node?.GetVisualChild()?.VisualElement;
             }
         }
         private static VisualElement _focusedVisualElement;
@@ -30,8 +30,11 @@ namespace RishUI.Input
                 {
                     _focusedVisualElement.UnregisterCallback<FocusOutEvent>(OnBlur);
                     _focusedVisualElement.UnregisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
-                    
-                    _focusedVisualElement.Blur();
+
+                    if (_focusedVisualElement.IsFocus())
+                    {
+                        _focusedVisualElement.Blur();
+                    }
                 }
                 
                 _focusedVisualElement = value;
@@ -289,10 +292,6 @@ namespace RishUI.Input
         {
             if (TryGetFocusable(out var focusable))
             {
-                if (focusable != this)
-                {
-                    Debug.Log($"Focusing on child {focusable.Node.Element}");
-                }
                 Focused = focusable;
             }
         }
