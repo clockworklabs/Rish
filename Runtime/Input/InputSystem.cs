@@ -69,17 +69,17 @@ namespace RishUI.Input
                 }
 
                 _focusIndex = value;
+
+                if (value < 0 && Focused == this)
+                {
+                    Blur();
+                }
                 
                 var visualElement = Node?.GetVisualChild()?.VisualElement;
                 if (visualElement != null)
                 {
                     visualElement.focusable = value > 0;
                     visualElement.tabIndex = value;
-                }
-
-                if (value < 0 && Focused == this)
-                {
-                    Blur();
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace RishUI.Input
             }
 
             var children = Node.Children;
-            if (children != null && children.Count > 0)
+            if (children is { Count: > 0 })
             {
                 foreach (var child in children)
                 {
