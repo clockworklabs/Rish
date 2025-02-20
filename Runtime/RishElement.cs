@@ -672,13 +672,13 @@ namespace RishUI
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
-        private S _state;
+        private S? _state;
         protected S State
         {
-            get => _state;
+            get => _state.Value;
             set
             {
-                var dirty = !IsDirty() && !RishUtils.SmartCompare(value, _state);
+                var dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
                 
                 DirtyReferences();
                 
@@ -706,6 +706,8 @@ namespace RishUI
 
         private void DisposeReferences()
         {
+            _state = null;
+            
             if (!References.IsCreated)
             {
                 return;
@@ -729,8 +731,17 @@ namespace RishUI
 
         private protected override void PersistReferences()
         {
-            DisposeReferences();
-            References = ReferencesGetters.GetReferences(State);
+            if (!_state.HasValue) return;
+
+            if (References.IsCreated)
+            {
+                foreach (var reference in References)
+                {
+                    reference.UnregisterReference(this);
+                }
+                References.Dispose();
+            }
+            References = ReferencesGetters.GetReferences(_state.Value);
             if (References.IsCreated)
             {
                 foreach (var reference in References)
