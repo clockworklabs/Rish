@@ -11,6 +11,7 @@ namespace RishUI
         private List<FastPriorityQueue<Node>> Queues { get; } = new();
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
         private List<Node> QueuedUpNodes { get; }
+        private IndexedList<int, IRishElement> DirtyReferencesList { get; } = new();
 
         private Stopwatch Stopwatch { get; set; }
         
@@ -63,6 +64,13 @@ namespace RishUI
                     EnqueueForStandardProcessing(node);
                 }
             }
+        }
+
+        public void DirtyReferences(Node node)
+        {
+            if(node.Element is not IRishElement rishElement) return;
+            
+            DirtyReferencesList.Add(node.ID, rishElement);
         }
 
 #if UNITY_EDITOR
@@ -129,6 +137,12 @@ namespace RishUI
 
             CurrentDepth = null;
 
+            foreach (var rishElement in DirtyReferencesList)
+            {
+                rishElement.PersistReferences();
+            }
+            DirtyReferencesList.Clear();
+            
             if (timeLimited)
             {
                 Stopwatch.Stop();

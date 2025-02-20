@@ -14,6 +14,7 @@ namespace RishUI
     internal interface IRishElement : IElement
     {
         event Action<bool> OnDirty;
+        event Action OnReferencesDirty;
         event Action OnReadyToUnmount;
         
         void Mount(Node node);
@@ -21,6 +22,7 @@ namespace RishUI
         void Unmount();
 
         Element Render();
+        void PersistReferences();
         
         IReadOnlyCollection<ToolkitManipulator> ToolkitManipulators { get; }
         IReadOnlyCollection<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
@@ -38,6 +40,13 @@ namespace RishUI
             remove => OnDirty -= value;
         }
         
+        private event Action OnReferencesDirty;
+        event Action IRishElement.OnReferencesDirty
+        {
+            add => OnReferencesDirty += value;
+            remove => OnReferencesDirty -= value;
+        }
+        
         private event Action OnReadyToUnmount;
         event Action IRishElement.OnReadyToUnmount
         {
@@ -45,8 +54,8 @@ namespace RishUI
             remove => OnReadyToUnmount -= value;
         }
 
-        protected internal event Action OnMounted;
-        protected internal event Action OnUnmounted;
+        private protected event Action OnMounted;
+        private protected event Action OnUnmounted;
         
         private List<ICallbackWrapper> Callbacks { get; set; }
 
@@ -157,6 +166,11 @@ namespace RishUI
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
+
+        /// <summary>
+        /// Flag this element to have dirty references.
+        /// </summary>
+        private protected void DirtyReferences() => OnReferencesDirty?.Invoke();
         
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
@@ -276,6 +290,9 @@ namespace RishUI
         }
 
         protected abstract Element Render();
+
+        void IRishElement.PersistReferences() => PersistReferences();
+        private protected virtual void PersistReferences() { }
         
         /// <summary>
         /// Dispatch an event.
@@ -662,24 +679,8 @@ namespace RishUI
             set
             {
                 var dirty = !IsDirty() && !RishUtils.SmartCompare(value, _state);
-
-                // TODO: Improve performance. At the moment, every time we call a `Set...` method, we'll be unregistering and registering references.
-                if (References.IsCreated)
-                {
-                    foreach (var reference in References)
-                    {
-                        reference.UnregisterReference(this);
-                    }
-                    References.Dispose();
-                }
-                References = ReferencesGetters.GetReferences(value);
-                if (References.IsCreated)
-                {
-                    foreach (var reference in References)
-                    {
-                        reference.RegisterReference(this);
-                    }
-                }
+                
+                DirtyReferences();
                 
                 _state = value;
  
@@ -724,6 +725,19 @@ namespace RishUI
             var state = State;
             action?.Invoke(ref state);
             State = state;
+        }
+
+        private protected override void PersistReferences()
+        {
+            DisposeReferences();
+            References = ReferencesGetters.GetReferences(State);
+            if (References.IsCreated)
+            {
+                foreach (var reference in References)
+                {
+                    reference.RegisterReference(this);
+                }
+            }
         }
     }
 

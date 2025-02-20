@@ -7,44 +7,32 @@ namespace RishUI
 {
     public class IndexedList<TKey, TValue> where TKey : unmanaged
     {
-        private List<TValue> List { get; }
-        private Dictionary<TKey, int> Indices { get; }
-        private Dictionary<int, TKey> Keys { get; }
+        private List<TValue> List { get; } = new();
+        private Dictionary<TKey, int> Indices { get; } = new();
+        private Dictionary<int, TKey> Keys { get; } = new();
 
         public int Count => List.Count;
         
         public TValue this[int index] => List[index];
         public List<TValue>.Enumerator GetEnumerator() => List.GetEnumerator();
 
-        public void Add(TKey key, TValue value)
+        public bool Add(TKey key, TValue value)
         {
-            if (Indices.ContainsKey(key))
-            {
-                throw new UnityException($"IndexedList already contains {value}");
-            }
+            if (Contains(key)) return false;
 
             var index = List.Count;
             Indices.Add(key, index);
             Keys.Add(index, key);
             List.Add(value);
-        }
 
-        public void Remove(TKey key)
-        {
-            if (Indices.ContainsKey(key))
-            {
-                throw new UnityException($"IndexedList doesn't contain {key}");
-            }
-            
-            RemoveAtSwapBack(Indices[key]);
+            return true;
         }
+        public bool Contains(TKey key) => Indices.ContainsKey(key);
+        public bool Remove(TKey key) => Indices.TryGetValue(key, out var index) && RemoveAtSwapBack(index);
 
-        public void RemoveAtSwapBack(int index)
+        public bool RemoveAtSwapBack(int index)
         {
-            if (index < 0 || index >= Count)
-            {
-                throw new IndexOutOfRangeException();
-            }
+            if (index < 0 || index >= Count) return false;
             
             var key = Keys[index];
             var lastIndex = Count - 1;
@@ -59,6 +47,15 @@ namespace RishUI
             Indices.Remove(key);
             Keys.Remove(lastIndex);
             List.RemoveAtSwapBack(index);
+
+            return true;
+        }
+
+        public void Clear()
+        {
+            Indices.Clear();
+            Keys.Clear();
+            List.Clear();
         }
     }
 }

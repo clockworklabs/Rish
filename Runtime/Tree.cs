@@ -25,6 +25,7 @@ namespace RishUI
         }
 
         public void Dirty(Node node, bool forceThisFrame) => DirtyQueue.Dirty(node, forceThisFrame);
+        public void DirtyReferences(Node node) => DirtyQueue.DirtyReferences(node);
         public bool IsDirty(Node node) => DirtyQueue.IsDirty(node);
 
         public void DirtyPosition(Node node)

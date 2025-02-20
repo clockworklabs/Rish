@@ -413,14 +413,33 @@ namespace RishUI
 
         private void Dirty(bool forceThisFrame)
         {
+#if UNITY_EDITOR
             if (Tree == null)
             {
                 Debug.LogError($"Null Tree. Node is in {Machine.CurrentState}.");
             }
             else
             {
+#endif
                 Tree.Dirty(this, forceThisFrame);
+#if UNITY_EDITOR
             }
+#endif
+        }
+        private void DirtyReferences()
+        {
+#if UNITY_EDITOR
+            if (Tree == null)
+            {
+                Debug.LogError($"Null Tree. Node is in {Machine.CurrentState}.");
+            }
+            else
+            {
+#endif
+                Tree.DirtyReferences(this);
+#if UNITY_EDITOR
+            }
+#endif
         }
         public bool IsDirty() => Tree?.IsDirty(this) ?? false;
         private void Free() => Tree.NodeFreed(this);
@@ -694,6 +713,7 @@ namespace RishUI
                 {
                     case IRishElement rishElement:
                         rishElement.OnDirty += Node.Dirty;
+                        rishElement.OnReferencesDirty += Node.DirtyReferences;
                         rishElement.Mount(Node);
                         break;
                     case IInternalVisualElement visualElement:
@@ -712,6 +732,7 @@ namespace RishUI
                 if(Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty -= Node.Dirty;
+                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
                 }
             }
 
@@ -749,6 +770,7 @@ namespace RishUI
                 if (Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty += Node.Dirty;
+                    rishElement.OnReferencesDirty += Node.DirtyReferences;
                     rishElement.OnReadyToUnmount += ElementReadyToUnmount;
                     rishElement.RequestUnmount();
                 }
@@ -763,6 +785,7 @@ namespace RishUI
                 if (!ElementReady && Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty -= Node.Dirty;
+                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
                     rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
                 }
                 ElementReady = false;
@@ -800,6 +823,7 @@ namespace RishUI
                 if (Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty -= Node.Dirty;
+                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
                     rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
                 }
 
