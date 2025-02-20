@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Priority_Queue;
 
@@ -170,9 +170,9 @@ namespace RishUI
             return true;
         }
 
-        private bool IsDirty(Node node) => IsDirty(node.ID);
-        private bool IsDirty(int id) => Ids.ContainsKey(id);
-
+        public bool IsDirty(Node node) => IsDirty(node.ID);
+        private bool IsDirty(int id) => Ids.Contains(id);
+        
         private bool EnqueueForImmediateProcessing(Node node)
         {
             FastPriorityQueue<Node> queue;

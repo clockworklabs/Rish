@@ -422,6 +422,7 @@ namespace RishUI
                 Tree.Dirty(this, forceThisFrame);
             }
         }
+        public bool IsDirty() => Tree?.IsDirty(this) ?? false;
         private void Free() => Tree.NodeFreed(this);
 
         private bool Contains(Node child) => VirtualChildren.Contains(child);

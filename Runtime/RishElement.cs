@@ -91,6 +91,8 @@ namespace RishUI
         private Element RenderedElement { get; set; }
         private NativeList<Reference> References { get; set; }
 
+        protected bool IsDirty() => Node?.IsDirty() ?? false;
+
         public T GetFirstAncestorOfType<T>() where T : class => Node?.GetFirstAncestorOfType<T>();
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
@@ -140,7 +142,7 @@ namespace RishUI
                 oldReferences.Dispose();
             }
 
-            if (dirty)
+            if (dirty && !IsDirty())
             {
                 Dirty();
             }
@@ -659,11 +661,9 @@ namespace RishUI
             get => _state;
             set
             {
-                // TODO: We can improve on this: Only set the references and check for dirty when necessary.
-                // TODO: Right now we're unregistering and registering references every time.
-                // TODO: Right now we're checking if the State is dirty even when the element is already dirty.
-                var dirty = !RishUtils.SmartCompare(value, _state);
+                var dirty = !IsDirty() && !RishUtils.SmartCompare(value, _state);
 
+                // TODO: Improve performance. At the moment, every time we call a `Set...` method, we'll be unregistering and registering references.
                 if (References.IsCreated)
                 {
                     foreach (var reference in References)
@@ -719,7 +719,6 @@ namespace RishUI
         }
 
         protected void SetState(S state) => State = state;
-
         protected void SetState(RefAction<S> action)
         {
             var state = State;

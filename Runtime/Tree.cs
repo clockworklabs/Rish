@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI
@@ -27,6 +25,7 @@ namespace RishUI
         }
 
         public void Dirty(Node node, bool forceThisFrame) => DirtyQueue.Dirty(node, forceThisFrame);
+        public bool IsDirty(Node node) => DirtyQueue.IsDirty(node);
 
         public void DirtyPosition(Node node)
         {
