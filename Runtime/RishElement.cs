@@ -83,10 +83,7 @@ namespace RishUI
             {
                 if (!_props.HasValue)
                 {
-                    #if UNITY_EDITOR
-                    Debug.LogError("Accessing unset Props. Using default Props instead.");
-                    #endif
-                    return Defaults.GetValue<P>();
+                    throw new UnityException($"Accessing unset {typeof(P)}. You should not access Props at this point.");
                 }
                 
                 return _props.Value;
@@ -672,15 +669,29 @@ namespace RishUI
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
+        private bool DirtyReferences { get; set; }
+        
         private S? _state;
         protected S State
         {
-            get => _state.Value;
+            get
+            {
+                if (!_state.HasValue)
+                {
+                    throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
+                }
+                
+                return _state.Value;
+            }
             set
             {
                 var dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
-                
-                DirtyReferences();
+
+                if (!DirtyReferences)
+                {
+                    DirtyReferences = true;   
+                    DirtyReferences();
+                }
                 
                 _state = value;
  
@@ -706,6 +717,7 @@ namespace RishUI
 
         private void DisposeReferences()
         {
+            DirtyReferences = false;
             _state = null;
             
             if (!References.IsCreated)
@@ -731,7 +743,9 @@ namespace RishUI
 
         private protected override void PersistReferences()
         {
-            if (!_state.HasValue) return;
+            if (!_state.HasValue || !DirtyReferences) return;
+
+            DirtyReferences = false;
 
             if (References.IsCreated)
             {
