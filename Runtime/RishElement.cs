@@ -681,6 +681,8 @@ namespace RishUI
                     throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
                 }
                 
+                PersistReferences();
+                
                 return _state.Value;
             }
             set
@@ -692,7 +694,7 @@ namespace RishUI
                     DirtyReferences = true;   
                     DirtyReferences();
                 }
-                
+
                 _state = value;
  
                 if (dirty)
@@ -703,7 +705,7 @@ namespace RishUI
         }
 
         private NativeList<Reference> References { get; set; }
-        
+
         protected RishElement()
         {
             OnMounted += SetDefaultState;
@@ -719,7 +721,7 @@ namespace RishUI
         {
             DirtyReferences = false;
             _state = null;
-            
+
             if (!References.IsCreated)
             {
                 return;
