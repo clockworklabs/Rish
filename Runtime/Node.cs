@@ -338,26 +338,27 @@ namespace RishUI
                 for (var i = targetIndex; i < VirtualChildren.Count; i++)
                 {
                     var currentChild = VirtualChildren[i];
-                    if (currentChild.Type != type) continue;
+                    if (currentChild.Type != type || currentChild.Key != key) continue;
 #if UNITY_EDITOR
                     if (!currentChild.IsActive())
                     {
-                        Debug.LogError($"This child is in state {currentChild.Machine.CurrentState} and yet is part of the VirtualChildren.");
+                        Debug.LogError($"This child is in state {currentChild.Machine.CurrentState} and yet is still in VirtualChildren.");
                         continue;
                     }
 #endif
-
-                    if (currentChild.Key == 0 && firstFreeIndex < 0)
-                    {
-                        firstFreeIndex = i;
-                    }
-
-                    if ((key > 0 && currentChild.Key == key) || (key == 0 && currentChild.Key == 0 && currentChild.VirtualIndex == targetIndex))
+                    
+                    if (key > 0 || currentChild.VirtualIndex == targetIndex)
                     {
                         index = i;
                         break;
                     }
-// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+
+                    if (firstFreeIndex < 0)
+                    {
+                        firstFreeIndex = i;
+                    }
+
+                    // #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
 //                     if (other.Type.FullName == type.FullName)
 //                     {
 //                         index = i;
