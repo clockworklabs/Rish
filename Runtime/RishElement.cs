@@ -659,6 +659,9 @@ namespace RishUI
             get => _state;
             set
             {
+                // TODO: We can improve on this: Only set the references and check for dirty when necessary.
+                // TODO: Right now we're unregistering and registering references every time.
+                // TODO: Right now we're checking if the State is dirty even when the element is already dirty.
                 var dirty = !RishUtils.SmartCompare(value, _state);
 
                 if (References.IsCreated)

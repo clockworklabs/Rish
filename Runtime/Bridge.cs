@@ -78,9 +78,11 @@ namespace RishUI
         {
             set
             {
-                if (RishUtils.Compare(_className, value)) return;
+                var notDirty = RishUtils.Compare(_className, value);
                 
                 _className = value;
+                
+                if (notDirty) return;
 
                 Element.SetClassName(value);
                 
@@ -93,7 +95,11 @@ namespace RishUI
         {
             set
             {
-                if (RishUtils.Compare(_style, value)) return;
+                var notDirty = RishUtils.Compare(_style, value);
+                
+                _style = value;
+                
+                if (notDirty) return;
                 
                 var background = value.backgroundImage.keyword == RishStyleKeyword.Undefined ? value.backgroundImage.value : default;
                 var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image
@@ -115,7 +121,6 @@ namespace RishUI
                 }
                 
                 SetStyle(value);
-                _style = value;
                 
                 OnStyle?.Invoke(value);
             }
@@ -126,9 +131,11 @@ namespace RishUI
         {
             set
             {
-                if (RishUtils.Compare(_children, value)) return;
+                var notDirty = RishUtils.Compare(_children, value);
 
                 _children = value;
+
+                if (notDirty) return;
                 
                 Node.AttachChildren(value);
             }
@@ -139,9 +146,11 @@ namespace RishUI
         {
             set
             {
-                if (!PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value)) return;
-
+                var notDirty = !PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value);
+                
                 _props = value;
+                
+                if (notDirty) return;
                 
                 if (Element is IVisualElement<P> propsElement)
                 {
@@ -198,35 +207,19 @@ namespace RishUI
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
         {
             var oldReferences = References;
-            
-            var classNameReferences = ReferencesGetters.GetReferences(descriptor.className, true);
-            var classNameReferencesCreated = classNameReferences.IsCreated;
-            var classNameReferencesCount = classNameReferencesCreated ? classNameReferences.Length : 0;
-            var childrenReferences = ReferencesGetters.GetReferences(children, true);
-            var childrenReferencesCreated = childrenReferences.IsCreated;
-            var childrenReferencesCount = childrenReferencesCreated ? childrenReferences.Length : 0;
+
+            var classNameReference = Rish.GetReferenceTo<ManagedClassName>(descriptor.className.ID);
+            classNameReference.RegisterReference(Node);
+            var childrenReference = Rish.GetReferenceTo<ManagedChildren>(children.ID);
+            childrenReference.RegisterReference(Node);
             var propsReferences = ReferencesGetters.GetReferences(props, true);
             var propsReferencesCreated = propsReferences.IsCreated;
             var propsReferencesCount = propsReferencesCreated ? propsReferences.Length : 0;
-            References = new NativeList<Reference>(classNameReferencesCount + childrenReferencesCount + propsReferencesCount, Allocator.Persistent);
-            if (classNameReferencesCreated)
+            References = new NativeList<Reference>(propsReferencesCount + 2, Allocator.Persistent)
             {
-                foreach (var reference in classNameReferences)
-                {
-                    References.Add(reference);
-                    reference.RegisterReference(Node);
-                }
-                classNameReferences.Dispose();
-            }
-            if (childrenReferencesCreated)
-            {
-                foreach (var reference in childrenReferences)
-                {
-                    References.Add(reference);
-                    reference.RegisterReference(Node);
-                }
-                childrenReferences.Dispose();
-            }
+                classNameReference,
+                childrenReference
+            };
             if (propsReferencesCreated)
             {
                 foreach (var reference in propsReferences)
