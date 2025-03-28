@@ -95,11 +95,7 @@ namespace RishUI
         {
             set
             {
-                var notDirty = RishUtils.Compare(_style, value);
-                
-                _style = value;
-                
-                if (notDirty) return;
+                if (RishUtils.Compare(_style, value)) return;
                 
                 var background = value.backgroundImage.keyword == RishStyleKeyword.Undefined ? value.backgroundImage.value : default;
                 var isBackgroundSet = background.sprite != null || background.texture != null || background.renderTexture != null; // TODO: Check for vector image
@@ -121,6 +117,7 @@ namespace RishUI
                 }
                 
                 SetStyle(value);
+                _style = value;
                 
                 OnStyle?.Invoke(value);
             }
