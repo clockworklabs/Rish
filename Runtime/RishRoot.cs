@@ -174,7 +174,7 @@ namespace RishUI
             }
             else
             {
-                maxUpdateTime = default;
+                maxUpdateTime = null;
             }
 
             double? updateTime;

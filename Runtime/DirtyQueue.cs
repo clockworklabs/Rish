@@ -7,7 +7,7 @@ namespace RishUI
     internal class DirtyQueue
     {
         private int InitialSize { get; }
-        private HashSet<int> Ids { get; }
+        private Dictionary<int, FastPriorityQueue<Node>> Ids { get; }
         private List<FastPriorityQueue<Node>> Queues { get; } = new();
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
         private List<Node> QueuedUpNodes { get; }
@@ -17,7 +17,7 @@ namespace RishUI
         public DirtyQueue(int initialSize)
         {
             InitialSize = initialSize;
-            Ids = new HashSet<int>(initialSize);
+            Ids = new Dictionary<int, FastPriorityQueue<Node>>(initialSize);
             QueuedUpNodes = new List<Node>(initialSize);
         }
         
@@ -44,11 +44,11 @@ namespace RishUI
             }
 
             node.OnInactive += Remove;
-            Ids.Add(node.ID);
+            Ids.Add(node.ID, null);
             
             if (forceThisFrame)
             {
-                EnqueueAtTheFront(node);
+                EnqueueForImmediateProcessing(node);
             }
             else
             {
@@ -58,7 +58,7 @@ namespace RishUI
                 }
                 else
                 {
-                    EnqueueAtTheEnd(node);
+                    EnqueueForStandardProcessing(node);
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace RishUI
             for (int i = 0, n = QueuedUpNodes.Count; i < n; i++)
             {
                 var node = QueuedUpNodes[i];
-                EnqueueAtTheEnd(node);
+                EnqueueForStandardProcessing(node);
             }
             QueuedUpNodes.Clear();
             
@@ -85,8 +85,8 @@ namespace RishUI
                 while ((maxCount <= 0 || count < maxCount) && (!maxTime.HasValue || time < maxTime.Value) && TryDequeue(queue, out var node))
                 {
                     if (!node.IsActive()) continue;
-                    
-                    if (i == 0)
+
+                    if (!CurrentDepth.HasValue || node.Depth > CurrentDepth.Value)
                     {
                         CurrentDepth = node.Depth;
                     }
@@ -96,14 +96,15 @@ namespace RishUI
                         UnityEngine.Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
                     }
 #endif
+                    node.Render();
                     count++;
                     time = sw.Elapsed.TotalSeconds;
-                    node.Render();
                 }
 
                 if (queue.Count > 0)
                 {
                     Queues.Insert(0, GetFreeQueue());
+                    
                     break;
                 }
                 
@@ -122,7 +123,7 @@ namespace RishUI
         {
             foreach (var queue in Queues)
             {
-                while(TryDequeue(queue, out var _)) { }
+                while(TryDequeue(queue, out _)) { }
                 Free(queue);
             }
             Queues.Clear();
@@ -151,9 +152,9 @@ namespace RishUI
         }
 
         private bool IsDirty(Node node) => IsDirty(node.ID);
-        private bool IsDirty(int id) => Ids.Contains(id);
+        private bool IsDirty(int id) => Ids.ContainsKey(id);
         
-        private bool EnqueueAtTheFront(Node node)
+        private bool EnqueueForImmediateProcessing(Node node)
         {
             FastPriorityQueue<Node> queue;
             if (Queues.Count > 0)
@@ -168,7 +169,7 @@ namespace RishUI
 
             return Enqueue(node, queue);
         }
-        private bool EnqueueAtTheEnd(Node node)
+        private bool EnqueueForStandardProcessing(Node node)
         {
             FastPriorityQueue<Node> queue;
             if (Queues.Count > 0)
@@ -191,6 +192,7 @@ namespace RishUI
                 queue.Resize(queue.MaxSize * 2);
             }
             queue.Enqueue(node, node.Depth);
+            Ids[node.ID] = queue;
 
             return true;
         }
@@ -211,6 +213,13 @@ namespace RishUI
 
         private void Reset(Node node, FastPriorityQueue<Node> queue = null)
         {
+#if UNITY_EDITOR
+            if (Ids[node.ID] != queue)
+            {
+                UnityEngine.Debug.LogError("This node seems to belong to a different queue.");
+                return;
+            }
+#endif
             node.OnInactive -= Remove;
             Ids.Remove(node.ID);
             queue?.ResetNode(node);
@@ -225,28 +234,17 @@ namespace RishUI
                 return;
             }
 #endif
-
-            foreach (var queue in Queues)
+            
+            var queue = Ids[node.ID];
+            if (queue != null)
             {
-#if UNITY_EDITOR
-                if (node.Queue == queue && queue.Contains(node))
-                {
-                    queue.Remove(node);
-                    Reset(node, queue);
-                    return;
-                }
-#else
-                if (node.QueueIndex < queue.Count && queue.Contains(node))
-                {
-                    queue.Remove(node);
-                    Reset(node, queue);
-                    return;
-                }
-#endif
+                queue.Remove(node);
             }
-
-            QueuedUpNodes.Remove(node);
-            Reset(node);
+            else
+            {
+                QueuedUpNodes.Remove(node);
+            }
+            Reset(node, queue);
         }
     }
 }
