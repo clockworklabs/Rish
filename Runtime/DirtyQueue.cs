@@ -11,16 +11,16 @@ namespace RishUI
         private List<FastPriorityQueue<Node>> Queues { get; } = new();
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
         private List<Node> QueuedUpNodes { get; }
-        
+
         private uint? CurrentDepth { get; set; }
-        
+
         public DirtyQueue(int initialSize)
         {
             InitialSize = initialSize;
             Ids = new Dictionary<int, FastPriorityQueue<Node>>(initialSize);
             QueuedUpNodes = new List<Node>(initialSize);
         }
-        
+
         public void Dirty(Node node, bool forceThisFrame)
         {
 #if UNITY_EDITOR
@@ -45,7 +45,7 @@ namespace RishUI
 
             node.OnInactive += Remove;
             Ids.Add(node.ID, null);
-            
+
             if (forceThisFrame)
             {
                 EnqueueForImmediateProcessing(node);
@@ -76,7 +76,7 @@ namespace RishUI
                 EnqueueForStandardProcessing(node);
             }
             QueuedUpNodes.Clear();
-            
+
             var count = 0;
             var time = 0d;
             for (var i = Queues.Count - 1; i >= 0; i--)
@@ -104,18 +104,18 @@ namespace RishUI
                 if (queue.Count > 0)
                 {
                     Queues.Insert(0, GetFreeQueue());
-                    
+
                     break;
                 }
-                
+
                 Queues.RemoveAt(i);
                 Free(queue);
             }
 
             CurrentDepth = null;
-            
+
             sw.Stop();
-            
+
             return sw.Elapsed.TotalSeconds;
         }
 
@@ -146,14 +146,14 @@ namespace RishUI
                 return false;
             }
 #endif
-            
+
             Pool.Push(queue);
             return true;
         }
 
         private bool IsDirty(Node node) => IsDirty(node.ID);
         private bool IsDirty(int id) => Ids.ContainsKey(id);
-        
+
         private bool EnqueueForImmediateProcessing(Node node)
         {
             FastPriorityQueue<Node> queue;
@@ -184,7 +184,7 @@ namespace RishUI
 
             return Enqueue(node, queue);
         }
-        
+
         private bool Enqueue(Node node, FastPriorityQueue<Node> queue)
         {
             if (queue.Count >= queue.MaxSize)
@@ -204,7 +204,7 @@ namespace RishUI
                 node = null;
                 return false;
             }
-            
+
             node = queue.Dequeue();
             Reset(node, queue);
 
@@ -234,7 +234,7 @@ namespace RishUI
                 return;
             }
 #endif
-            
+
             var queue = Ids[node.ID];
             if (queue != null)
             {
