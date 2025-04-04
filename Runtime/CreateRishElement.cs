@@ -48,6 +48,7 @@ namespace RishUI
             internal override void Invoke(Node parent)
             {
                 var element = parent.AddChild<T>(Key);
+                if (element == null) return;
                 element.Props = Props;
             }
  

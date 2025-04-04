@@ -131,8 +131,7 @@ namespace RishUI
             internal override void Invoke(Node parent)
             {
                 var element = parent.AddChild<T>(Key);
-
-                element.Bridge.Setup(Descriptor, Children, Props);
+                element?.Bridge.Setup(Descriptor, Children, Props);
             }
 
             protected override void Dispose()

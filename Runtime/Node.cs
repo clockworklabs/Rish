@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
@@ -14,13 +15,13 @@ namespace RishUI
         internal event Action OnBeforeUnmount; // TODO: C# Creates garbage with these
         internal event Action OnUnmounted; // TODO: C# Creates garbage with these
         internal event Action<Node> OnInactive; // TODO: Maybe uint? // TODO: C# Creates garbage with these
-        
+
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         private static Stack<Node> Pool { get; } = new(1024);
         private static List<Node> AllNodes { get; } = new(1024);
-        
+
         // -------------------------------------------------------------------------------------------------------------
         // --- Never changes -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ namespace RishUI
             private set
             {
                 _parent = value;
-                
+
                 VisualParent = value != null
                     ? value.VisualElement ?? value.VisualParent
                     : Tree?.RootVisualElement;
@@ -63,6 +64,12 @@ namespace RishUI
         private IReadOnlyList<Node> _children;
         public IReadOnlyList<Node> Children => _children ??= VirtualChildren?.AsReadOnly();
 
+        private struct NodeDesc
+        {
+            public ulong key;
+            public Type type;
+        }
+
         private int _virtualIndex = -1;
         private int VirtualIndex
         {
@@ -70,16 +77,16 @@ namespace RishUI
             set
             {
                 if (_virtualIndex == value) return;
-                
+
                 _virtualIndex = value;
-                
+
                 if (value < 0) return;
-                
+
                 HashCode = ComputeHashCodeInTree();
                 Tree.DirtyPosition(this);
             }
         }
-        
+
         internal ulong HashCode { get; private set; }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -93,10 +100,10 @@ namespace RishUI
         private Node GetPreviousSibling()
         {
             var virtualIndex = Mathf.Min(VirtualIndex, Parent.VirtualChildren.Count);
-            
+
             return virtualIndex <= 0 ? null : Parent.VirtualChildren[virtualIndex - 1];
         }
-        
+
         internal T GetFirstAncestorOfType<T>() where T : class
         {
             var parent = Parent;
@@ -108,7 +115,7 @@ namespace RishUI
                 {
                     return null;
                 }
-                
+
                 return Tree.RootVisualElement.GetFirstOfType<T>();
             }
 
@@ -127,7 +134,7 @@ namespace RishUI
         }
 
         int IOwner.GetID() => ID;
-        
+
         private bool IsRealTree()
         {
             if (IsVisualElement)
@@ -162,15 +169,15 @@ namespace RishUI
             {
                 return;
             }
-            
+
             var currentIndex = parent.IndexOf(visualElement);
             var index = visualNode.GetRealIndex();
-            
+
             if (currentIndex == index)
             {
                 return;
             }
-            
+
             if (index <= 0)
             {
                 visualElement.SendToBack();
@@ -198,7 +205,7 @@ namespace RishUI
 
             return VirtualChildren?.Count > 0 ? VirtualChildren[0].GetVisualChild() : null;
         }
-        
+
         internal bool IsActive() => Machine.IsIn<ActiveState>();
 
         private Node(int id)
@@ -227,7 +234,7 @@ namespace RishUI
         private T MountAs<T>(Node parent, ulong key, int index) where T : class, IElement, new() => Machine.MountAs<T>(parent, key, index);
 
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
-        
+
         internal void Render()
         {
 #if UNITY_EDITOR
@@ -249,7 +256,7 @@ namespace RishUI
             Clear();
 
             element.Invoke(this);
-            
+
             Clean();
         }
 
@@ -261,14 +268,14 @@ namespace RishUI
                 throw new UnityException("Node isn't mounted");
             }
 #endif
-            
+
             Clear();
 
             foreach (var element in children)
             {
                 element.Invoke(this);
             }
-            
+
             Clean();
         }
 
@@ -279,10 +286,10 @@ namespace RishUI
             {
                 throw new UnityException("Node is already rendering");
             }
-            
+
             Rendering = true;
 #endif
-            
+
             ChildCount = 0;
         }
 
@@ -293,14 +300,15 @@ namespace RishUI
             {
                 throw new UnityException("Node isn't rendering");
             }
-            
+
             Rendering = false;
 #endif
-            
+
             var childrenCount = VirtualChildren?.Count ?? 0;
-            if (childrenCount > 0)
+            var unmountingCount = childrenCount - ChildCount;
+            if (unmountingCount > 0)
             {
-                UnmountingChildren ??= new List<Node>(VirtualChildren.Capacity);
+                UnmountingChildren ??= new List<Node>(unmountingCount);
                 for (var i = childrenCount - 1; i >= ChildCount; i--)
                 {
                     var child = VirtualChildren[i];
@@ -324,9 +332,9 @@ namespace RishUI
                 throw new UnityException("Node isn't mounted");
             }
 #endif
-            
+
             var targetIndex = ChildCount;
-            
+
             var type = typeof(T);
 
             VirtualChildren ??= new List<Node>(10);
@@ -346,7 +354,7 @@ namespace RishUI
                         continue;
                     }
 #endif
-                    
+
                     if (key > 0 || currentChild.VirtualIndex == targetIndex)
                     {
                         index = i;
@@ -358,7 +366,7 @@ namespace RishUI
                         firstFreeIndex = i;
                     }
 
-                    // #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
+// #if UNITY_EDITOR && RISH_HOT_RELOAD_READY
 //                     if (other.Type.FullName == type.FullName)
 //                     {
 //                         index = i;
@@ -377,18 +385,22 @@ namespace RishUI
 
             if (child == null)
             {
+                if (!Machine.IsIn<MountedState>())
+                {
+                    return null;
+                }
                 child = GetNodeFromPool(Tree);
                 child.MountAs<T>(this, key, targetIndex);
 
                 index = VirtualChildren.Count;
-                
+
                 VirtualChildren.Add(child);
             }
             else
             {
                 child.VirtualIndex = targetIndex;
             }
-            
+
             if (targetIndex < index)
             {
                 (VirtualChildren[targetIndex], VirtualChildren[index]) = (VirtualChildren[index], VirtualChildren[targetIndex]);
@@ -426,10 +438,10 @@ namespace RishUI
                 hash = (hash << 5) - hash + node.Key;
                 hash = (hash << 5) - hash + (ulong) node.VirtualIndex;
                 hash = (hash << 5) - hash + (ulong) node.Type.GetHashCode();
-                
+
                 node = node.Parent;
             }
-            
+
             return hash;
         }
 
@@ -475,11 +487,11 @@ namespace RishUI
         }
 
         internal static Node GetNode(int id) => AllNodes[id];
-        
+
         private class StateMachine
         {
             public event Action<State> OnChange;
-            
+
             private State _currentState;
             public State CurrentState
             {
@@ -517,7 +529,7 @@ namespace RishUI
                     _currentState?.Exit();
                     _currentState = value;
                     _currentState?.Enter();
-                    
+
                     OnChange?.Invoke(value);
                 }
             }
@@ -581,7 +593,7 @@ namespace RishUI
             }
 
             public bool IsIn<T>() where T : State => CurrentState is T;
-            
+
             public T MountAs<T>(Node parent, ulong key, int index) where T : class, IElement, new() => CurrentState.MountAs<T>(parent, key, index);
 
             public void Unmount(bool forceUnmount) => CurrentState.Unmount(forceUnmount);
@@ -639,7 +651,7 @@ namespace RishUI
 #if UNITY_EDITOR
                 Node.Rendering = false;
 #endif
-                
+ 
                 Node.VirtualChildren?.Clear();
                 Node.UnmountingChildren?.Clear();
 
@@ -659,7 +671,7 @@ namespace RishUI
                     Node.VisualParent?.Add(visualElement);
                 }
                 Node.VirtualIndex = index;
-                
+
                 GoTo<MountedState>();
 
                 return element;
@@ -732,7 +744,7 @@ namespace RishUI
                     Debug.LogError("UnmountRequestedState didn't reset properly.");
                 }
 #endif
-                
+
                 if (Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty += Node.Dirty;
@@ -759,7 +771,7 @@ namespace RishUI
                     for (int i = 0, n = Unmounting.Count; i < n; i++)
                     {
                         var child = Unmounting[i];
-                        child.Machine.OnChange -= OnUnmountingChange;
+                        child.Machine.OnChange -= OnStateChange;
                     }
 
                     UnmountingSet.Clear();
@@ -782,17 +794,17 @@ namespace RishUI
                     Debug.LogError("Element was already ready to unmount.");
                 }
 #endif
-                
+
                 ElementReady = true;
                 if (Node.Element is IRishElement rishElement)
                 {
                     rishElement.OnDirty -= Node.Dirty;
                     rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
                 }
-                
+
                 Node.Clear();
                 Node.Clean();
-                
+
                 var unmountingCount = Node.UnmountingChildren?.Count ?? 0;
                 if (unmountingCount > 0)
                 {
@@ -812,12 +824,12 @@ namespace RishUI
                             Debug.LogError($"This child is not in the right state. Its state is {child.Machine.CurrentState} and it shouldn't be in UnmountingChildren.");
                         }
 #endif
-                        
+
                         var childId = child.ID;
                         if (UnmountingSet.Add(childId))
                         {
                             Unmounting.Add(child);
-                            child.Machine.OnChange += OnUnmountingChange;
+                            child.Machine.OnChange += OnStateChange;
                         }
 #if UNITY_EDITOR
                         else
@@ -831,11 +843,11 @@ namespace RishUI
                 TryUnmount();
             }
 
-            private void OnUnmountingChange(State state)
+            private void OnStateChange(State state)
             {
                 var node = state.Node;
                 var nodeId = node.ID;
-                
+
                 if (state is UnmountedState && UnmountingSet.Remove(nodeId))
                 {
                     TryUnmount();
@@ -845,7 +857,7 @@ namespace RishUI
             public override void Unmount(bool force)
             {
                 if (!force) return; // We're already unmounting
-                
+
                 GoTo<UnmountedState>();
             }
         }
@@ -865,7 +877,7 @@ namespace RishUI
             public override void Unmount(bool force)
             {
                 if (!force) return; // We're already unmounting
-                
+
                 GoTo<UnmountedState>();
             }
         }
@@ -886,7 +898,7 @@ namespace RishUI
                         Node.Tree.DirtyPosition(child);
                     }
                 }
-                
+
                 var virtualChildrenCount = Node.VirtualChildren?.Count ?? 0;
                 if (virtualChildrenCount > 0)
                 {
@@ -918,7 +930,7 @@ namespace RishUI
                         visualElement.Bridge.RemoveFromHierarchy();
                         break;
                 }
-                
+
                 Node.Free();
             }
 
