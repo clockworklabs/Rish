@@ -120,6 +120,8 @@ namespace RishUI
         }
         public static implicit operator RishList<T>(T[] array)
         {
+            if (array == null) return Null;
+            
             var children = new RishList<T>();
             foreach (var element in array)
             {
@@ -130,6 +132,8 @@ namespace RishUI
         }
         public static implicit operator RishList<T>(List<RishList<T>> list)
         {
+            if (list == null) return Null;
+            
             var children = new RishList<T>();
             foreach (var element in list)
             {
@@ -140,6 +144,8 @@ namespace RishUI
         }
         public static implicit operator RishList<T>(List<T> list)
         {
+            if (list == null) return Null;
+            
             var children = new RishList<T>();
             foreach (var element in list)
             {
