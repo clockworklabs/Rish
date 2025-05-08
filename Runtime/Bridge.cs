@@ -9,6 +9,9 @@ namespace RishUI
 {
     public interface IBridge
     {
+        event Action OnMounted;
+        event Action OnUnmounted;
+        
         event Action<Name> OnName;
         event Action<ClassName> OnClassName;
         event Action<Style> OnStyle;
@@ -26,6 +29,18 @@ namespace RishUI
     
     public class Bridge<P> : IBridge<P> where P : struct
     {
+        public event Action OnMounted;
+        event Action IBridge.OnMounted
+        {
+            add => OnMounted += value;
+            remove => OnMounted -= value;
+        }
+        public event Action OnUnmounted;
+        event Action IBridge.OnUnmounted
+        {
+            add => OnUnmounted += value;
+            remove => OnUnmounted -= value;
+        }
         public event Action<Name> OnName;
         event Action<Name> IBridge.OnName
         {
@@ -199,6 +214,8 @@ namespace RishUI
             Element.ResetInlineStyles();
             
             Node = node;
+            
+            OnMounted?.Invoke();
         }
 
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
@@ -610,6 +627,8 @@ namespace RishUI
             References = default;
             
             Node = null;
+            
+            OnUnmounted?.Invoke();
         }
     }
 
