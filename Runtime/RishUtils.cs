@@ -9,14 +9,26 @@ namespace RishUI
         /// </summary>
         public static bool SmartCompare<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second) || (Comparers.Contains<T>() && Comparers.Compare(first, second));
         /// <summary>
+        /// Compare value types by comparing memory and using a registered comparer if there's one registered. 
+        /// </summary>
+        public static bool SmartCompare<T>(T? first, T? second) where T : struct => first.HasValue == second.HasValue || !first.HasValue || SmartCompare<T>(first.Value, second.Value);
+        /// <summary>
         /// Compare value types by comparing memory and a comparer (it assumes there's a comparer registered). 
         /// </summary>
         public static bool Compare<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second) || Comparers.Compare(first, second);
+        /// <summary>
+        /// Compare value types by comparing memory and a comparer (it assumes there's a comparer registered). 
+        /// </summary>
+        public static bool Compare<T>(T? first, T? second) where T : struct => first.HasValue == second.HasValue || !first.HasValue || Compare<T>(first.Value, second.Value);
         
         /// <summary>
         /// Compare value types by comparing memory. 
         /// </summary>
         public static bool MemCmp<T>(T first, T second) where T : struct => MemCmp<T>(ref first, ref second);
+        /// <summary>
+        /// Compare value types by comparing memory. 
+        /// </summary>
+        public static bool MemCmp<T>(T? first, T? second) where T : struct => first.HasValue == second.HasValue || !first.HasValue || MemCmp<T>(first.Value, second.Value);
         /// <summary>
         /// Compare value types by comparing memory. 
         /// </summary>
