@@ -12,6 +12,8 @@ namespace RishUI
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
         private List<Node> QueuedUpNodes { get; }
 
+        private Stopwatch Stopwatch { get; set; }
+        
         private uint? CurrentDepth { get; set; }
 
         public DirtyQueue(int initialSize)
@@ -69,7 +71,20 @@ namespace RishUI
         public double Update(uint maxCount, float? maxTime)
 #endif
         {
-            var sw = Stopwatch.StartNew();
+            var timeLimited = maxTime.HasValue;
+
+            if (timeLimited)
+            {
+                if (Stopwatch == null)
+                {
+                    Stopwatch = Stopwatch.StartNew();
+                }
+                else
+                {
+                    Stopwatch.Restart();
+                }
+            }
+
             for (int i = 0, n = QueuedUpNodes.Count; i < n; i++)
             {
                 var node = QueuedUpNodes[i];
@@ -82,7 +97,7 @@ namespace RishUI
             for (var i = Queues.Count - 1; i >= 0; i--)
             {
                 var queue = Queues[i];
-                while ((maxCount <= 0 || count < maxCount) && (!maxTime.HasValue || time < maxTime.Value) && TryDequeue(queue, out var node))
+                while ((maxCount <= 0 || count < maxCount) && (!timeLimited || time < maxTime.Value) && TryDequeue(queue, out var node))
                 {
                     if (!node.IsActive()) continue;
 
@@ -98,7 +113,7 @@ namespace RishUI
 #endif
                     node.Render();
                     count++;
-                    time = sw.Elapsed.TotalSeconds;
+                    time = timeLimited ? Stopwatch.Elapsed.TotalSeconds : 0;
                 }
 
                 if (queue.Count > 0)
@@ -114,9 +129,13 @@ namespace RishUI
 
             CurrentDepth = null;
 
-            sw.Stop();
+            if (timeLimited)
+            {
+                Stopwatch.Stop();
 
-            return sw.Elapsed.TotalSeconds;
+                return Stopwatch.Elapsed.TotalSeconds;
+            }
+            return 0;
         }
 
         public void Dispose()

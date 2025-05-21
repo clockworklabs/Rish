@@ -87,14 +87,14 @@ namespace RishUI
 
         private VisualElement Root => Document != null ? Document.rootVisualElement : null;
         private IPanel Panel => Root?.panel;
-        
+
         private Tree Tree { get; set; }
-        
+
         private Stopwatch Stopwatch { get; set; }
         private const int RecordedStepsCount = 10;
         private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
         private float TotalRecordedExtraTime { get; set; }
-        
+
         private IEnumerator Start()
         {
 #if UNITY_EDITOR
@@ -103,7 +103,7 @@ namespace RishUI
                 Debug.LogError("Recovering UI");
             }
 #endif
-            
+
             if (Document == null)
             {
                 throw new UnityException("RishRoot requires UIDocument");
@@ -117,9 +117,9 @@ namespace RishUI
             {
                 AddStyleSheet(styleSheet);
             }
-            
+
             RegenTree();
-            
+
             var wait = new WaitForEndOfFrame();
             while (true)
             {
@@ -159,18 +159,22 @@ namespace RishUI
 
         public void Step()
         {
-            if (Stopwatch == null)
+            var timeLimited = MaxTargetTimePerStep > 0;
+            
+            if(timeLimited)
             {
-                Stopwatch = Stopwatch.StartNew();
-            }
-            else
-            {
-                Stopwatch.Restart();
+                if (Stopwatch == null)
+                {
+                    Stopwatch = Stopwatch.StartNew();
+                }
+                else
+                {
+                    Stopwatch.Restart();
+                }
             }
             
             OnStep?.Invoke();
             
-            var timeLimited = MaxTargetTimePerStep > 0;
 
             float? maxUpdateTime;
             if (timeLimited)
@@ -198,6 +202,10 @@ namespace RishUI
                 Debug.LogException(e);
 #endif
                 updateTime = null;
+                if (timeLimited)
+                {
+                    Stopwatch.Stop();
+                }
 
                 Recovered = true;
                 
