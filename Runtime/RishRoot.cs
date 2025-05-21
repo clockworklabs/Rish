@@ -12,7 +12,8 @@ namespace RishUI
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        public static event Action<RishRoot> OnStart;
+        public event Action OnStart;
+        public event Action OnStep;
 
         [SerializeField]
         private bool _manualUpdate;
@@ -88,15 +89,11 @@ namespace RishUI
         private IPanel Panel => Root?.panel;
         
         private Tree Tree { get; set; }
-
+        
+        private Stopwatch Stopwatch { get; set; }
         private const int RecordedStepsCount = 10;
         private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
         private float TotalRecordedExtraTime { get; set; }
-
-        public struct Test
-        {
-            private RishList<RishList<Test>> t;
-        }
         
         private IEnumerator Start()
         {
@@ -157,12 +154,21 @@ namespace RishUI
             Dispose();
 
             Tree = new Tree(Document, RootClassName, Recovered);
-            OnStart?.Invoke(this);
+            OnStart?.Invoke();
         }
 
         public void Step()
         {
-            var sw = Stopwatch.StartNew();
+            if (Stopwatch == null)
+            {
+                Stopwatch = Stopwatch.StartNew();
+            }
+            else
+            {
+                Stopwatch.Restart();
+            }
+            
+            OnStep?.Invoke();
             
             var timeLimited = MaxTargetTimePerStep > 0;
 
@@ -202,9 +208,9 @@ namespace RishUI
 
             if (!timeLimited || !updateTime.HasValue) return;
 
-            sw.Stop();
+            Stopwatch.Stop();
             
-            var stepTime = sw.Elapsed.TotalSeconds;
+            var stepTime = Stopwatch.Elapsed.TotalSeconds;
             var extraTime = (float)(stepTime - updateTime.Value);
 
             if (RecordedExtraTimes.Count >= RecordedStepsCount)
