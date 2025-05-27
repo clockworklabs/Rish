@@ -248,7 +248,16 @@ namespace RishUI
             Root?.styleSheets.Remove(styleSheet);
         }
 
-        public bool HasAnyPointerOver() => Root?.IsHover() ?? false;
+        public bool HasAnyPointerOver()
+        {
+            if (Root == null) return false;
+            if(Root.IsHover()) return true;
+            for (int i = 0, n = Root.childCount; i < n; i++)
+            {
+                if (Root[i].IsHover()) return true;
+            }
+            return false;
+        }
         public bool HasAnyPointerCaptured()
         {
             if (Panel == null)
@@ -267,7 +276,16 @@ namespace RishUI
             return false;
         }
 
-        public bool HasPointerOver(int pointerId) => Root?.ContainsPointer(pointerId) ?? false;
+        public bool HasPointerOver(int pointerId)
+        {
+            if (Root == null) return false;
+            if(Root.ContainsPointer(pointerId)) return true;
+            for (int i = 0, n = Root.childCount; i < n; i++)
+            {
+                if (Root[i].ContainsPointer(pointerId)) return true;
+            }
+            return false;
+        }
         public bool HasPointerCaptured(int pointerId) => Panel?.GetCapturingElement(pointerId) != null;
 
         public bool HasFocus() => Panel?.focusController.focusedElement != null;
