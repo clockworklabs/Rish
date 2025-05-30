@@ -681,7 +681,7 @@ namespace RishUI
                     throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
                 }
                 
-                // PersistReferences();
+                PersistReferences();
                 
                 return _state.Value;
             }

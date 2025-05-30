@@ -13,7 +13,6 @@ namespace RishUI
     public class RishRoot : MonoBehaviour
     {
         public event Action OnStart;
-        public event Action OnStep;
 
         [SerializeField]
         private bool _manualUpdate;
@@ -172,9 +171,6 @@ namespace RishUI
                     Stopwatch.Restart();
                 }
             }
-            
-            OnStep?.Invoke();
-            
 
             float? maxUpdateTime;
             if (timeLimited)

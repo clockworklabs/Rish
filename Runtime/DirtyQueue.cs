@@ -185,7 +185,7 @@ namespace RishUI
         }
 
         public bool IsDirty(Node node) => IsDirty(node.ID);
-        private bool IsDirty(int id) => Ids.Contains(id);
+        private bool IsDirty(int id) => Ids.ContainsKey(id);
         
         private bool EnqueueForImmediateProcessing(Node node)
         {
