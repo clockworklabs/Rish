@@ -158,80 +158,80 @@ namespace RishUI.Input
                     visualElement.focusable = false;
                     visualElement.tabIndex = -1;
                     
-                    // if (visualElement.IsHover())
-                    // {
-                    //     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
-                    //     {
-                    //         if (!visualElement.ContainsPointer(i)) { continue; }
-                    //         
-                    //         var position = PointerUtils.GetPointerPosition(i);
-                    //
-                    //         var parent = visualElement.parent;
-                    //         while (parent != null)
-                    //         {
-                    //             var containsPointer = parent.ContainsPointer(i);
-                    //             if (containsPointer && parent.ContainsPoint(parent.WorldToLocal(position)))
-                    //             {
-                    //                 break;
-                    //             }
-                    //
-                    //             parent.SetPseudoStates(parent.GetPseudoStates() & ~VisualElementExtensions.HoverValue);
-                    //
-                    //             parent = parent.parent;
-                    //         }
-                    //     }
-                    // }
-                    
                     if (visualElement.IsHover())
                     {
                         for (int i = 0, n = PointerId.maxPointers; i < n; i++)
                         {
                             if (!visualElement.ContainsPointer(i)) { continue; }
-
+                            
                             var position = PointerUtils.GetPointerPosition(i);
-                            var pressedButtons = PointerUtils.GetPressedButtons(i);
-
+                    
                             var parent = visualElement.parent;
-                            var prevContained = true;
                             while (parent != null)
                             {
-                                var localPosition = parent.WorldToLocal(position);
                                 var containsPointer = parent.ContainsPointer(i);
-
-                                bool mustReport;
-                                if (parent is IVisualElement)
+                                if (containsPointer && parent.ContainsPoint(parent.WorldToLocal(position)))
                                 {
-                                    if (containsPointer && !prevContained)
-                                    {
-                                        break;
-                                    }
-                                    prevContained = containsPointer;
-                                    mustReport = !containsPointer;
+                                    break;
                                 }
-                                else
-                                {
-                                    mustReport = prevContained;
-                                }
-
-                                if (mustReport)
-                                {
-                                    var e = new StructPointerEvent
-                                    {
-                                        pointerId = i,
-                                        position = position,
-                                        localPosition = localPosition,
-                                        pressedButtons = pressedButtons
-                                    };
-
-                                    using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
-                                    pointerLeaveEvent.target = parent;
-                                    parent.SendEvent(pointerLeaveEvent);
-                                }
-
+                    
+                                parent.SetPseudoStates(parent.GetPseudoStates() & ~VisualElementExtensions.HoverValue);
+                    
                                 parent = parent.parent;
                             }
                         }
                     }
+                    
+                    // if (visualElement.IsHover())
+                    // {
+                    //     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
+                    //     {
+                    //         if (!visualElement.ContainsPointer(i)) { continue; }
+                    //
+                    //         var position = PointerUtils.GetPointerPosition(i);
+                    //         var pressedButtons = PointerUtils.GetPressedButtons(i);
+                    //
+                    //         var parent = visualElement.parent;
+                    //         var prevContained = true;
+                    //         while (parent != null)
+                    //         {
+                    //             var localPosition = parent.WorldToLocal(position);
+                    //             var containsPointer = parent.ContainsPointer(i);
+                    //
+                    //             bool mustReport;
+                    //             if (parent is IVisualElement)
+                    //             {
+                    //                 if (containsPointer && !prevContained)
+                    //                 {
+                    //                     break;
+                    //                 }
+                    //                 prevContained = containsPointer;
+                    //                 mustReport = !containsPointer;
+                    //             }
+                    //             else
+                    //             {
+                    //                 mustReport = prevContained;
+                    //             }
+                    //
+                    //             if (mustReport)
+                    //             {
+                    //                 var e = new StructPointerEvent
+                    //                 {
+                    //                     pointerId = i,
+                    //                     position = position,
+                    //                     localPosition = localPosition,
+                    //                     pressedButtons = pressedButtons
+                    //                 };
+                    //
+                    //                 using var pointerLeaveEvent = PointerLeaveEvent.GetPooled(e);
+                    //                 pointerLeaveEvent.target = parent;
+                    //                 parent.SendEvent(pointerLeaveEvent);
+                    //             }
+                    //
+                    //             parent = parent.parent;
+                    //         }
+                    //     }
+                    // }
                     
                     for (int i = 0, n = PointerId.maxPointers; i < n; i++)
                     {
