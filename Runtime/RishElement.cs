@@ -55,6 +55,7 @@ namespace RishUI
         }
 
         private protected event Action OnMounted;
+        private protected event Action OnUnmounting;
         private protected event Action OnUnmounted;
         
         private List<ICallbackWrapper> Callbacks { get; set; }
@@ -261,7 +262,7 @@ namespace RishUI
             }
             References = default;
             
-            OnUnmounted?.Invoke();
+            OnUnmounting?.Invoke();
             
             Node = null;
             
@@ -269,6 +270,8 @@ namespace RishUI
             {
                 customUnmountListener.Unmounted();
             }
+            
+            OnUnmounted?.Invoke();
         }
 
         Element IRishElement.Render()
@@ -712,14 +715,15 @@ namespace RishUI
             }
         }
         
-        protected bool IsMounted => _state.HasValue;
+        protected bool IsMounted { get; set; }
 
         private NativeList<Reference> References { get; set; }
 
         protected RishElement()
         {
             OnMounted += SetDefaultState;
-            OnUnmounted += DisposeReferences;
+            OnUnmounting += DisposeReferences;
+            OnUnmounted += ClearState;
         }
 
         private void SetDefaultState()
@@ -729,7 +733,7 @@ namespace RishUI
 
         private void DisposeReferences()
         {
-            _state = null;
+            IsMounted = false;
             DirtyReferences = false;
 
             if (!References.IsCreated)
@@ -744,6 +748,8 @@ namespace RishUI
             References.Dispose();
             References = default;
         }
+        
+        private void ClearState() => _state = null;
 
         protected void SetState(S state) => State = state;
         protected void SetState(RefAction<S> action)
@@ -755,7 +761,7 @@ namespace RishUI
 
         private protected override void PersistReferences()
         {
-            if (!_state.HasValue || !DirtyReferences) return;
+            if (!(_state.HasValue && IsMounted && DirtyReferences)) return;
 
             DirtyReferences = false;
 
