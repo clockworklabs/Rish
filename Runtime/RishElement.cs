@@ -83,7 +83,11 @@ namespace RishUI
             {
                 if (!_props.HasValue)
                 {
+#if UNITY_EDITOR
                     throw new UnityException($"Accessing unset {typeof(P)}. You should not access Props at this point.");
+#else
+                    return default;
+#endif
                 }
                 
                 return _props.Value;
@@ -678,7 +682,11 @@ namespace RishUI
             {
                 if (!_state.HasValue)
                 {
+#if UNITY_EDITOR
                     throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
+#else
+                    return default;
+#endif
                 }
                 
                 PersistReferences();
@@ -703,6 +711,8 @@ namespace RishUI
                 }
             }
         }
+        
+        protected bool IsMounted => _state.HasValue;
 
         private NativeList<Reference> References { get; set; }
 
@@ -719,8 +729,8 @@ namespace RishUI
 
         private void DisposeReferences()
         {
-            DirtyReferences = false;
             _state = null;
+            DirtyReferences = false;
 
             if (!References.IsCreated)
             {
