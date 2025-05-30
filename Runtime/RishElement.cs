@@ -676,8 +676,6 @@ namespace RishUI
 
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
-        private bool DirtyReferences { get; set; }
-        
         private S? _state;
         protected S State
         {
@@ -716,6 +714,7 @@ namespace RishUI
         }
         
         protected bool IsMounted { get; set; }
+        private bool DirtyReferences { get; set; }
 
         private NativeList<Reference> References { get; set; }
 
@@ -728,6 +727,7 @@ namespace RishUI
 
         private void SetDefaultState()
         {
+            IsMounted = true;
             State = Defaults.GetValue<S>();
         }
 
