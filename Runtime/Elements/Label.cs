@@ -1,3 +1,4 @@
+using RishUI.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -26,7 +27,7 @@ namespace RishUI.Elements
             RegisterCallback<AttachToPanelEvent>(OnMounted);
             RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
             
-            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            RegisterCallback<VisualChangeEvent>(OnVisualChange);
         }
 
         void IVisualElement<LabelProps>.Setup(LabelProps props)
@@ -42,16 +43,16 @@ namespace RishUI.Elements
         private void OnMounted(AttachToPanelEvent evt)
         {
             Parent = parent;
-            Parent?.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            Parent?.RegisterCallback<VisualChangeEvent>(OnVisualChange);
         }
 
         private void OnUnmounted(DetachFromPanelEvent evt)
         {
-            Parent?.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            Parent?.UnregisterCallback<VisualChangeEvent>(OnVisualChange);
             Parent = null;
         }
 
-        private void OnGeometryChanged(GeometryChangedEvent evt)
+        private void OnVisualChange(VisualChangeEvent evt)
         {
             SetSize();
         }
