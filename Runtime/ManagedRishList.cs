@@ -13,18 +13,14 @@ namespace RishUI
         public int Count => Elements.Count;
 
         private bool Open { get; set; } = true;
-        private NativeList<Reference> References { get; set; }
+        private List<Reference> References { get; } = new();
 
         void IManaged.Dispose()
         {
             Elements.Clear();
             Open = true;
 
-            if (References.IsCreated)
-            {
-                References.Dispose();
-            }
-            References = default;
+            // References.Clear();
         }
         void IManaged.ReferenceRegistered(IOwner owner)
         {
@@ -32,31 +28,12 @@ namespace RishUI
             {
                 Open = false;
 
-                if (References.IsCreated)
-                {
-                    References.Dispose();
-                }
-                References = new NativeList<Reference>(Allocator.Persistent);
+                References.Clear();
                 foreach(var element in Elements)
                 {
-                    var references = ReferencesGetters.GetReferences(element, true);
-                    if (references.IsCreated)
-                    {
-                        foreach (var reference in references)
-                        {
-                            References.Add(reference);
-                        }
-                        references.Dispose();
-                    }
-                }
-                if (References.IsEmpty)
-                {
-                    References.Dispose();
-                    References = default;
+                    ReferencesGetters.GetReferences(element, References);
                 }
             }
-
-            if (!References.IsCreated) return;
             
             foreach (var reference in References)
             {
@@ -65,8 +42,6 @@ namespace RishUI
         }
         void IManaged.ReferenceUnregistered(IOwner owner)
         {
-            if (!References.IsCreated) return;
-            
             foreach (var reference in References)
             {
                 reference.UnregisterReference(owner);

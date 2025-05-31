@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine.UIElements;
@@ -110,8 +111,8 @@ namespace RishUI
             private DOMDescriptor Descriptor { get; set; }
             private P Props { get; set; }
             private Children Children { get; set; }
-            
-            private NativeList<Reference> References { get; set; } 
+
+            private List<Reference> References { get; } = new(); 
 
             public void Factory(ulong key, DOMDescriptor descriptor, P props, Children children)
             {
@@ -120,12 +121,8 @@ namespace RishUI
                 Props = props;
                 Children = children;
 
-                if (References.IsCreated)
-                {
-                    References.Dispose();
-                }
-
-                References = ReferencesGetters.GetReferences(props);
+                References.Clear();
+                ReferencesGetters.GetReferences(props, References);
             }
 
             internal override void Invoke(Node parent)
@@ -136,23 +133,13 @@ namespace RishUI
 
             protected override void Dispose()
             {
-                if (References.IsCreated)
-                {
-                    References.Dispose();
-                }
-
-                References = default;
+                // References.Clear();
             }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
                 RegisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
-                
-                if (!References.IsCreated)
-                {
-                    return;
-                }
                 
                 foreach (var reference in References)
                 {
@@ -163,11 +150,6 @@ namespace RishUI
             {
                 UnregisterReferenceTo<ManagedChildren>(Children.ID, owner);
                 UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
-                
-                if (!References.IsCreated)
-                {
-                    return;
-                }
                 
                 foreach (var reference in References)
                 {

@@ -11,15 +11,18 @@ namespace RishUI.MemoryManagement
     
     internal static class ReferencesGetters
     {
-        private static Dictionary<Type, MethodInfo> Methods { get; } = new(200);
-        private static Dictionary<Type, Delegate> Delegates { get; } = new();
+        private static Dictionary<Type, MethodInfo> NativeMethods { get; } = new(200);
+        private static Dictionary<Type, Delegate> NativeDelegates { get; } = new();
+        private static Dictionary<Type, MethodInfo> ListMethods { get; } = new(200);
+        private static Dictionary<Type, Delegate> ListDelegates { get; } = new();
 
         
 #if UNITY_EDITOR
-        public static int Count => Methods.Count;
+        public static int Count => NativeMethods.Count;
 #endif
 
-        private delegate NativeList<Reference> ReferencesGetter<in T>(T owner, bool temp);
+        private delegate NativeList<Reference> NativeReferencesGetter<in T>(T owner, bool temp);
+        private delegate void ListReferencesGetter<in T>(T owner, List<Reference> result);
         
         static ReferencesGetters()
         {
@@ -31,33 +34,34 @@ namespace RishUI.MemoryManagement
 
         public static NativeList<Reference> GetReferences<T>(T owner, bool temp = false) where T : struct
         {
-            if (!Contains<T>())
-            {
-                return default;
-            }
+            if (!Contains<T>()) return default;
             
-            var getter = GetDelegate<T>();
+            var getter = GetNativeDelegate<T>();
             var references = getter?.Invoke(owner, temp) ?? default;
-            if (references.IsCreated)
-            {
-                return references;
-            }
+            if (references.IsCreated) return references;
 
             references.Dispose();
             return default;
         }
+        public static void GetReferences<T>(T owner, List<Reference> result) where T : struct
+        {
+            if (!Contains<T>()) return;
+            
+            var getter = GetListDelegate<T>();
+            getter?.Invoke(owner, result);
+        }
 
-        private static ReferencesGetter<T> GetDelegate<T>() where T : struct
+        private static NativeReferencesGetter<T> GetNativeDelegate<T>() where T : struct
         {
             var type = typeof(T);
-            if (!Delegates.TryGetValue(type, out var referencesGetter))
+            if (!NativeDelegates.TryGetValue(type, out var referencesGetter))
             {
-                if (!Methods.TryGetValue(type, out var method))
+                if (!NativeMethods.TryGetValue(type, out var method))
                 {
                     if (type.IsGenericType)
                     {
                         var genericType = type.GetGenericTypeDefinition();
-                        if (Methods.TryGetValue(genericType, out method))
+                        if (NativeMethods.TryGetValue(genericType, out method))
                         {
                             method = method.MakeGenericMethod(type.GenericTypeArguments);
                         }
@@ -65,12 +69,37 @@ namespace RishUI.MemoryManagement
                 }
 
                 referencesGetter = method != null
-                    ? Delegate.CreateDelegate(typeof(ReferencesGetter<T>), null, method)
+                    ? Delegate.CreateDelegate(typeof(NativeReferencesGetter<T>), null, method)
                     : null;
-                Delegates.Add(type, referencesGetter);
+                NativeDelegates.Add(type, referencesGetter);
             }
 
-            return (ReferencesGetter<T>) referencesGetter;
+            return (NativeReferencesGetter<T>) referencesGetter;
+        }
+        private static ListReferencesGetter<T> GetListDelegate<T>() where T : struct
+        {
+            var type = typeof(T);
+            if (!ListDelegates.TryGetValue(type, out var referencesGetter))
+            {
+                if (!ListMethods.TryGetValue(type, out var method))
+                {
+                    if (type.IsGenericType)
+                    {
+                        var genericType = type.GetGenericTypeDefinition();
+                        if (ListMethods.TryGetValue(genericType, out method))
+                        {
+                            method = method.MakeGenericMethod(type.GenericTypeArguments);
+                        }
+                    }
+                }
+
+                referencesGetter = method != null
+                    ? Delegate.CreateDelegate(typeof(ListReferencesGetter<T>), null, method)
+                    : null;
+                ListDelegates.Add(type, referencesGetter);
+            }
+
+            return (ListReferencesGetter<T>) referencesGetter;
         }
 
         private static void RegisterReferencesGetters(Type provider)
@@ -82,37 +111,56 @@ namespace RishUI.MemoryManagement
             foreach (var method in provider.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             {
                 var parameters = method.GetParameters();
-                if (parameters.Length != 2 || method.ReturnType != typeof(NativeList<Reference>) || parameters[1].ParameterType != typeof(bool) || !Attribute.IsDefined(method, typeof(ReferencesGetterAttribute)))
-                {
-                    continue;
-                }
+                if (parameters.Length != 2 || !Attribute.IsDefined(method, typeof(ReferencesGetterAttribute))) continue;
 
+                var isNative = method.ReturnType == typeof(NativeList<Reference>) && parameters[1].ParameterType == typeof(bool);
+                var isList = !isNative && method.ReturnType == typeof(void) && parameters[1].ParameterType == typeof(List<Reference>);
+
+                if (!isNative && !isList) continue;
+                
                 var type = parameters[0].ParameterType;
                 if (type.ContainsGenericParameters)
                 {
                     type = type.GetGenericTypeDefinition();
                 }
-                
-                if (Methods.ContainsKey(type))
+
+                if (isNative)
                 {
-                    if (type == provider)
+                    if (NativeMethods.ContainsKey(type))
                     {
-                        Methods.Remove(type);
+                        if (type == provider)
+                        {
+                            NativeMethods.Remove(type);
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
-                    else
+
+                    NativeMethods.Add(type, method);
+                } else {
+                    if (ListMethods.ContainsKey(type))
                     {
-                        continue;
+                        if (type == provider)
+                        {
+                            ListMethods.Remove(type);
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
+
+                    ListMethods.Add(type, method);
                 }
-                
-                Methods.Add(type, method);
             }
         }
 
         public static bool Contains<T>() => Contains(typeof(T));
         public static bool Contains(Type type)
         {
-            if (Methods.ContainsKey(type))
+            if (NativeMethods.ContainsKey(type))
             {
                 return true;
             }
@@ -124,7 +172,7 @@ namespace RishUI.MemoryManagement
 
             var genericDefinition = type.GetGenericTypeDefinition();
             
-            return Methods.ContainsKey(genericDefinition);
+            return NativeMethods.ContainsKey(genericDefinition);
         }
     }
 }

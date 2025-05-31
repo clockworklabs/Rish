@@ -77,7 +77,7 @@ namespace RishUI
         public void Invoke(T value)
         {
             var listeners = Exposed.ReadOnlyListeners;
-            for (int i = 0, n = listeners.Count; i < n; i++)
+            for (var i = listeners.Count - 1; i >= 0; i--)
             {
                 listeners[i]?.Invoke(value);
             }

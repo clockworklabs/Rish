@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 
@@ -30,19 +31,15 @@ namespace RishUI
             public override Type Type => typeof(T);
             
             private P Props { get; set; }
-            private NativeList<Reference> References { get; set; } 
+            private List<Reference> References { get; } = new(); 
 
             public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
-
-                if (References.IsCreated)
-                {
-                    References.Dispose();
-                }
-
-                References = ReferencesGetters.GetReferences(props);
+                
+                References.Clear();
+                ReferencesGetters.GetReferences(props, References);
             }
 
             internal override void Invoke(Node parent)
@@ -54,21 +51,11 @@ namespace RishUI
  
             protected override void Dispose()
             {
-                if (References.IsCreated)
-                {
-                    References.Dispose();
-                }
-
-                References = default;
+                // References.Clear();
             }
 
             protected override void ReferenceRegistered(IOwner owner)
             {
-                if (!References.IsCreated)
-                {
-                    return;
-                }
-                
                 foreach (var reference in References)
                 {
                     reference.RegisterReference(owner);
@@ -76,11 +63,6 @@ namespace RishUI
             }
             protected override void ReferenceUnregistered(IOwner owner)
             {
-                if (!References.IsCreated)
-                {
-                    return;
-                }
-                
                 foreach (var reference in References)
                 {
                     reference.UnregisterReference(owner);

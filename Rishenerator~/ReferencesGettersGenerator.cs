@@ -398,16 +398,27 @@ namespace Rishenerator
                     foreach (var field in referencesGetter.Fields)
                     {
                         var sourceCode = GetFieldReferencesSourceCode("value", field);
-                        if (string.IsNullOrWhiteSpace(sourceCode))
-                        {
-                            continue;
-                        }
+                        if (string.IsNullOrWhiteSpace(sourceCode)) continue;
                     
                         stringBuilder.AppendLine($"                {sourceCode},");
                     }
         
                     stringBuilder.AppendLine(@"            };
         }");
+                    
+                    stringBuilder.AppendLine($@"        [RishUI.MemoryManagement.ReferencesGetter]
+        private static void GetReferences{referencesGetter.Generics}({referencesGetter.FullName} value, System.Collections.Generic.List<RishUI.MemoryManagement.Reference> result){referencesGetter.GenericsConstraints}
+        {{");
+                    
+                    foreach (var field in referencesGetter.Fields)
+                    {
+                        var sourceCode = GetFieldReferencesSourceCode("value", field);
+                        if (string.IsNullOrWhiteSpace(sourceCode)) continue;
+                    
+                        stringBuilder.AppendLine($"        result.Add({sourceCode});");
+                    }
+        
+                    stringBuilder.AppendLine("        }");
                 }
                 
                 stringBuilder.AppendLine(@"    }

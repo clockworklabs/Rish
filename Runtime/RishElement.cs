@@ -90,7 +90,8 @@ namespace RishUI
         private bool ReadyToUnmount { get; set; }
 
         private Element RenderedElement { get; set; }
-        private NativeList<Reference> References { get; set; }
+        private List<Reference> ReferencesBuffer { get; set; } = new();
+        private List<Reference> References { get; set; } = new();
 
         protected bool IsDirty() => Node?.IsDirty() ?? false;
 
@@ -115,17 +116,16 @@ namespace RishUI
             }
 
             var oldValue = _props;
-            var oldReferences = References;
+            
+            (ReferencesBuffer, References) = (References, ReferencesBuffer);
             
             _props = value;
             
-            References = ReferencesGetters.GetReferences(value);
-            if (References.IsCreated)
+            References.Clear();
+            ReferencesGetters.GetReferences(value, References);
+            foreach (var reference in References)
             {
-                foreach (var reference in References)
-                {
-                    reference.RegisterReference(this);
-                }
+                reference.RegisterReference(this);
             }
             
             if (!propsSet || dirty)
@@ -134,13 +134,9 @@ namespace RishUI
                 typedPropsListener?.PropsDidChange(oldValue);
             }
 
-            if (oldReferences.IsCreated)
+            foreach (var reference in ReferencesBuffer)
             {
-                foreach (var reference in oldReferences)
-                {
-                    reference.UnregisterReference(this);
-                }
-                oldReferences.Dispose();
+                reference.UnregisterReference(this);
             }
 
             if (dirty && !IsDirty())
@@ -242,15 +238,12 @@ namespace RishUI
             Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
             RenderedElement = default;
 
-            if (References.IsCreated)
+            foreach (var reference in References)
             {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
-                References.Dispose();
+                reference.UnregisterReference(this);
             }
-            References = default;
+            References.Clear();
+            ReferencesBuffer.Clear();
             
             OnUnmountingHandler.Invoke();
             
@@ -706,7 +699,7 @@ namespace RishUI
         protected bool IsMounted { get; set; }
         private bool DirtyReferences { get; set; }
 
-        private NativeList<Reference> References { get; set; }
+        private List<Reference> References { get; } = new();
 
         protected RishElement()
         {
@@ -726,17 +719,10 @@ namespace RishUI
             IsMounted = false;
             DirtyReferences = false;
 
-            if (!References.IsCreated)
-            {
-                return;
-            }
-
             foreach (var reference in References)
             {
                 reference.UnregisterReference(this);
             }
-            References.Dispose();
-            References = default;
         }
         
         private void ClearState() => _state = null;
@@ -755,21 +741,15 @@ namespace RishUI
 
             DirtyReferences = false;
 
-            if (References.IsCreated)
+            foreach (var reference in References)
             {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(this);
-                }
-                References.Dispose();
+                reference.UnregisterReference(this);
             }
-            References = ReferencesGetters.GetReferences(_state.Value);
-            if (References.IsCreated)
+            References.Clear();
+            ReferencesGetters.GetReferences(_state.Value, References);
+            foreach (var reference in References)
             {
-                foreach (var reference in References)
-                {
-                    reference.RegisterReference(this);
-                }
+                reference.RegisterReference(this);
             }
         }
     }

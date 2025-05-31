@@ -1,5 +1,5 @@
-﻿using RishUI.MemoryManagement;
-using Unity.Collections;
+﻿using System.Collections.Generic;
+using RishUI.MemoryManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -175,8 +175,9 @@ namespace RishUI
                 }
             }
         }
-        
-        private NativeList<Reference> References { get; set; }
+
+        private List<Reference> ReferencesBuffer { get; set; } = new();
+        private List<Reference> References { get; set; } = new();
 
         public Bridge(VisualElement element, bool propsAlwaysDirty = false)
         {
@@ -197,29 +198,20 @@ namespace RishUI
 
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
         {
-            var oldReferences = References;
+            (References, ReferencesBuffer) = (ReferencesBuffer, References);
 
+            References.Clear();
+            ReferencesGetters.GetReferences(props, References);
+            foreach (var reference in References)
+            {
+                reference.RegisterReference(Node);
+            }
             var classNameReference = Rish.GetReferenceTo<ManagedClassName>(descriptor.className.ID);
             classNameReference.RegisterReference(Node);
+            ReferencesBuffer.Add(classNameReference);
             var childrenReference = Rish.GetReferenceTo<ManagedChildren>(children.ID);
             childrenReference.RegisterReference(Node);
-            var propsReferences = ReferencesGetters.GetReferences(props, true);
-            var propsReferencesCreated = propsReferences.IsCreated;
-            var propsReferencesCount = propsReferencesCreated ? propsReferences.Length : 0;
-            References = new NativeList<Reference>(propsReferencesCount + 2, Allocator.Persistent)
-            {
-                classNameReference,
-                childrenReference
-            };
-            if (propsReferencesCreated)
-            {
-                foreach (var reference in propsReferences)
-                {
-                    References.Add(reference);
-                    reference.RegisterReference(Node);
-                }
-                propsReferences.Dispose();
-            }
+            ReferencesBuffer.Add(childrenReference);
             
             Name = descriptor.name;
             ClassName = descriptor.className;
@@ -229,13 +221,9 @@ namespace RishUI
 
             Children = children;
             
-            if (oldReferences.IsCreated)
+            foreach (var reference in ReferencesBuffer)
             {
-                foreach (var reference in oldReferences)
-                {
-                    reference.UnregisterReference(Node);
-                }
-                oldReferences.Dispose();
+                reference.UnregisterReference(Node);
             }
             
             OnSetupHandler.Invoke();
@@ -593,15 +581,12 @@ namespace RishUI
             
             Element.RemoveFromHierarchy();
             
-            if (References.IsCreated)
+            foreach (var reference in References)
             {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(Node);
-                }
-                References.Dispose();
+                reference.UnregisterReference(Node);
             }
-            References = default;
+            References.Clear();
+            ReferencesBuffer.Clear();
             
             Node = null;
             
