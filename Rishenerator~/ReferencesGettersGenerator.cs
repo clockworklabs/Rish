@@ -412,10 +412,7 @@ namespace Rishenerator
                     
                     foreach (var field in referencesGetter.Fields)
                     {
-                        var sourceCode = GetFieldReferencesSourceCode("value", field);
-                        if (string.IsNullOrWhiteSpace(sourceCode)) continue;
-                    
-                        stringBuilder.AppendLine($"        result.Add({sourceCode});");
+                        AddFieldReferences(stringBuilder, "value", field);
                     }
         
                     stringBuilder.AppendLine("        }");
@@ -459,6 +456,25 @@ namespace Rishenerator
             }
             
             return field.Nullable ? $"{fieldName}.HasValue ? {sourceCode} : default" : sourceCode;
+        }
+
+        private static void AddFieldReferences(StringBuilder stringBuilder, string parent, Field field)
+        {
+            var fieldName = $"{parent}.{field.Name}";
+            var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
+            
+            if (field.Children == null)
+            {
+                var reference = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName);
+                stringBuilder.AppendLine($"            result.Add({reference});");
+            }
+            else
+            {
+                foreach (var child in field.Children)
+                {
+                    AddFieldReferences(stringBuilder, nullableFieldName, child);
+                }
+            }
         }
 
         private static string GetFieldReferencesSourceCode(string name, string managedTypeFullName) => $"RishUI.Rish.GetReferenceTo<{managedTypeFullName}>({name}.ID)";

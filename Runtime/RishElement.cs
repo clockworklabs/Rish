@@ -138,6 +138,7 @@ namespace RishUI
             {
                 reference.UnregisterReference(this);
             }
+            ReferencesBuffer.Clear();
 
             if (dirty && !IsDirty())
             {
@@ -723,6 +724,7 @@ namespace RishUI
             {
                 reference.UnregisterReference(this);
             }
+            References.Clear();
         }
         
         private void ClearState() => _state = null;
