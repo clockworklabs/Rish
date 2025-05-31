@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using RishUI.Events;
 using RishUI.MemoryManagement;
@@ -13,9 +12,9 @@ namespace RishUI
 
     internal interface IRishElement : IElement
     {
-        event Action<bool> OnDirty;
-        event Action OnReferencesDirty;
-        event Action OnReadyToUnmount;
+        FlexibleEventHandler<bool>.Event OnDirty { get; set; }
+        FlexibleEventHandler.Event OnReferencesDirty { get; set; }
+        FlexibleEventHandler.Event OnReadyToUnmount { get; set; }
         
         void Mount(Node node);
         void RequestUnmount();
@@ -33,30 +32,21 @@ namespace RishUI
 
     public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
-        private event Action<bool> OnDirty;
-        event Action<bool> IRishElement.OnDirty
-        {
-            add => OnDirty += value;
-            remove => OnDirty -= value;
-        }
+        private FlexibleEventHandler<bool> OnDirtyHandler { get; } = new();
+        FlexibleEventHandler<bool>.Event IRishElement.OnDirty { get => OnDirtyHandler.Exposed; set => OnDirtyHandler.Exposed = value; }
         
-        private event Action OnReferencesDirty;
-        event Action IRishElement.OnReferencesDirty
-        {
-            add => OnReferencesDirty += value;
-            remove => OnReferencesDirty -= value;
-        }
+        private FlexibleEventHandler OnReferencesDirtyHandler { get; } = new();
+        FlexibleEventHandler.Event IRishElement.OnReferencesDirty { get => OnReferencesDirtyHandler.Exposed; set => OnReferencesDirtyHandler.Exposed = value; }
         
-        private event Action OnReadyToUnmount;
-        event Action IRishElement.OnReadyToUnmount
-        {
-            add => OnReadyToUnmount += value;
-            remove => OnReadyToUnmount -= value;
-        }
+        private FlexibleEventHandler OnReadyToUnmountHandler { get; } = new();
+        FlexibleEventHandler.Event IRishElement.OnReadyToUnmount { get => OnReadyToUnmountHandler.Exposed; set => OnReadyToUnmountHandler.Exposed = value; }
 
-        private protected event Action OnMounted;
-        private protected event Action OnUnmounting;
-        private protected event Action OnUnmounted;
+        private FlexibleEventHandler OnMountedHandler { get; } = new();
+        private protected FlexibleEventHandler.Event OnMounted { get => OnMountedHandler.Exposed; set => OnMountedHandler.Exposed = value; }
+        private FlexibleEventHandler OnUnmountingHandler { get; } = new();
+        private protected FlexibleEventHandler.Event OnUnmounting { get => OnUnmountingHandler.Exposed; set => OnUnmountingHandler.Exposed = value; }
+        private FlexibleEventHandler OnUnmountedHandler { get; } = new();
+        private protected FlexibleEventHandler.Event OnUnmounted { get => OnUnmountedHandler.Exposed; set => OnUnmountedHandler.Exposed = value; }
         
         private List<ICallbackWrapper> Callbacks { get; set; }
 
@@ -167,12 +157,12 @@ namespace RishUI
         /// Flag this element as Dirty.
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
-        protected void Dirty(bool forceThisFrame) => OnDirty?.Invoke(forceThisFrame);
+        protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Invoke(forceThisFrame);
 
         /// <summary>
         /// Flag this element to have dirty references.
         /// </summary>
-        private protected void DirtyReferences() => OnReferencesDirty?.Invoke();
+        private protected void DirtyReferences() => OnReferencesDirtyHandler.Invoke();
         
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
@@ -185,7 +175,7 @@ namespace RishUI
             }
             
             ReadyToUnmount = true;
-            OnReadyToUnmount?.Invoke();
+            OnReadyToUnmountHandler.Invoke();
         }
 
         int IOwner.GetID() => NodeID;
@@ -200,7 +190,7 @@ namespace RishUI
             Node = node;
             
             _props = null;
-            OnMounted?.Invoke();
+            OnMountedHandler.Invoke();
             
             UnmountRequested = false;
             ReadyToUnmount = false;
@@ -262,7 +252,7 @@ namespace RishUI
             }
             References = default;
             
-            OnUnmounting?.Invoke();
+            OnUnmountingHandler.Invoke();
             
             Node = null;
             
@@ -271,7 +261,7 @@ namespace RishUI
                 customUnmountListener.Unmounted();
             }
             
-            OnUnmounted?.Invoke();
+            OnUnmountedHandler.Invoke();
         }
 
         Element IRishElement.Render()

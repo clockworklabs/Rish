@@ -12,7 +12,12 @@ namespace RishUI
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        public event Action OnStart;
+        private FlexibleEventHandler OnStartHandler { get; } = new();
+        public FlexibleEventHandler.Event OnStart
+        {
+            get => OnStartHandler.Exposed;
+            set => OnStartHandler.Exposed = value;
+        }
 
         [SerializeField]
         private bool _manualUpdate;
@@ -153,7 +158,7 @@ namespace RishUI
             Dispose();
 
             Tree = new Tree(Document, RootClassName, Recovered);
-            OnStart?.Invoke();
+            OnStartHandler?.Invoke();
         }
 
         public void Step()

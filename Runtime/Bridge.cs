@@ -1,6 +1,4 @@
-﻿using System;
-using RishUI.Events.Tree;
-using RishUI.MemoryManagement;
+﻿using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,13 +7,13 @@ namespace RishUI
 {
     public interface IBridge
     {
-        event Action OnMounted;
-        event Action OnUnmounted;
+        FlexibleEventHandler.Event OnMounted { get; set; }
+        FlexibleEventHandler.Event OnUnmounted { get; set; }
         
-        event Action<Name> OnName;
-        event Action<ClassName> OnClassName;
-        event Action<Style> OnStyle;
-        event Action OnSetup;
+        FlexibleEventHandler<Name>.Event OnName { get; set; }
+        FlexibleEventHandler<ClassName>.Event OnClassName { get; set; }
+        FlexibleEventHandler<Style>.Event OnStyle { get; set; }
+        FlexibleEventHandler.Event OnSetup { get; set; }
         
         VisualElement Element { get; }
         
@@ -24,53 +22,32 @@ namespace RishUI
     }
     public interface IBridge<P> : IBridge where P : struct
     {
-        event Action<P> OnProps;
+        FlexibleEventHandler<P>.Event OnProps { get; set; }
     }
     
     public class Bridge<P> : IBridge<P> where P : struct
     {
-        public event Action OnMounted;
-        event Action IBridge.OnMounted
-        {
-            add => OnMounted += value;
-            remove => OnMounted -= value;
-        }
-        public event Action OnUnmounted;
-        event Action IBridge.OnUnmounted
-        {
-            add => OnUnmounted += value;
-            remove => OnUnmounted -= value;
-        }
-        public event Action<Name> OnName;
-        event Action<Name> IBridge.OnName
-        {
-            add => OnName += value;
-            remove => OnName -= value;
-        }
-        public event Action<ClassName> OnClassName;
-        event Action<ClassName> IBridge.OnClassName
-        {
-            add => OnClassName += value;
-            remove => OnClassName -= value;
-        }
-        public event Action<Style> OnStyle;
-        event Action<Style> IBridge.OnStyle
-        {
-            add => OnStyle += value;
-            remove => OnStyle -= value;
-        }
-        public event Action<P> OnProps;
-        event Action<P> IBridge<P>.OnProps
-        {
-            add => OnProps += value;
-            remove => OnProps -= value;
-        }
-        public event Action OnSetup;
-        event Action IBridge.OnSetup
-        {
-            add => OnSetup += value;
-            remove => OnSetup -= value;
-        }
+        private FlexibleEventHandler OnMountedHandler { get; } = new();
+        public FlexibleEventHandler.Event OnMounted { get => OnMountedHandler.Exposed; set => OnMountedHandler.Exposed = value; }
+        FlexibleEventHandler.Event IBridge.OnMounted { get => OnMounted; set => OnMounted = value; }
+        private FlexibleEventHandler OnUnmountedHandler { get; } = new();
+        public FlexibleEventHandler.Event OnUnmounted { get => OnUnmountedHandler.Exposed; set => OnUnmountedHandler.Exposed = value; }
+        FlexibleEventHandler.Event IBridge.OnUnmounted { get => OnUnmounted; set => OnUnmounted = value; }
+        private FlexibleEventHandler<Name> OnNameHandler { get; } = new();
+        public FlexibleEventHandler<Name>.Event OnName { get => OnNameHandler.Exposed; set => OnNameHandler.Exposed = value; }
+        FlexibleEventHandler<Name>.Event IBridge.OnName { get => OnName; set => OnName = value; }
+        private FlexibleEventHandler<ClassName> OnClassNameHandler { get; } = new();
+        public FlexibleEventHandler<ClassName>.Event OnClassName { get => OnClassNameHandler.Exposed; set => OnClassNameHandler.Exposed = value; }
+        FlexibleEventHandler<ClassName>.Event IBridge.OnClassName { get => OnClassName; set => OnClassName = value; }
+        private FlexibleEventHandler<Style> OnStyleHandler { get; } = new();
+        public FlexibleEventHandler<Style>.Event OnStyle { get => OnStyleHandler.Exposed; set => OnStyleHandler.Exposed = value; }
+        FlexibleEventHandler<Style>.Event IBridge.OnStyle { get => OnStyle; set => OnStyle = value; }
+        private FlexibleEventHandler<P> OnPropsHandler { get; } = new();
+        public FlexibleEventHandler<P>.Event OnProps { get => OnPropsHandler.Exposed; set => OnPropsHandler.Exposed = value; }
+        FlexibleEventHandler<P>.Event IBridge<P>.OnProps { get => OnProps; set => OnProps = value; }
+        private FlexibleEventHandler OnSetupHandler { get; } = new();
+        public FlexibleEventHandler.Event OnSetup { get => OnSetupHandler.Exposed; set => OnSetupHandler.Exposed = value; }
+        FlexibleEventHandler.Event IBridge.OnSetup { get => OnSetup; set => OnSetup = value; }
         
         private VisualElement Element { get; }
         VisualElement IBridge.Element => Element;
@@ -84,7 +61,7 @@ namespace RishUI
                 
                 Element.name = value;
                 
-                OnName?.Invoke(value);
+                OnNameHandler.Invoke(value);
             }
         }
 
@@ -101,7 +78,7 @@ namespace RishUI
 
                 Element.SetClassName(value);
                 
-                OnClassName?.Invoke(value);
+                OnClassNameHandler.Invoke(value);
             }
         }
 
@@ -134,7 +111,7 @@ namespace RishUI
                 SetStyle(value);
                 _style = value;
                 
-                OnStyle?.Invoke(value);
+                OnStyleHandler.Invoke(value);
             }
         }
 
@@ -168,7 +145,7 @@ namespace RishUI
                 {
                     propsElement.Setup(value);
                     
-                    OnProps?.Invoke(value);
+                    OnPropsHandler.Invoke(value);
                 }
 #if UNITY_EDITOR
                 else
@@ -215,7 +192,7 @@ namespace RishUI
             
             Node = node;
             
-            OnMounted?.Invoke();
+            OnMountedHandler.Invoke();
         }
 
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
@@ -261,7 +238,7 @@ namespace RishUI
                 oldReferences.Dispose();
             }
             
-            OnSetup?.Invoke();
+            OnSetupHandler.Invoke();
         }
 
         private void SetStyle(Style style)
@@ -628,7 +605,7 @@ namespace RishUI
             
             Node = null;
             
-            OnUnmounted?.Invoke();
+            OnUnmountedHandler.Invoke();
         }
     }
 

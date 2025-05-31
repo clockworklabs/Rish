@@ -11,10 +11,14 @@ namespace RishUI
 {
     public class Node : FastPriorityQueueNode, IOwner
     {
-        internal event Action OnMounted; // TODO: C# Creates garbage with these
-        internal event Action OnBeforeUnmount; // TODO: C# Creates garbage with these
-        internal event Action OnUnmounted; // TODO: C# Creates garbage with these
-        internal event Action<Node> OnInactive; // TODO: Maybe uint? // TODO: C# Creates garbage with these
+        private FlexibleEventHandler OnMountedHandler { get; } = new();
+        internal FlexibleEventHandler.Event OnMounted { get => OnMountedHandler.Exposed; set => OnMountedHandler.Exposed = value; }
+        private FlexibleEventHandler OnBeforeUnmountHandler { get; } = new();
+        internal FlexibleEventHandler.Event OnBeforeUnmount { get => OnBeforeUnmountHandler.Exposed; set => OnBeforeUnmountHandler.Exposed = value; }
+        private FlexibleEventHandler OnUnmountedHandler { get; } = new();
+        internal FlexibleEventHandler.Event OnUnmounted { get => OnUnmountedHandler.Exposed; set => OnUnmountedHandler.Exposed = value; }
+        private FlexibleEventHandler<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
+        internal FlexibleEventHandler<Node>.Event OnInactive { get => OnInactiveHandler.Exposed; set => OnInactiveHandler.Exposed = value; }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
@@ -63,12 +67,6 @@ namespace RishUI
         private List<Node> UnmountingChildren { get; set; }
         private IReadOnlyList<Node> _children;
         public IReadOnlyList<Node> Children => _children ??= VirtualChildren?.AsReadOnly();
-
-        private struct NodeDesc
-        {
-            public ulong key;
-            public Type type;
-        }
 
         private int _virtualIndex = -1;
         private int VirtualIndex
@@ -465,22 +463,22 @@ namespace RishUI
             return hash;
         }
 
-        private void AboutToUnmount() => OnBeforeUnmount?.Invoke();
+        private void AboutToUnmount() => OnBeforeUnmountHandler.Invoke();
         private void OnStateChange(State state)
         {
             switch (state)
             {
                 case MountedState:
-                    OnMounted?.Invoke();
+                    OnMountedHandler.Invoke();
                     break;
                 case UnmountedState:
-                    OnUnmounted?.Invoke();
+                    OnUnmountedHandler.Invoke();
                     break;
             }
 
             if (state is not ActiveState)
             {
-                OnInactive?.Invoke(this);
+                OnInactiveHandler.Invoke(this);
             }
         }
 
@@ -510,7 +508,8 @@ namespace RishUI
 
         private class StateMachine
         {
-            public event Action<State> OnChange;
+            private FlexibleEventHandler<State> OnChangeHandler { get; } = new();
+            public FlexibleEventHandler<State>.Event OnChange { get => OnChangeHandler.Exposed; set => OnChangeHandler.Exposed = value; }
 
             private State _currentState;
             public State CurrentState
@@ -550,7 +549,7 @@ namespace RishUI
                     _currentState = value;
                     _currentState?.Enter();
 
-                    OnChange?.Invoke(value);
+                    OnChangeHandler.Invoke(value);
                 }
             }
 
