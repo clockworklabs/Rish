@@ -208,10 +208,10 @@ namespace RishUI
             }
             var classNameReference = Rish.GetReferenceTo<ManagedClassName>(descriptor.className.ID);
             classNameReference.RegisterReference(Node);
-            ReferencesBuffer.Add(classNameReference);
+            References.Add(classNameReference);
             var childrenReference = Rish.GetReferenceTo<ManagedChildren>(children.ID);
             childrenReference.RegisterReference(Node);
-            ReferencesBuffer.Add(childrenReference);
+            References.Add(childrenReference);
             
             Name = descriptor.name;
             ClassName = descriptor.className;
@@ -225,6 +225,7 @@ namespace RishUI
             {
                 reference.UnregisterReference(Node);
             }
+            ReferencesBuffer.Clear();
             
             OnSetupHandler.Invoke();
         }
