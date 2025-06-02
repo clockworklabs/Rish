@@ -171,7 +171,7 @@ namespace Rishenerator
                     sourceCode.AppendLine(@$"    private void {setterName}({item.TypeFullName} v)
     {{
         if(!IsMounted) return;
-        var state = State;
+        var state = GetState(false);
         state.{item.Name} = v;
         State = state;
     }}");

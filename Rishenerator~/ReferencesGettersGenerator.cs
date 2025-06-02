@@ -466,7 +466,9 @@ namespace Rishenerator
             if (field.Children == null)
             {
                 var reference = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName);
-                stringBuilder.AppendLine($"            result.Add({reference});");
+                stringBuilder.AppendLine(field.Nullable
+                    ? $"            if({fieldName}.HasValue) result.Add({reference});"
+                    : $"            result.Add({reference});");
             }
             else
             {

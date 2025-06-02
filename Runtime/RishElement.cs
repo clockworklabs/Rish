@@ -663,28 +663,14 @@ namespace RishUI
         private S? _state;
         protected S State
         {
-            get
-            {
-                if (!_state.HasValue)
-                {
-#if UNITY_EDITOR
-                    throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
-#else
-                    return default;
-#endif
-                }
-                
-                PersistReferences();
-                
-                return _state.Value;
-            }
+            get => GetState(true);
             set
             {
                 var dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
 
-                if (!DirtyReferences)
+                if (!HasDirtyReferences)
                 {
-                    DirtyReferences = true;   
+                    HasDirtyReferences = true;   
                     DirtyReferences();
                 }
 
@@ -697,8 +683,8 @@ namespace RishUI
             }
         }
         
-        protected bool IsMounted { get; set; }
-        private bool DirtyReferences { get; set; }
+        protected bool IsMounted { get; private set; }
+        private bool HasDirtyReferences { get; set; }
 
         private List<Reference> References { get; } = new();
 
@@ -718,7 +704,7 @@ namespace RishUI
         private void DisposeReferences()
         {
             IsMounted = false;
-            DirtyReferences = false;
+            HasDirtyReferences = false;
 
             foreach (var reference in References)
             {
@@ -732,16 +718,35 @@ namespace RishUI
         protected void SetState(S state) => State = state;
         protected void SetState(RefAction<S> action)
         {
-            var state = State;
+            var state = GetState(false);
             action?.Invoke(ref state);
             State = state;
         }
 
+        public S GetState(bool persistReferences = true)
+        {
+            if (!_state.HasValue)
+            {
+#if UNITY_EDITOR
+                throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
+#else
+                    return default;
+#endif
+            }
+
+            if (persistReferences)
+            {
+                PersistReferences();
+            }
+
+            return _state.Value;
+        }
+
         private protected override void PersistReferences()
         {
-            if (!(_state.HasValue && IsMounted && DirtyReferences)) return;
+            if (!(_state.HasValue && IsMounted && HasDirtyReferences)) return;
 
-            DirtyReferences = false;
+            HasDirtyReferences = false;
 
             foreach (var reference in References)
             {
