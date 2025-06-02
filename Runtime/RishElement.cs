@@ -109,11 +109,13 @@ namespace RishUI
                 
             var propsListener = this as IPropsListener;
             var typedPropsListener = this as IPropsListener<P>;
+            var allPropsListener = this as IAllPropsListener<P>;
             if (dirty)
             {
                 propsListener?.PropsWillChange();
                 typedPropsListener?.PropsWillChange();
             }
+            allPropsListener?.PropsWillChange();
 
             var oldValue = _props;
             
@@ -133,6 +135,7 @@ namespace RishUI
                 propsListener?.PropsDidChange();
                 typedPropsListener?.PropsDidChange(oldValue);
             }
+            allPropsListener?.PropsDidChange(oldValue);
 
             foreach (var reference in ReferencesBuffer)
             {
@@ -228,8 +231,10 @@ namespace RishUI
         {
             var propsListener = this as IPropsListener;
             var typedPropsListener = this as IPropsListener<P>;
+            var allPropsListener = this as IAllPropsListener<P>;
             propsListener?.PropsWillChange();
             typedPropsListener?.PropsWillChange();
+            allPropsListener?.PropsWillChange();
             
             if (this is IMountingListener mountingListener)
             {
@@ -723,14 +728,14 @@ namespace RishUI
             State = state;
         }
 
-        public S GetState(bool persistReferences = true)
+        protected S GetState(bool persistReferences = true)
         {
             if (!_state.HasValue)
             {
 #if UNITY_EDITOR
                 throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
 #else
-                    return default;
+                return default;
 #endif
             }
 

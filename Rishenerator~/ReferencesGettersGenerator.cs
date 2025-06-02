@@ -397,7 +397,7 @@ namespace Rishenerator
                     
                     foreach (var field in referencesGetter.Fields)
                     {
-                        var sourceCode = GetFieldReferencesSourceCode("value", field);
+                        var sourceCode = GetFieldReferencesSourceCode("value", field, null, null);
                         if (string.IsNullOrWhiteSpace(sourceCode)) continue;
                     
                         stringBuilder.AppendLine($"                {sourceCode},");
@@ -412,7 +412,7 @@ namespace Rishenerator
                     
                     foreach (var field in referencesGetter.Fields)
                     {
-                        AddFieldReferences(stringBuilder, "value", field);
+                        AddFieldReferences(stringBuilder, "value", field, "            ");
                     }
         
                     stringBuilder.AppendLine("        }");
@@ -425,15 +425,21 @@ namespace Rishenerator
             }
         }
 
-        private static string GetFieldReferencesSourceCode(string parent, Field field)
+        private static string GetFieldReferencesSourceCode(string parent, Field field, string prefix, string suffix)
         {
             var fieldName = $"{parent}.{field.Name}";
             var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
+
+            if (field.Nullable)
+            {
+                prefix = $"{prefix}{fieldName}.HasValue ? ";
+                suffix = $" : default(RishUI.MemoryManagement.Reference){suffix}";
+            }
             
             string sourceCode;
             if (field.Children == null)
             {
-                sourceCode = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName);
+                sourceCode = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName, prefix, suffix);
             }
             else
             {
@@ -442,7 +448,7 @@ namespace Rishenerator
                 var childCount = 0;
                 foreach (var child in field.Children)
                 {
-                    var childSourceCode = GetFieldReferencesSourceCode(nullableFieldName, child);
+                    var childSourceCode = GetFieldReferencesSourceCode(nullableFieldName, child, prefix, suffix);
                     if (string.IsNullOrWhiteSpace(childSourceCode))
                     {
                         continue;
@@ -455,30 +461,32 @@ namespace Rishenerator
                 sourceCode = stringBuilder.ToString();
             }
             
-            return field.Nullable ? $"{fieldName}.HasValue ? {sourceCode} : default" : sourceCode;
+            return sourceCode;
         }
 
-        private static void AddFieldReferences(StringBuilder stringBuilder, string parent, Field field)
+        private static void AddFieldReferences(StringBuilder stringBuilder, string parent, Field field, string prefix)
         {
             var fieldName = $"{parent}.{field.Name}";
             var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
             
             if (field.Children == null)
             {
-                var reference = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName);
+                var reference = GetFieldReferencesSourceCode(nullableFieldName, field.ManagedTypeFullName, null, null);
                 stringBuilder.AppendLine(field.Nullable
-                    ? $"            if({fieldName}.HasValue) result.Add({reference});"
-                    : $"            result.Add({reference});");
+                    ? $"{prefix}if({fieldName}.HasValue) result.Add({reference});"
+                    : $"{prefix}result.Add({reference});");
             }
             else
             {
+                if(field.Nullable) stringBuilder.AppendLine($"{prefix}if({fieldName}.HasValue) {{");
                 foreach (var child in field.Children)
                 {
-                    AddFieldReferences(stringBuilder, nullableFieldName, child);
+                    AddFieldReferences(stringBuilder, nullableFieldName, child, $"    {prefix}");
                 }
+                if(field.Nullable) stringBuilder.AppendLine($"{prefix}}}");
             }
         }
 
-        private static string GetFieldReferencesSourceCode(string name, string managedTypeFullName) => $"RishUI.Rish.GetReferenceTo<{managedTypeFullName}>({name}.ID)";
+        private static string GetFieldReferencesSourceCode(string name, string managedTypeFullName, string prefix, string suffix) => $"{prefix}RishUI.Rish.GetReferenceTo<{managedTypeFullName}>({name}.ID){suffix}";
     }
 }
