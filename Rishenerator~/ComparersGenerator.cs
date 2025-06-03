@@ -467,6 +467,8 @@ namespace Rishenerator
 
             private static string GetFieldComparisonSourceCode(string parent, Field field)
             {
+                if (field.Comparison == FieldComparison.Ignore) return null;
+                
                 var fieldName = $"{parent}.{field.Name}";
                 var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
                 
