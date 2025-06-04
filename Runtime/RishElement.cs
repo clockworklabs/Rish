@@ -673,13 +673,14 @@ namespace RishUI
             {
                 var dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
 
+                _state = value;
+
                 if (!HasDirtyReferences)
                 {
                     HasDirtyReferences = true;   
-                    DirtyReferences();
+                    PersistReferences();
+                    // DirtyReferences(); // TODO: This was causing issues (maybe in async contexts only?)
                 }
-
-                _state = value;
  
                 if (dirty)
                 {

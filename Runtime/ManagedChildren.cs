@@ -75,7 +75,7 @@ namespace RishUI
             if (!Open)
             {
                 // throw new UnityException("Children already closed. You can't modify it after the initial creation.");
-                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("Children already closed. You can't modify it after the initial creation.");
                 return;
             }
             
@@ -87,7 +87,7 @@ namespace RishUI
             if (!Open)
             {
                 // throw new UnityException("Children already closed. You can't modify it after the initial creation.");
-                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("Children already closed. You can't modify it after the initial creation.");
                 return;
             }
             
