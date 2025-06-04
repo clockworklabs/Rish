@@ -249,10 +249,10 @@ namespace RishUI
             Root?.styleSheets.Remove(styleSheet);
         }
 
-        public bool HasAnyPointerOver()
+        public bool HasAnyPointerOver(bool skipRoot = true)
         {
             if (Root == null) return false;
-            if(Root.IsHover()) return true;
+            if(!skipRoot && Root.IsHover()) return true;
             for (int i = 0, n = Root.childCount; i < n; i++)
             {
                 if (Root[i].IsHover()) return true;
@@ -277,10 +277,10 @@ namespace RishUI
             return false;
         }
 
-        public bool HasPointerOver(int pointerId)
+        public bool HasPointerOver(int pointerId, bool skipRoot = true)
         {
             if (Root == null) return false;
-            if(Root.ContainsPointer(pointerId)) return true;
+            if(!skipRoot && Root.ContainsPointer(pointerId)) return true;
             for (int i = 0, n = Root.childCount; i < n; i++)
             {
                 if (Root[i].ContainsPointer(pointerId)) return true;
