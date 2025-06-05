@@ -322,7 +322,6 @@ namespace RishUI
         private static int[] _pseudoStatesValues;
         private static int[] PseudoStatesValues => _pseudoStatesValues ??= (int[]) Enum.GetValues(PseudoStatesType);
         
-        
         public static int GetPseudoStates(this VisualElement visualElement) => PseudoStatesGetter?.Invoke(visualElement) ?? 0;
         public static void SetPseudoStates(this VisualElement visualElement, int value) => PseudoStatesSetter?.Invoke(visualElement, value);
         
@@ -459,8 +458,6 @@ namespace RishUI
         public static bool IsDisabled(this VisualElement visualElement) => (visualElement.GetPseudoStates() & DisabledValue) > 0;
         public static bool IsFocus(this VisualElement visualElement) => (visualElement.GetPseudoStates() & FocusValue) > 0;
         public static bool IsRoot(this VisualElement visualElement) => (visualElement.GetPseudoStates() & RootValue) > 0;
-        
-        
         
         private static IntGetter _containedPointerIdsGetter;
         private static IntGetter ContainedPointerIdsGetter
