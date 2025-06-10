@@ -1,3 +1,4 @@
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,7 +19,7 @@ namespace RishUI
         ForceIgnore
     }
 
-    public abstract class PickingManager
+    public abstract partial class PickingManager
     {
         private static readonly CustomStyleProperty<string> PointerDetectionProperty = new("--pointer-detection");
         
@@ -62,7 +63,7 @@ namespace RishUI
         protected PickingManager(IBridge bridge)
         {
             Bridge = bridge;
-            Bridge.OnSetup += Update;
+            Bridge.OnSetup += SappyUpdate;
             Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
 
@@ -96,6 +97,7 @@ namespace RishUI
             Update();
         }
 
+        [SapTarget]
         private void Update()
         {
             PointerDetectionMode target;

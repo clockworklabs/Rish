@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using RishUI.Events;
 using RishUI.MemoryManagement;
-using Unity.Collections;
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
+using ListExtensions = Unity.Collections.ListExtensions;
 
 namespace RishUI
 {
@@ -12,9 +14,12 @@ namespace RishUI
 
     internal interface IRishElement : IElement
     {
-        FlexibleEventHandler<bool>.Event OnDirty { get; set; }
-        FlexibleEventHandler.Event OnReferencesDirty { get; set; }
-        FlexibleEventHandler.Event OnReadyToUnmount { get; set; }
+        [SapEvent]
+        event Action<bool> OnDirty;
+        [SapEvent]
+        event Action OnReferencesDirty;
+        [SapEvent]
+        event Action OnReadyToUnmount;
         
         void Mount(Node node);
         void RequestUnmount();
@@ -32,21 +37,24 @@ namespace RishUI
 
     public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
-        private FlexibleEventHandler<bool> OnDirtyHandler { get; } = new();
-        FlexibleEventHandler<bool>.Event IRishElement.OnDirty { get => OnDirtyHandler.Exposed; set => OnDirtyHandler.Exposed = value; }
+        private Phloem<bool> OnDirtyHandler { get; } = new();
+        event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
         
-        private FlexibleEventHandler OnReferencesDirtyHandler { get; } = new();
-        FlexibleEventHandler.Event IRishElement.OnReferencesDirty { get => OnReferencesDirtyHandler.Exposed; set => OnReferencesDirtyHandler.Exposed = value; }
+        private Phloem OnReferencesDirtyHandler { get; } = new();
+        event Action IRishElement.OnReferencesDirty { add => OnReferencesDirtyHandler.AddTarget(value); remove => OnReferencesDirtyHandler.RemoveTarget(value); }
         
-        private FlexibleEventHandler OnReadyToUnmountHandler { get; } = new();
-        FlexibleEventHandler.Event IRishElement.OnReadyToUnmount { get => OnReadyToUnmountHandler.Exposed; set => OnReadyToUnmountHandler.Exposed = value; }
+        private Phloem OnReadyToUnmountHandler { get; } = new();
+        event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountHandler.AddTarget(value); remove => OnReadyToUnmountHandler.RemoveTarget(value); }
 
-        private FlexibleEventHandler OnMountedHandler { get; } = new();
-        private protected FlexibleEventHandler.Event OnMounted { get => OnMountedHandler.Exposed; set => OnMountedHandler.Exposed = value; }
-        private FlexibleEventHandler OnUnmountingHandler { get; } = new();
-        private protected FlexibleEventHandler.Event OnUnmounting { get => OnUnmountingHandler.Exposed; set => OnUnmountingHandler.Exposed = value; }
-        private FlexibleEventHandler OnUnmountedHandler { get; } = new();
-        private protected FlexibleEventHandler.Event OnUnmounted { get => OnUnmountedHandler.Exposed; set => OnUnmountedHandler.Exposed = value; }
+        private Phloem OnMountedHandler { get; } = new();
+        [SapEvent]
+        private protected event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
+        private Phloem OnUnmountingHandler { get; } = new();
+        [SapEvent]
+        private protected event Action OnUnmounting { add => OnUnmountingHandler.AddTarget(value); remove => OnUnmountingHandler.RemoveTarget(value); }
+        private Phloem OnUnmountedHandler { get; } = new();
+        [SapEvent]
+        private protected event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
         
         private List<ICallbackWrapper> Callbacks { get; set; }
 
@@ -157,12 +165,12 @@ namespace RishUI
         /// Flag this element as Dirty.
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
-        protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Invoke(forceThisFrame);
+        protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Send(forceThisFrame);
 
         /// <summary>
         /// Flag this element to have dirty references.
         /// </summary>
-        private protected void DirtyReferences() => OnReferencesDirtyHandler.Invoke();
+        private protected void DirtyReferences() => OnReferencesDirtyHandler.Send();
         
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
@@ -175,7 +183,7 @@ namespace RishUI
             }
             
             ReadyToUnmount = true;
-            OnReadyToUnmountHandler.Invoke();
+            OnReadyToUnmountHandler.Send();
         }
 
         int IOwner.GetID() => NodeID;
@@ -190,7 +198,7 @@ namespace RishUI
             Node = node;
             
             _props = null;
-            OnMountedHandler.Invoke();
+            OnMountedHandler.Send();
             
             UnmountRequested = false;
             ReadyToUnmount = false;
@@ -251,7 +259,7 @@ namespace RishUI
             References.Clear();
             ReferencesBuffer.Clear();
             
-            OnUnmountingHandler.Invoke();
+            OnUnmountingHandler.Send();
             
             Node = null;
             
@@ -260,7 +268,7 @@ namespace RishUI
                 customUnmountListener.Unmounted();
             }
             
-            OnUnmountedHandler.Invoke();
+            OnUnmountedHandler.Send();
         }
 
         Element IRishElement.Render()
@@ -317,7 +325,7 @@ namespace RishUI
             {
                 var wrapper = Callbacks[i];
                 if (!wrapper.Wraps(callback)) continue;
-                Callbacks.RemoveAtSwapBack(i);
+                ListExtensions.RemoveAtSwapBack(Callbacks, i);
                 CallbacksPool.Return(wrapper);
             }
         }
@@ -401,7 +409,7 @@ namespace RishUI
             {
                 var wrapper = ToolkitCallbacks[i];
                 if (!wrapper.Wraps(callback)) continue;
-                ToolkitCallbacks.RemoveAtSwapBack(i);
+                ListExtensions.RemoveAtSwapBack(ToolkitCallbacks, i);
                 Node?.ToolkitEventsManager.RemoveCallback(wrapper);
                 
                 ToolkitCallbacksPool.Return(wrapper);
@@ -662,7 +670,7 @@ namespace RishUI
 
         protected ulong GetNodeHashCode() => Node.HashCode;
     }
-
+    
     public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
         private S? _state;
@@ -693,20 +701,31 @@ namespace RishUI
         private bool HasDirtyReferences { get; set; }
 
         private List<Reference> References { get; } = new();
+        
+        private Action _sappySetDefaultState;
+        private Action SappySetDefaultState => _sappySetDefaultState ??= SetDefaultState;
+        
+        private Action _sappyDisposeReferences;
+        private Action SappyDisposeReferences => _sappyDisposeReferences ??= DisposeReferences;
+        
+        private Action _sappyClearState;
+        private Action SappyClearState => _sappyClearState ??= ClearState;
 
         protected RishElement()
         {
-            OnMounted += SetDefaultState;
-            OnUnmounting += DisposeReferences;
-            OnUnmounted += ClearState;
+            OnMounted += SappySetDefaultState;
+            OnUnmounting += SappyDisposeReferences;
+            OnUnmounted += SappyClearState;
         }
 
+        [SapTarget]
         private void SetDefaultState()
         {
             IsMounted = true;
             State = Defaults.GetValue<S>();
         }
 
+        [SapTarget]
         private void DisposeReferences()
         {
             IsMounted = false;
@@ -718,7 +737,8 @@ namespace RishUI
             }
             References.Clear();
         }
-        
+       
+        [SapTarget] 
         private void ClearState() => _state = null;
 
         protected void SetState(S state) => State = state;

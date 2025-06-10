@@ -1,9 +1,10 @@
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Input
 {
-    internal class InputSystem
+    internal partial class InputSystem
     {
         private static InputSystem _focused;
         private static InputSystem Focused
@@ -97,10 +98,11 @@ namespace RishUI.Input
         public InputSystem(Node node)
         {
             Node = node;
-            Node.OnMounted += OnMounted;
-            Node.OnBeforeUnmount += OnBeforeUnmounted;
+            Node.OnMounted += SappyOnMounted;
+            Node.OnBeforeUnmount += SappyOnBeforeUnmounted;
         }
 
+        [SapTarget]
         private void OnMounted()
         {
             switch (Element)
@@ -139,6 +141,7 @@ namespace RishUI.Input
             }
         }
 
+        [SapTarget]
         private void OnBeforeUnmounted()
         {
             switch (Element)

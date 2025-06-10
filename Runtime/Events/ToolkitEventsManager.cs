@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Sappy;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    internal class ToolkitEventsManager
+    internal partial class ToolkitEventsManager
     {
         private Node Node { get; }
         private IElement Element => Node.Element;
@@ -14,10 +15,11 @@ namespace RishUI.Events
         public ToolkitEventsManager(Node node)
         {
             Node = node;
-            Node.OnMounted += OnMounted;
-            Node.OnUnmounted += OnUnmounted;
+            Node.OnMounted += SappyOnMounted;
+            Node.OnUnmounted += SappyOnUnmounted;
         }
 
+        [SapTarget]
         private void OnMounted()
         {
             if (Element is IRishElement rishElement)
@@ -33,6 +35,7 @@ namespace RishUI.Events
             }
         }
 
+        [SapTarget]
         private void OnUnmounted()
         {
             if (Manipulators != null)

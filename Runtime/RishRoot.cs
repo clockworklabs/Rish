@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using RishUI.Events;
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
@@ -12,12 +13,8 @@ namespace RishUI
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        private FlexibleEventHandler OnStartHandler { get; } = new();
-        public FlexibleEventHandler.Event OnStart
-        {
-            get => OnStartHandler.Exposed;
-            set => OnStartHandler.Exposed = value;
-        }
+        private Phloem OnStartHandler { get; } = new();
+        public event Action OnStart { add => OnStartHandler.AddTarget(value); remove => OnStartHandler.RemoveTarget(value); }
 
         [SerializeField]
         private bool _manualUpdate;
@@ -158,7 +155,7 @@ namespace RishUI
             Dispose();
 
             Tree = new Tree(Document, RootClassName, Recovered);
-            OnStartHandler?.Invoke();
+            OnStartHandler?.Send();
         }
 
         public void Step()

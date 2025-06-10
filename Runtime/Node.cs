@@ -4,21 +4,26 @@ using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public class Node : FastPriorityQueueNode, IOwner
+    public partial class Node : FastPriorityQueueNode, IOwner
     {
-        private FlexibleEventHandler OnMountedHandler { get; } = new();
-        internal FlexibleEventHandler.Event OnMounted { get => OnMountedHandler.Exposed; set => OnMountedHandler.Exposed = value; }
-        private FlexibleEventHandler OnBeforeUnmountHandler { get; } = new();
-        internal FlexibleEventHandler.Event OnBeforeUnmount { get => OnBeforeUnmountHandler.Exposed; set => OnBeforeUnmountHandler.Exposed = value; }
-        private FlexibleEventHandler OnUnmountedHandler { get; } = new();
-        internal FlexibleEventHandler.Event OnUnmounted { get => OnUnmountedHandler.Exposed; set => OnUnmountedHandler.Exposed = value; }
-        private FlexibleEventHandler<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
-        internal FlexibleEventHandler<Node>.Event OnInactive { get => OnInactiveHandler.Exposed; set => OnInactiveHandler.Exposed = value; }
+        private Phloem OnMountedHandler { get; } = new();
+        [SapEvent]
+        internal event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
+        private Phloem OnBeforeUnmountHandler { get; } = new();
+        [SapEvent]
+        internal event Action OnBeforeUnmount { add => OnBeforeUnmountHandler.AddTarget(value); remove => OnBeforeUnmountHandler.RemoveTarget(value); }
+        private Phloem OnUnmountedHandler { get; } = new();
+        [SapEvent]
+        internal event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
+        private Phloem<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
+        [SapEvent]
+        internal event Action<Node> OnInactive { add => OnInactiveHandler.AddTarget(value); remove => OnInactiveHandler.RemoveTarget(value); }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
@@ -213,7 +218,7 @@ namespace RishUI
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
 
-            Machine.OnChange += OnStateChange;
+            Machine.OnChange += SappyOnStateChange;
         }
 
         internal static Node CreateRoot(Tree tree, string rootClassName, bool recovered)
@@ -409,6 +414,7 @@ namespace RishUI
             return child.Element as T;
         }
 
+        [SapTarget]
         private void Dirty(bool forceThisFrame)
         {
 #if UNITY_EDITOR
@@ -424,6 +430,7 @@ namespace RishUI
             }
 #endif
         }
+        [SapTarget]
         private void DirtyReferences()
         {
 #if UNITY_EDITOR
@@ -463,22 +470,23 @@ namespace RishUI
             return hash;
         }
 
-        private void AboutToUnmount() => OnBeforeUnmountHandler.Invoke();
+        private void AboutToUnmount() => OnBeforeUnmountHandler.Send();
+        [SapTarget]
         private void OnStateChange(State state)
         {
             switch (state)
             {
                 case MountedState:
-                    OnMountedHandler.Invoke();
+                    OnMountedHandler.Send();
                     break;
                 case UnmountedState:
-                    OnUnmountedHandler.Invoke();
+                    OnUnmountedHandler.Send();
                     break;
             }
 
             if (state is not ActiveState)
             {
-                OnInactiveHandler.Invoke(this);
+                OnInactiveHandler.Send(this);
             }
         }
 
@@ -508,8 +516,9 @@ namespace RishUI
 
         private class StateMachine
         {
-            private FlexibleEventHandler<State> OnChangeHandler { get; } = new();
-            public FlexibleEventHandler<State>.Event OnChange { get => OnChangeHandler.Exposed; set => OnChangeHandler.Exposed = value; }
+            private Phloem<State> OnChangeHandler { get; } = new();
+            [SapEvent]
+            public event Action<State> OnChange { add => OnChangeHandler.AddTarget(value); remove => OnChangeHandler.RemoveTarget(value); }
 
             private State _currentState;
             public State CurrentState
@@ -549,7 +558,7 @@ namespace RishUI
                     _currentState = value;
                     _currentState?.Enter();
 
-                    OnChangeHandler.Invoke(value);
+                    OnChangeHandler.Send(value);
                 }
             }
 
@@ -711,8 +720,8 @@ namespace RishUI
                 switch (Node.Element)
                 {
                     case IRishElement rishElement:
-                        rishElement.OnDirty += Node.Dirty;
-                        rishElement.OnReferencesDirty += Node.DirtyReferences;
+                        rishElement.OnDirty += Node.SappyDirty;
+                        rishElement.OnReferencesDirty += Node.SappyDirtyReferences;
                         rishElement.Mount(Node);
                         break;
                     case IInternalVisualElement visualElement:
@@ -730,8 +739,8 @@ namespace RishUI
             {
                 if(Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.Dirty;
-                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
+                    rishElement.OnDirty -= Node.SappyDirty;
+                    rishElement.OnReferencesDirty -= Node.SappyDirtyReferences;
                 }
             }
 
@@ -748,7 +757,7 @@ namespace RishUI
             }
         }
 
-        private class UnmountRequestedState : ActiveState
+        private partial class UnmountRequestedState : ActiveState
         {
             private bool ElementReady { get; set; }
 
@@ -768,9 +777,9 @@ namespace RishUI
 
                 if (Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty += Node.Dirty;
-                    rishElement.OnReferencesDirty += Node.DirtyReferences;
-                    rishElement.OnReadyToUnmount += ElementReadyToUnmount;
+                    rishElement.OnDirty += Node.SappyDirty;
+                    rishElement.OnReferencesDirty += Node.SappyDirtyReferences;
+                    rishElement.OnReadyToUnmount += SappyElementReadyToUnmount;
                     rishElement.RequestUnmount();
                 }
                 else
@@ -783,9 +792,9 @@ namespace RishUI
             {
                 if (!ElementReady && Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.Dirty;
-                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
-                    rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
+                    rishElement.OnDirty -= Node.SappyDirty;
+                    rishElement.OnReferencesDirty -= Node.SappyDirtyReferences;
+                    rishElement.OnReadyToUnmount -= SappyElementReadyToUnmount;
                 }
                 ElementReady = false;
 
@@ -794,7 +803,7 @@ namespace RishUI
                     for (int i = 0, n = Unmounting.Count; i < n; i++)
                     {
                         var child = Unmounting[i];
-                        child.Machine.OnChange -= OnStateChange;
+                        child.Machine.OnChange -= SappyOnStateChange;
                     }
 
                     UnmountingSet.Clear();
@@ -809,6 +818,7 @@ namespace RishUI
                 GoTo<ReadyToUnmountState>();
             }
 
+            [SapTarget]
             private void ElementReadyToUnmount()
             {
 #if UNITY_EDITOR
@@ -821,9 +831,9 @@ namespace RishUI
                 ElementReady = true;
                 if (Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.Dirty;
-                    rishElement.OnReferencesDirty -= Node.DirtyReferences;
-                    rishElement.OnReadyToUnmount -= ElementReadyToUnmount;
+                    rishElement.OnDirty -= Node.SappyDirty;
+                    rishElement.OnReferencesDirty -= Node.SappyDirtyReferences;
+                    rishElement.OnReadyToUnmount -= SappyElementReadyToUnmount;
                 }
 
                 Node.Clear();
@@ -853,7 +863,7 @@ namespace RishUI
                         if (UnmountingSet.Add(childId))
                         {
                             Unmounting.Add(child);
-                            child.Machine.OnChange += OnStateChange;
+                            child.Machine.OnChange += SappyOnStateChange;
                         }
 #if UNITY_EDITOR
                         else
@@ -866,7 +876,8 @@ namespace RishUI
 
                 TryUnmount();
             }
-
+            
+            [SapTarget]
             private void OnStateChange(State state)
             {
                 var node = state.Node;

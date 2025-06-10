@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Priority_Queue;
+using Sappy;
 
 namespace RishUI
 {
-    internal class DirtyQueue
+    internal partial class DirtyQueue
     {
         private int InitialSize { get; }
         private Dictionary<int, FastPriorityQueue<Node>> Ids { get; }
@@ -46,7 +47,7 @@ namespace RishUI
                 }
             }
 
-            node.OnInactive += Remove;
+            node.OnInactive += SappyRemove;
             Ids.Add(node.ID, null);
 
             if (forceThisFrame)
@@ -253,11 +254,12 @@ namespace RishUI
                 return;
             }
 #endif
-            node.OnInactive -= Remove;
+            node.OnInactive -= SappyRemove;
             Ids.Remove(node.ID);
             queue?.ResetNode(node);
         }
-
+        
+        [SapTarget]
         private void Remove(Node node)
         {
 #if UNITY_EDITOR

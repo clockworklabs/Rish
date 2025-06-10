@@ -10,7 +10,8 @@
     "url": "https://lisandroct.com"
   },
   "dependencies": {
-    "com.unity.collections": "1.2.4"
+    "com.unity.collections": "1.2.4",
+    "com.clockworklabs.sappy": "1.0.0-pre.1"
   },
   "samples": [
     {
