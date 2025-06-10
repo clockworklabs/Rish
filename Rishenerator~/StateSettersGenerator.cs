@@ -168,7 +168,10 @@ namespace Rishenerator
 
                     count++;
 
-                    sourceCode.AppendLine(@$"    private void {setterName}({item.TypeFullName} v)
+                    sourceCode.AppendLine(@$"
+    private System.Action<{item.TypeFullName}> _sappy{setterName};
+    private System.Action<{item.TypeFullName}> Sappy{setterName} => _sappy{setterName} ??= {setterName};
+    private void {setterName}({item.TypeFullName} v)
     {{
         if(!IsMounted) return;
         var state = GetState(false);

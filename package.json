@@ -1,6 +1,6 @@
 {
   "name": "com.clockworklabs.rish",
-  "version": "3.0.0-pre.218",
+  "version": "3.0.0-pre.219",
   "displayName": "Rish",
   "description": "R[eact]ish UI system for Unity",
   "unity": "2022.3",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "com.unity.collections": "1.2.4",
-    "com.clockworklabs.sappy": "1.0.0-pre.1"
+    "com.clockworklabs.sappy": "1.0.0-pre.3"
   },
   "samples": [
     {

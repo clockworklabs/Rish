@@ -35,6 +35,7 @@ namespace RishUI
         int FocusIndex { get; }
     }
 
+    [SappyContainer]
     public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
         private Phloem<bool> OnDirtyHandler { get; } = new();
