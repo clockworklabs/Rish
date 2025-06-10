@@ -36,7 +36,7 @@ namespace RishUI
     }
 
     [SappyContainer]
-    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
+    public abstract partial class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
         private Phloem<bool> OnDirtyHandler { get; } = new();
         event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
