@@ -161,11 +161,13 @@ namespace RishUI
         /// <summary>
         /// Flag this element as Dirty.
         /// </summary>
+        [SapTarget]
         protected void Dirty() => Dirty(false);
         /// <summary>
         /// Flag this element as Dirty.
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
+        [SapTarget]
         protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Send(forceThisFrame);
 
         /// <summary>
@@ -176,6 +178,7 @@ namespace RishUI
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
+        [SapTarget]
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
