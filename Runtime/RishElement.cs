@@ -36,7 +36,7 @@ namespace RishUI
     }
 
     [SappyContainer]
-    public abstract partial class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
+    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
         private Phloem<bool> OnDirtyHandler { get; } = new();
         event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
@@ -158,16 +158,16 @@ namespace RishUI
             }
         }
 
+        private Action _sappyDirty;
+        protected Action SappyDirty => _sappyDirty ??= Dirty;
         /// <summary>
         /// Flag this element as Dirty.
         /// </summary>
-        [SapTarget]
         protected void Dirty() => Dirty(false);
         /// <summary>
         /// Flag this element as Dirty.
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
-        [SapTarget]
         protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Send(forceThisFrame);
 
         /// <summary>
@@ -175,6 +175,8 @@ namespace RishUI
         /// </summary>
         private protected void DirtyReferences() => OnReferencesDirtyHandler.Send();
         
+        private Action _sappyCanUnmount;
+        protected Action SappyCanUnmount => _sappyCanUnmount ??= CanUnmount;
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
