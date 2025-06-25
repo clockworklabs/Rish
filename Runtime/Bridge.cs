@@ -36,31 +36,31 @@ namespace RishUI
     
     public class Bridge<P> : IBridge<P> where P : struct
     {
-        private Phloem OnMountedHandler { get; } = new();
+        private SapStem OnMountedHandler { get; } = new();
         [SapEvent]
         public event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
         event Action IBridge.OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private Phloem OnUnmountedHandler { get; } = new();
+        private SapStem OnUnmountedHandler { get; } = new();
         [SapEvent]
         public event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
         event Action IBridge.OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
-        private Phloem<Name> OnNameHandler { get; } = new();
+        private SapStem<Name> OnNameHandler { get; } = new();
         [SapEvent]
         public event Action<Name> OnName { add => OnNameHandler.AddTarget(value); remove => OnNameHandler.RemoveTarget(value); }
         event Action<Name> IBridge.OnName { add => OnNameHandler.AddTarget(value); remove => OnNameHandler.RemoveTarget(value); }
-        private Phloem<ClassName> OnClassNameHandler { get; } = new();
+        private SapStem<ClassName> OnClassNameHandler { get; } = new();
         [SapEvent]
         public event Action<ClassName> OnClassName { add => OnClassNameHandler.AddTarget(value); remove => OnClassNameHandler.RemoveTarget(value); }
         event Action<ClassName> IBridge.OnClassName { add => OnClassNameHandler.AddTarget(value); remove => OnClassNameHandler.RemoveTarget(value); }
-        private Phloem<Style> OnStyleHandler { get; } = new();
+        private SapStem<Style> OnStyleHandler { get; } = new();
         [SapEvent]
         public event Action<Style> OnStyle { add => OnStyleHandler.AddTarget(value); remove => OnStyleHandler.RemoveTarget(value); }
         event Action<Style> IBridge.OnStyle { add => OnStyleHandler.AddTarget(value); remove => OnStyleHandler.RemoveTarget(value); }
-        private Phloem<P> OnPropsHandler { get; } = new();
+        private SapStem<P> OnPropsHandler { get; } = new();
         [SapEvent]
         public event Action<P> OnProps { add => OnPropsHandler.AddTarget(value); remove => OnPropsHandler.RemoveTarget(value); }
         event Action<P> IBridge<P>.OnProps { add => OnPropsHandler.AddTarget(value); remove => OnPropsHandler.RemoveTarget(value); }
-        private Phloem OnSetupHandler { get; } = new();
+        private SapStem OnSetupHandler { get; } = new();
         [SapEvent]
         public event Action OnSetup { add => OnSetupHandler.AddTarget(value); remove => OnSetupHandler.RemoveTarget(value); }
         event Action IBridge.OnSetup { add => OnSetupHandler.AddTarget(value); remove => OnSetupHandler.RemoveTarget(value); }

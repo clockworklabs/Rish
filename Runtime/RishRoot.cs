@@ -13,7 +13,7 @@ namespace RishUI
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        private Phloem OnStartHandler { get; } = new();
+        private SapStem OnStartHandler { get; } = new();
         public event Action OnStart { add => OnStartHandler.AddTarget(value); remove => OnStartHandler.RemoveTarget(value); }
 
         [SerializeField]

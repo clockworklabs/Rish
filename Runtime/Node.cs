@@ -12,16 +12,16 @@ namespace RishUI
 {
     public partial class Node : FastPriorityQueueNode, IOwner
     {
-        private Phloem OnMountedHandler { get; } = new();
+        private SapStem OnMountedHandler { get; } = new();
         [SapEvent]
         internal event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private Phloem OnBeforeUnmountHandler { get; } = new();
+        private SapStem OnBeforeUnmountHandler { get; } = new();
         [SapEvent]
         internal event Action OnBeforeUnmount { add => OnBeforeUnmountHandler.AddTarget(value); remove => OnBeforeUnmountHandler.RemoveTarget(value); }
-        private Phloem OnUnmountedHandler { get; } = new();
+        private SapStem OnUnmountedHandler { get; } = new();
         [SapEvent]
         internal event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
-        private Phloem<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
+        private SapStem<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
         [SapEvent]
         internal event Action<Node> OnInactive { add => OnInactiveHandler.AddTarget(value); remove => OnInactiveHandler.RemoveTarget(value); }
 
@@ -516,7 +516,7 @@ namespace RishUI
 
         private class StateMachine
         {
-            private Phloem<State> OnChangeHandler { get; } = new();
+            private SapStem<State> OnChangeHandler { get; } = new();
             [SapEvent]
             public event Action<State> OnChange { add => OnChangeHandler.AddTarget(value); remove => OnChangeHandler.RemoveTarget(value); }
 

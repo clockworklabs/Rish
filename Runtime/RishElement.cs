@@ -35,25 +35,25 @@ namespace RishUI
         int FocusIndex { get; }
     }
 
-    [SappyContainer]
+    [Sappy]
     public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
     {
-        private Phloem<bool> OnDirtyHandler { get; } = new();
+        private SapStem<bool> OnDirtyHandler { get; } = new();
         event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
         
-        private Phloem OnReferencesDirtyHandler { get; } = new();
+        private SapStem OnReferencesDirtyHandler { get; } = new();
         event Action IRishElement.OnReferencesDirty { add => OnReferencesDirtyHandler.AddTarget(value); remove => OnReferencesDirtyHandler.RemoveTarget(value); }
         
-        private Phloem OnReadyToUnmountHandler { get; } = new();
+        private SapStem OnReadyToUnmountHandler { get; } = new();
         event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountHandler.AddTarget(value); remove => OnReadyToUnmountHandler.RemoveTarget(value); }
 
-        private Phloem OnMountedHandler { get; } = new();
+        private SapStem OnMountedHandler { get; } = new();
         [SapEvent]
         private protected event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private Phloem OnUnmountingHandler { get; } = new();
+        private SapStem OnUnmountingHandler { get; } = new();
         [SapEvent]
         private protected event Action OnUnmounting { add => OnUnmountingHandler.AddTarget(value); remove => OnUnmountingHandler.RemoveTarget(value); }
-        private Phloem OnUnmountedHandler { get; } = new();
+        private SapStem OnUnmountedHandler { get; } = new();
         [SapEvent]
         private protected event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
         
