@@ -11,30 +11,18 @@ namespace RishUI
         private List<Element> Elements { get; } = new();
         public int Count => Elements.Count;
 
-        private bool Open { get; set; } = true;
+        private bool Closed { get; set; } = false;
 
+        void IManaged.Close()
+        {
+            Closed = true;
+        }
         void IManaged.Dispose()
         {
             Elements.Clear();
-            Open = true;
+            Closed = false;
         }
-        void IManaged.ReferenceRegistered(IOwner owner)
-        {
-            Open = false;
-
-            foreach (var element in Elements)
-            {
-                Rish.RegisterReferenceTo<ManagedElement>(element._id, owner);
-            }
-        }
-        void IManaged.ReferenceUnregistered(IOwner owner)
-        {
-            foreach (var element in Elements)
-            {
-                Rish.UnregisterReferenceTo<ManagedElement>(element._id, owner);
-            }
-        }
-
+        
         public Element Get(int index) => Elements[index];
         public Element Get(Index index) => Elements[index];
         public Children Get(Range range)
@@ -72,7 +60,7 @@ namespace RishUI
         
         public void Set(int index, Element element)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("Children already closed. You can't modify it after the initial creation.");
                 Debug.LogError("Children already closed. You can't modify it after the initial creation.");
@@ -84,7 +72,7 @@ namespace RishUI
 
         public void Add(Element element)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("Children already closed. You can't modify it after the initial creation.");
                 Debug.LogError("Children already closed. You can't modify it after the initial creation.");

@@ -147,7 +147,7 @@ namespace RishUI
         {
             if (Tree == null) return;
             Tree.Dispose();
-            Rish.CleanGarbage();
+            // TODO: Clean garbage
         }
 
         public void RegenTree()
@@ -209,8 +209,6 @@ namespace RishUI
                 
                 RegenTree();
             }
-            
-            Rish.CleanGarbage();
 
             if (!timeLimited || !updateTime.HasValue) return;
 

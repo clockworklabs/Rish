@@ -11,29 +11,23 @@ namespace RishUI
     /// List of value type elements.
     /// </summary>
     [CustomComparer]
+    [RequiresManagedContext]
     public struct RishList<T> : IReference<ManagedRishList<T>>, IEnumerable<T>, IEquatable<RishList<T>> where T : struct
     {
         private ulong _id;
-        public ulong ID => _id;
 
         public bool Valid => _id > 0;
     
         public static RishList<T> Null => new();
 
-        private ManagedRishList<T> Managed => Rish.GetManaged<ManagedRishList<T>>(_id);
+        private ManagedRishList<T> _managed;
+        private ManagedRishList<T> Managed => _managed ??= Rish.GetManaged<ManagedRishList<T>>(_id);
+        
         public int Count => Managed?.Count ?? 0;
         public T this[int index]
         {
             get => Managed?.Get(index) ?? default;
-            set
-            {
-                var managed = Managed;
-                if (managed == null)
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-                managed.Set(index, value);
-            }
+            set => Managed.Set(index, value);
         }
         public T this[Index index] => Managed?.Get(index) ?? default;
         public RishList<T> this[Range range] => Managed?.Get(range) ?? default;
@@ -45,8 +39,7 @@ namespace RishUI
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
             }
 
-            var managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            managed.Add(element);
+            Managed?.Add(element);
         }
         public void Add(RishList<T> other)
         {
@@ -55,10 +48,9 @@ namespace RishUI
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
             }
         
-            var managed = Rish.GetManaged<ManagedRishList<T>>(_id);
             foreach (var element in other)
             {
-                managed.Add(element);
+                Managed?.Add(element);
             }
         }
 
@@ -74,7 +66,7 @@ namespace RishUI
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
             }
 
-            var enumerable = (IEnumerable<T>) Rish.GetManaged<ManagedRishList<T>>(_id);
+            IEnumerable<T> enumerable = Managed;
             return enumerable.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() {
@@ -83,7 +75,7 @@ namespace RishUI
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
             }
 
-            var enumerable = (IEnumerable) Rish.GetManaged<ManagedRishList<T>>(_id);
+            IEnumerable enumerable = Managed;
             return enumerable.GetEnumerator();
         }
         
@@ -171,23 +163,22 @@ namespace RishUI
                 return true;
             }
             
-            var aManaged = Rish.GetManaged<ManagedRishList<T>>(a._id);
-            var bManaged = Rish.GetManaged<ManagedRishList<T>>(b._id);
-
+            var aManaged = a.Managed;
+            var bManaged = b.Managed;
             var aInUse = aManaged != null;
-            if (!aInUse)
-            {
-                Debug.LogError($"RishList<T> {a._id} was disposed");
-            }
             var bInUse = bManaged != null;
-            if (!bInUse)
-            {
-                Debug.LogError($"RishList<T> {b._id} was disposed");
-            }
+            
             if (!aInUse || !bInUse)
             {
 #if UNITY_EDITOR
-                Debug.LogError("Disposed RishList<T>. This should never happen.");
+                if (!aInUse)
+                {
+                    Debug.LogError($"RishList<T> {a._id} was disposed. This should never happen.");
+                }
+                if (!bInUse)
+                {
+                    Debug.LogError($"RishList<T> {b._id} was disposed. This should never happen.");
+                }
 #endif
                 return false;
             }

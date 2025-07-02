@@ -11,18 +11,17 @@ namespace RishUI
         private List<string> ClassNames { get; } = new();
         public int Count => ClassNames.Count;
 
-        private bool Open { get; set; } = true;
+        private bool Closed { get; set; } = false;
 
+        void IManaged.Close()
+        {
+            Closed = true;
+        }
         void IManaged.Dispose()
         {
             ClassNames.Clear();
-            Open = true;
+            Closed = false;
         }
-        void IManaged.ReferenceRegistered(IOwner owner)
-        {
-            Open = false;
-        }
-        void IManaged.ReferenceUnregistered(IOwner owner) { }
 
         public string Get(int index) => ClassNames[index];
 
@@ -50,10 +49,9 @@ namespace RishUI
 
         public void Add(string className)
         {
-            if (!Open)
+            if (Closed)
             {
-                // throw new UnityException("ClassName already closed. You can't modify it after the initial creation.");
-                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("ClassName already closed. You can't modify it after the initial creation.");
                 return;
             }
 

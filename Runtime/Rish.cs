@@ -7,8 +7,6 @@ using UnityEngine;
 
 namespace RishUI
 {
-    public delegate void RefAction<T>(ref T value) where T : struct;
-
     public static partial class Rish
     {
         private static List<IPool> PoolsList { get; } = new();
@@ -72,12 +70,7 @@ namespace RishUI
                 return _playerTypes;
             }
         }
-
-        public static Reference GetReferenceTo<T>(ulong id) where T : class, IManaged => new Reference
-        {
-            poolIndex = GetPoolIndex<T>(),
-            managedID = id
-        };
+        
         private static int GetPoolIndex<T>() where T : class, IManaged
         {
             var type = typeof(T);
@@ -130,7 +123,7 @@ namespace RishUI
                 PoolsIndices[type] = poolIndex;
             }
 
-            return PoolsList[poolIndex];
+            return PoolsList[poolIndex] as IPool;
         }
         private static IPool GetPoolOrCreate<T>() where T : class, IManaged, new()
         {
@@ -173,66 +166,5 @@ namespace RishUI
         }
         
         public static T GetManaged<T>(ulong id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
-        
-        public static void RegisterReferenceTo<T>(ulong id, IOwner owner) where T : class, IManaged
-        {
-            if (id <= 0)
-            {
-                return;
-            }
-            
-            GetPool<T>()?.RegisterReference(id, owner);
-        }
-        public static void UnregisterReferenceTo<T>(ulong id, IOwner owner) where T : class, IManaged
-        {
-            if (id <= 0)
-            {
-                return;
-            }
-            
-            GetPool<T>()?.UnregisterReference(id, owner);
-        }
-        public static void RegisterReferenceTo(Reference reference, IOwner owner)
-        {
-            var poolIndex = reference.poolIndex;
-            if (poolIndex < 0)
-            {
-                return;
-            }
-
-            var id = reference.managedID;
-            if (id <= 0)
-            {
-                return;
-            }
-            
-            var pool = PoolsList[poolIndex];
-            pool.RegisterReference(id, owner);
-        }
-        public static void UnregisterReferenceTo(Reference reference, IOwner owner)
-        {
-            var poolIndex = reference.poolIndex;
-            if (poolIndex < 0)
-            {
-                return;
-            }
-
-            var id = reference.managedID;
-            if (id <= 0)
-            {
-                return;
-            }
-
-            var pool = PoolsList[poolIndex];
-            pool.UnregisterReference(id, owner);
-        }
-
-        internal static void CleanGarbage()
-        {
-            foreach (var pool in PoolsList)
-            {
-                pool.CleanGarbage();
-            }
-        }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using RishUI.MemoryManagement;
-using Unity.Collections;
 using UnityEngine;
 
 namespace RishUI
@@ -12,40 +11,16 @@ namespace RishUI
         private List<T> Elements { get; } = new();
         public int Count => Elements.Count;
 
-        private bool Open { get; set; } = true;
-        private List<Reference> References { get; } = new();
+        private bool Closed { get; set; } = false;
 
+        void IManaged.Close()
+        {
+            Closed = true;
+        }
         void IManaged.Dispose()
         {
             Elements.Clear();
-            Open = true;
-
-            // References.Clear();
-        }
-        void IManaged.ReferenceRegistered(IOwner owner)
-        {
-            if (Open)
-            {
-                Open = false;
-
-                References.Clear();
-                foreach(var element in Elements)
-                {
-                    ReferencesGetters.GetReferences(element, References);
-                }
-            }
-            
-            foreach (var reference in References)
-            {
-                reference.RegisterReference(owner);
-            }
-        }
-        void IManaged.ReferenceUnregistered(IOwner owner)
-        {
-            foreach (var reference in References)
-            {
-                reference.UnregisterReference(owner);
-            }
+            Closed = false;
         }
 
         public T Get(int index) => Elements[index];
@@ -85,7 +60,7 @@ namespace RishUI
         
         public void Set(int index, T element)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
@@ -97,7 +72,7 @@ namespace RishUI
 
         public void Add(T element)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
@@ -109,7 +84,7 @@ namespace RishUI
 
         public void Sort()
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
@@ -120,7 +95,7 @@ namespace RishUI
         }
         public void Sort(IComparer<T> comparer)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
@@ -131,7 +106,7 @@ namespace RishUI
         }
         public void Sort(int index, int count, IComparer<T> comparer)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
@@ -142,7 +117,7 @@ namespace RishUI
         }
         public void Sort(Comparison<T> comparison)
         {
-            if (!Open)
+            if (Closed)
             {
                 // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");

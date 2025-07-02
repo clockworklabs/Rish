@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using RishUI.MemoryManagement;
 using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -192,9 +190,6 @@ namespace RishUI
             }
         }
 
-        private List<Reference> ReferencesBuffer { get; set; } = new();
-        private List<Reference> References { get; set; } = new();
-
         public Bridge(VisualElement element, bool propsAlwaysDirty = false)
         {
             Element = element;
@@ -214,21 +209,6 @@ namespace RishUI
 
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
         {
-            (References, ReferencesBuffer) = (ReferencesBuffer, References);
-
-            References.Clear();
-            ReferencesGetters.GetReferences(props, References);
-            foreach (var reference in References)
-            {
-                reference.RegisterReference(Node);
-            }
-            var classNameReference = Rish.GetReferenceTo<ManagedClassName>(descriptor.className.ID);
-            classNameReference.RegisterReference(Node);
-            References.Add(classNameReference);
-            var childrenReference = Rish.GetReferenceTo<ManagedChildren>(children.ID);
-            childrenReference.RegisterReference(Node);
-            References.Add(childrenReference);
-            
             Name = descriptor.name;
             ClassName = descriptor.className;
             Style = descriptor.style;
@@ -236,12 +216,6 @@ namespace RishUI
             Props = props;
 
             Children = children;
-            
-            foreach (var reference in ReferencesBuffer)
-            {
-                reference.UnregisterReference(Node);
-            }
-            ReferencesBuffer.Clear();
             
             OnSetupHandler.Send();
         }
@@ -597,13 +571,6 @@ namespace RishUI
             // Element.SendEvent(unmountingEvt);
             
             Element.RemoveFromHierarchy();
-            
-            foreach (var reference in References)
-            {
-                reference.UnregisterReference(Node);
-            }
-            References.Clear();
-            ReferencesBuffer.Clear();
             
             Node = null;
             

@@ -13,65 +13,79 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         
         // 0/4 -> 1
+        [RequiresManagedContext]
         public static Element Create<T>(Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, DOMDescriptor.Default, children);
         // 1/4 -> 4
         public static Element Create<T>(ulong key, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, DOMDescriptor.Default, children);
+        [RequiresManagedContext]
         public static Element Create<T>(Name name, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ClassName className, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             className = className
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             style = style
         }, children);
         // 2/4 -> 6
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Name name, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, ClassName className, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             className = className
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             style = style
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
             className = className,
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
             style = style
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             className = className,
             style = style
         }, children);
         // 3/4 -> 4
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Name name, ClassName className, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
             className = className
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Name name, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
             style = style
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             className = className,
             style = style
         }, children);
+        [RequiresManagedContext]
         public static Element Create<T>(Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
@@ -79,6 +93,7 @@ namespace RishUI
             style = style
         }, children);
         // 4/4 -> 1
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Name name, ClassName className, Style style, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, new DOMDescriptor(DOMDescriptor.Default)
         {
             name = name,
@@ -86,8 +101,10 @@ namespace RishUI
             style = style
         }, children);
         // Descriptor
+        [RequiresManagedContext]
         public static Element Create<T>(DOMDescriptor descriptor, Children? children = null)
             where T : VisualElement, IVisualElement, new() => Create<T>(0, descriptor, children);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, DOMDescriptor descriptor, Children? children = null) where T : VisualElement, IVisualElement, new()
         {
             var (id, element) = GetFree<VisualDefinition<T>>();
@@ -96,6 +113,7 @@ namespace RishUI
             return new Element(id);
         }
         
+        [RequiresManagedContext]
         public static Element Create<T, P>(ulong key, DOMDescriptor descriptor, P props, Children? children = null) where T : VisualElement, IVisualElement<P>, new() where P : struct
         {
             var (id, element) = GetFree<VisualDefinition<T, P>>();
@@ -112,49 +130,19 @@ namespace RishUI
             private P Props { get; set; }
             private Children Children { get; set; }
 
-            private List<Reference> References { get; } = new(); 
-
             public void Factory(ulong key, DOMDescriptor descriptor, P props, Children children)
             {
                 Key = key;
                 Descriptor = descriptor;
                 Props = props;
                 Children = children;
-
-                References.Clear();
-                ReferencesGetters.GetReferences(props, References);
             }
 
             internal override void Invoke(Node parent)
             {
-                var element = parent.AddChild<T>(Key);
-                element?.Bridge.Setup(Descriptor, Children, Props);
-            }
-
-            protected override void Dispose()
-            {
-                // References.Clear();
-            }
-
-            protected override void ReferenceRegistered(IOwner owner)
-            {
-                RegisterReferenceTo<ManagedChildren>(Children.ID, owner);
-                RegisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
-                
-                foreach (var reference in References)
-                {
-                    reference.RegisterReference(owner);
-                }
-            }
-            protected override void ReferenceUnregistered(IOwner owner)
-            {
-                UnregisterReferenceTo<ManagedChildren>(Children.ID, owner);
-                UnregisterReferenceTo<ManagedClassName>(Descriptor.className.ID, owner);
-                
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(owner);
-                }
+                var node = parent.AddChild<T>(Key);
+                if (node is not { Element: T element }) return;
+                element.Bridge.Setup(Descriptor, Children, Props);
             }
 
             public override bool Equals(ManagedElement other)

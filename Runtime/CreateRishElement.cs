@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using RishUI.MemoryManagement;
-using Unity.Collections;
 
 namespace RishUI
 {
@@ -10,7 +8,9 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- RISH ELEMENTS -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
+        [RequiresManagedContext]
         public static Element Create<T>() where T : RishElement<NoProps>, new() => Create<T>(0);
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key) where T : RishElement<NoProps>, new()
         {
             var (id, element) = GetFree<RishDefinition<T, NoProps>>();
@@ -18,6 +18,7 @@ namespace RishUI
             
             return new Element(id);
         }
+        [RequiresManagedContext]
         public static Element Create<T, P>(ulong key, P props) where T : RishElement<P>, new() where P : struct
         {
             var (id, element) = GetFree<RishDefinition<T, P>>();
@@ -31,41 +32,20 @@ namespace RishUI
             public override Type Type => typeof(T);
             
             private P Props { get; set; }
-            private List<Reference> References { get; } = new(); 
 
             public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
-                
-                References.Clear();
-                ReferencesGetters.GetReferences(props, References);
             }
 
             internal override void Invoke(Node parent)
             {
-                var element = parent.AddChild<T>(Key);
-                if (element == null) return;
-                element.Props = Props;
-            }
- 
-            protected override void Dispose()
-            {
-                // References.Clear();
-            }
-
-            protected override void ReferenceRegistered(IOwner owner)
-            {
-                foreach (var reference in References)
+                var node = parent.AddChild<T>(Key);
+                if (node is not { Element: T element }) return;
+                if (element.SetProps(Props))
                 {
-                    reference.RegisterReference(owner);
-                }
-            }
-            protected override void ReferenceUnregistered(IOwner owner)
-            {
-                foreach (var reference in References)
-                {
-                    reference.UnregisterReference(owner);
+                    node.Render();
                 }
             }
 

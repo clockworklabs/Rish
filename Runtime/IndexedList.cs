@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using Unity.Collections;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -16,6 +14,19 @@ namespace RishUI
         public TValue this[int index] => List[index];
         public List<TValue>.Enumerator GetEnumerator() => List.GetEnumerator();
 
+        public bool TryGet(TKey key, out TValue value)
+        {
+            if (!Indices.TryGetValue(key, out var index))
+            {
+                value = default;
+                return false;
+            }
+            
+            value = List[index];
+
+            return true;
+        }
+
         public bool Add(TKey key, TValue value)
         {
             if (Contains(key)) return false;
@@ -27,8 +38,17 @@ namespace RishUI
 
             return true;
         }
+        public bool Set(TKey key, TValue value)
+        {
+            var index = IndexOf(key);
+            if(index < 0) return Add(key, value);
+            List[index] = value;
+            return true;
+        }
         public bool Contains(TKey key) => Indices.ContainsKey(key);
         public bool Remove(TKey key) => Indices.TryGetValue(key, out var index) && RemoveAtSwapBack(index);
+        
+        public int IndexOf(TKey key) => Indices.GetValueOrDefault(key, -1);
 
         public bool RemoveAtSwapBack(int index)
         {

@@ -36,7 +36,7 @@ namespace RishUI
     }
 
     [Sappy]
-    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IOwner where P : struct
+    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IManagedContext where P : struct
     {
         private SapStem<bool> OnDirtyHandler { get; } = new();
         event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
@@ -57,6 +57,8 @@ namespace RishUI
         [SapEvent]
         private protected event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
         
+        private IndexedList<int, ManagedContext> Contexts { get; } = new();
+        
         private List<ICallbackWrapper> Callbacks { get; set; }
 
         private List<ToolkitManipulator> ToolkitManipulators { get; set; }
@@ -76,6 +78,8 @@ namespace RishUI
         Node IRishElement.Node => Node;
         protected int NodeID => Node?.ID ?? 0;
         
+        Tree IManagedContext.Tree => Node?.Tree;
+        
         private P? _props;
         public P Props
         {
@@ -92,15 +96,11 @@ namespace RishUI
                 
                 return _props.Value;
             }
-            internal set => SetProps(value);
+            private set => _props = value;
         }
         
         private bool UnmountRequested { get; set; }
         private bool ReadyToUnmount { get; set; }
-
-        private Element RenderedElement { get; set; }
-        private List<Reference> ReferencesBuffer { get; set; } = new();
-        private List<Reference> References { get; set; } = new();
 
         protected bool IsDirty() => Node?.IsDirty() ?? false;
 
@@ -111,7 +111,7 @@ namespace RishUI
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
-        private void SetProps(P value)
+        internal bool SetProps(P value)
         {
             var propsSet = _props.HasValue;
             var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
@@ -127,17 +127,9 @@ namespace RishUI
             allPropsListener?.PropsWillChange();
 
             var oldValue = _props;
-            
-            (ReferencesBuffer, References) = (References, ReferencesBuffer);
-            
             _props = value;
             
-            References.Clear();
-            ReferencesGetters.GetReferences(value, References);
-            foreach (var reference in References)
-            {
-                reference.RegisterReference(this);
-            }
+            // TODO: Register references to new Props?
             
             if (!propsSet || dirty)
             {
@@ -146,16 +138,29 @@ namespace RishUI
             }
             allPropsListener?.PropsDidChange(oldValue);
 
-            foreach (var reference in ReferencesBuffer)
-            {
-                reference.UnregisterReference(this);
-            }
-            ReferencesBuffer.Clear();
+            // TODO: Unregister references to old Props?
 
-            if (dirty && !IsDirty())
+            return dirty;
+        }
+
+        protected void ClaimContext(int id)
+        {
+            if (Contexts.TryGet(id, out var prevContext))
             {
-                Dirty();
+                prevContext?.Release();
             }
+            var newContext = ManagedContext.Current;
+            newContext?.Claim();
+            Contexts.Set(id, newContext);
+        }
+
+        protected void ReleaseAllContexts()
+        {
+            for (int i = 0, n = Contexts.Count; i < n; i++)
+            {
+                Contexts[i]?.Release();
+            }
+            Contexts.Clear();
         }
 
         private Action _sappyDirty;
@@ -180,7 +185,6 @@ namespace RishUI
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
-        [SapTarget]
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
@@ -191,8 +195,6 @@ namespace RishUI
             ReadyToUnmount = true;
             OnReadyToUnmountHandler.Send();
         }
-
-        int IOwner.GetID() => NodeID;
 
         void IRishElement.Mount(Node node)
         {
@@ -254,16 +256,8 @@ namespace RishUI
             {
                 mountingListener.ComponentWillUnmount();
             }
-            
-            Rish.UnregisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
-            RenderedElement = default;
 
-            foreach (var reference in References)
-            {
-                reference.UnregisterReference(this);
-            }
-            References.Clear();
-            ReferencesBuffer.Clear();
+            ReleaseAllContexts();
             
             OnUnmountingHandler.Send();
             
@@ -276,7 +270,7 @@ namespace RishUI
             
             OnUnmountedHandler.Send();
         }
-
+        
         Element IRishElement.Render()
         {
 #if UNITY_EDITOR
@@ -285,15 +279,12 @@ namespace RishUI
                 throw new UnityException($"Invalid state. Props of {GetType().Name} ({typeof(P)}) was never set.");
             }
 #endif
-            
-            var prevElement = RenderedElement;
-            
-            RenderedElement = Render();
-            
-            Rish.RegisterReferenceTo<ManagedElement>(RenderedElement.ID, this);
-            Rish.UnregisterReferenceTo<ManagedElement>(prevElement.ID, this);
 
-            return RenderedElement;
+            using var context = ManagedContext.New();
+            var element = Render();
+            ClaimContext(-1);
+
+            return element;
         }
 
         protected abstract Element Render();
@@ -682,31 +673,23 @@ namespace RishUI
         private S? _state;
         protected S State
         {
-            get => GetState(true);
-            set
+            get
             {
-                var dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
-
-                _state = value;
-
-                if (!HasDirtyReferences)
+                if (!_state.HasValue)
                 {
-                    HasDirtyReferences = true;   
-                    PersistReferences();
-                    // DirtyReferences(); // TODO: This was causing issues (maybe in async contexts only?)
+#if UNITY_EDITOR
+                    throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
+#else
+                return default;
+#endif
                 }
- 
-                if (dirty)
-                {
-                    Dirty();
-                }
+
+                return _state.Value;
             }
+            private set => _state = value;
         }
-        
-        protected bool IsMounted { get; private set; }
-        private bool HasDirtyReferences { get; set; }
 
-        private List<Reference> References { get; } = new();
+        protected bool IsMounted { get; private set; }
         
         private Action _sappySetDefaultState;
         private Action SappySetDefaultState => _sappySetDefaultState ??= SetDefaultState;
@@ -735,60 +718,46 @@ namespace RishUI
         private void DisposeReferences()
         {
             IsMounted = false;
-            HasDirtyReferences = false;
+            StateContext = null;
 
-            foreach (var reference in References)
-            {
-                reference.UnregisterReference(this);
-            }
-            References.Clear();
+            // TODO: Free all references
         }
        
         [SapTarget] 
         private void ClearState() => _state = null;
 
-        protected void SetState(S state) => State = state;
-        protected void SetState(RefAction<S> action)
+        private ManagedContext _stateContext;
+        private ManagedContext StateContext
         {
-            var state = GetState(false);
-            action?.Invoke(ref state);
-            State = state;
+            get => _stateContext;
+            set
+            {
+                if(_stateContext == value) return;
+
+                _stateContext?.Release();
+                value?.Claim();
+                _stateContext = value;
+            }
         }
-
-        protected S GetState(bool persistReferences = true)
+        protected void SetState(S value, bool autoControl = true)
         {
-            if (!_state.HasValue)
+            bool dirty;
+            if (autoControl)
             {
-#if UNITY_EDITOR
-                throw new UnityException($"Accessing unset {typeof(S)}. You should not access State at this point.");
-#else
-                return default;
-#endif
+                dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
+                
+                ClaimContext(-2);
+            }
+            else
+            {
+                dirty = false;
             }
 
-            if (persistReferences)
+            State = value;
+
+            if (dirty)
             {
-                PersistReferences();
-            }
-
-            return _state.Value;
-        }
-
-        private protected override void PersistReferences()
-        {
-            if (!(_state.HasValue && IsMounted && HasDirtyReferences)) return;
-
-            HasDirtyReferences = false;
-
-            foreach (var reference in References)
-            {
-                reference.UnregisterReference(this);
-            }
-            References.Clear();
-            ReferencesGetters.GetReferences(_state.Value, References);
-            foreach (var reference in References)
-            {
-                reference.RegisterReference(this);
+                Dirty();
             }
         }
     }

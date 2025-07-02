@@ -5,160 +5,56 @@ using UnityEngine;
 
 namespace RishUI.MemoryManagement
 {
-    internal class GenericPool<T> : IPool where T : class, IManaged, new()
+    internal class GenericPool<T> : IPool<T> where T : class, IManaged, new()
     {
         private const int InitialPoolSize = 64;
         
         private ulong _nextID;
         
         private Stack<ulong> FreeStack { get; }
-        private Dictionary<ulong, Wrapper> WrappersById { get; }
-        
-        private HashSet<ulong> GarbageSet { get; } = new(InitialPoolSize);
-        private List<ulong> GarbageList { get; } = new(InitialPoolSize);
+        private Dictionary<ulong, Wrapper<T>> WrappersById { get; }
 
         public GenericPool()
         {
             FreeStack = new Stack<ulong>(InitialPoolSize);
-            WrappersById = new Dictionary<ulong, Wrapper>(InitialPoolSize);
+            WrappersById = new Dictionary<ulong, Wrapper<T>>(InitialPoolSize);
 
             for (var i = 0; i < InitialPoolSize; i++)
             {
-                var wrapper = CreateNew();
-                FreeStack.Push(wrapper);
+                var (id, _) = CreateNew();
+                FreeStack.Push(id);
             }
         }
 
-        ulong IPool.GetFreeID<T1>()
+        ulong IPool<T>.GetFreeID()
         {
-            if (typeof(T1) != typeof(T))
-            {
-                throw new UnityException($"Pool type mismatch. Pool is of type {typeof(T)}, not {typeof(T1)}.");
-            }
-            
+            Wrapper<T> wrapper;
             if (!FreeStack.TryPop(out var id))
             {
-                id = CreateNew();
+                (id, wrapper) = CreateNew();
             }
-            AddGarbage(id);
+            else
+            {
+                wrapper = GetWrapper(id);
+            }
+            
+            ManagedContext.Current.Claim(wrapper);
 
             return id;
         }
 
-        T1 IPool.GetManaged<T1>(ulong id)
-        {
-            if (typeof(T1) != typeof(T))
-            {
-                throw new UnityException($"Pool type mismatch. Pool is of type {typeof(T)}, not {typeof(T1)}.");
-            }
-            
-            var wrapper = GetWrapper(id);
-            if (wrapper == null)
-            {
-                throw new UnityException("Invalid reference.");
-            }
-            if (wrapper.Managed is not T1 managed)
-            {
-                throw new UnityException($"Reference is not of type {typeof(T)}.");
-            }
-            
-            return managed;
-        }
-
-        void IPool.CleanGarbage()
-        {
-            for (int i = 0, n = GarbageList.Count; i < n; i++)
-            {
-                Return(GarbageList[i]);
-            }
-            
-            GarbageSet.Clear();
-            GarbageList.Clear();
-        }
-        
-        void IPool.RegisterReference(ulong id, IOwner owner)
+        T IPool<T>.GetManaged(ulong id)
         {
             var wrapper = GetWrapper(id);
-            if (wrapper == null)
-            {
-                return;
-            }
+            if (wrapper == null) throw new UnityException("Invalid reference.");
             
-            if (wrapper.RegisterReference(owner) > 0)
-            {
-                RemoveGarbage(id);
-            }
+            return wrapper.Managed;
         }
-        void IPool.UnregisterReference(ulong id, IOwner owner)
+
+        void IPool<T>.Free(ulong id)
         {
             var wrapper = GetWrapper(id);
-            if (wrapper == null)
-            {
-                return;
-            }
-            
-            if (wrapper.UnregisterReference(owner) <= 0)
-            {
-                AddGarbage(id);
-            }
-        }
-
-        private void AddGarbage(ulong id)
-        {
-            if (!GarbageSet.Add(id))
-            {
-                return;
-            }
-
-            GarbageList.Add(id);
-        }
-
-        private void RemoveGarbage(ulong id)
-        {
-            if (!GarbageSet.Contains(id))
-            {
-                return;
-            }
-
-            GarbageSet.Remove(id);
-            var index = GarbageList.IndexOf(id);
-            GarbageList.RemoveAtSwapBack(index);
-        }
-
-        private ulong CreateNew()
-        {
-            var id = ++_nextID;
-            var element = new T();
-            
-            var wrapper = new Wrapper(id, element);
-            
-            WrappersById[id] = wrapper;
-
-            return id;
-        }
-        
-        private void Return(ulong id)
-        {
-            var wrapper = GetWrapper(id);
-            if (wrapper == null)
-            {
-                return;
-            }
-            
-#if UNITY_EDITOR
-            if (wrapper.ReferencesCount > 0)
-            {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine($"Disposing {typeof(T)} with {wrapper.ReferencesCount} active references pointing to it:");
-                foreach (var (ownerId, count) in wrapper.ActiveReferencesDebug)
-                {
-                    var ownerType = Node.GetNode(ownerId).Element?.GetType();
-                    stringBuilder.AppendLine($"{ownerType}({ownerId}) owns {count} references");
-                }
-                
-                Debug.LogError(stringBuilder.ToString());
-            }
-#endif
+            if (wrapper == null) return;
             
             var managed = wrapper.Managed;
             managed.Dispose();
@@ -166,6 +62,18 @@ namespace RishUI.MemoryManagement
             FreeStack.Push(wrapper.ID);
         }
 
-        private Wrapper GetWrapper(ulong id) => id > 0 && WrappersById.TryGetValue(id, out var wrapper) ? wrapper : null;
+        private (ulong, Wrapper<T>) CreateNew()
+        {
+            var id = ++_nextID;
+            var element = new T();
+            
+            var wrapper = new Wrapper<T>(id, element, this);
+            
+            WrappersById[id] = wrapper;
+
+            return (id, wrapper);
+        }
+
+        private Wrapper<T> GetWrapper(ulong id) => id > 0 && WrappersById.TryGetValue(id, out var wrapper) ? wrapper : null;
     }
 }

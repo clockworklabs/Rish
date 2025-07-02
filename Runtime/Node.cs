@@ -10,7 +10,8 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    public partial class Node : FastPriorityQueueNode, IOwner
+    // TODO: We should revisit.
+    public partial class Node : FastPriorityQueueNode
     {
         private SapStem OnMountedHandler { get; } = new();
         [SapEvent]
@@ -42,7 +43,7 @@ namespace RishUI
         // -------------------------------------------------------------------------------------------------------------
         // --- Changes when mounted ------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
-        private Tree Tree { get; set; }
+        internal Tree Tree { get; private set; }
         internal ulong Key { get; private set; }
         internal IElement Element { get; private set; }
         private Node _parent;
@@ -136,8 +137,6 @@ namespace RishUI
             return parent.GetFirstAncestorOfType<T>();
         }
 
-        int IOwner.GetID() => ID;
-
         private bool IsRealTree()
         {
             if (IsVisualElement)
@@ -225,11 +224,12 @@ namespace RishUI
         {
             var node = GetNodeFromPool(tree);
             var element = node.MountAs<App>(null, 0, 0);
-            element.Props = new AppProps
+            element.SetProps(new AppProps
             {
                 rootClassName = rootClassName,
                 recovered = recovered
-            };
+            });
+            node.Dirty(true);
 
             return node;
         }
@@ -250,6 +250,8 @@ namespace RishUI
             {
                 throw new UnityException("Only RishElements can render");
             }
+            
+            // TODO: Clear Dirty flag
 
             AttachElement(rishElement.Render());
         }
@@ -327,7 +329,7 @@ namespace RishUI
             }
         }
 
-        internal T AddChild<T>(ulong key) where T : class, IElement, new()
+        internal Node AddChild<T>(ulong key) where T : class, IElement, new()
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -411,7 +413,7 @@ namespace RishUI
 
             ChildCount++;
 
-            return child.Element as T;
+            return child;
         }
 
         [SapTarget]

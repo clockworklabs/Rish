@@ -12,10 +12,11 @@ namespace RishUI
     /// List of elements.
     /// </summary>
     [CustomComparer]
+    [RequiresManagedContext]
     public struct Children : IReference<ManagedChildren>, IEnumerable<Element>, IEquatable<Children>
     {
         private ulong _id;
-        public ulong ID => _id;
+        public ulong ManagedId => _id;
 
         public bool Valid => _id > 0;
     

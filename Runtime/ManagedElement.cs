@@ -9,9 +9,6 @@ namespace RishUI
         public ulong Key { get; protected set; }
         public abstract Type Type { get; }
         
-        protected abstract void Dispose();
-        protected abstract void ReferenceRegistered(IOwner owner);
-        protected abstract void ReferenceUnregistered(IOwner owner);
         internal abstract void Invoke(Node parent);
         public abstract bool Equals(ManagedElement other);
         
@@ -20,9 +17,8 @@ namespace RishUI
         //
         // public abstract void UpdateKey(ulong key);
 
-        void IManaged.Dispose() => Dispose();
-        void IManaged.ReferenceRegistered(IOwner owner) => ReferenceRegistered(owner);
-        void IManaged.ReferenceUnregistered(IOwner owner) => ReferenceUnregistered(owner);
+        void IManaged.Close() { }
+        void IManaged.Dispose() { }
 
         bool IEquatable<ManagedElement>.Equals(ManagedElement other) => Equals(other);
     }

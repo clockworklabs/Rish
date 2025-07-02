@@ -159,14 +159,43 @@ namespace Rishenerator
                 {
                     var item = stateItems[i];
 
+                    var itemTypeFullName = item.TypeFullName;
+
                     var setterName = $"Set{ToPascal(item.Name)}";
 
-                    if (typeSymbol.MemberNames.Contains(setterName))
+                    var alreadyFound = false;
+
+                    var currentMembers = typeSymbol.GetMembers(setterName);
+                    if (currentMembers != null)
                     {
-                        continue;
+                        foreach (var current in currentMembers)
+                        {
+                            if (current is not IMethodSymbol currentMethod)
+                            {
+                                alreadyFound = true;
+                                break;
+                            }
+                            
+                            var parameters = currentMethod.Parameters;
+                            if (parameters == null || parameters.Length != 1) continue;
+                            
+                            var parameter = parameters[0];
+                            if (parameter.Type.GetFullName(false) == itemTypeFullName) // TODO: Include generics?
+                            {
+                                alreadyFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (alreadyFound)
+                    {
+                        setterName = $"InternalSet{ToPascal(item.Name)}";
                     }
 
                     count++;
+                    
+                    var contextIndex = int.MinValue + count;
 
                     sourceCode.AppendLine(@$"
     private System.Action<{item.TypeFullName}> _sappy{setterName};
@@ -174,23 +203,31 @@ namespace Rishenerator
     private void {setterName}({item.TypeFullName} v)
     {{
         if(!IsMounted) return;
-        var state = GetState(false);
+
+        var state = State;
+
+        if(RishUI.RishUtils.SmartCompare(v, state.{item.Name})) return;
+        
         state.{item.Name} = v;
-        State = state;
+        SetState(state, false);
+
+        ClaimContext({contextIndex});
+
+        Dirty();
     }}");
 
-                    if (item.OtherTypesFullNames != null)
-                    {
-                        foreach (var otherType in item.OtherTypesFullNames)
-                        {
-                            sourceCode.AppendLine(@$"    private void {setterName}({otherType} v)
-    {{
-        var state = State;
-        state.{item.Name} = ({item.TypeFullName})v;
-        State = state;
-    }}");
-                        }
-                    }
+    //                 if (item.OtherTypesFullNames != null)
+    //                 {
+    //                     foreach (var otherType in item.OtherTypesFullNames)
+    //                     {
+    //                         sourceCode.AppendLine(@$"    private void {setterName}({otherType} v)
+    // {{
+    //     var state = State;
+    //     state.{item.Name} = ({item.TypeFullName})v;
+    //     State = state;
+    // }}");
+    //                     }
+    //                 }
                 }
 
                 if (count == 0)
@@ -220,35 +257,35 @@ namespace Rishenerator
             {
                 public string Name { get; }
                 public string TypeFullName { get; }
-                public List<string> OtherTypesFullNames { get; }
+                // public List<string> OtherTypesFullNames { get; }
 
-                public StateItem(IFieldSymbol fieldSymbol)
+                public StateItem(int index, IFieldSymbol fieldSymbol)
                 {
                     Name = fieldSymbol.Name;
                     TypeFullName = fieldSymbol.Type.GetFullName(true);
 
-                    foreach (var symbol in fieldSymbol.Type.GetMembers())
-                    {
-                        if (symbol is not IMethodSymbol methodSymbol)
-                        {
-                            continue;
-                        }
-                        
-                        if (methodSymbol.MethodKind != MethodKind.Conversion || methodSymbol.Parameters.Length != 1)
-                        {
-                            continue;
-                        }
-
-                        var otherType = methodSymbol.Parameters[0].Type.GetFullName(true);
-
-                        if (string.IsNullOrWhiteSpace(otherType) || otherType == TypeFullName)
-                        {
-                            continue;
-                        }
-
-                        OtherTypesFullNames ??= new List<string>();
-                        OtherTypesFullNames.Add(otherType);
-                    }
+                    // foreach (var symbol in fieldSymbol.Type.GetMembers())
+                    // {
+                    //     // if (symbol is not IMethodSymbol methodSymbol)
+                    //     // {
+                    //     //     continue;
+                    //     // }
+                    //     
+                    //     // if (methodSymbol.MethodKind != MethodKind.Conversion || methodSymbol.Parameters.Length != 1)
+                    //     // {
+                    //     //     continue;
+                    //     // }
+                    //
+                    //     // var otherType = methodSymbol.Parameters[0].Type.GetFullName(true);
+                    //     //
+                    //     // if (string.IsNullOrWhiteSpace(otherType) || otherType == TypeFullName)
+                    //     // {
+                    //     //     continue;
+                    //     // }
+                    //
+                    //     // OtherTypesFullNames ??= new List<string>();
+                    //     // OtherTypesFullNames.Add(otherType);
+                    // }
                 }
             }
             private class ItemizedState
@@ -267,7 +304,7 @@ namespace Rishenerator
                         }
                     
                         Items ??= new List<StateItem>();
-                        var item = new StateItem(stateFieldSymbol);
+                        var item = new StateItem(Items.Count, stateFieldSymbol);
                         Items.Add(item);
                     }
                 }

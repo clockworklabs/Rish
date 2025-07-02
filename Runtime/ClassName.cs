@@ -5,7 +5,6 @@ using System.Text;
 using RishUI.MemoryManagement;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace RishUI
 {
@@ -16,6 +15,8 @@ namespace RishUI
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
         private ulong _id;
+        
+        // TODO: REMOVE
         public ulong ID => _id;
 
         public bool Valid => _id > 0;
