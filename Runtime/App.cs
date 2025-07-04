@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using PlasticGui;
+using RishUI.MemoryManagement;
 using UnityEngine;
 #if UNITY_EDITOR
 using RishUI.Elements;
@@ -17,6 +19,7 @@ namespace RishUI
         /// Interface to provide the root for a Rish app.
         /// </summary>
         /// <param name="recovered">This flag will be true after the Rish app has recovered from an exception.</param>
+        [RequiresManagedContext]
         Element GetRoot(bool recovered);
     }
     

@@ -17,8 +17,6 @@ namespace RishUI
         [SapEvent]
         event Action<bool> OnDirty;
         [SapEvent]
-        event Action OnReferencesDirty;
-        [SapEvent]
         event Action OnReadyToUnmount;
         
         void Mount(Node node);
@@ -36,13 +34,10 @@ namespace RishUI
     }
 
     [Sappy]
-    public abstract class RishElement<P> : IRishElement, IRishEventTarget, IManagedContext where P : struct
+    public abstract class RishElement<P> : IRishElement, IRishEventTarget where P : struct
     {
         private SapStem<bool> OnDirtyHandler { get; } = new();
         event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
-        
-        private SapStem OnReferencesDirtyHandler { get; } = new();
-        event Action IRishElement.OnReferencesDirty { add => OnReferencesDirtyHandler.AddTarget(value); remove => OnReferencesDirtyHandler.RemoveTarget(value); }
         
         private SapStem OnReadyToUnmountHandler { get; } = new();
         event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountHandler.AddTarget(value); remove => OnReadyToUnmountHandler.RemoveTarget(value); }
@@ -77,8 +72,6 @@ namespace RishUI
         private Node Node { get; set; }
         Node IRishElement.Node => Node;
         protected int NodeID => Node?.ID ?? 0;
-        
-        Tree IManagedContext.Tree => Node?.Tree;
         
         private P? _props;
         public P Props
@@ -129,16 +122,12 @@ namespace RishUI
             var oldValue = _props;
             _props = value;
             
-            // TODO: Register references to new Props?
-            
             if (!propsSet || dirty)
             {
                 propsListener?.PropsDidChange();
                 typedPropsListener?.PropsDidChange(oldValue);
             }
             allPropsListener?.PropsDidChange(oldValue);
-
-            // TODO: Unregister references to old Props?
 
             return dirty;
         }
@@ -174,11 +163,6 @@ namespace RishUI
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Send(forceThisFrame);
-
-        /// <summary>
-        /// Flag this element to have dirty references.
-        /// </summary>
-        private protected void DirtyReferences() => OnReferencesDirtyHandler.Send();
         
         private Action _sappyCanUnmount;
         protected Action SappyCanUnmount => _sappyCanUnmount ??= CanUnmount;
@@ -280,13 +264,17 @@ namespace RishUI
             }
 #endif
 
-            using var context = ManagedContext.New();
-            var element = Render();
-            ClaimContext(-1);
+            Element element;
+            using (ManagedContext.New())
+            {
+                element = Render();
+                ClaimContext(-1);
+            }
 
             return element;
         }
 
+        [RequiresManagedContext]
         protected abstract Element Render();
 
         void IRishElement.PersistReferences() => PersistReferences();
@@ -695,7 +683,7 @@ namespace RishUI
         private Action SappySetDefaultState => _sappySetDefaultState ??= SetDefaultState;
         
         private Action _sappyDisposeReferences;
-        private Action SappyDisposeReferences => _sappyDisposeReferences ??= DisposeReferences;
+        private Action SappyDisposeReferences => _sappyDisposeReferences ??= ClearIsMounted;
         
         private Action _sappyClearState;
         private Action SappyClearState => _sappyClearState ??= ClearState;
@@ -715,30 +703,14 @@ namespace RishUI
         }
 
         [SapTarget]
-        private void DisposeReferences()
+        private void ClearIsMounted()
         {
             IsMounted = false;
-            StateContext = null;
-
-            // TODO: Free all references
         }
        
         [SapTarget] 
         private void ClearState() => _state = null;
 
-        private ManagedContext _stateContext;
-        private ManagedContext StateContext
-        {
-            get => _stateContext;
-            set
-            {
-                if(_stateContext == value) return;
-
-                _stateContext?.Release();
-                value?.Claim();
-                _stateContext = value;
-            }
-        }
         protected void SetState(S value, bool autoControl = true)
         {
             bool dirty;

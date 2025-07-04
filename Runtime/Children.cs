@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using RishUI.Elements;
 using RishUI.MemoryManagement;
 using Unity.Collections;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -16,7 +15,6 @@ namespace RishUI
     public struct Children : IReference<ManagedChildren>, IEnumerable<Element>, IEquatable<Children>
     {
         private ulong _id;
-        public ulong ManagedId => _id;
 
         public bool Valid => _id > 0;
     
@@ -38,8 +36,10 @@ namespace RishUI
             }
         }
         public Element this[Index index] => Managed?.Get(index) ?? default;
+        [RequiresManagedContext]
         public Children this[Range range] => Managed?.Get(range) ?? default;
 
+        [RequiresManagedContext]
         public void Add(Element element)
         {
             if (_id == 0)
@@ -50,6 +50,7 @@ namespace RishUI
             var managed = Rish.GetManaged<ManagedChildren>(_id);
             managed.Add(element);
         }
+        [RequiresManagedContext]
         public void Add(Children children)
         {
             if (_id == 0)
@@ -84,6 +85,7 @@ namespace RishUI
             return enumerable.GetEnumerator();
         }
 
+        [RequiresManagedContext]
         public static implicit operator Children(Children[] array)
         {
             var children = new Children();
@@ -94,6 +96,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(Element[] array)
         {
             var children = new Children();
@@ -104,6 +107,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(List<Children> list)
         {
             var children = new Children();
@@ -114,6 +118,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(List<Element> list)
         {
             var children = new Children();
@@ -124,6 +129,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList32Bytes<Element> list)
         {
             var children = new Children();
@@ -134,6 +140,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList64Bytes<Element> list)
         {
             var children = new Children();
@@ -144,6 +151,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList128Bytes<Element> list)
         {
             var children = new Children();
@@ -154,6 +162,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList512Bytes<Element> list)
         {
             var children = new Children();
@@ -164,6 +173,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList4096Bytes<Element> list)
         {
             var children = new Children();
@@ -174,6 +184,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList32Bytes<Children> list)
         {
             var children = new Children();
@@ -184,6 +195,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList64Bytes<Children> list)
         {
             var children = new Children();
@@ -194,6 +206,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList128Bytes<Children> list)
         {
             var children = new Children();
@@ -204,6 +217,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList512Bytes<Children> list)
         {
             var children = new Children();
@@ -214,6 +228,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator Children(FixedList4096Bytes<Children> list)
         {
             var children = new Children();
@@ -225,12 +240,19 @@ namespace RishUI
             return children;
         }
 
+        [RequiresManagedContext]
         public static implicit operator Children(string text) => Label.Create(text: text);
+        [RequiresManagedContext]
         public static implicit operator Children(RishString text) => Label.Create(text: text);
+        [RequiresManagedContext]
         public static implicit operator Children(FixedString32Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Children(FixedString64Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Children(FixedString128Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Children(FixedString512Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Children(FixedString4096Bytes text) => Label.Create(text: text.Value);
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
@@ -252,22 +274,12 @@ namespace RishUI
             var aManaged = Rish.GetManaged<ManagedChildren>(a._id);
             var bManaged = Rish.GetManaged<ManagedChildren>(b._id);
 
-#if UNITY_EDITOR
             var aDisposed = aManaged == null;
             var bDisposed = bManaged == null;
             if (aDisposed || bDisposed)
             {
-                if (aDisposed)
-                {
-                    Debug.LogError($"Children {a._id} was disposed. This should never happen.");
-                }
-                if (bDisposed)
-                {
-                    Debug.LogError($"Children {b._id} was disposed. This should never happen.");
-                }
                 return false;
             }
-#endif
 
             return aManaged.Equals(bManaged);
         }

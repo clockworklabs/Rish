@@ -16,6 +16,7 @@ namespace RishUI
         [RequiresManagedContext]
         public static Element Create<T>(Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, DOMDescriptor.Default, children);
         // 1/4 -> 4
+        [RequiresManagedContext]
         public static Element Create<T>(ulong key, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(key, DOMDescriptor.Default, children);
         [RequiresManagedContext]
         public static Element Create<T>(Name name, Children? children = null) where T : VisualElement, IVisualElement, new() => Create<T>(0, new DOMDescriptor(DOMDescriptor.Default)

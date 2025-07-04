@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using RishUI.MemoryManagement;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -30,8 +29,10 @@ namespace RishUI
             set => Managed.Set(index, value);
         }
         public T this[Index index] => Managed?.Get(index) ?? default;
+        [RequiresManagedContext]
         public RishList<T> this[Range range] => Managed?.Get(range) ?? default;
         
+        [RequiresManagedContext]
         public void Add(T element)
         {
             if (_id == 0)
@@ -41,6 +42,7 @@ namespace RishUI
 
             Managed?.Add(element);
         }
+        [RequiresManagedContext]
         public void Add(RishList<T> other)
         {
             if (_id == 0)
@@ -54,9 +56,13 @@ namespace RishUI
             }
         }
 
+        [RequiresManagedContext]
         public void Sort() => Managed?.Sort();
+        [RequiresManagedContext]
         public void Sort(IComparer<T> comparer) => Managed?.Sort(comparer);
+        [RequiresManagedContext]
         public void Sort(int index, int count, IComparer<T> comparer) => Managed?.Sort(index, count, comparer);
+        [RequiresManagedContext]
         public void Sort(Comparison<T> comparison) => Managed?.Sort(comparison);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -79,27 +85,48 @@ namespace RishUI
             return enumerable.GetEnumerator();
         }
         
+        [RequiresManagedContext]
         public static implicit operator RishList<T>(T element) => new RishList<T> { element };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T) elements) => new RishList<T> { elements.Item1, elements.Item2 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19 };
+        [RequiresManagedContext]
         public static implicit operator RishList<T>((T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) elements) => new RishList<T> { elements.Item1, elements.Item2, elements.Item3, elements.Item4, elements.Item5, elements.Item6, elements.Item7, elements.Item8, elements.Item9, elements.Item10, elements.Item11, elements.Item12, elements.Item13, elements.Item14, elements.Item15, elements.Item16, elements.Item17, elements.Item18, elements.Item19, elements.Item20};
 
+        [RequiresManagedContext]
         public static implicit operator RishList<T>(RishList<T>[] array)
         {
             var children = new RishList<T>();
@@ -110,6 +137,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator RishList<T>(T[] array)
         {
             if (array == null) return Null;
@@ -122,6 +150,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator RishList<T>(List<RishList<T>> list)
         {
             if (list == null) return Null;
@@ -134,6 +163,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator RishList<T>(List<T> list)
         {
             if (list == null) return Null;
@@ -165,21 +195,11 @@ namespace RishUI
             
             var aManaged = a.Managed;
             var bManaged = b.Managed;
-            var aInUse = aManaged != null;
-            var bInUse = bManaged != null;
             
-            if (!aInUse || !bInUse)
+            var aDisposed = aManaged == null;
+            var bDisposed = bManaged == null;
+            if (aDisposed || bDisposed)
             {
-#if UNITY_EDITOR
-                if (!aInUse)
-                {
-                    Debug.LogError($"RishList<T> {a._id} was disposed. This should never happen.");
-                }
-                if (!bInUse)
-                {
-                    Debug.LogError($"RishList<T> {b._id} was disposed. This should never happen.");
-                }
-#endif
                 return false;
             }
 

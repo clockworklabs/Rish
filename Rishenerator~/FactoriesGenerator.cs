@@ -76,43 +76,6 @@ namespace Rishenerator
                 }
             
                 return classDeclaration;
-            } else if (symbol is IMethodSymbol methodSymbol)
-            {
-                if (methodSymbol.IsAbstract || !methodSymbol.IsStatic || methodSymbol.IsGenericMethod || methodSymbol.Name.Length <= 7 || !methodSymbol.Name.EndsWith("Element"))
-                {
-                    return null;
-                }
-            
-                var parameters = methodSymbol.Parameters;
-                if (parameters.Length > 1 || methodSymbol.ReturnType.IsElement())
-                {
-                    return null;
-                }
-            
-                if (parameters.Length > 0)
-                {
-                    var parameterType = parameters[0].Type;
-                    if (!parameterType.HasAttribute("RishUI.RishValueTypeAttribute"))
-                    {
-                        return null;
-                    }
-                }
-                        
-                var methodDeclaration = (MethodDeclarationSyntax)node;
-                
-                var parent = methodDeclaration.Parent;
-                while (parent is ClassDeclarationSyntax containingClassDeclaration)
-                {
-                    var containingTypeIsPartial = containingClassDeclaration.Modifiers.Any(syntaxToken => syntaxToken.IsKind(SyntaxKind.PartialKeyword));
-                    if (!containingTypeIsPartial)
-                    {
-                        return null;
-                    }
-            
-                    parent = parent.Parent;
-                }
-            
-                return methodDeclaration;
             }
             
             return null;
@@ -173,7 +136,7 @@ namespace Rishenerator
                     var t = containingType;
                     while (t != null)
                     {
-                        sourceCode.Insert(0, @$"{containingType.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsName(false)}{t.GetGenericsConstraints(false)}
+                        sourceCode.Insert(0, @$"{t.DeclaredAccessibility.ToModifiers()} partial class {t.Name}{t.GetGenericsName(false)}{t.GetGenericsConstraints(false)}
 {{
 ");
                         sourceCode.AppendLine("}");
@@ -223,40 +186,53 @@ namespace Rishenerator
                     if (propsItems.Empty)
                     {
                         // EMPTY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong));");
                         // KEY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, {propsItems.DefaultValue});");
                     }
                     else if (propsItems.SkipItemization)
                     {
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(default(ulong), props);");
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key = default(long), ", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(key, " : ") => Create(key, ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                     }
                     else
                     {
                         // EMPTY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create() => Create(default(ulong), {propsItems.DefaultValue});");
                         // KEY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key) => Create(key, {propsItems.DefaultValue});");
                         // PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(default(ulong), props);");
                         // ITEMIZED PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(default(ulong), " : ") => Create(default(ulong), ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, ", propsItems.HasCustomDefault ? $") {{ var defaultValue = {propsItems.DefaultValue}; return Create(key, " : ") => Create(key, ", propsItems.HasCustomDefault ? "); }" : ");", sourceCode);
                     }
                 }
                 else
                 {
                     // EMPTY
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                     sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong));");
                     // KEY
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                     sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key = 0) => RishUI.Rish.Create<{typeSymbolFullName}>(key);");
                 }
                 
@@ -291,224 +267,404 @@ namespace Rishenerator
                     if (propsItems.Empty)
                     {
                         // EMPTY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong), default(RishUI.DOMDescriptor), default(RishUI.Children));");
                         // KEY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key) => Create(key, default(RishUI.DOMDescriptor), default(RishUI.Children));");
                         // DESCRIPTOR
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(default(ulong), descriptor, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
                         // CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Children children) => Create(default(ulong), default(RishUI.DOMDescriptor), children);");
                         // KEY, DESCRIPTOR
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor) => Create(key, descriptor, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name) => Create(key, new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
                         // KEY, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Children children) => Create(key, default(RishUI.DOMDescriptor), children);");
                         // DESCRIPTOR, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children children) => Create(default(ulong), descriptor, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
                         // KEY, DESCRIPTOR, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children children) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
                     }
                     else
                     {
                         // EMPTY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create() => Create(default(ulong), default(RishUI.DOMDescriptor), {propsItems.DefaultValue}, default(RishUI.Children));");
                         // KEY
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key) => Create(key, default(RishUI.DOMDescriptor), {propsItems.DefaultValue}, default(RishUI.Children));");
                         // DESCRIPTOR
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(default(ulong), descriptor, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor {{ style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
                         // PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(default(ulong), default(RishUI.DOMDescriptor), props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(", ") => Create(default(ulong), default(RishUI.DOMDescriptor), ", ", default(RishUI.Children));", sourceCode);
                         // CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Children children) => Create(default(ulong), default(RishUI.DOMDescriptor), {propsItems.DefaultValue}, children);");
                         // KEY, DESCRIPTOR
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor) => Create(key, descriptor, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name) => Create(key, new RishUI.DOMDescriptor {{ name = name }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor {{ className = className }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor {{ style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor {{ name = name, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor {{ className = className, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, {propsItems.DefaultValue}, default(RishUI.Children));");
                         // KEY, PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => Create(key, default(RishUI.DOMDescriptor), props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, ", ") => Create(key, default(RishUI.DOMDescriptor), ", ", default(RishUI.Children));", sourceCode);
                         // KEY, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Children children) => Create(key, default(RishUI.DOMDescriptor), {propsItems.DefaultValue}, children);");
                         // DESCRIPTOR, PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props) => Create(default(ulong), descriptor, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, ", ") => Create(default(ulong), descriptor, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.ClassName className, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Style style, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Style style, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, ", ", default(RishUI.Children));", sourceCode);
                         // DESCRIPTOR, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children children) => Create(default(ulong), descriptor, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className, style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, {propsItems.DefaultValue}, children);");
                         // PROPS, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create({propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), default(RishUI.DOMDescriptor), props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Children children, ", ") => Create(default(ulong), default(RishUI.DOMDescriptor), ", ", children);", sourceCode);
                         // KEY, DESCRIPTOR, PROPS
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props) => Create(key, descriptor, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, ", ") => Create(key, descriptor, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ name = name }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, ", ") => Create(key, new RishUI.DOMDescriptor { name = name }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ className = className }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.ClassName className, ", ") => Create(key, new RishUI.DOMDescriptor { className = className }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Style style, ", ") => Create(key, new RishUI.DOMDescriptor { style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ name = name, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ className = className, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, ", ") => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, ", ", default(RishUI.Children));", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, props, default(RishUI.Children));");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, ", ", default(RishUI.Children));", sourceCode);
                         // KEY, DESCRIPTOR, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children children) => Create(key, descriptor, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ className = className }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ className = className, style = style }}, {propsItems.DefaultValue}, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, {propsItems.DefaultValue}, children);");
                         // KEY, PROPS, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, default(RishUI.DOMDescriptor), props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Children children, ", ") => Create(key, default(RishUI.DOMDescriptor), ", ", children);", sourceCode);
                         // DESCRIPTOR, PROPS, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), descriptor, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children children, ", ") => Create(default(ulong), descriptor, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Style style, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ className = className, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children, ", ") => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, ", ", children);", sourceCode);
                         // KEY, DESCRIPTOR, PROPS, CHILDREN
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, {propsTypeSymbolFullName} props, RishUI.Children children) => RishUI.Rish.Create<{typeSymbolFullName}, {propsTypeSymbolFullName}>(key, descriptor, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children children, ", ") => Create(key, descriptor, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { name = name }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ className = className }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { className = className }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Style style, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ className = className, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, ", ", children);", sourceCode);
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, {propsTypeSymbolFullName} props, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor {{ name = name, className = className, style = style }}, props, children);");
+                        sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children, ", ") => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, ", ", children);", sourceCode);
                     }
                 }
                 else
                 {
-                        // EMPTY
-                        sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong), default(RishUI.DOMDescriptor), default(RishUI.Children));");
-                        // KEY
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key) => Create(key, default(RishUI.DOMDescriptor), default(RishUI.Children));");
-                        // DESCRIPTOR
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(default(ulong), descriptor, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
-                        // CHILDREN
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Children children) => Create(default(ulong), default(RishUI.DOMDescriptor), children);");
-                        // KEY, DESCRIPTOR
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor) => Create(key, descriptor, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name) => Create(key, new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
-                        // KEY, CHILDREN
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Children children) => Create(key, default(RishUI.DOMDescriptor), children);");
-                        // DESCRIPTOR, CHILDREN
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children children) => Create(default(ulong), descriptor, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
-                        // KEY, DESCRIPTOR, CHILDREN
-                        sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children children) => RishUI.Rish.Create<{typeSymbolFullName}>(key, descriptor, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, children);");
-                        sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
+                    // EMPTY
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create() => Create(default(ulong), default(RishUI.DOMDescriptor), default(RishUI.Children));");
+                    // KEY
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key) => Create(key, default(RishUI.DOMDescriptor), default(RishUI.Children));");
+                    // DESCRIPTOR
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor) => Create(default(ulong), descriptor, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
+                    // CHILDREN
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Children children) => Create(default(ulong), default(RishUI.DOMDescriptor), children);");
+                    // KEY, DESCRIPTOR
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor) => Create(key, descriptor, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name) => Create(key, new RishUI.DOMDescriptor { name = name }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { className = className }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, default(RishUI.Children));");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, default(RishUI.Children));");
+                    // KEY, CHILDREN
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Children children) => Create(key, default(RishUI.DOMDescriptor), children);");
+                    // DESCRIPTOR, CHILDREN
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.DOMDescriptor descriptor, RishUI.Children children) => Create(default(ulong), descriptor, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { className = className, style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(default(ulong), new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
+                    // KEY, DESCRIPTOR, CHILDREN
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine($"    public static RishUI.Element Create(ulong key, RishUI.DOMDescriptor descriptor, RishUI.Children children) => RishUI.Rish.Create<{typeSymbolFullName}>(key, descriptor, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { className = className, style = style }, children);");
+                    sourceCode.AppendLine("    [RishUI.MemoryManagement.RequiresManagedContext]");
+                    sourceCode.AppendLine("    public static RishUI.Element Create(ulong key, RishUI.Name name, RishUI.ClassName className, RishUI.Style style, RishUI.Children children) => Create(key, new RishUI.DOMDescriptor { name = name, className = className, style = style }, children);");
                 }
                 
                 sourceCode.AppendLine("}");
@@ -555,40 +711,53 @@ namespace Rishenerator
                     if (propsItems.Empty)
                     {
                         // EMPTY
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine("        public static RishUI.Element Create() => Create(default(ulong));");
                         // KEY
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, {propsItems.DefaultValue});");
                     }
                     else if (propsItems.SkipItemization)
                     {
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create({propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(default(ulong), props);");
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(ulong key = default(long), ", ") => Create(key, ", ");", sourceCode);
                     }
                     else
                     {
                         // EMPTY
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create() => Create(default(ulong), {propsItems.DefaultValue});");
                         // KEY
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key) => Create(key, {propsItems.DefaultValue});");
                         // PROPS
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create({propsTypeSymbolFullName} props) => Create(default(ulong), props);");
                         // ITEMIZED PROPS
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(", ") => Create(default(ulong), ", ");", sourceCode);
                         // KEY, PROPS (Rish.Create)
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key, {propsTypeSymbolFullName} props) => RishUI.Rish.Create<{targetName}, {propsTypeSymbolFullName}>(key, props);");
                         // KEY, ITEMIZED PROPS
+                        sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                         AppendItemizedFactory(propsItems, "        public static RishUI.Element Create(ulong key, ", ") => Create(key, ", ");", sourceCode);
                     }
                 }
                 else
                 {
                     // EMPTY
+                    sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                     sourceCode.AppendLine("        public static RishUI.Element Create() => Create(default(ulong));");
                     // KEY
+                    sourceCode.AppendLine("        [RishUI.MemoryManagement.RequiresManagedContext]");
                     sourceCode.AppendLine($"        public static RishUI.Element Create(ulong key = 0) => RishUI.Rish.Create<{targetName}>(key);");
                 }
                 

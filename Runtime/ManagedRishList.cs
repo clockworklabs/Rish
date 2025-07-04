@@ -25,6 +25,7 @@ namespace RishUI
 
         public T Get(int index) => Elements[index];
         public T Get(Index index) => Elements[index];
+        [RequiresManagedContext]
         public RishList<T> Get(Range range)
         {
             var children = new RishList<T>();

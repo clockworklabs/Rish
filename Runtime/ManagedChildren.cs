@@ -25,6 +25,7 @@ namespace RishUI
         
         public Element Get(int index) => Elements[index];
         public Element Get(Index index) => Elements[index];
+        [RequiresManagedContext]
         public Children Get(Range range)
         {
             var children = new Children();

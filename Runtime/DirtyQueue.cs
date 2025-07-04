@@ -67,13 +67,6 @@ namespace RishUI
             }
         }
 
-        public void DirtyReferences(Node node)
-        {
-            if(node.Element is not IRishElement rishElement) return;
-            
-            DirtyReferencesList.Add(node.ID, rishElement);
-        }
-
 #if UNITY_EDITOR
         public double Update(uint maxCount, float? maxTime, bool debug)
 #else
@@ -187,6 +180,8 @@ namespace RishUI
 
         public bool IsDirty(Node node) => IsDirty(node.ID);
         private bool IsDirty(int id) => Ids.ContainsKey(id);
+        public bool ClearDirty(Node node) => ClearDirty(node.ID);
+        private bool ClearDirty(int id) => Ids.Remove(id);
         
         private bool EnqueueForImmediateProcessing(Node node)
         {

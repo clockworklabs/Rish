@@ -12,12 +12,10 @@ namespace RishUI
     /// List of class names for styling.
     /// </summary>
     [CustomComparer]
+    [RequiresManagedContext]
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
         private ulong _id;
-        
-        // TODO: REMOVE
-        public ulong ID => _id;
 
         public bool Valid => _id > 0;
     
@@ -48,6 +46,7 @@ namespace RishUI
             }
         }
         
+        [RequiresManagedContext]
         public void Add(FixedString32Bytes element)
         {
             if (_id == 0)
@@ -58,6 +57,7 @@ namespace RishUI
             var managed = Rish.GetManaged<ManagedClassName>(_id);
             managed.Add(element.Value);
         }
+        [RequiresManagedContext]
         public void Add(string element)
         {
             if (_id == 0)
@@ -68,6 +68,7 @@ namespace RishUI
             var managed = Rish.GetManaged<ManagedClassName>(_id);
             managed.Add(element);
         }
+        [RequiresManagedContext]
         public void Add(ClassName className)
         {
             if (_id == 0)
@@ -82,6 +83,7 @@ namespace RishUI
             }
         }
 
+        [RequiresManagedContext]
         public static ClassName operator +(ClassName left, ClassName right) => new()
         {
             left,
@@ -108,13 +110,20 @@ namespace RishUI
             return enumerable.GetEnumerator();
         }
         
+        [RequiresManagedContext]
         public static implicit operator ClassName(string element) => new ClassName { element };
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString32Bytes element) => new ClassName { element };
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString64Bytes element) => new ClassName { element };
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString128Bytes element) => new ClassName { element };
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString512Bytes element) => new ClassName { element };
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString4096Bytes element) => new ClassName { element };
 
+        [RequiresManagedContext]
         public static implicit operator ClassName(ClassName[] array)
         {
             var children = new ClassName();
@@ -125,6 +134,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(string[] array)
         {
             var children = new ClassName();
@@ -135,6 +145,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString32Bytes[] array)
         {
             var children = new ClassName();
@@ -145,6 +156,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString64Bytes[] array)
         {
             var children = new ClassName();
@@ -155,6 +167,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString128Bytes[] array)
         {
             var children = new ClassName();
@@ -165,6 +178,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString512Bytes[] array)
         {
             var children = new ClassName();
@@ -175,6 +189,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedString4096Bytes[] array)
         {
             var children = new ClassName();
@@ -185,6 +200,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<ClassName> list)
         {
             var children = new ClassName();
@@ -195,6 +211,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<string> list)
         {
             var children = new ClassName();
@@ -205,6 +222,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -215,6 +233,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -225,6 +244,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -235,6 +255,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -245,6 +266,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -255,6 +277,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<ClassName> list)
         {
             var children = new ClassName();
@@ -265,6 +288,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<ClassName> list)
         {
             var children = new ClassName();
@@ -275,6 +299,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<ClassName> list)
         {
             var children = new ClassName();
@@ -285,6 +310,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<ClassName> list)
         {
             var children = new ClassName();
@@ -295,6 +321,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<ClassName> list)
         {
             var children = new ClassName();
@@ -305,6 +332,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -315,6 +343,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -325,6 +354,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -335,6 +365,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -345,6 +376,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<FixedString32Bytes> list)
         {
             var children = new ClassName();
@@ -355,6 +387,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -365,6 +398,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -375,6 +409,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -385,6 +420,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -395,6 +431,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<FixedString64Bytes> list)
         {
             var children = new ClassName();
@@ -405,6 +442,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -415,6 +453,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -425,6 +464,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -435,6 +475,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -445,6 +486,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<FixedString128Bytes> list)
         {
             var children = new ClassName();
@@ -455,6 +497,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -465,6 +508,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -475,6 +519,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -485,6 +530,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -495,6 +541,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<FixedString512Bytes> list)
         {
             var children = new ClassName();
@@ -505,6 +552,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList32Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -515,6 +563,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList64Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -525,6 +574,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList128Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -535,6 +585,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList512Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -545,6 +596,7 @@ namespace RishUI
 
             return children;
         }
+        [RequiresManagedContext]
         public static implicit operator ClassName(FixedList4096Bytes<FixedString4096Bytes> list)
         {
             var children = new ClassName();
@@ -575,21 +627,10 @@ namespace RishUI
             var aManaged = Rish.GetManaged<ManagedClassName>(a._id);
             var bManaged = Rish.GetManaged<ManagedClassName>(b._id);
 
-            var aInUse = aManaged != null;
-            if (!aInUse)
+            var aDisposed = aManaged == null;
+            var bDisposed = bManaged == null;
+            if (aDisposed || bDisposed)
             {
-                Debug.LogError($"ClassName {a._id} was disposed");
-            }
-            var bInUse = bManaged != null;
-            if (!bInUse)
-            {
-                Debug.LogError($"ClassName {b._id} was disposed");
-            }
-            if (!aInUse || !bInUse)
-            {
-#if UNITY_EDITOR
-                Debug.LogError("Disposed ClassName. This should never happen.");
-#endif
                 return false;
             }
 

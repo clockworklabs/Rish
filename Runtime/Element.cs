@@ -2,11 +2,11 @@ using System;
 using RishUI.Elements;
 using RishUI.MemoryManagement;
 using Unity.Collections;
-using UnityEngine;
 
 namespace RishUI
 {
     [CustomComparer]
+    [RequiresManagedContext]
     public struct Element : IReference<ManagedElement>, IEquatable<Element>
     {
         private readonly ulong _id;
@@ -15,7 +15,6 @@ namespace RishUI
     
         public static Element Null => new();
         
-        [RequiresManagedContext]
         internal Element(ulong id)
         {
             _id = id;
@@ -93,17 +92,25 @@ namespace RishUI
 
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
 
+        [RequiresManagedContext]
         public static implicit operator Children(Element element) => new Children
         {
             element
         };
         
+        [RequiresManagedContext]
         public static implicit operator Element(string text) => Label.Create(text: text);
+        [RequiresManagedContext]
         public static implicit operator Element(RishString text) => Label.Create(text: text);
+        [RequiresManagedContext]
         public static implicit operator Element(FixedString32Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Element(FixedString64Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Element(FixedString128Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Element(FixedString512Bytes text) => Label.Create(text: text.Value);
+        [RequiresManagedContext]
         public static implicit operator Element(FixedString4096Bytes text) => Label.Create(text: text.Value);
         
         bool IEquatable<Element>.Equals(Element other) => Equals(this, other);
@@ -125,22 +132,12 @@ namespace RishUI
             var aDefinition = a.GetDefinition();
             var bDefinition = b.GetDefinition();
 
-#if UNITY_EDITOR
             var aDisposed = aDefinition == null;
             var bDisposed = bDefinition == null;
             if (aDisposed || bDisposed)
             {
-                if (aDisposed)
-                {
-                    Debug.LogError($"Element {a._id} was disposed. This should never happen.");
-                }
-                if (bDisposed)
-                {
-                    Debug.LogError($"Element {b._id} was disposed. This should never happen.");
-                }
                 return false;
             }
-#endif
 
             return aDefinition.Equals(bDefinition);
         }

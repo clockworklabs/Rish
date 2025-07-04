@@ -206,6 +206,7 @@ namespace Rishenerator
 
         var state = State;
 
+        // TODO: We should do something else
         if(RishUI.RishUtils.SmartCompare(v, state.{item.Name})) return;
         
         state.{item.Name} = v;
