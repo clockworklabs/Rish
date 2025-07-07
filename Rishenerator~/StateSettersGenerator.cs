@@ -316,7 +316,7 @@ namespace Rishenerator
                     TypeFullName = type.GetFullName(true);
 
                     IsValueType = type.IsValueType;
-                    SmartComparison = IsValueType && type.TypeKind == TypeKind.Struct && (type.HasAttribute("RishUI.AutoComparerAttribute") || type.HasAttribute("RishUI.CustomComparerAttribute"));
+                    SmartComparison = IsValueType && (fieldSymbol.NullableAnnotation == NullableAnnotation.Annotated || (type.TypeKind == TypeKind.Struct && (type.HasAttribute("RishUI.AutoComparerAttribute") || type.HasAttribute("RishUI.CustomComparerAttribute"))));
                     
                     if (IsValueType)
                     {
@@ -330,6 +330,7 @@ namespace Rishenerator
                         }
                     }
 
+                    // TODO: Deal with tuples and nullables in a better way
                     if (fieldSymbol.HasAttribute("RishUI.IgnoreComparisonAttribute"))
                     {
                         FieldComparison = ComparersGenerator.FieldComparison.Ignore;
