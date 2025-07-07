@@ -3,18 +3,39 @@ using Unity.Collections;
 
 namespace RishUI
 {
+    public class IndexedList<T> : IndexedList<T, T> where T : unmanaged
+    {
+        public IndexedList() : base() { }
+        public IndexedList(int initialCapacity) : base(initialCapacity) { }
+        
+        public bool Add(T value) => Add(value, value);
+    }
+    
     public class IndexedList<TKey, TValue> where TKey : unmanaged
     {
-        private List<TValue> List { get; } = new();
-        private Dictionary<TKey, int> Indices { get; } = new();
-        private Dictionary<int, TKey> Keys { get; } = new();
+        private List<TValue> List { get; }
+        private Dictionary<TKey, int> Indices { get; }
+        private Dictionary<int, TKey> Keys { get; }
 
         public int Count => List.Count;
         
         public TValue this[int index] => List[index];
         public List<TValue>.Enumerator GetEnumerator() => List.GetEnumerator();
 
-        public bool TryGet(TKey key, out TValue value)
+        public IndexedList()
+        {
+            List = new List<TValue>();
+            Indices = new Dictionary<TKey, int>();
+            Keys = new Dictionary<int, TKey>();
+        }
+        public IndexedList(int initialCapacity)
+        {
+            List = new List<TValue>(initialCapacity);
+            Indices = new Dictionary<TKey, int>(initialCapacity);
+            Keys = new Dictionary<int, TKey>(initialCapacity);
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
         {
             if (!Indices.TryGetValue(key, out var index))
             {

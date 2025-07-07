@@ -251,7 +251,7 @@ namespace RishUI
                 throw new UnityException("Only RishElements can render");
             }
             
-            // TODO: Clear Dirty flag
+            Tree.ClearDirty(this);
 
             AttachElement(rishElement.Render());
         }

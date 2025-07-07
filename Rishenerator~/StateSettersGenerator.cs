@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -153,6 +154,25 @@ namespace Rishenerator
                 
                 sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{typeSymbol.GetGenericsConstraints(false)}
 {{");
+                
+                sourceCode.AppendLine(@$"
+    private SappyStateHolder _sappyState;
+    protected SappyStateHolder SappyState => _sappyState ??= new SappyStateHolder(this);
+
+    private void SetState({stateTypeSymbol.GetFullName(true)} value) => SetState(value, true);
+
+    protected partial class SappyStateHolder
+    {{
+        private {typeSymbol.GetFullName(true)} Element {{ get; }}
+
+        private System.Action<{stateTypeSymbol.GetFullName(true)}> _setState;
+        public System.Action<{stateTypeSymbol.GetFullName(true)}> SetState => _setState ??= Element.SetState;
+
+        public SappyStateHolder({typeSymbol.GetFullName(true)} element)
+        {{
+            Element = element;
+        }}
+    }}");
 
                 var count = 0;
                 for (int i = 0, n = stateItems.Count; i < n; i++)
@@ -180,7 +200,7 @@ namespace Rishenerator
                             if (parameters == null || parameters.Length != 1) continue;
                             
                             var parameter = parameters[0];
-                            if (parameter.Type.GetFullName(false) == itemTypeFullName) // TODO: Include generics?
+                            if (parameter.Type.GetFullName(true) == itemTypeFullName) // TODO: Include generics?
                             {
                                 alreadyFound = true;
                                 break;
@@ -190,7 +210,7 @@ namespace Rishenerator
 
                     if (alreadyFound)
                     {
-                        setterName = $"InternalSet{ToPascal(item.Name)}";
+                        setterName = $"Rish{setterName}";
                     }
 
                     count++;
@@ -198,24 +218,45 @@ namespace Rishenerator
                     var contextIndex = int.MinValue + count;
 
                     sourceCode.AppendLine(@$"
-    private System.Action<{item.TypeFullName}> _sappy{setterName};
-    private System.Action<{item.TypeFullName}> Sappy{setterName} => _sappy{setterName} ??= {setterName};
+    protected partial class SappyStateHolder
+    {{
+        private System.Action<{item.TypeFullName}> _{setterName};
+        public System.Action<{item.TypeFullName}> {setterName} => _{setterName} ??= Element.{setterName};
+    }}
     private void {setterName}({item.TypeFullName} v)
     {{
         if(!IsMounted) return;
 
         var state = State;
+");
 
-        // TODO: We should do something else
-        if(RishUI.RishUtils.SmartCompare(v, state.{item.Name})) return;
+                    if (item.MustCompare)
+                    {
+                        sourceCode.AppendLine($"if({item.GetComparison("v", $"state.{item.Name}")}) return;");
+                    }
+
+                    sourceCode.AppendLine(@$"
         
         state.{item.Name} = v;
-        SetState(state, false);
+        SetState(state, false);");
 
-        ClaimContext({contextIndex});
+                    if (item.IsRishReferenceType)
+                    {
+                        sourceCode.AppendLine(@$"
+        var context = RishUI.Rish.GetOwnerContext<{item.TypeFullName}, {item.ManagedType.GetFullName(true)}>(v);
+        ClaimContext({contextIndex}, context);");
+                    }
 
+                    if (item.MustCompare)
+                    {
+                        sourceCode.AppendLine(@"
         Dirty();
-    }}");
+    }");
+                    }
+                    else
+                    {
+                        sourceCode.Append("    }");
+                    }
 
     //                 if (item.OtherTypesFullNames != null)
     //                 {
@@ -258,12 +299,58 @@ namespace Rishenerator
             {
                 public string Name { get; }
                 public string TypeFullName { get; }
+                private bool IsValueType { get; }
+                private bool SmartComparison { get; }
+                public ITypeSymbol ManagedType { get; }
+                private ComparersGenerator.FieldComparison FieldComparison { get; }
+                
+                public bool MustCompare => FieldComparison != ComparersGenerator.FieldComparison.Ignore;
+
+                public bool IsRishReferenceType => ManagedType != null;
                 // public List<string> OtherTypesFullNames { get; }
 
-                public StateItem(int index, IFieldSymbol fieldSymbol)
+                public StateItem(IFieldSymbol fieldSymbol)
                 {
                     Name = fieldSymbol.Name;
-                    TypeFullName = fieldSymbol.Type.GetFullName(true);
+                    var type = fieldSymbol.Type;
+                    TypeFullName = type.GetFullName(true);
+
+                    IsValueType = type.IsValueType;
+                    SmartComparison = IsValueType && type.TypeKind == TypeKind.Struct && (type.HasAttribute("RishUI.AutoComparerAttribute") || type.HasAttribute("RishUI.CustomComparerAttribute"));
+                    
+                    if (IsValueType)
+                    {
+                        foreach (var interfaceSymbol in type.Interfaces)
+                        {
+                            if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference")
+                            {
+                                ManagedType = interfaceSymbol.TypeArguments[0];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (fieldSymbol.HasAttribute("RishUI.IgnoreComparisonAttribute"))
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.Ignore;
+                    } else if (fieldSymbol.HasAttribute("RishUI.EqualityOperatorComparisonAttribute"))
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.EqualityOperator;
+                    } else if (fieldSymbol.HasAttribute("RishUI.EqualsFunctionComparisonAttribute"))
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.EqualsFunction;
+                    } else if (IsValueType && TypeFullName == "System.Single" && fieldSymbol.HasAttribute("RishUI.EpsilonComparisonAttribute"))
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.EpsilonComparison;
+                    }
+                    else if (!IsValueType && type.TypeKind == TypeKind.Delegate)
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.Ignore;
+                    }
+                    else
+                    {
+                        FieldComparison = ComparersGenerator.FieldComparison.Default;
+                    }
 
                     // foreach (var symbol in fieldSymbol.Type.GetMembers())
                     // {
@@ -288,6 +375,19 @@ namespace Rishenerator
                     //     // OtherTypesFullNames.Add(otherType);
                     // }
                 }
+
+                public string GetComparison(string aName, string bName) => FieldComparison switch
+                {
+                    ComparersGenerator.FieldComparison.Default => IsValueType
+                        ? SmartComparison
+                            ? $"RishUI.RishUtils.SmartCompare({aName}, {bName})"
+                            : $"RishUI.RishUtils.MemCmp(ref {aName}, ref {bName})"
+                        : $"System.Object.ReferenceEquals({aName}, {bName})",
+                    ComparersGenerator.FieldComparison.Ignore => string.Empty,
+                    ComparersGenerator.FieldComparison.EqualityOperator => $"{aName} == {bName}",
+                    ComparersGenerator.FieldComparison.EqualsFunction => $"{aName}.Equals({bName})",
+                    ComparersGenerator.FieldComparison.EpsilonComparison => $"UnityEngine.Mathf.Approximately({aName}, {bName})",
+                };
             }
             private class ItemizedState
             {
@@ -305,7 +405,7 @@ namespace Rishenerator
                         }
                     
                         Items ??= new List<StateItem>();
-                        var item = new StateItem(Items.Count, stateFieldSymbol);
+                        var item = new StateItem(stateFieldSymbol);
                         Items.Add(item);
                     }
                 }

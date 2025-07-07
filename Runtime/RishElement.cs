@@ -52,7 +52,7 @@ namespace RishUI
         [SapEvent]
         private protected event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
         
-        private IndexedList<int, ManagedContext> Contexts { get; } = new();
+        private ContextOwner ContextOwner { get; } = new();
         
         private List<ICallbackWrapper> Callbacks { get; set; }
 
@@ -132,25 +132,8 @@ namespace RishUI
             return dirty;
         }
 
-        protected void ClaimContext(int id)
-        {
-            if (Contexts.TryGet(id, out var prevContext))
-            {
-                prevContext?.Release();
-            }
-            var newContext = ManagedContext.Current;
-            newContext?.Claim();
-            Contexts.Set(id, newContext);
-        }
-
-        protected void ReleaseAllContexts()
-        {
-            for (int i = 0, n = Contexts.Count; i < n; i++)
-            {
-                Contexts[i]?.Release();
-            }
-            Contexts.Clear();
-        }
+        protected void ClaimCurrentContext(int id) => ContextOwner.ClaimCurrent(id);
+        protected void ClaimContext(int id, ManagedContext context) => ContextOwner.Claim(id, context);
 
         private Action _sappyDirty;
         protected Action SappyDirty => _sappyDirty ??= Dirty;
@@ -241,7 +224,7 @@ namespace RishUI
                 mountingListener.ComponentWillUnmount();
             }
 
-            ReleaseAllContexts();
+            ContextOwner.ReleaseAll();
             
             OnUnmountingHandler.Send();
             
@@ -268,7 +251,7 @@ namespace RishUI
             using (ManagedContext.New())
             {
                 element = Render();
-                ClaimContext(-1);
+                ClaimCurrentContext(-1);
             }
 
             return element;
@@ -699,7 +682,8 @@ namespace RishUI
         private void SetDefaultState()
         {
             IsMounted = true;
-            State = Defaults.GetValue<S>();
+
+            ResetState();
         }
 
         [SapTarget]
@@ -711,14 +695,27 @@ namespace RishUI
         [SapTarget] 
         private void ClearState() => _state = null;
 
+        protected void ResetState()
+        {
+            if (!IsMounted) return;
+
+            using (ManagedContext.New())
+            {
+                var value = Defaults.GetValue<S>();
+                SetState(value);
+            }
+        }
+
         protected void SetState(S value, bool autoControl = true)
         {
+            if (!IsMounted) return;
+            
             bool dirty;
             if (autoControl)
             {
-                dirty = !IsDirty() && (!_state.HasValue || !RishUtils.SmartCompare(value, _state.Value));
+                dirty = _state.HasValue && !IsDirty() && !RishUtils.SmartCompare(value, _state.Value);
                 
-                ClaimContext(-2);
+                ClaimCurrentContext(-2);
             }
             else
             {

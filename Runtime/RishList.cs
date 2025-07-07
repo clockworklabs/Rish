@@ -14,6 +14,7 @@ namespace RishUI
     public struct RishList<T> : IReference<ManagedRishList<T>>, IEnumerable<T>, IEquatable<RishList<T>> where T : struct
     {
         private ulong _id;
+        ulong IReference<ManagedRishList<T>>.ID => _id;
 
         public bool Valid => _id > 0;
     

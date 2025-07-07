@@ -4,6 +4,8 @@ namespace RishUI.MemoryManagement
     {
         public ulong ID { get; }
         public IManaged Managed { get; }
+        public ManagedContext OwnerContext { get; }
+        void Claimed(ManagedContext context);
         void Close();
         void Free();
     }
@@ -14,6 +16,9 @@ namespace RishUI.MemoryManagement
         public T Managed { get; }
         IManaged IWrapper.Managed => Managed;
         private IPool Pool { get; }
+        
+        private ManagedContext OwnerContext { get; set; }
+        ManagedContext IWrapper.OwnerContext => OwnerContext;
 
         public Wrapper(ulong id, T managed, IPool pool)
         {
@@ -21,8 +26,16 @@ namespace RishUI.MemoryManagement
             Managed = managed;
             Pool = pool;
         }
-        
+
+        void IWrapper.Claimed(ManagedContext context)
+        {
+            OwnerContext = context;
+        }
         void IWrapper.Close() => Managed.Close();
-        void IWrapper.Free() => Pool.Free<T>(ID);
+        void IWrapper.Free()
+        {
+            OwnerContext = null;
+            Pool.Free<T>(ID);
+        }
     }
 }

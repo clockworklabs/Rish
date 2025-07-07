@@ -25,6 +25,8 @@ namespace RishUI.MemoryManagement
                 FreeStack.Push(id);
             }
         }
+        
+        IWrapper IPool<T>.GetWrapper(ulong id) => GetWrapper(id);
 
         ulong IPool<T>.GetFreeID()
         {

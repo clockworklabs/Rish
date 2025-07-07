@@ -222,8 +222,8 @@ namespace Rishenerator
 
                     if (!isValueType)
                     {
-                        TypeComparison = TypeComparison.ReferenceComparison;
-                        parser.Register(fieldTypeSymbol, TypeComparison.ReferenceComparison);
+                        TypeComparison = fieldTypeSymbol.TypeKind == TypeKind.Delegate ? TypeComparison.Ignore : TypeComparison.ReferenceComparison;
+                        parser.Register(fieldTypeSymbol, TypeComparison);
                         return;
                     }
 
@@ -289,8 +289,8 @@ namespace Rishenerator
             }
         }
         
-        private enum FieldComparison { Default, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison }
-        private enum TypeComparison { MemoryComparison, ReferenceComparison, AutoComparer, CustomComparer }
+        public enum FieldComparison { Default, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison }
+        private enum TypeComparison { MemoryComparison, ReferenceComparison, AutoComparer, CustomComparer, Ignore }
         
         private class Parser
         {
@@ -339,13 +339,11 @@ namespace Rishenerator
             
             private void AnalyzeForAutoComparer(ITypeSymbol typeSymbol)
             {
-                if (Analyzed.Contains(typeSymbol))
+                if (!Analyzed.Add(typeSymbol))
                 {
                     return;
                 }
-                
-                Analyzed.Add(typeSymbol);
-                
+
                 if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
                 {
                     return;
@@ -373,13 +371,9 @@ namespace Rishenerator
                     if (namedTypeSymbol.IsGenericDefinition())
                     {
                         var unboundType = namedTypeSymbol.ConstructUnboundGenericType();
-                        if (UnboundTypes.Contains(unboundType))
+                        if (!UnboundTypes.Add(unboundType))
                         {
                             mustBeAdded = false;
-                        }
-                        else
-                        {
-                            UnboundTypes.Add(unboundType);
                         }
                     }
                     else if (typeSymbol.HasGenericParameters())
@@ -506,6 +500,7 @@ namespace Rishenerator
                 {
                     FieldComparison.Default => typeComparison switch
                     {
+                        TypeComparison.Ignore => string.Empty,
                         TypeComparison.MemoryComparison => $"RishUtils.MemCmp(ref a{fieldName}, ref b{fieldName})",
                         TypeComparison.ReferenceComparison => $"System.Object.ReferenceEquals(a{fieldName}, b{fieldName})",
                         // TypeComparison.AutoComparer => $"RishUtils.Compare(a{fieldName}, b{fieldName})",

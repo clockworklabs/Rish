@@ -61,6 +61,8 @@ namespace RishUI
             return id;
         }
 
+        IWrapper IPool.GetWrapper<T>(ulong id) => GetWrapper(id);
+
         T IPool.GetManaged<T>(ulong id)
         {
             var wrapper = GetWrapper(id);

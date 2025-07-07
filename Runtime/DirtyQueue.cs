@@ -11,8 +11,7 @@ namespace RishUI
         private Dictionary<int, FastPriorityQueue<Node>> Ids { get; }
         private List<FastPriorityQueue<Node>> Queues { get; } = new();
         private Stack<FastPriorityQueue<Node>> Pool { get; } = new();
-        private List<Node> QueuedUpNodes { get; }
-        private IndexedList<int, IRishElement> DirtyReferencesList { get; } = new();
+        private IndexedList<int, Node> QueuedUpNodes { get; }
 
         private Stopwatch Stopwatch { get; set; }
         
@@ -22,7 +21,7 @@ namespace RishUI
         {
             InitialSize = initialSize;
             Ids = new Dictionary<int, FastPriorityQueue<Node>>(initialSize);
-            QueuedUpNodes = new List<Node>(initialSize);
+            QueuedUpNodes = new IndexedList<int, Node>(initialSize);
         }
 
         public void Dirty(Node node, bool forceThisFrame)
@@ -58,7 +57,7 @@ namespace RishUI
             {
                 if (CurrentDepth.HasValue && node.Depth <= CurrentDepth.Value)
                 {
-                    QueuedUpNodes.Add(node);
+                    QueuedUpNodes.Add(node.ID, node);
                 }
                 else
                 {
@@ -130,12 +129,6 @@ namespace RishUI
             }
 
             CurrentDepth = null;
-
-            foreach (var rishElement in DirtyReferencesList)
-            {
-                rishElement.PersistReferences();
-            }
-            DirtyReferencesList.Clear();
             
             if (timeLimited)
             {
@@ -180,8 +173,6 @@ namespace RishUI
 
         public bool IsDirty(Node node) => IsDirty(node.ID);
         private bool IsDirty(int id) => Ids.ContainsKey(id);
-        public bool ClearDirty(Node node) => ClearDirty(node.ID);
-        private bool ClearDirty(int id) => Ids.Remove(id);
         
         private bool EnqueueForImmediateProcessing(Node node)
         {
@@ -255,15 +246,9 @@ namespace RishUI
         }
         
         [SapTarget]
-        private void Remove(Node node)
+        public void Remove(Node node)
         {
-#if UNITY_EDITOR
-            if (!IsDirty(node))
-            {
-                UnityEngine.Debug.LogError("This node isn't dirty and can't be removed.");
-                return;
-            }
-#endif
+            if (!IsDirty(node)) return;
 
             var queue = Ids[node.ID];
             if (queue != null)
@@ -272,7 +257,7 @@ namespace RishUI
             }
             else
             {
-                QueuedUpNodes.Remove(node);
+                QueuedUpNodes.Remove(node.ID);
             }
             Reset(node, queue);
         }

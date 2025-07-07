@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Sappy;
 
 namespace RishUI.MemoryManagement
 {
     public class ManagedContext : IDisposable
     {
-        private ulong ID { get; }
+        private static SapStem<ulong> OnFreedStem { get; } = new();
+        [SapEvent]
+        internal static event Action<ulong> OnFreed { add => OnFreedStem.AddTarget(value); remove => OnFreedStem.RemoveTarget(value); }
+        
+        internal ulong ID { get; }
         private List<IWrapper> References { get; } = new();
 
         private IndexedList<ulong, ManagedContext> Dependents { get; } = new();
@@ -25,6 +30,11 @@ namespace RishUI.MemoryManagement
             return context;
         }
         internal static ManagedContext Current => ManagedStack.Current;
+        internal static ManagedContext Get(ulong id) => ManagedStack.Get(id);
+        
+        internal static int GetTotalCount() => ManagedStack.GetTotalCount();
+        internal static int GetStackSize() => ManagedStack.GetStackSize();
+        internal static int GetActiveCount() => ManagedStack.GetActiveCount();
         
         void IDisposable.Dispose()
         {
@@ -38,16 +48,22 @@ namespace RishUI.MemoryManagement
             TryFree();
         }
 
-        internal void Claim(IWrapper wrapper) => References.Add(wrapper);
+        internal void Claim(IWrapper wrapper)
+        {
+            wrapper.Claimed(this);
+            References.Add(wrapper);
+        }
 
-        public void Claim()
+        internal void Claim()
         {
             if (!ManagedStack.InStack(this)) throw new InvalidOperationException("This ManagedContext is not in the current stack.");
 
             ClaimedCount++;
         }
-        public void Release()
+        internal void Release()
         {
+            if (!ManagedStack.IsActive(this)) throw new InvalidOperationException("This ManagedContext is not active.");
+            
             ClaimedCount--;
             
             TryFree();
@@ -99,17 +115,34 @@ namespace RishUI.MemoryManagement
         {
             private static ulong _lastID;
             private static List<ManagedContext> Stack { get; } = new();
+            
             private static HashSet<ulong> StackIDs { get; } = new();
-        
+            private static HashSet<ulong> ActiveIDs { get; } = new();
+
             private static Stack<ManagedContext> Pool { get; } = new();
             
+            private static Dictionary<ulong, ManagedContext> All { get; } = new();
+            
             public static ManagedContext Current => Stack.Count > 0 ? Stack[^1] : null;
+
+            public static ManagedContext Get(ulong id)
+            {
+                if(!IsActive(id)) throw new InvalidOperationException("This ManagedContext is not active.");
+                
+                return All[id];
+            }
+            
+            internal static int GetTotalCount() => All.Count;
+            internal static int GetStackSize() => Stack.Count;
+            internal static int GetActiveCount() => ActiveIDs.Count;
 
             public static ManagedContext Push()
             {
                 if (!Pool.TryPop(out var context))
                 {
-                    context = new ManagedContext(++_lastID);
+                    var contextID = ++_lastID;
+                    context = new ManagedContext(contextID);
+                    All.Add(contextID, context);
                 }
 
                 foreach (var dependency in Stack)
@@ -117,8 +150,9 @@ namespace RishUI.MemoryManagement
                     context.AddDependency(dependency);
                 }
 
-                StackIDs.Add(context.ID);
                 Stack.Add(context);
+                StackIDs.Add(context.ID);
+                ActiveIDs.Add(context.ID);
                 
                 return context;
             }
@@ -132,12 +166,19 @@ namespace RishUI.MemoryManagement
 
             public static void Free(ManagedContext context)
             {
-                if (context == null || context.Claimed) return;
+                if (context == null) return;
+                
+                ActiveIDs.Remove(context.ID);
                 Pool.Push(context);
+
+                OnFreedStem.Send(context.ID);
             }
 
             public static bool InStack(ManagedContext context) => InStack(context.ID);
             public static bool InStack(ulong id) => StackIDs.Contains(id);
+
+            public static bool IsActive(ManagedContext context) => IsActive(context.ID);
+            public static bool IsActive(ulong id) => ActiveIDs.Contains(id);
         }
     }
 }

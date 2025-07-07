@@ -15,6 +15,7 @@ namespace RishUI
     public struct Children : IReference<ManagedChildren>, IEnumerable<Element>, IEquatable<Children>
     {
         private ulong _id;
+        ulong IReference<ManagedChildren>.ID => _id;
 
         public bool Valid => _id > 0;
     

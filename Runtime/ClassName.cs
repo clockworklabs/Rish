@@ -16,6 +16,7 @@ namespace RishUI
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
         private ulong _id;
+        ulong IReference<ManagedClassName>.ID => _id;
 
         public bool Valid => _id > 0;
     
