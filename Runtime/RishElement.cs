@@ -250,6 +250,8 @@ namespace RishUI
             }
 #endif
 
+            Node.ClearDirty();
+
             Element element;
             using (ManagedContext.New(true))
             {

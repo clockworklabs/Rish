@@ -35,12 +35,8 @@ namespace RishUI.MemoryManagement
                 IdByContextId.Add(contextID, idValue);
             }
             
+            context.OnFreed += SappyOnFreed;
             context.Claim();
-
-            if (Count == 1)
-            {
-                ManagedContext.OnFreed += SappyOnFreed;
-            }
         }
         
         private void Release(ulong contextID) => Release(ManagedContext.Get(contextID));
@@ -56,25 +52,20 @@ namespace RishUI.MemoryManagement
             {
                 WithId.Remove(id);
             }
-            
-            context.Release();
 
-            if (Count == 0)
-            {
-                ManagedContext.OnFreed -= SappyOnFreed;
-            }
+            context.OnFreed -= SappyOnFreed;
+            context.Release();
         }
         
         public void ReleaseAll()
         {
             if (Count == 0) return;
 
-            ManagedContext.OnFreed -= SappyOnFreed;
-
             for (int i = 0, n = All.Count; i < n; i++)
             {
                 var contextID = All[i];
                 var context = ManagedContext.Get(contextID);
+                context.OnFreed -= SappyOnFreed;
                 context.Release();
             }
             All.Clear();
@@ -83,18 +74,25 @@ namespace RishUI.MemoryManagement
         }
 
         [SapTarget]
-        private void OnFreed(ulong contextID)
+        private void OnFreed(ManagedContext context)
         {
-            if (!All.Remove(contextID)) return;
+            context.OnFreed -= SappyOnFreed;
+            
+            var contextID = context.ID;
+            
+#if UNITY_EDITOR
+            if (!All.Remove(contextID))
+            {
+                UnityEngine.Debug.LogError("We were not owners of the context that was freed.");
+                return;
+            }
+#else
+            All.Remove(contextID);
+#endif
             
             if (IdByContextId.Remove(contextID, out var id))
             {
                 WithId.Remove(id);
-            }
-
-            if (Count == 0)
-            {
-                ManagedContext.OnFreed -= SappyOnFreed;
             }
         }
     }

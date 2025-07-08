@@ -254,8 +254,6 @@ namespace RishUI
             {
                 throw new UnityException("Only RishElements can render");
             }
-            
-            Tree.ClearDirty(this);
 
 #if UNITY_EDITOR
             AttachElement(rishElement.Render(), debug);
@@ -468,6 +466,8 @@ namespace RishUI
             }
 #endif
         }
+
+        internal void ClearDirty() => Tree.ClearDirty(this);
 
         public bool IsDirty() => Tree?.IsDirty(this) ?? false;
         private void Free() => Tree.NodeFreed(this);

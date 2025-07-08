@@ -6,9 +6,9 @@ namespace RishUI.MemoryManagement
 {
     public class ManagedContext : IDisposable
     {
-        private static SapStem<ulong> OnFreedStem { get; } = new();
+        private SapStem<ManagedContext> OnFreedStem { get; } = new();
         [SapEvent]
-        internal static event Action<ulong> OnFreed { add => OnFreedStem.AddTarget(value); remove => OnFreedStem.RemoveTarget(value); }
+        internal event Action<ManagedContext> OnFreed { add => OnFreedStem.AddTarget(value); remove => OnFreedStem.RemoveTarget(value); }
         
         internal ulong ID { get; }
         private List<IWrapper> References { get; } = new();
@@ -79,6 +79,8 @@ namespace RishUI.MemoryManagement
 
         private void Free()
         {
+            OnFreedStem.Send(this);
+            
             ClaimedCount = 0;
             
             foreach (var wrapper in References)
@@ -174,8 +176,6 @@ namespace RishUI.MemoryManagement
                 
                 ActiveIDs.Remove(context.ID);
                 Pool.Push(context);
-
-                OnFreedStem.Send(context.ID);
             }
 
             public static bool InStack(ManagedContext context) => InStack(context.ID);
