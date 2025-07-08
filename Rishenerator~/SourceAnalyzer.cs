@@ -152,6 +152,7 @@ namespace Rishenerator
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextObjectCreationExpression, SyntaxKind.ObjectCreationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextInvocationExpression, SyntaxKind.InvocationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextElementAccessExpression, SyntaxKind.ElementAccessExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeManagedContextCastExpression, SyntaxKind.CastExpression);
             context.RegisterSyntaxNodeAction(AnalyzeGenericNameSyntax, SyntaxKind.GenericName);
         }
 
@@ -456,6 +457,49 @@ namespace Rishenerator
             if (FindManagedContextScope(elementAccess.Parent, context)) return;
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, elementAccess.GetLocation(), propertySymbol));
+        }
+
+        private static void AnalyzeManagedContextCastExpression(SyntaxNodeAnalysisContext context)
+        {
+            var castExpression = (CastExpressionSyntax)context.Node;
+            var semanticModel = context.SemanticModel;
+
+            var targetTypeInfo = semanticModel.GetTypeInfo(castExpression.Type);
+            var targetTypeSymbol = targetTypeInfo.Type;
+
+            if (targetTypeSymbol == null) return;
+
+            var skip = !targetTypeSymbol.HasAttribute(RequiresManagedContextAttributeName);
+            if (skip)
+            {
+                var baseType = targetTypeSymbol.BaseType;
+                while (baseType != null)
+                {
+                    if (baseType.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                    baseType = baseType.BaseType;
+                }
+            }
+            if (skip)
+            {
+                foreach (var interfaceTypeSymbol in targetTypeSymbol.AllInterfaces)
+                {
+                    if (interfaceTypeSymbol.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                }
+            }
+
+            if (skip) return;
+            
+            if (FindManagedContextScope(castExpression.Parent, context)) return;
+
+            context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, castExpression.GetLocation(), targetTypeSymbol));
         }
 
         private static bool FindManagedContextScope(SyntaxNode scope, SyntaxNodeAnalysisContext context)

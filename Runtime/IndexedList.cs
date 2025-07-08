@@ -59,6 +59,11 @@ namespace RishUI
 
             return true;
         }
+        public TValue Get(TKey key)
+        {
+            var index = IndexOf(key);
+            return List[index];
+        }
         public bool Set(TKey key, TValue value)
         {
             var index = IndexOf(key);

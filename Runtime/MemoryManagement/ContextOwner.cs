@@ -8,7 +8,7 @@ namespace RishUI.MemoryManagement
     {
         private IndexedList<ulong> All { get; } = new();
         private Dictionary<int, ulong> WithId { get; } = new();
-        private Dictionary<ulong, int> IdByContextId { get; } = new();
+        private IndexedList<ulong, IndexedList<int>> IdsByContextId { get; } = new();
         
         private int Count => All.Count;
 
@@ -20,7 +20,17 @@ namespace RishUI.MemoryManagement
         {
             if (id.HasValue && WithId.TryGetValue(id.Value, out var prevContextID))
             {
-                Release(prevContextID);
+                var idValue = id.Value;
+                WithId.Remove(idValue);
+                if (IdsByContextId.TryGetValue(prevContextID, out var ids))
+                {
+                    ids.Remove(id.Value);
+
+                    if (ids.Count <= 0)
+                    {
+                        Release(prevContextID);
+                    }
+                }
             }
             
             if (context == null) return;
@@ -32,7 +42,12 @@ namespace RishUI.MemoryManagement
             {
                 var idValue = id.Value;
                 WithId.Add(idValue, contextID);
-                IdByContextId.Add(contextID, idValue);
+                if (!IdsByContextId.TryGetValue(contextID, out var ids))
+                {
+                    ids = new IndexedList<int>();
+                    IdsByContextId.Add(contextID, ids);
+                }
+                ids.Add(idValue);
             }
             
             context.OnFreed += SappyOnFreed;
@@ -47,10 +62,17 @@ namespace RishUI.MemoryManagement
             var contextID = context.ID;
 
             if (!All.Remove(contextID)) return;
-            
-            if (IdByContextId.Remove(contextID, out var id))
+
+            if (IdsByContextId.TryGetValue(contextID, out var ids))
             {
-                WithId.Remove(id);
+                if(ids.Count > 0)
+                {
+                    foreach (var id in ids)
+                    {
+                        WithId.Remove(id);
+                    }
+                    ids.Clear();
+                }
             }
 
             context.OnFreed -= SappyOnFreed;
@@ -70,7 +92,11 @@ namespace RishUI.MemoryManagement
             }
             All.Clear();
             WithId.Clear();
-            IdByContextId.Clear();
+            for (int i = 0, n = IdsByContextId.Count; i < n; i++)
+            {
+                var ids = IdsByContextId[i];
+                ids.Clear();
+            }
         }
 
         [SapTarget]
@@ -90,9 +116,16 @@ namespace RishUI.MemoryManagement
             All.Remove(contextID);
 #endif
             
-            if (IdByContextId.Remove(contextID, out var id))
+            if (IdsByContextId.TryGetValue(contextID, out var ids))
             {
-                WithId.Remove(id);
+                if(ids.Count > 0)
+                {
+                    foreach (var id in ids)
+                    {
+                        WithId.Remove(id);
+                    }
+                    ids.Clear();
+                }
             }
         }
     }

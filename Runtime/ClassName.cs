@@ -654,50 +654,95 @@ namespace RishUI
 
             public static implicit operator Overridable(ClassName value) => new(value);
 
+            [RequiresManagedContext]
             public static implicit operator Overridable(string value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString32Bytes value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString64Bytes value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString128Bytes value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString512Bytes value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString4096Bytes value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(ClassName[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(string[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString32Bytes[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString64Bytes[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString128Bytes[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString512Bytes[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString4096Bytes[] value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<ClassName> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<string> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(List<FixedString4096Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList32Bytes<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList64Bytes<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList128Bytes<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList512Bytes<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList4096Bytes<FixedString32Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList32Bytes<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList64Bytes<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList128Bytes<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList512Bytes<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList4096Bytes<FixedString64Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList32Bytes<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList64Bytes<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList128Bytes<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList512Bytes<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList4096Bytes<FixedString128Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList32Bytes<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList64Bytes<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList128Bytes<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList512Bytes<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList4096Bytes<FixedString512Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList32Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList64Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList128Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList512Bytes<FixedString4096Bytes> value) => (ClassName)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedList4096Bytes<FixedString4096Bytes> value) => (ClassName)value;
 
             public ClassName GetValue(ClassName defaultValue) => _custom ? _value : defaultValue;

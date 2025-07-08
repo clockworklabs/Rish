@@ -160,12 +160,19 @@ namespace RishUI
 
             public static implicit operator Overridable(Element value) => new(value);
 
+            [RequiresManagedContext]
             public static implicit operator Overridable(string value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(RishString value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString32Bytes value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString64Bytes value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString128Bytes value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString512Bytes value) => (Element)value;
+            [RequiresManagedContext]
             public static implicit operator Overridable(FixedString4096Bytes value) => (Element)value;
 
             public Element GetValue(Element defaultValue) => _custom ? _value : defaultValue;
