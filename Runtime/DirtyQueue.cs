@@ -107,12 +107,10 @@ namespace RishUI
                         CurrentDepth = node.Depth;
                     }
 #if UNITY_EDITOR
-                    if (debug)
-                    {
-                        UnityEngine.Debug.Log($"Rendering #{node.ID}: {node.Element.GetType()} ({node.Key})");
-                    }
-#endif
+                    node.Render(debug);
+#else
                     node.Render();
+#endif
                     count++;
                     time = timeLimited ? Stopwatch.Elapsed.TotalSeconds : 0;
                 }

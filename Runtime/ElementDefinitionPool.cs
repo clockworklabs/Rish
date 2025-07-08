@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace RishUI
 {
-    // TODO: Maybe we can use GenericPool instead?
     internal class ElementDefinitionPool : IPool
     {
         private const int InitialPoolSize = 64;
@@ -86,11 +85,8 @@ namespace RishUI
 
         void IPool.Free<T>(ulong id)
         {
-            var wrapper = GetWrapper(id);
-            if (wrapper == null) return;
-            
             var freeStack = GetFreeStack(typeof(T));
-            freeStack.Push(wrapper.ID);
+            freeStack.Push(id);
         }
 
         private (ulong, IWrapper) CreateNew<T>() where T : class, IManaged, new()

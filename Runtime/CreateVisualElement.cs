@@ -139,11 +139,23 @@ namespace RishUI
                 Children = children;
             }
 
+#if UNITY_EDITOR
+            internal override void Invoke(Node parent, bool debug)
+#else
             internal override void Invoke(Node parent)
+#endif
             {
+#if UNITY_EDITOR
+                var node = parent.AddChild<T>(Key, debug);
+#else
                 var node = parent.AddChild<T>(Key);
+#endif
                 if (node is not { Element: T element }) return;
+#if UNITY_EDITOR
+                element.Bridge.Setup(Descriptor, Children, Props, debug);
+#else
                 element.Bridge.Setup(Descriptor, Children, Props);
+#endif
             }
 
             public override bool Equals(ManagedElement other)

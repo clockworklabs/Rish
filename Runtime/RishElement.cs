@@ -112,12 +112,15 @@ namespace RishUI
             var propsListener = this as IPropsListener;
             var typedPropsListener = this as IPropsListener<P>;
             var allPropsListener = this as IAllPropsListener<P>;
-            if (dirty)
+            if (propsSet)
             {
-                propsListener?.PropsWillChange();
-                typedPropsListener?.PropsWillChange();
+                if (dirty)
+                {
+                    propsListener?.PropsWillChange();
+                    typedPropsListener?.PropsWillChange();
+                }
+                allPropsListener?.PropsWillChange();
             }
-            allPropsListener?.PropsWillChange();
 
             var oldValue = _props;
             _props = value;
@@ -129,7 +132,7 @@ namespace RishUI
             }
             allPropsListener?.PropsDidChange(oldValue);
 
-            return dirty;
+            return !propsSet || dirty;
         }
 
         protected void ClaimCurrentContext(int id) => ContextOwner.ClaimCurrent(id);

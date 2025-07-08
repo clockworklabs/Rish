@@ -39,13 +39,25 @@ namespace RishUI
                 Props = props;
             }
 
+#if UNITY_EDITOR
+            internal override void Invoke(Node parent, bool debug)
+#else
             internal override void Invoke(Node parent)
+#endif
             {
+#if UNITY_EDITOR
+                var node = parent.AddChild<T>(Key, debug);
+#else
                 var node = parent.AddChild<T>(Key);
+#endif
                 if (node is not { Element: T element }) return;
                 if (element.SetProps(Props))
                 {
+#if UNITY_EDITOR
+                    node.Render(debug);
+#else
                     node.Render();
+#endif
                 }
             }
 

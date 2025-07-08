@@ -91,8 +91,11 @@ namespace RishUI
         //     var definition = GetDefinition();
         //     return definition.TrySetProps(props);
         // }
-
+#if UNITY_EDITOR
+        internal void Invoke(Node node, bool debug) => GetDefinition()?.Invoke(node, debug);
+#else
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
+#endif
 
         [RequiresManagedContext]
         public static implicit operator Children(Element element) => new Children

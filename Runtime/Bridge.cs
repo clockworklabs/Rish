@@ -66,6 +66,10 @@ namespace RishUI
         private VisualElement Element { get; }
         VisualElement IBridge.Element => Element;
         private bool PropsAlwaysDirty { get; }
+        
+#if UNITY_EDITOR
+        private bool Debug { get; set; }
+#endif
 
         private Name Name
         {
@@ -140,7 +144,11 @@ namespace RishUI
 
                 if (notDirty) return;
                 
+#if UNITY_EDITOR
+                Node.AttachChildren(value, Debug);
+#else
                 Node.AttachChildren(value);
+#endif
             }
         }
 
@@ -207,8 +215,15 @@ namespace RishUI
             OnMountedHandler.Send();
         }
 
+#if UNITY_EDITOR
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, bool debug)
+#else
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
+#endif
         {
+#if UNITY_EDITOR
+            Debug = debug;
+#endif
             Name = descriptor.name;
             ClassName = descriptor.className;
             Style = descriptor.style;

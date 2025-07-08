@@ -12,7 +12,11 @@ namespace RishUI
         private ManagedContext OwnerContext { get; set; }
         ManagedContext IManaged.OwnerContext => OwnerContext;
         
+#if UNITY_EDITOR
+        internal abstract void Invoke(Node parent, bool debug);
+#else
         internal abstract void Invoke(Node parent);
+#endif
         public abstract bool Equals(ManagedElement other);
         
         public abstract bool TryGetProps<P>(out P props) where P : struct;

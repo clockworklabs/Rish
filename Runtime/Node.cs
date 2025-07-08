@@ -238,7 +238,11 @@ namespace RishUI
 
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
+#if UNITY_EDITOR
+        internal void Render(bool debug)
+#else
         internal void Render()
+#endif
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -253,19 +257,36 @@ namespace RishUI
             
             Tree.ClearDirty(this);
 
+#if UNITY_EDITOR
+            AttachElement(rishElement.Render(), debug);
+#else
             AttachElement(rishElement.Render());
+#endif
         }
 
+        
+#if UNITY_EDITOR
+        private void AttachElement(Element element, bool debug)
+#else
         private void AttachElement(Element element)
+#endif
         {
             Clear();
 
+#if UNITY_EDITOR
+            element.Invoke(this, debug);
+#else
             element.Invoke(this);
+#endif
 
             Clean();
         }
 
+#if UNITY_EDITOR
+        internal void AttachChildren(Children children, bool debug)
+#else
         internal void AttachChildren(Children children)
+#endif
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -278,7 +299,11 @@ namespace RishUI
 
             foreach (var element in children)
             {
+#if UNITY_EDITOR
+                element.Invoke(this, debug);
+#else
                 element.Invoke(this);
+#endif
             }
 
             Clean();
@@ -328,8 +353,12 @@ namespace RishUI
                 }
             }
         }
-
+        
+#if UNITY_EDITOR
+        internal Node AddChild<T>(ulong key, bool debug) where T : class, IElement, new()
+#else
         internal Node AddChild<T>(ulong key) where T : class, IElement, new()
+#endif
         {
 #if UNITY_EDITOR
             if (!IsActive())
@@ -412,6 +441,13 @@ namespace RishUI
             }
 
             ChildCount++;
+            
+#if UNITY_EDITOR
+            if (debug)
+            {
+                UnityEngine.Debug.Log($"Rendering #{child.ID}: {typeof(T)} ({key})");
+            }
+#endif
 
             return child;
         }
