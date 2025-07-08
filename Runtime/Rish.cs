@@ -155,8 +155,10 @@ namespace RishUI
             return PoolsList[poolIndex];
         }
 
+        [RequiresManagedContext]
         public static ulong GetFreeID<T>() where T : class, IManaged, new() => GetPoolOrCreate<T>().GetFreeID<T>();
 
+        [RequiresManagedContext]
         private static (ulong, T) GetFree<T>() where T : class, IManaged, new()
         {
             var id = GetFreeID<T>();

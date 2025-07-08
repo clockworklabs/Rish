@@ -498,6 +498,11 @@ namespace Rishenerator
                             }
                         }
                     }
+                } else if(scope is ConstructorDeclarationSyntax constructorDeclaration)
+                {
+                    var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(constructorDeclaration);
+                    var typeSymbol = methodDeclarationSymbol.ContainingType;
+                    if (typeSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                 } else if(scope is ConversionOperatorDeclarationSyntax conversionOperatorDeclaration)
                 {
                     var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(conversionOperatorDeclaration);

@@ -70,24 +70,32 @@ namespace RishUI
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            if (_id == 0)
-            {
-                _id = Rish.GetFreeID<ManagedRishList<T>>();
-                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            }
-
-            IEnumerable<T> enumerable = Managed;
-            return enumerable.GetEnumerator();
+            throw new InvalidOperationException("We should never access this enumerator.");
+            // if (_id == 0)
+            // {
+            //     using (ManagedContext.New())
+            //     {
+            //         var id = Rish.GetFreeID<ManagedRishList<T>>();
+            //         var managed = Rish.GetManaged<ManagedRishList<T>>(id);
+            //         return ((IEnumerable<T>)managed).GetEnumerator();
+            //     }
+            // }
+            //
+            // return ((IEnumerable<T>)Managed).GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() {
-            if (_id == 0)
-            {
-                _id = Rish.GetFreeID<ManagedRishList<T>>();
-                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
-            }
-
-            IEnumerable enumerable = Managed;
-            return enumerable.GetEnumerator();
+            throw new InvalidOperationException("We should never access this enumerator.");
+            // if (_id == 0)
+            // {
+            //     using (ManagedContext.New())
+            //     {
+            //         var id = Rish.GetFreeID<ManagedRishList<T>>();
+            //         var managed = Rish.GetManaged<ManagedRishList<T>>(id);
+            //         return ((IEnumerable)managed).GetEnumerator();
+            //     }
+            // }
+            //
+            // return ((IEnumerable)Managed).GetEnumerator();
         }
         
         [RequiresManagedContext]

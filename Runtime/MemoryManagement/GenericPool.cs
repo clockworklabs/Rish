@@ -40,7 +40,19 @@ namespace RishUI.MemoryManagement
                 wrapper = GetWrapper(id);
             }
             
-            ManagedContext.Current.Claim(wrapper);
+#if UNITY_EDITOR
+            var currentContext = ManagedContext.Current;
+            if (currentContext != null)
+            {
+                currentContext.Claim(wrapper);
+            }
+            else
+            {
+                UnityEngine.Debug.LogError("There's no Managed Context.");
+            }
+#else
+            ManagedContext.Current?.Claim(wrapper);
+#endif
 
             return id;
         }
