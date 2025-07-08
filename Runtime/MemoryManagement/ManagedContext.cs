@@ -56,7 +56,7 @@ namespace RishUI.MemoryManagement
 
         internal void Claim()
         {
-            if (!ManagedStack.InStack(this)) throw new InvalidOperationException("This ManagedContext is not in the current stack.");
+            if (!ManagedStack.IsActive(this)) throw new InvalidOperationException("This ManagedContext is not active.");
 
             ClaimedCount++;
         }
