@@ -54,7 +54,7 @@ namespace RishUI
                 if (element.SetProps(Props))
                 {
 #if UNITY_EDITOR
-                    node.Render(debugPrefix != null ? $"{debugPrefix}-" : null);
+                    node.Render(debugPrefix);
 #else
                     node.Render();
 #endif

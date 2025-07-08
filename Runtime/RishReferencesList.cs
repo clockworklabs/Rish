@@ -70,32 +70,26 @@ namespace RishUI
 
         IEnumerator<T1> IEnumerable<T1>.GetEnumerator()
         {
-            throw new InvalidOperationException("We should never access this enumerator.");
-            // if (_id == 0)
-            // {
-            //     using (ManagedContext.New())
-            //     {
-            //         var id = Rish.GetFreeID<ManagedRishReferencesList<T1, T2>>();
-            //         var managed = Rish.GetManaged<ManagedRishReferencesList<T1, T2>>(id);
-            //         return ((IEnumerable<T1>)managed).GetEnumerator();
-            //     }
-            // }
-            //
-            // return ((IEnumerable<T1>)Managed).GetEnumerator();
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
+#endif
+            if (_id == 0)
+            {
+                throw new InvalidOperationException("We should never access this enumerator.");
+            }
+            
+            return ((IEnumerable<T1>)Managed).GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() {
-            throw new InvalidOperationException("We should never access this enumerator.");
-            // if (_id == 0)
-            // {
-            //     using (ManagedContext.New())
-            //     {
-            //         var id = Rish.GetFreeID<ManagedRishReferencesList<T1, T2>>();
-            //         var managed = Rish.GetManaged<ManagedRishReferencesList<T1, T2>>(id);
-            //         return ((IEnumerable)managed).GetEnumerator();
-            //     }
-            // }
-            //
-            // return ((IEnumerable)Managed).GetEnumerator();
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
+#endif
+            if (_id == 0)
+            {
+                throw new InvalidOperationException("We should never access this enumerator.");
+            }
+            
+            return ((IEnumerable)Managed).GetEnumerator();
         }
         
         [RequiresManagedContext]

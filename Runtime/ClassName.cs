@@ -96,32 +96,26 @@ namespace RishUI
 
         IEnumerator<string> IEnumerable<string>.GetEnumerator()
         {
-            throw new InvalidOperationException("We should never access this enumerator.");
-            // if (_id == 0)
-            // {
-            //     using (ManagedContext.New())
-            //     {
-            //         var id = Rish.GetFreeID<ManagedClassName>();
-            //         var managed = Rish.GetManaged<ManagedClassName>(id);
-            //         return ((IEnumerable<string>)managed).GetEnumerator();
-            //     }
-            // }
-            //
-            // return ((IEnumerable<string>)Managed).GetEnumerator();
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
+#endif
+            if (_id == 0)
+            {
+                throw new InvalidOperationException("We should never access this enumerator.");
+            }
+            
+            return ((IEnumerable<string>)Managed).GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() {
-            throw new InvalidOperationException("We should never access this enumerator.");
-            // if (_id == 0)
-            // {
-            //     using (ManagedContext.New())
-            //     {
-            //         var id = Rish.GetFreeID<ManagedClassName>();
-            //         var managed = Rish.GetManaged<ManagedClassName>(id);
-            //         return ((IEnumerable)managed).GetEnumerator();
-            //     }
-            // }
-            //
-            // return ((IEnumerable)Managed).GetEnumerator();
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
+#endif
+            if (_id == 0)
+            {
+                throw new InvalidOperationException("We should never access this enumerator.");
+            }
+            
+            return ((IEnumerable)Managed).GetEnumerator();
         }
         
         [RequiresManagedContext]

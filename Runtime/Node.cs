@@ -256,7 +256,7 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            AttachElement(rishElement.Render(), debugPrefix);
+            AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);
 #else
             AttachElement(rishElement.Render());
 #endif
@@ -443,7 +443,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (debugPrefix != null)
             {
-                UnityEngine.Debug.Log($"{debugPrefix}Rendering #{child.ID}: {typeof(T)} ({key})");
+                UnityEngine.Debug.Log($"{debugPrefix} {typeof(T)} ({key}) #{child.ID}");
             }
 #endif
 
