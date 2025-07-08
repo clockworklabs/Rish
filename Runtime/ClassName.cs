@@ -22,28 +22,31 @@ namespace RishUI
     
         public static ClassName Null => new();
 
-        public int Count => Rish.GetManaged<ManagedClassName>(_id)?.Count ?? 0;
-        public string this[int index] => Rish.GetManaged<ManagedClassName>(_id)?.Get(index);
+        private ManagedClassName _managed;
+        private ManagedClassName Managed => _managed;
+
+        public int Count => Managed?.Count ?? 0;
+        public string this[int index] => Managed?.Get(index);
 
         public ClassName(FixedString32Bytes className)
         {
             _id = Rish.GetFreeID<ManagedClassName>();
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(className.Value);
+            _managed = Rish.GetManaged<ManagedClassName>(_id);
+            _managed.Add(className.Value);
         }
         public ClassName(string className)
         {
             _id = Rish.GetFreeID<ManagedClassName>();
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(className);
+            _managed = Rish.GetManaged<ManagedClassName>(_id);
+            _managed.Add(className);
         }
         public ClassName(ClassName className)
         {
             _id = Rish.GetFreeID<ManagedClassName>();
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
+            _managed = Rish.GetManaged<ManagedClassName>(_id);
             foreach (var element in className)
             {
-                managed.Add(element);
+                _managed.Add(element);
             }
         }
         
@@ -53,10 +56,10 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
             }
 
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(element.Value);
+            Managed.Add(element.Value);
         }
         [RequiresManagedContext]
         public void Add(string element)
@@ -64,10 +67,10 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
             }
 
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
-            managed.Add(element);
+            Managed.Add(element);
         }
         [RequiresManagedContext]
         public void Add(ClassName className)
@@ -75,12 +78,12 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
             }
         
-            var managed = Rish.GetManaged<ManagedClassName>(_id);
             foreach (var element in className)
             {
-                managed.Add(element);
+                Managed.Add(element);
             }
         }
 
@@ -96,6 +99,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
             }
 
             var enumerable = (IEnumerable<string>) Rish.GetManaged<ManagedClassName>(_id);
@@ -105,6 +109,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
             }
 
             var enumerable = (IEnumerable) Rish.GetManaged<ManagedClassName>(_id);
@@ -269,61 +274,6 @@ namespace RishUI
         }
         [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString4096Bytes> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator ClassName(FixedList32Bytes<ClassName> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator ClassName(FixedList64Bytes<ClassName> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator ClassName(FixedList128Bytes<ClassName> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator ClassName(FixedList512Bytes<ClassName> list)
-        {
-            var children = new ClassName();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator ClassName(FixedList4096Bytes<ClassName> list)
         {
             var children = new ClassName();
             foreach (var element in list)
@@ -722,11 +672,6 @@ namespace RishUI
             public static implicit operator Overridable(List<FixedString128Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(List<FixedString512Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(List<FixedString4096Bytes> value) => (ClassName)value;
-            public static implicit operator Overridable(FixedList32Bytes<ClassName> value) => (ClassName)value;
-            public static implicit operator Overridable(FixedList64Bytes<ClassName> value) => (ClassName)value;
-            public static implicit operator Overridable(FixedList128Bytes<ClassName> value) => (ClassName)value;
-            public static implicit operator Overridable(FixedList512Bytes<ClassName> value) => (ClassName)value;
-            public static implicit operator Overridable(FixedList4096Bytes<ClassName> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList32Bytes<FixedString32Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList64Bytes<FixedString32Bytes> value) => (ClassName)value;
             public static implicit operator Overridable(FixedList128Bytes<FixedString32Bytes> value) => (ClassName)value;

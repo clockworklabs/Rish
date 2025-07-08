@@ -10,7 +10,8 @@ namespace RishUI
     public struct Element : IReference<ManagedElement>, IEquatable<Element>
     {
         private readonly ulong _id;
-        ulong IReference<ManagedElement>.ID => _id;
+        internal ulong ID => _id;
+        ulong IReference<ManagedElement>.ID => ID;
         
         public bool Valid => _id > 0;
     

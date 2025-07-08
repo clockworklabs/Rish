@@ -30,11 +30,13 @@ namespace RishUI.MemoryManagement
         void IWrapper.Claimed(ManagedContext context)
         {
             OwnerContext = context;
+            Managed.Claimed(context);
         }
         void IWrapper.Close() => Managed.Close();
         void IWrapper.Free()
         {
             OwnerContext = null;
+            Managed.Dispose();
             Pool.Free<T>(ID);
         }
     }

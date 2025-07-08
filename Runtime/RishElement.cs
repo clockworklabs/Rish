@@ -248,7 +248,7 @@ namespace RishUI
 #endif
 
             Element element;
-            using (ManagedContext.New())
+            using (ManagedContext.New(true))
             {
                 element = Render();
                 ClaimCurrentContext(-1);

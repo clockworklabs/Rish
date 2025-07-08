@@ -168,5 +168,6 @@ namespace RishUI
         public static T GetManaged<T>(ulong id) where T : class, IManaged => id > 0 ? GetPool<T>()?.GetManaged<T>(id) : null;
 
         public static ManagedContext GetOwnerContext<T1, T2>(T1 reference) where T1 : struct, IReference<T2> where T2 : class, IManaged => GetPool<T2>()?.GetWrapper<T2>(reference.ID)?.OwnerContext;
+        public static ManagedContext GetOwnerContext<T>(ulong id) where T : class, IManaged => GetManaged<T>(id)?.OwnerContext;
     }
 }

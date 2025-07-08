@@ -21,20 +21,15 @@ namespace RishUI
     
         public static Children Null => new();
 
-        private ManagedChildren Managed => Rish.GetManaged<ManagedChildren>(_id);
+        private ManagedChildren _managed;
+        private ManagedChildren Managed => _managed;
+        
         public int Count => Managed?.Count ?? 0;
+        
         public Element this[int index]
         {
             get => Managed?.Get(index) ?? default;
-            set
-            {
-                var managed = Managed;
-                if (managed == null)
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-                managed.Set(index, value);
-            }
+            set => Managed.Set(index, value);
         }
         public Element this[Index index] => Managed?.Get(index) ?? default;
         [RequiresManagedContext]
@@ -46,10 +41,10 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedChildren>();
+                _managed = Rish.GetManaged<ManagedChildren>(_id);
             }
 
-            var managed = Rish.GetManaged<ManagedChildren>(_id);
-            managed.Add(element);
+            Managed?.Add(element);
         }
         [RequiresManagedContext]
         public void Add(Children children)
@@ -57,12 +52,12 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedChildren>();
+                _managed = Rish.GetManaged<ManagedChildren>(_id);
             }
         
-            var managed = Rish.GetManaged<ManagedChildren>(_id);
             foreach (var element in children)
             {
-                managed.Add(element);
+                Managed?.Add(element);
             }
         }
 
@@ -71,15 +66,18 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedChildren>();
+                _managed = Rish.GetManaged<ManagedChildren>(_id);
             }
 
             var enumerable = (IEnumerable<Element>) Rish.GetManaged<ManagedChildren>(_id);
             return enumerable.GetEnumerator();
         }
-        IEnumerator IEnumerable.GetEnumerator() {
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedChildren>();
+                _managed = Rish.GetManaged<ManagedChildren>(_id);
             }
 
             var enumerable = (IEnumerable) Rish.GetManaged<ManagedChildren>(_id);
@@ -176,61 +174,6 @@ namespace RishUI
         }
         [RequiresManagedContext]
         public static implicit operator Children(FixedList4096Bytes<Element> list)
-        {
-            var children = new Children();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator Children(FixedList32Bytes<Children> list)
-        {
-            var children = new Children();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator Children(FixedList64Bytes<Children> list)
-        {
-            var children = new Children();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator Children(FixedList128Bytes<Children> list)
-        {
-            var children = new Children();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator Children(FixedList512Bytes<Children> list)
-        {
-            var children = new Children();
-            foreach (var element in list)
-            {
-                children.Add(element);
-            }
-
-            return children;
-        }
-        [RequiresManagedContext]
-        public static implicit operator Children(FixedList4096Bytes<Children> list)
         {
             var children = new Children();
             foreach (var element in list)
@@ -339,11 +282,6 @@ namespace RishUI
             public static implicit operator Overridable(FixedList128Bytes<Element> value) => (Children)value;
             public static implicit operator Overridable(FixedList512Bytes<Element> value) => (Children)value;
             public static implicit operator Overridable(FixedList4096Bytes<Element> value) => (Children)value;
-            public static implicit operator Overridable(FixedList32Bytes<Children> value) => (Children)value;
-            public static implicit operator Overridable(FixedList64Bytes<Children> value) => (Children)value;
-            public static implicit operator Overridable(FixedList128Bytes<Children> value) => (Children)value;
-            public static implicit operator Overridable(FixedList512Bytes<Children> value) => (Children)value;
-            public static implicit operator Overridable(FixedList4096Bytes<Children> value) => (Children)value;
             public static implicit operator Overridable(string value) => (Children)value;
             public static implicit operator Overridable(RishString value) => (Children)value;
             public static implicit operator Overridable(FixedString32Bytes value) => (Children)value;

@@ -5,6 +5,8 @@ namespace RishUI.MemoryManagement
     /// </summary>
     public interface IManaged
     {
+        ManagedContext OwnerContext { get; }
+        void Claimed(ManagedContext context);
         void Close();
         void Dispose();
     }

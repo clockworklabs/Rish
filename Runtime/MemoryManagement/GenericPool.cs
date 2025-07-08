@@ -55,13 +55,7 @@ namespace RishUI.MemoryManagement
 
         void IPool<T>.Free(ulong id)
         {
-            var wrapper = GetWrapper(id);
-            if (wrapper == null) return;
-            
-            var managed = wrapper.Managed;
-            managed.Dispose();
-            
-            FreeStack.Push(wrapper.ID);
+            FreeStack.Push(id);
         }
 
         private (ulong, Wrapper<T>) CreateNew()

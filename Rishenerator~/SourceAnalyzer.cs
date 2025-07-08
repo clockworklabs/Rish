@@ -126,7 +126,18 @@ namespace Rishenerator
             null // TODO: Help link to documentation
         );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule, ManagedContextRule, ManagedContextCreationRule);
+        private static readonly DiagnosticDescriptor RishReferencesListRule = new(
+            "RishReferencesListRule",
+            "Must be RishReferencesList",
+            "For types that implement IReference, you must use RishReferencesList.",
+            "Usage",
+            DiagnosticSeverity.Error,
+            true,
+            "RishList can't be used for value types that implement IReference.",
+            null // TODO: Help link to documentation
+        );
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule, ManagedContextRule, ManagedContextCreationRule, RishReferencesListRule);
 
         // private static Dictionary<ITypeSymbol, bool> NeedsRishValueType { get; } = new();
         
@@ -141,6 +152,7 @@ namespace Rishenerator
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextObjectCreationExpression, SyntaxKind.ObjectCreationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextInvocationExpression, SyntaxKind.InvocationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextElementAccessExpression, SyntaxKind.ElementAccessExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeGenericNameSyntax, SyntaxKind.GenericName);
         }
 
         private static void AnalyzeRishElements(SyntaxNodeAnalysisContext context)
@@ -522,6 +534,35 @@ namespace Rishenerator
             }
 
             return false;
+        }
+
+        private void AnalyzeGenericNameSyntax(SyntaxNodeAnalysisContext context)
+        {
+            var genericName = (GenericNameSyntax)context.Node;
+
+            // Check if the generic type is MyList<T>
+            if (genericName.Identifier.Text == "RishList" && genericName.TypeArgumentList.Arguments.Count == 1)
+            {
+                var typeArgument = genericName.TypeArgumentList.Arguments.FirstOrDefault();
+                if (typeArgument == null)
+                {
+                    return;
+                }
+
+                var typeSymbol = context.SemanticModel.GetTypeInfo(typeArgument).Type;
+
+                // Ensure the typeSymbol is not null and is a named type
+                if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
+                {
+                    // Check if the type argument implements IReference
+                    if (namedTypeSymbol.AllInterfaces.Any(i => i.GetFullName(false) == "RishUI.MemoryManagement.IReference"))
+                    {
+                        // Report the diagnostic
+                        var diagnostic = Diagnostic.Create(RishReferencesListRule, genericName.GetLocation(), typeSymbol.Name);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
         }
 
         // private bool CheckForRishValueType(SyntaxNodeAnalysisContext context, ITypeSymbol symbol)

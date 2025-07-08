@@ -21,7 +21,7 @@ namespace RishUI
         public static RishList<T> Null => new();
 
         private ManagedRishList<T> _managed;
-        private ManagedRishList<T> Managed => _managed ??= Rish.GetManaged<ManagedRishList<T>>(_id);
+        private ManagedRishList<T> Managed => _managed;
         
         public int Count => Managed?.Count ?? 0;
         public T this[int index]
@@ -39,6 +39,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
+                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
             }
 
             Managed?.Add(element);
@@ -49,6 +50,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
+                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
             }
         
             foreach (var element in other)
@@ -71,6 +73,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
+                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
             }
 
             IEnumerable<T> enumerable = Managed;
@@ -80,6 +83,7 @@ namespace RishUI
             if (_id == 0)
             {
                 _id = Rish.GetFreeID<ManagedRishList<T>>();
+                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
             }
 
             IEnumerable enumerable = Managed;
@@ -130,52 +134,52 @@ namespace RishUI
         [RequiresManagedContext]
         public static implicit operator RishList<T>(RishList<T>[] array)
         {
-            var children = new RishList<T>();
+            var result = new RishList<T>();
             foreach (var element in array)
             {
-                children.Add(element);
+                result.Add(element);
             }
 
-            return children;
+            return result;
         }
         [RequiresManagedContext]
         public static implicit operator RishList<T>(T[] array)
         {
             if (array == null) return Null;
             
-            var children = new RishList<T>();
+            var result = new RishList<T>();
             foreach (var element in array)
             {
-                children.Add(element);
+                result.Add(element);
             }
 
-            return children;
+            return result;
         }
         [RequiresManagedContext]
         public static implicit operator RishList<T>(List<RishList<T>> list)
         {
             if (list == null) return Null;
             
-            var children = new RishList<T>();
+            var result = new RishList<T>();
             foreach (var element in list)
             {
-                children.Add(element);
+                result.Add(element);
             }
 
-            return children;
+            return result;
         }
         [RequiresManagedContext]
         public static implicit operator RishList<T>(List<T> list)
         {
             if (list == null) return Null;
             
-            var children = new RishList<T>();
+            var result = new RishList<T>();
             foreach (var element in list)
             {
-                children.Add(element);
+                result.Add(element);
             }
 
-            return children;
+            return result;
         }
 
         bool IEquatable<RishList<T>>.Equals(RishList<T> other) => Equals(this, other);

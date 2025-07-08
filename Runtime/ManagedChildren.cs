@@ -12,13 +12,21 @@ namespace RishUI
         public int Count => Elements.Count;
 
         private bool Closed { get; set; } = false;
+        
+        private ManagedContext OwnerContext { get; set; }
+        ManagedContext IManaged.OwnerContext => OwnerContext;
 
+        void IManaged.Claimed(ManagedContext context)
+        {
+            OwnerContext = context;
+        }
         void IManaged.Close()
         {
             Closed = true;
         }
         void IManaged.Dispose()
         {
+            OwnerContext = null;
             Elements.Clear();
             Closed = false;
         }
@@ -67,6 +75,9 @@ namespace RishUI
                 Debug.LogError("Children already closed. You can't modify it after the initial creation.");
                 return;
             }
+
+            var otherContext = Rish.GetOwnerContext<ManagedElement>(element.ID);
+            OwnerContext.AddDependency(otherContext);
             
             Elements[index] = element;
         }
@@ -79,6 +90,9 @@ namespace RishUI
                 Debug.LogError("Children already closed. You can't modify it after the initial creation.");
                 return;
             }
+
+            var otherContext = Rish.GetOwnerContext<ManagedElement>(element.ID);
+            OwnerContext.AddDependency(otherContext);
             
             Elements.Add(element);
         }

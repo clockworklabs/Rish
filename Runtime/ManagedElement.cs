@@ -9,6 +9,9 @@ namespace RishUI
         public ulong Key { get; protected set; }
         public abstract Type Type { get; }
         
+        private ManagedContext OwnerContext { get; set; }
+        ManagedContext IManaged.OwnerContext => OwnerContext;
+        
         internal abstract void Invoke(Node parent);
         public abstract bool Equals(ManagedElement other);
         
@@ -17,8 +20,15 @@ namespace RishUI
         //
         // public abstract void UpdateKey(ulong key);
 
+        void IManaged.Claimed(ManagedContext context) {
+            OwnerContext = context;
+        }
         void IManaged.Close() { }
-        void IManaged.Dispose() { }
+
+        void IManaged.Dispose()
+        {
+            OwnerContext = null;
+        }
 
         bool IEquatable<ManagedElement>.Equals(ManagedElement other) => Equals(other);
     }

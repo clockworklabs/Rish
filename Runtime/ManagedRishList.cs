@@ -10,15 +10,22 @@ namespace RishUI
     {
         private List<T> Elements { get; } = new();
         public int Count => Elements.Count;
+        
+        private ManagedContext OwnerContext { get; set; }
+        ManagedContext IManaged.OwnerContext => OwnerContext;
 
         private bool Closed { get; set; } = false;
 
+        void IManaged.Claimed(ManagedContext context) {
+            OwnerContext = context;
+        }
         void IManaged.Close()
         {
             Closed = true;
         }
         void IManaged.Dispose()
         {
+            OwnerContext = null;
             Elements.Clear();
             Closed = false;
         }

@@ -24,9 +24,9 @@ namespace RishUI.MemoryManagement
             ID = id;
         }
 
-        public static ManagedContext New()
+        public static ManagedContext New(bool addDependencies = false)
         {
-            var context = ManagedStack.Push();
+            var context = ManagedStack.Push(addDependencies);
             return context;
         }
         internal static ManagedContext Current => ManagedStack.Current;
@@ -105,8 +105,9 @@ namespace RishUI.MemoryManagement
             ManagedStack.Free(this);
         }
 
-        private void AddDependency(ManagedContext context)
+        public void AddDependency(ManagedContext context)
         {
+            if (context == null || context == this) return;
             context.Dependents.Add(ID, this);
             Dependencies.Add(context.ID, context);
         }
@@ -136,7 +137,7 @@ namespace RishUI.MemoryManagement
             internal static int GetStackSize() => Stack.Count;
             internal static int GetActiveCount() => ActiveIDs.Count;
 
-            public static ManagedContext Push()
+            public static ManagedContext Push(bool addDependencies)
             {
                 if (!Pool.TryPop(out var context))
                 {
@@ -145,9 +146,12 @@ namespace RishUI.MemoryManagement
                     All.Add(contextID, context);
                 }
 
-                foreach (var dependency in Stack)
+                if (addDependencies)
                 {
-                    context.AddDependency(dependency);
+                    foreach (var dependency in Stack)
+                    {
+                        context.AddDependency(dependency);
+                    }
                 }
 
                 Stack.Add(context);
