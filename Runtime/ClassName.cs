@@ -15,6 +15,14 @@ namespace RishUI
     [RequiresManagedContext]
     public struct ClassName : IReference<ManagedClassName>, IEnumerable<string>, IEquatable<ClassName>
     {
+        private static class EmptyEnumerator
+        {
+            private static List<string> _list;
+            private static List<string> List => _list ??= new List<string>();
+
+            public static IEnumerator<string> Get() => List.GetEnumerator();
+        }
+        
         private ulong _id;
         ulong IReference<ManagedClassName>.ID => _id;
 
@@ -96,23 +104,18 @@ namespace RishUI
 
         IEnumerator<string> IEnumerable<string>.GetEnumerator()
         {
-#if UNITY_EDITOR
-            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
-#endif
             if (_id == 0)
             {
-                throw new InvalidOperationException("We should never access this enumerator.");
+                return EmptyEnumerator.Get();
             }
             
             return ((IEnumerable<string>)Managed).GetEnumerator();
         }
-        IEnumerator IEnumerable.GetEnumerator() {
-#if UNITY_EDITOR
-            UnityEngine.Debug.LogError("Why are we accessing this enumerator?");
-#endif
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             if (_id == 0)
             {
-                throw new InvalidOperationException("We should never access this enumerator.");
+                return EmptyEnumerator.Get();
             }
             
             return ((IEnumerable)Managed).GetEnumerator();
