@@ -107,7 +107,7 @@ namespace RishUI
                         CurrentDepth = node.Depth;
                     }
 #if UNITY_EDITOR
-                    node.Render(debug);
+                    node.Render(debug ? "" : null);
 #else
                     node.Render();
 #endif

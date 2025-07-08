@@ -68,7 +68,7 @@ namespace RishUI
         private bool PropsAlwaysDirty { get; }
         
 #if UNITY_EDITOR
-        private bool Debug { get; set; }
+        private string DebugPrefix { get; set; }
 #endif
 
         private Name Name
@@ -145,7 +145,7 @@ namespace RishUI
                 if (notDirty) return;
                 
 #if UNITY_EDITOR
-                Node.AttachChildren(value, Debug);
+                Node.AttachChildren(value, DebugPrefix != null ? $"{DebugPrefix}-" : null);
 #else
                 Node.AttachChildren(value);
 #endif
@@ -216,13 +216,13 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, bool debug)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
 #else
         internal void Setup(DOMDescriptor descriptor, Children children, P props)
 #endif
         {
 #if UNITY_EDITOR
-            Debug = debug;
+            DebugPrefix = debugPrefix;
 #endif
             Name = descriptor.name;
             ClassName = descriptor.className;

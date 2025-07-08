@@ -140,19 +140,19 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            internal override void Invoke(Node parent, bool debug)
+            internal override void Invoke(Node parent, string debugPrefix)
 #else
             internal override void Invoke(Node parent)
 #endif
             {
 #if UNITY_EDITOR
-                var node = parent.AddChild<T>(Key, debug);
+                var node = parent.AddChild<T>(Key, debugPrefix);
 #else
                 var node = parent.AddChild<T>(Key);
 #endif
                 if (node is not { Element: T element }) return;
 #if UNITY_EDITOR
-                element.Bridge.Setup(Descriptor, Children, Props, debug);
+                element.Bridge.Setup(Descriptor, Children, Props, debugPrefix);
 #else
                 element.Bridge.Setup(Descriptor, Children, Props);
 #endif

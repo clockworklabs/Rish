@@ -239,7 +239,7 @@ namespace RishUI
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
 #if UNITY_EDITOR
-        internal void Render(bool debug)
+        internal void Render(string debugPrefix)
 #else
         internal void Render()
 #endif
@@ -256,7 +256,7 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            AttachElement(rishElement.Render(), debug);
+            AttachElement(rishElement.Render(), debugPrefix);
 #else
             AttachElement(rishElement.Render());
 #endif
@@ -264,7 +264,7 @@ namespace RishUI
 
         
 #if UNITY_EDITOR
-        private void AttachElement(Element element, bool debug)
+        private void AttachElement(Element element, string debugPrefix)
 #else
         private void AttachElement(Element element)
 #endif
@@ -272,7 +272,7 @@ namespace RishUI
             Clear();
 
 #if UNITY_EDITOR
-            element.Invoke(this, debug);
+            element.Invoke(this, debugPrefix);
 #else
             element.Invoke(this);
 #endif
@@ -281,7 +281,7 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void AttachChildren(Children children, bool debug)
+        internal void AttachChildren(Children children, string debugPrefix)
 #else
         internal void AttachChildren(Children children)
 #endif
@@ -298,7 +298,7 @@ namespace RishUI
             foreach (var element in children)
             {
 #if UNITY_EDITOR
-                element.Invoke(this, debug);
+                element.Invoke(this, debugPrefix);
 #else
                 element.Invoke(this);
 #endif
@@ -353,7 +353,7 @@ namespace RishUI
         }
         
 #if UNITY_EDITOR
-        internal Node AddChild<T>(ulong key, bool debug) where T : class, IElement, new()
+        internal Node AddChild<T>(ulong key, string debugPrefix) where T : class, IElement, new()
 #else
         internal Node AddChild<T>(ulong key) where T : class, IElement, new()
 #endif
@@ -441,9 +441,9 @@ namespace RishUI
             ChildCount++;
             
 #if UNITY_EDITOR
-            if (debug)
+            if (debugPrefix != null)
             {
-                UnityEngine.Debug.Log($"Rendering #{child.ID}: {typeof(T)} ({key})");
+                UnityEngine.Debug.Log($"{debugPrefix}Rendering #{child.ID}: {typeof(T)} ({key})");
             }
 #endif
 

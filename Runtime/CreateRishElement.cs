@@ -40,13 +40,13 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            internal override void Invoke(Node parent, bool debug)
+            internal override void Invoke(Node parent, string debugPrefix)
 #else
             internal override void Invoke(Node parent)
 #endif
             {
 #if UNITY_EDITOR
-                var node = parent.AddChild<T>(Key, debug);
+                var node = parent.AddChild<T>(Key, debugPrefix);
 #else
                 var node = parent.AddChild<T>(Key);
 #endif
@@ -54,7 +54,7 @@ namespace RishUI
                 if (element.SetProps(Props))
                 {
 #if UNITY_EDITOR
-                    node.Render(debug);
+                    node.Render(debugPrefix != null ? $"{debugPrefix}-" : null);
 #else
                     node.Render();
 #endif

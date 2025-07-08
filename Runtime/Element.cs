@@ -92,7 +92,7 @@ namespace RishUI
         //     return definition.TrySetProps(props);
         // }
 #if UNITY_EDITOR
-        internal void Invoke(Node node, bool debug) => GetDefinition()?.Invoke(node, debug);
+        internal void Invoke(Node node, string debugPrefix) => GetDefinition()?.Invoke(node, debugPrefix);
 #else
         internal void Invoke(Node node) => GetDefinition()?.Invoke(node);
 #endif
