@@ -1,4 +1,5 @@
 ﻿using System;
+using RishUI.MemoryManagement;
 using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -190,9 +191,9 @@ namespace RishUI
 
                 if (value == null)
                 {
-                    _className = default;
+                    _className = ClassName.Null;
                     _style = default;
-                    _children = default;
+                    _children = Children.Null;
                     _props = null;
                 }
             }

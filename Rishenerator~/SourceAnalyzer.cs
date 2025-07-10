@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Rishenerator
 {
@@ -138,21 +139,25 @@ namespace Rishenerator
         );
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, DOMDescriptorTypeRule, ManagedContextRule, ManagedContextCreationRule, RishReferencesListRule);
-
-        // private static Dictionary<ITypeSymbol, bool> NeedsRishValueType { get; } = new();
         
         public override void Initialize(AnalysisContext context)
         {
-            // NeedsRishValueType.Clear();
-            
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            
+            // TODO: Cache things to speed things up
+            // context.RegisterCompilationStartAction(compilationContext =>
+            // {
+            //     // _iDisposableSymbol = compilationContext.Compilation.GetTypeByMetadataName("System.IDisposable");
+            // });
+            
             context.RegisterSyntaxNodeAction(AnalyzeRishElements, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeStructDeclaration, SyntaxKind.StructDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextObjectCreationExpression, SyntaxKind.ObjectCreationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextInvocationExpression, SyntaxKind.InvocationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextElementAccessExpression, SyntaxKind.ElementAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextCastExpression, SyntaxKind.CastExpression);
+            context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
             context.RegisterSyntaxNodeAction(AnalyzeGenericNameSyntax, SyntaxKind.GenericName);
         }
 
@@ -318,6 +323,7 @@ namespace Rishenerator
 
         private const string ManagedContextConstructorName = "RishUI.MemoryManagement.ManagedContext.New";
         private const string RequiresManagedContextAttributeName = "RishUI.MemoryManagement.RequiresManagedContextAttribute";
+        private const string ExemptOfManagedContextAttributeName = "RishUI.MemoryManagement.ExemptOfManagedContextAttribute";
 
         private static void AnalyzeManagedContextObjectCreationExpression(SyntaxNodeAnalysisContext context)
         {
@@ -329,7 +335,7 @@ namespace Rishenerator
             var containingType = invokedMethod.ContainingType;
             if (!containingType.HasAttribute(RequiresManagedContextAttributeName)) return;
 
-            if (FindManagedContextScope(objectCreationExpression.Parent, context)) return;
+            if (FindManagedContextScope(objectCreationExpression.Parent, context.SemanticModel)) return;
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, objectCreationExpression.GetLocation(), invocationSymbol));
         }
@@ -425,7 +431,7 @@ namespace Rishenerator
 
             if (skip) return;
 
-            if (FindManagedContextScope(scope, context)) return;
+            if (FindManagedContextScope(scope, context.SemanticModel)) return;
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, invocationExpression.GetLocation(), invocationSymbol));
         }
@@ -454,7 +460,7 @@ namespace Rishenerator
 
             if (skip) return;
             
-            if (FindManagedContextScope(elementAccess.Parent, context)) return;
+            if (FindManagedContextScope(elementAccess.Parent, context.SemanticModel)) return;
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, elementAccess.GetLocation(), propertySymbol));
         }
@@ -497,30 +503,77 @@ namespace Rishenerator
 
             if (skip) return;
             
-            if (FindManagedContextScope(castExpression.Parent, context)) return;
+            if (FindManagedContextScope(castExpression.Parent, context.SemanticModel)) return;
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, castExpression.GetLocation(), targetTypeSymbol));
         }
+        
+        private void AnalyzeConversionOperation(OperationAnalysisContext context)
+        {
+            var conversionOperation = (IConversionOperation)context.Operation;
+            if (!conversionOperation.IsImplicit) return;
 
-        private static bool FindManagedContextScope(SyntaxNode scope, SyntaxNodeAnalysisContext context)
+            if (conversionOperation.Parent is IForEachLoopOperation) return;
+        
+            var targetTypeSymbol = conversionOperation.Type;
+        
+            if (targetTypeSymbol == null) return;
+            
+            var skip = !targetTypeSymbol.HasAttribute(RequiresManagedContextAttributeName);
+            if (skip)
+            {
+                var baseType = targetTypeSymbol.BaseType;
+                while (baseType != null)
+                {
+                    if (baseType.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                    baseType = baseType.BaseType;
+                }
+            }
+            if (skip)
+            {
+                foreach (var interfaceTypeSymbol in targetTypeSymbol.AllInterfaces)
+                {
+                    if (interfaceTypeSymbol.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                }
+            }
+        
+            if (skip) return;
+            
+            var syntax = conversionOperation.Syntax;
+            
+            if (FindManagedContextScope(syntax.Parent, conversionOperation.SemanticModel)) return;
+        
+            context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, syntax.GetLocation(), targetTypeSymbol));
+        }
+
+        private static bool FindManagedContextScope(SyntaxNode scope, SemanticModel semanticModel)
         {
             while (scope != null)
             {
                 if (scope is MethodDeclarationSyntax methodDeclaration)
                 {
-                    var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(methodDeclaration);
-                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
+                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                    if (methodDeclarationSymbol.AssociatedSymbol != null && (methodDeclarationSymbol.AssociatedSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.AssociatedSymbol.HasAttribute(ExemptOfManagedContextAttributeName))) return true;
                     var overriddenMethodSymbol = methodDeclarationSymbol?.OverriddenMethod;
                     while (overriddenMethodSymbol != null)
                     {
-                        if (overriddenMethodSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                        if (overriddenMethodSymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenMethodSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
                         overriddenMethodSymbol = overriddenMethodSymbol.OverriddenMethod;
                     }
                     if (methodDeclarationSymbol.ExplicitInterfaceImplementations.Any())
                     {
                         foreach (var explicitInterfaceImpl in methodDeclarationSymbol.ExplicitInterfaceImplementations)
                         {
-                            if (explicitInterfaceImpl.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                            if (explicitInterfaceImpl.HasAttribute(RequiresManagedContextAttributeName) || explicitInterfaceImpl.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
                         }
                     }
                     else
@@ -537,39 +590,43 @@ namespace Rishenerator
                                 if (SymbolEqualityComparer.Default.Equals(implementation, methodDeclarationSymbol))
                                 {
                                     // Found the interface method this method implicitly implements
-                                    if (ifaceMember.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                                    if (ifaceMember.HasAttribute(RequiresManagedContextAttributeName) || ifaceMember.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
                                 }
                             }
                         }
                     }
                 } else if(scope is ConstructorDeclarationSyntax constructorDeclaration)
                 {
-                    var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(constructorDeclaration);
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(constructorDeclaration);
                     var typeSymbol = methodDeclarationSymbol.ContainingType;
-                    if (typeSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                    if (typeSymbol.HasAttribute(RequiresManagedContextAttributeName) || typeSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                 } else if(scope is ConversionOperatorDeclarationSyntax conversionOperatorDeclaration)
                 {
-                    var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(conversionOperatorDeclaration);
-                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(conversionOperatorDeclaration);
+                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                } else if(scope is OperatorDeclarationSyntax operatorDeclaration)
+                {
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(operatorDeclaration);
+                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                 } else if(scope is IndexerDeclarationSyntax indexerDeclaration)
                 {
-                    var methodDeclarationSymbol = context.SemanticModel.GetDeclaredSymbol(indexerDeclaration);
-                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(indexerDeclaration);
+                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                 } else if(scope is PropertyDeclarationSyntax propertyDeclaration)
                 {
-                    var propertySymbol = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
-                    if (propertySymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                    var propertySymbol = semanticModel.GetDeclaredSymbol(propertyDeclaration);
+                    if (propertySymbol.HasAttribute(RequiresManagedContextAttributeName) || propertySymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                     var overriddenPropertySymbol = propertySymbol?.OverriddenProperty;
                     while (overriddenPropertySymbol != null)
                     {
-                        if (overriddenPropertySymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                        if (overriddenPropertySymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenPropertySymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                         overriddenPropertySymbol = overriddenPropertySymbol.OverriddenProperty;
                     }
                 } else if (scope is UsingStatementSyntax usingStatement)
                 {
                     if (usingStatement.Expression is InvocationExpressionSyntax usingInvocationExpression)
                     {
-                        var usingInvocationSymbol = context.SemanticModel.GetSymbolInfo(usingInvocationExpression).Symbol;
+                        var usingInvocationSymbol = semanticModel.GetSymbolInfo(usingInvocationExpression).Symbol;
                         if (usingInvocationSymbol is IMethodSymbol usingInvokedMethod)
                         {
                             var methodName = $"{usingInvokedMethod.ContainingType.GetFullName(false)}.{usingInvokedMethod.Name}";
@@ -583,6 +640,70 @@ namespace Rishenerator
             }
 
             return false;
+        }
+
+        private static bool IsWithinManagedContext(ISymbol scope)
+        {
+            if (scope == null) return false;
+            
+            Logger.Log($"Scope: {scope.GetType()}");
+            
+            if (scope is IMethodSymbol methodSymbol)
+            {
+                if (methodSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                if (methodSymbol.MethodKind == MethodKind.Constructor)
+                {
+                    var typeSymbol = methodSymbol.ContainingType;
+                    if (typeSymbol.HasAttribute(RequiresManagedContextAttributeName) || typeSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                }
+                else
+                {
+                    if (methodSymbol.AssociatedSymbol != null && (methodSymbol.AssociatedSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodSymbol.AssociatedSymbol.HasAttribute(ExemptOfManagedContextAttributeName))) return true;
+                    var overriddenMethodSymbol = methodSymbol.OverriddenMethod;
+                    while (overriddenMethodSymbol != null)
+                    {
+                        if (overriddenMethodSymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenMethodSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                        overriddenMethodSymbol = overriddenMethodSymbol.OverriddenMethod;
+                    }
+                    if (methodSymbol.ExplicitInterfaceImplementations.Any())
+                    {
+                        foreach (var explicitInterfaceImpl in methodSymbol.ExplicitInterfaceImplementations)
+                        {
+                            if (explicitInterfaceImpl.HasAttribute(RequiresManagedContextAttributeName) || explicitInterfaceImpl.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var iface in methodSymbol.ContainingType.AllInterfaces)
+                        {
+                            var members = iface.GetMembers().OfType<IMethodSymbol>();
+                            foreach (var ifaceMember in members)
+                            {
+                                // Find the implementation for this interface member in the current type
+                                var implementation = methodSymbol.ContainingType.FindImplementationForInterfaceMember(ifaceMember);
+
+                                // Check if our current methodSymbol is the implementation for this interface method
+                                if (SymbolEqualityComparer.Default.Equals(implementation, methodSymbol))
+                                {
+                                    // Found the interface method this method implicitly implements
+                                    if (ifaceMember.HasAttribute(RequiresManagedContextAttributeName) || ifaceMember.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if(scope is IPropertySymbol propertySymbol)
+            {
+                if (propertySymbol.HasAttribute(RequiresManagedContextAttributeName) || propertySymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                var overriddenPropertySymbol = propertySymbol?.OverriddenProperty;
+                while (overriddenPropertySymbol != null)
+                {
+                    if (overriddenPropertySymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenPropertySymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
+                    overriddenPropertySymbol = overriddenPropertySymbol.OverriddenProperty;
+                }
+            } 
+
+            return IsWithinManagedContext(scope.ContainingSymbol);
         }
 
         private void AnalyzeGenericNameSyntax(SyntaxNodeAnalysisContext context)

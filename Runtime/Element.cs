@@ -15,7 +15,8 @@ namespace RishUI
         
         public bool Valid => _id > 0;
     
-        public static Element Null => new();
+        [ExemptOfManagedContext]
+        public static Element Null => default(Element);
         
         internal Element(ulong id)
         {

@@ -26,7 +26,8 @@ namespace RishUI
 
         public bool Valid => _id > 0;
     
-        public static RishList<T> Null => new();
+        [ExemptOfManagedContext]
+        public static RishList<T> Null => default(RishList<T>);
 
         private ManagedRishList<T> _managed;
         private ManagedRishList<T> Managed => _managed;

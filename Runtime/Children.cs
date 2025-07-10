@@ -27,8 +27,9 @@ namespace RishUI
 
         public bool Valid => _id > 0;
     
-        public static Children Null => new();
-
+        [ExemptOfManagedContext]
+        public static Children Null => default(Children);
+        
         private ManagedChildren _managed;
         private ManagedChildren Managed => _managed;
         
@@ -36,10 +37,10 @@ namespace RishUI
         
         public Element this[int index]
         {
-            get => Managed?.Get(index) ?? default;
+            get => Managed?.Get(index) ?? Element.Null;
             set => Managed.Set(index, value);
         }
-        public Element this[Index index] => Managed?.Get(index) ?? default;
+        public Element this[Index index] => Managed?.Get(index) ?? Element.Null;
         [RequiresManagedContext]
         public Children this[Range range] => Managed?.Get(range) ?? default;
 
@@ -245,7 +246,7 @@ namespace RishUI
             {
                 _list = list;
                 _index = 0;
-                _current = default;
+                _current = Element.Null;
             }
         
             public Element Current => _current;

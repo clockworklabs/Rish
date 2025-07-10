@@ -26,7 +26,8 @@ namespace RishUI
 
         public bool Valid => _id > 0;
     
-        public static RishReferencesList<T1, T2> Null => new();
+        [ExemptOfManagedContext]
+        public static RishReferencesList<T1, T2> Null => default(RishReferencesList<T1, T2>);
 
         private ManagedRishReferencesList<T1, T2> _managed;
         private ManagedRishReferencesList<T1, T2> Managed => _managed;

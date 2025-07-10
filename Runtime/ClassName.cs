@@ -28,7 +28,8 @@ namespace RishUI
 
         public bool Valid => _id > 0;
     
-        public static ClassName Null => new();
+        [ExemptOfManagedContext]
+        public static ClassName Null => default(ClassName);
 
         private ManagedClassName _managed;
         private ManagedClassName Managed => _managed;
@@ -626,7 +627,7 @@ namespace RishUI
             {
                 _list = list;
                 _index = 0;
-                _current = default;
+                _current = null;
             }
         
             public string Current => _current;
