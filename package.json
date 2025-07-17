@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "com.unity.collections": "1.2.4",
-    "com.clockworklabs.sappy": "1.0.0-pre.4"
+    "com.clockworklabs.sappy": "1.0.0-pre.5"
   },
   "samples": [
     {
