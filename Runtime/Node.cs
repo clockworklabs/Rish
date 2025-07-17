@@ -4,6 +4,7 @@ using System.Linq;
 using Priority_Queue;
 using RishUI.Events;
 using RishUI.Input;
+using RishUI.MemoryManagement;
 using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,24 +14,26 @@ namespace RishUI
     // TODO: We should revisit.
     public partial class Node : FastPriorityQueueNode
     {
-        private SapStem OnMountedHandler { get; } = new();
+        private SapStem OnMountedStem { get; } = new();
         [SapEvent]
-        internal event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private SapStem OnBeforeUnmountHandler { get; } = new();
+        internal event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        private SapStem OnBeforeUnmountStem { get; } = new();
         [SapEvent]
-        internal event Action OnBeforeUnmount { add => OnBeforeUnmountHandler.AddTarget(value); remove => OnBeforeUnmountHandler.RemoveTarget(value); }
-        private SapStem OnUnmountedHandler { get; } = new();
+        internal event Action OnBeforeUnmount { add => OnBeforeUnmountStem.AddTarget(value); remove => OnBeforeUnmountStem.RemoveTarget(value); }
+        private SapStem OnUnmountedStem { get; } = new();
         [SapEvent]
-        internal event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
-        private SapStem<Node> OnInactiveHandler { get; } = new(); // TODO: Maybe uint?
+        internal event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        private SapStem<Node> OnInactiveStem { get; } = new(); // TODO: Maybe uint?
         [SapEvent]
-        internal event Action<Node> OnInactive { add => OnInactiveHandler.AddTarget(value); remove => OnInactiveHandler.RemoveTarget(value); }
+        internal event Action<Node> OnInactive { add => OnInactiveStem.AddTarget(value); remove => OnInactiveStem.RemoveTarget(value); }
 
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         private static Stack<Node> Pool { get; } = new(1024);
+        public static int PoolSize => Pool.Count;
         private static List<Node> AllNodes { get; } = new(1024);
+        public static int TotalCount => AllNodes.Count;
 
         // -------------------------------------------------------------------------------------------------------------
         // --- Never changes -------------------------------------------------------------------------------------------
@@ -100,6 +103,23 @@ namespace RishUI
         private bool IsRoot => Element is App && Parent == null;
         internal bool IsVisualElement => Element is VisualElement;
         internal VisualElement VisualElement => Element as VisualElement;
+
+        internal int Size
+        {
+            get
+            {
+                var count = Children?.Count ?? 0;
+                if(count > 0)
+                {
+                    foreach (var child in Children)
+                    {
+                        count += child.Size;
+                    }
+                }
+
+                return count;
+            }
+        }
 
         private Node GetPreviousSibling()
         {
@@ -228,7 +248,7 @@ namespace RishUI
             {
                 rootClassName = rootClassName,
                 recovered = recovered
-            });
+            }, null);
             node.Dirty(true);
 
             return node;
@@ -255,11 +275,14 @@ namespace RishUI
                 throw new UnityException("Only RishElements can render");
             }
 
+            using (ManagedContext.New())
+            {
 #if UNITY_EDITOR
-            AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);
+                AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);
 #else
-            AttachElement(rishElement.Render());
+                AttachElement(rishElement.Render());
 #endif
+            }
         }
 
         
@@ -493,23 +516,23 @@ namespace RishUI
             return hash;
         }
 
-        private void AboutToUnmount() => OnBeforeUnmountHandler.Send();
+        private void AboutToUnmount() => OnBeforeUnmountStem.Send();
         [SapTarget]
         private void OnStateChange(State state)
         {
             switch (state)
             {
                 case MountedState:
-                    OnMountedHandler.Send();
+                    OnMountedStem.Send();
                     break;
                 case UnmountedState:
-                    OnUnmountedHandler.Send();
+                    OnUnmountedStem.Send();
                     break;
             }
 
             if (state is not ActiveState)
             {
-                OnInactiveHandler.Send(this);
+                OnInactiveStem.Send(this);
             }
         }
 
@@ -539,9 +562,9 @@ namespace RishUI
 
         private class StateMachine
         {
-            private SapStem<State> OnChangeHandler { get; } = new();
+            private SapStem<State> OnChangeStem { get; } = new();
             [SapEvent]
-            public event Action<State> OnChange { add => OnChangeHandler.AddTarget(value); remove => OnChangeHandler.RemoveTarget(value); }
+            public event Action<State> OnChange { add => OnChangeStem.AddTarget(value); remove => OnChangeStem.RemoveTarget(value); }
 
             private State _currentState;
             public State CurrentState
@@ -581,7 +604,7 @@ namespace RishUI
                     _currentState = value;
                     _currentState?.Enter();
 
-                    OnChangeHandler.Send(value);
+                    OnChangeStem.Send(value);
                 }
             }
 

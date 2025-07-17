@@ -18,17 +18,19 @@ namespace RishUI.MemoryManagement
         public void Claim(ManagedContext context) => Claim(null, context);
         public void Claim(int? id, ManagedContext context)
         {
-            if (id.HasValue && WithId.TryGetValue(id.Value, out var prevContextID))
+            if (id.HasValue)
             {
                 var idValue = id.Value;
-                WithId.Remove(idValue);
-                if (IdsByContextId.TryGetValue(prevContextID, out var ids))
+                if (WithId.Remove(idValue, out var prevContextID))
                 {
-                    ids.Remove(id.Value);
-
-                    if (ids.Count <= 0)
+                    if (IdsByContextId.TryGetValue(prevContextID, out var ids))
                     {
-                        Release(prevContextID);
+                        ids.Remove(idValue);
+
+                        if (ids.Count <= 0)
+                        {
+                            Release(prevContextID);
+                        }
                     }
                 }
             }
@@ -102,6 +104,14 @@ namespace RishUI.MemoryManagement
         [SapTarget]
         private void OnFreed(ManagedContext context)
         {
+#if UNITY_EDITOR
+            if (context == null)
+            {
+                UnityEngine.Debug.LogError("Null Context was freed.");
+                return;
+            }
+#endif
+            
             context.OnFreed -= SappyOnFreed;
             
             var contextID = context.ID;

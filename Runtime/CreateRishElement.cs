@@ -51,7 +51,7 @@ namespace RishUI
                 var node = parent.AddChild<T>(Key);
 #endif
                 if (node is not { Element: T element }) return;
-                if (element.SetProps(Props))
+                if (element.SetProps(Props, OwnerContext))
                 {
 #if UNITY_EDITOR
                     node.Render(debugPrefix);

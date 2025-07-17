@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RishUI.MemoryManagement;
 using UnityEngine;
 
@@ -88,6 +89,9 @@ namespace RishUI
             var freeStack = GetFreeStack(typeof(T));
             freeStack.Push(id);
         }
+
+        int IPool.PoolSize => FreeStacks.Sum(pair => pair.Value.Count);
+        int IPool.TotalCount => WrappersById.Count;
 
         private (ulong, IWrapper) CreateNew<T>() where T : class, IManaged, new()
         {

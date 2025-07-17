@@ -23,8 +23,8 @@ namespace RishUI
         void RequestUnmount();
         void Unmount();
 
+        [RequiresManagedContext]
         Element Render();
-        void PersistReferences();
         
         IReadOnlyCollection<ToolkitManipulator> ToolkitManipulators { get; }
         IReadOnlyCollection<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
@@ -36,21 +36,21 @@ namespace RishUI
     [Sappy]
     public abstract class RishElement<P> : IRishElement, IRishEventTarget where P : struct
     {
-        private SapStem<bool> OnDirtyHandler { get; } = new();
-        event Action<bool> IRishElement.OnDirty { add => OnDirtyHandler.AddTarget(value); remove => OnDirtyHandler.RemoveTarget(value); }
+        private SapStem<bool> OnDirtyStem { get; } = new();
+        event Action<bool> IRishElement.OnDirty { add => OnDirtyStem.AddTarget(value); remove => OnDirtyStem.RemoveTarget(value); }
         
-        private SapStem OnReadyToUnmountHandler { get; } = new();
-        event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountHandler.AddTarget(value); remove => OnReadyToUnmountHandler.RemoveTarget(value); }
+        private SapStem OnReadyToUnmountStem { get; } = new();
+        event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountStem.AddTarget(value); remove => OnReadyToUnmountStem.RemoveTarget(value); }
 
-        private SapStem OnMountedHandler { get; } = new();
+        private SapStem OnMountedStem { get; } = new();
         [SapEvent]
-        private protected event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private SapStem OnUnmountingHandler { get; } = new();
+        private protected event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        private SapStem OnUnmountingStem { get; } = new();
         [SapEvent]
-        private protected event Action OnUnmounting { add => OnUnmountingHandler.AddTarget(value); remove => OnUnmountingHandler.RemoveTarget(value); }
-        private SapStem OnUnmountedHandler { get; } = new();
+        private protected event Action OnUnmounting { add => OnUnmountingStem.AddTarget(value); remove => OnUnmountingStem.RemoveTarget(value); }
+        private SapStem OnUnmountedStem { get; } = new();
         [SapEvent]
-        private protected event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
+        private protected event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
         
         private ContextOwner ContextOwner { get; } = new();
         
@@ -104,7 +104,7 @@ namespace RishUI
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
-        internal bool SetProps(P value)
+        internal bool SetProps(P value, ManagedContext context)
         {
             var propsSet = _props.HasValue;
             var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
@@ -131,6 +131,8 @@ namespace RishUI
                 typedPropsListener?.PropsDidChange(oldValue);
             }
             allPropsListener?.PropsDidChange(oldValue);
+            
+            ClaimContext(-2, context);
 
             return !propsSet || dirty;
         }
@@ -148,7 +150,7 @@ namespace RishUI
         /// Flag this element as Dirty.
         /// </summary>
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
-        protected void Dirty(bool forceThisFrame) => OnDirtyHandler.Send(forceThisFrame);
+        protected void Dirty(bool forceThisFrame) => OnDirtyStem.Send(forceThisFrame);
         
         private Action _sappyCanUnmount;
         protected Action SappyCanUnmount => _sappyCanUnmount ??= CanUnmount;
@@ -163,7 +165,7 @@ namespace RishUI
             }
             
             ReadyToUnmount = true;
-            OnReadyToUnmountHandler.Send();
+            OnReadyToUnmountStem.Send();
         }
 
         void IRishElement.Mount(Node node)
@@ -176,7 +178,7 @@ namespace RishUI
             Node = node;
             
             _props = null;
-            OnMountedHandler.Send();
+            OnMountedStem.Send();
             
             UnmountRequested = false;
             ReadyToUnmount = false;
@@ -229,7 +231,7 @@ namespace RishUI
 
             ContextOwner.ReleaseAll();
             
-            OnUnmountingHandler.Send();
+            OnUnmountingStem.Send();
             
             Node = null;
             
@@ -238,7 +240,7 @@ namespace RishUI
                 customUnmountListener.Unmounted();
             }
             
-            OnUnmountedHandler.Send();
+            OnUnmountedStem.Send();
         }
         
         Element IRishElement.Render()
@@ -252,21 +254,14 @@ namespace RishUI
 
             Node.ClearDirty();
 
-            Element element;
-            using (ManagedContext.New(true))
-            {
-                element = Render();
-                ClaimCurrentContext(-1);
-            }
+            var element = Render();
+            ClaimCurrentContext(-1);
 
             return element;
         }
 
         [RequiresManagedContext]
         protected abstract Element Render();
-
-        void IRishElement.PersistReferences() => PersistReferences();
-        private protected virtual void PersistReferences() { }
         
         /// <summary>
         /// Dispatch an event.
@@ -720,7 +715,7 @@ namespace RishUI
             {
                 dirty = _state.HasValue && !IsDirty() && !RishUtils.SmartCompare(value, _state.Value);
                 
-                ClaimCurrentContext(-2);
+                ClaimCurrentContext(-3);
             }
             else
             {

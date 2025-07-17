@@ -35,34 +35,34 @@ namespace RishUI
     
     public class Bridge<P> : IBridge<P> where P : struct
     {
-        private SapStem OnMountedHandler { get; } = new();
+        private SapStem OnMountedStem { get; } = new();
         [SapEvent]
-        public event Action OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        event Action IBridge.OnMounted { add => OnMountedHandler.AddTarget(value); remove => OnMountedHandler.RemoveTarget(value); }
-        private SapStem OnUnmountedHandler { get; } = new();
+        public event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        event Action IBridge.OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        private SapStem OnUnmountedStem { get; } = new();
         [SapEvent]
-        public event Action OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
-        event Action IBridge.OnUnmounted { add => OnUnmountedHandler.AddTarget(value); remove => OnUnmountedHandler.RemoveTarget(value); }
-        private SapStem<Name> OnNameHandler { get; } = new();
+        public event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        event Action IBridge.OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        private SapStem<Name> OnNameStem { get; } = new();
         [SapEvent]
-        public event Action<Name> OnName { add => OnNameHandler.AddTarget(value); remove => OnNameHandler.RemoveTarget(value); }
-        event Action<Name> IBridge.OnName { add => OnNameHandler.AddTarget(value); remove => OnNameHandler.RemoveTarget(value); }
-        private SapStem<ClassName> OnClassNameHandler { get; } = new();
+        public event Action<Name> OnName { add => OnNameStem.AddTarget(value); remove => OnNameStem.RemoveTarget(value); }
+        event Action<Name> IBridge.OnName { add => OnNameStem.AddTarget(value); remove => OnNameStem.RemoveTarget(value); }
+        private SapStem<ClassName> OnClassNameStem { get; } = new();
         [SapEvent]
-        public event Action<ClassName> OnClassName { add => OnClassNameHandler.AddTarget(value); remove => OnClassNameHandler.RemoveTarget(value); }
-        event Action<ClassName> IBridge.OnClassName { add => OnClassNameHandler.AddTarget(value); remove => OnClassNameHandler.RemoveTarget(value); }
-        private SapStem<Style> OnStyleHandler { get; } = new();
+        public event Action<ClassName> OnClassName { add => OnClassNameStem.AddTarget(value); remove => OnClassNameStem.RemoveTarget(value); }
+        event Action<ClassName> IBridge.OnClassName { add => OnClassNameStem.AddTarget(value); remove => OnClassNameStem.RemoveTarget(value); }
+        private SapStem<Style> OnStyleStem { get; } = new();
         [SapEvent]
-        public event Action<Style> OnStyle { add => OnStyleHandler.AddTarget(value); remove => OnStyleHandler.RemoveTarget(value); }
-        event Action<Style> IBridge.OnStyle { add => OnStyleHandler.AddTarget(value); remove => OnStyleHandler.RemoveTarget(value); }
-        private SapStem<P> OnPropsHandler { get; } = new();
+        public event Action<Style> OnStyle { add => OnStyleStem.AddTarget(value); remove => OnStyleStem.RemoveTarget(value); }
+        event Action<Style> IBridge.OnStyle { add => OnStyleStem.AddTarget(value); remove => OnStyleStem.RemoveTarget(value); }
+        private SapStem<P> OnPropsStem { get; } = new();
         [SapEvent]
-        public event Action<P> OnProps { add => OnPropsHandler.AddTarget(value); remove => OnPropsHandler.RemoveTarget(value); }
-        event Action<P> IBridge<P>.OnProps { add => OnPropsHandler.AddTarget(value); remove => OnPropsHandler.RemoveTarget(value); }
-        private SapStem OnSetupHandler { get; } = new();
+        public event Action<P> OnProps { add => OnPropsStem.AddTarget(value); remove => OnPropsStem.RemoveTarget(value); }
+        event Action<P> IBridge<P>.OnProps { add => OnPropsStem.AddTarget(value); remove => OnPropsStem.RemoveTarget(value); }
+        private SapStem OnSetupStem { get; } = new();
         [SapEvent]
-        public event Action OnSetup { add => OnSetupHandler.AddTarget(value); remove => OnSetupHandler.RemoveTarget(value); }
-        event Action IBridge.OnSetup { add => OnSetupHandler.AddTarget(value); remove => OnSetupHandler.RemoveTarget(value); }
+        public event Action OnSetup { add => OnSetupStem.AddTarget(value); remove => OnSetupStem.RemoveTarget(value); }
+        event Action IBridge.OnSetup { add => OnSetupStem.AddTarget(value); remove => OnSetupStem.RemoveTarget(value); }
         
         private VisualElement Element { get; }
         VisualElement IBridge.Element => Element;
@@ -80,7 +80,7 @@ namespace RishUI
                 
                 Element.name = value;
                 
-                OnNameHandler.Send(value);
+                OnNameStem.Send(value);
             }
         }
 
@@ -97,7 +97,7 @@ namespace RishUI
 
                 Element.SetClassName(value);
                 
-                OnClassNameHandler.Send(value);
+                OnClassNameStem.Send(value);
             }
         }
 
@@ -130,7 +130,7 @@ namespace RishUI
                 SetStyle(value);
                 _style = value;
                 
-                OnStyleHandler.Send(value);
+                OnStyleStem.Send(value);
             }
         }
 
@@ -168,7 +168,7 @@ namespace RishUI
                 {
                     propsElement.Setup(value);
                     
-                    OnPropsHandler.Send(value);
+                    OnPropsStem.Send(value);
                 }
 #if UNITY_EDITOR
                 else
@@ -198,6 +198,18 @@ namespace RishUI
                 }
             }
         }
+        
+        private ManagedContext _context;
+        private ManagedContext Context 
+        { 
+            get => _context;
+            set
+            {
+                _context?.Release();
+                value?.Claim();
+                _context = value;
+            }
+        }
 
         public Bridge(VisualElement element, bool propsAlwaysDirty = false)
         {
@@ -213,13 +225,13 @@ namespace RishUI
             
             Node = node;
             
-            OnMountedHandler.Send();
+            OnMountedStem.Send();
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context, string debugPrefix)
 #else
-        internal void Setup(DOMDescriptor descriptor, Children children, P props)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context)
 #endif
         {
 #if UNITY_EDITOR
@@ -233,7 +245,9 @@ namespace RishUI
 
             Children = children;
             
-            OnSetupHandler.Send();
+            Context = context;
+            
+            OnSetupStem.Send();
         }
 
         private void SetStyle(Style style)
@@ -590,7 +604,9 @@ namespace RishUI
             
             Node = null;
             
-            OnUnmountedHandler.Send();
+            OnUnmountedStem.Send();
+
+            Context = null;
         }
     }
 

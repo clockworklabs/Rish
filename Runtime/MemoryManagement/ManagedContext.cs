@@ -32,9 +32,9 @@ namespace RishUI.MemoryManagement
         internal static ManagedContext Current => ManagedStack.Current;
         internal static ManagedContext Get(ulong id) => ManagedStack.Get(id);
         
-        internal static int GetTotalCount() => ManagedStack.GetTotalCount();
-        internal static int GetStackSize() => ManagedStack.GetStackSize();
-        internal static int GetActiveCount() => ManagedStack.GetActiveCount();
+        public static int GetTotalCount() => ManagedStack.GetTotalCount();
+        public static int GetStackSize() => ManagedStack.GetStackSize();
+        public static int GetPoolSize() => GetTotalCount() - ManagedStack.GetActiveCount();
         
         void IDisposable.Dispose()
         {

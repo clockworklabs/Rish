@@ -8,6 +8,9 @@ namespace RishUI.MemoryManagement
         IWrapper GetWrapper<T>(ulong id) where T : class, IManaged;
         T GetManaged<T>(ulong id) where T : class, IManaged;
         void Free<T>(ulong id) where T : class, IManaged;
+        
+        int PoolSize { get; }
+        int TotalCount { get; }
     }
     internal interface IPool<out T> : IPool where T : class, IManaged
     {

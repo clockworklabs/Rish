@@ -17,6 +17,8 @@ namespace RishUI
         private List<Node> FreeNodes { get; set; } = new(InitialSize);
         private List<Node> FreeNodesBuffer { get; set; } = new(InitialSize);
 
+        public int Size => RootNode?.Size ?? 0;
+
         public Tree(UIDocument document, string rootClassName, bool recovered)
         {
             DirtyQueue = new DirtyQueue(InitialSize);

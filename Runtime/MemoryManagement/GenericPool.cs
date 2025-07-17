@@ -83,5 +83,8 @@ namespace RishUI.MemoryManagement
         }
 
         private Wrapper<T> GetWrapper(ulong id) => id > 0 && WrappersById.TryGetValue(id, out var wrapper) ? wrapper : null;
+
+        int IPool.PoolSize => FreeStack.Count;
+        int IPool.TotalCount => WrappersById.Count;
     }
 }

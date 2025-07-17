@@ -3,19 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using RishUI.Events;
-using RishUI.MemoryManagement;
 using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Debug = UnityEngine.Debug;
 
 namespace RishUI
 {
     [RequireComponent(typeof(UIDocument))]
     public class RishRoot : MonoBehaviour
     {
-        private SapStem OnStartHandler { get; } = new();
-        public event Action OnStart { add => OnStartHandler.AddTarget(value); remove => OnStartHandler.RemoveTarget(value); }
+        private SapStem OnStartStem { get; } = new();
+        [SapEvent]
+        public event Action OnStart { add => OnStartStem.AddTarget(value); remove => OnStartStem.RemoveTarget(value); }
+        
+#if UNITY_EDITOR
+        private SapStem<RishRoot> OnStepStem { get; } = new();
+        [SapEvent]
+        public event Action<RishRoot> OnStep { add => OnStepStem.AddTarget(value); remove => OnStepStem.RemoveTarget(value); }
+#endif
 
         [SerializeField]
         private bool _manualUpdate;
@@ -91,7 +96,11 @@ namespace RishUI
         private IPanel Panel => Root?.panel;
 
         private Tree Tree { get; set; }
-
+        
+#if UNITY_EDITOR
+        public int TreeSize => Tree?.Size ?? 0;
+#endif
+        
         private Stopwatch Stopwatch { get; set; }
         private const int RecordedStepsCount = 10;
         private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
@@ -102,7 +111,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (Recovered)
             {
-                Debug.LogError("Recovering UI");
+                UnityEngine.Debug.LogError("Recovering UI");
             }
 #endif
 
@@ -156,7 +165,7 @@ namespace RishUI
             Dispose();
 
             Tree = new Tree(Document, RootClassName, Recovered);
-            OnStartHandler?.Send();
+            OnStartStem.Send();
         }
 
         public void Step()
@@ -198,7 +207,7 @@ namespace RishUI
             catch (Exception e)
             {
 #if UNITY_EDITOR
-                Debug.LogException(e);
+                UnityEngine.Debug.LogException(e);
 #endif
                 updateTime = null;
                 if (timeLimited)
@@ -210,6 +219,10 @@ namespace RishUI
                 
                 RegenTree();
             }
+            
+#if UNITY_EDITOR
+            OnStepStem.Send(this);
+#endif
 
             if (!timeLimited || !updateTime.HasValue) return;
 
