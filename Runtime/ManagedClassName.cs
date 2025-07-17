@@ -54,6 +54,7 @@ namespace RishUI
             return true;
         }
 
+        [RequiresManagedContext]
         public void Add(string className)
         {
             if (Closed)

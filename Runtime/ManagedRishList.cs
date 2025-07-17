@@ -66,6 +66,7 @@ namespace RishUI
             return true;
         }
         
+        [RequiresManagedContext]
         public void Set(int index, T element)
         {
             if (Closed)
@@ -78,6 +79,7 @@ namespace RishUI
             Elements[index] = element;
         }
 
+        [RequiresManagedContext]
         public void Add(T element)
         {
             if (Closed)

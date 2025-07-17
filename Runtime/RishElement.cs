@@ -132,7 +132,7 @@ namespace RishUI
             }
             allPropsListener?.PropsDidChange(oldValue);
             
-            ClaimContext(-2, context);
+            // ClaimContext(-2, context);
 
             return !propsSet || dirty;
         }
@@ -699,11 +699,8 @@ namespace RishUI
         {
             if (!IsMounted) return;
 
-            using (ManagedContext.New())
-            {
-                var value = Defaults.GetValue<S>();
-                SetState(value);
-            }
+            var value = Defaults.GetValue<S>();
+            SetState(value);
         }
 
         protected void SetState(S value, bool autoControl = true)

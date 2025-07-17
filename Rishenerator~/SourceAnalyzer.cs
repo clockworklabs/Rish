@@ -157,6 +157,7 @@ namespace Rishenerator
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextInvocationExpression, SyntaxKind.InvocationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextElementAccessExpression, SyntaxKind.ElementAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeManagedContextCastExpression, SyntaxKind.CastExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeManagedContextAssignmentExpression, SyntaxKind.SimpleAssignmentExpression);
             context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
             context.RegisterSyntaxNodeAction(AnalyzeGenericNameSyntax, SyntaxKind.GenericName);
         }
@@ -507,6 +508,54 @@ namespace Rishenerator
 
             context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, castExpression.GetLocation(), targetTypeSymbol));
         }
+
+        private static void AnalyzeManagedContextAssignmentExpression(SyntaxNodeAnalysisContext context)
+        {
+            var assignmentExpression = (AssignmentExpressionSyntax)context.Node;
+            if (assignmentExpression.Left is not ElementAccessExpressionSyntax elementAccess) return;
+            
+            var semanticModel = context.SemanticModel;
+            
+            var symbolInfo = semanticModel.GetSymbolInfo(elementAccess);
+
+            if (symbolInfo.Symbol is not IPropertySymbol indexerSymbol) return;
+            
+            var setterMethodSymbol = indexerSymbol.SetMethod;
+
+            var skip = !indexerSymbol.HasAttribute(RequiresManagedContextAttributeName) && !setterMethodSymbol.HasAttribute(RequiresManagedContextAttributeName);
+            if (skip)
+            {
+                var overriddenSymbol = indexerSymbol.OverriddenProperty;
+                while (overriddenSymbol != null)
+                {
+                    if (overriddenSymbol.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                    overriddenSymbol = overriddenSymbol.OverriddenProperty;
+                }
+            }
+            if (skip)
+            {
+                var overriddenSymbol = setterMethodSymbol?.OverriddenMethod;
+                while (overriddenSymbol != null)
+                {
+                    if (overriddenSymbol.HasAttribute(RequiresManagedContextAttributeName))
+                    {
+                        skip = false;
+                        break;
+                    }
+                    overriddenSymbol = overriddenSymbol.OverriddenMethod;
+                }
+            }
+
+            if (skip) return;
+            
+            if (FindManagedContextScope(assignmentExpression.Parent, context.SemanticModel)) return;
+
+            context.ReportDiagnostic(Diagnostic.Create(ManagedContextRule, assignmentExpression.GetLocation(), indexerSymbol));
+        }
         
         private void AnalyzeConversionOperation(OperationAnalysisContext context)
         {
@@ -518,8 +567,9 @@ namespace Rishenerator
             var targetTypeSymbol = conversionOperation.Type;
         
             if (targetTypeSymbol == null) return;
+
+            var skip = !targetTypeSymbol.HasAttribute(RequiresManagedContextAttributeName) && !(conversionOperation.OperatorMethod?.HasAttribute(RequiresManagedContextAttributeName) ?? false);
             
-            var skip = !targetTypeSymbol.HasAttribute(RequiresManagedContextAttributeName);
             if (skip)
             {
                 var baseType = targetTypeSymbol.BaseType;
@@ -612,6 +662,10 @@ namespace Rishenerator
                 {
                     var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(indexerDeclaration);
                     if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
+                } else if(scope is AccessorDeclarationSyntax accessorDeclaration)
+                {
+                    var methodDeclarationSymbol = semanticModel.GetDeclaredSymbol(accessorDeclaration);
+                    if (methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodDeclarationSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
                 } else if(scope is PropertyDeclarationSyntax propertyDeclaration)
                 {
                     var propertySymbol = semanticModel.GetDeclaredSymbol(propertyDeclaration);
@@ -640,70 +694,6 @@ namespace Rishenerator
             }
 
             return false;
-        }
-
-        private static bool IsWithinManagedContext(ISymbol scope)
-        {
-            if (scope == null) return false;
-            
-            Logger.Log($"Scope: {scope.GetType()}");
-            
-            if (scope is IMethodSymbol methodSymbol)
-            {
-                if (methodSymbol.HasAttribute(RequiresManagedContextAttributeName)) return true;
-                if (methodSymbol.MethodKind == MethodKind.Constructor)
-                {
-                    var typeSymbol = methodSymbol.ContainingType;
-                    if (typeSymbol.HasAttribute(RequiresManagedContextAttributeName) || typeSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                }
-                else
-                {
-                    if (methodSymbol.AssociatedSymbol != null && (methodSymbol.AssociatedSymbol.HasAttribute(RequiresManagedContextAttributeName) || methodSymbol.AssociatedSymbol.HasAttribute(ExemptOfManagedContextAttributeName))) return true;
-                    var overriddenMethodSymbol = methodSymbol.OverriddenMethod;
-                    while (overriddenMethodSymbol != null)
-                    {
-                        if (overriddenMethodSymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenMethodSymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                        overriddenMethodSymbol = overriddenMethodSymbol.OverriddenMethod;
-                    }
-                    if (methodSymbol.ExplicitInterfaceImplementations.Any())
-                    {
-                        foreach (var explicitInterfaceImpl in methodSymbol.ExplicitInterfaceImplementations)
-                        {
-                            if (explicitInterfaceImpl.HasAttribute(RequiresManagedContextAttributeName) || explicitInterfaceImpl.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                        }
-                    }
-                    else
-                    {
-                        foreach (var iface in methodSymbol.ContainingType.AllInterfaces)
-                        {
-                            var members = iface.GetMembers().OfType<IMethodSymbol>();
-                            foreach (var ifaceMember in members)
-                            {
-                                // Find the implementation for this interface member in the current type
-                                var implementation = methodSymbol.ContainingType.FindImplementationForInterfaceMember(ifaceMember);
-
-                                // Check if our current methodSymbol is the implementation for this interface method
-                                if (SymbolEqualityComparer.Default.Equals(implementation, methodSymbol))
-                                {
-                                    // Found the interface method this method implicitly implements
-                                    if (ifaceMember.HasAttribute(RequiresManagedContextAttributeName) || ifaceMember.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            } else if(scope is IPropertySymbol propertySymbol)
-            {
-                if (propertySymbol.HasAttribute(RequiresManagedContextAttributeName) || propertySymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                var overriddenPropertySymbol = propertySymbol?.OverriddenProperty;
-                while (overriddenPropertySymbol != null)
-                {
-                    if (overriddenPropertySymbol.HasAttribute(RequiresManagedContextAttributeName) || overriddenPropertySymbol.HasAttribute(ExemptOfManagedContextAttributeName)) return true;
-                    overriddenPropertySymbol = overriddenPropertySymbol.OverriddenProperty;
-                }
-            } 
-
-            return IsWithinManagedContext(scope.ContainingSymbol);
         }
 
         private void AnalyzeGenericNameSyntax(SyntaxNodeAnalysisContext context)

@@ -40,11 +40,13 @@ namespace RishUI
 
         ulong IPool.GetFreeID<T>()
         {
+#if UNITY_EDITOR
             var freeStack = GetFreeStackOrCreate<T>();
             if (freeStack == null)
             {
                 throw new UnityException($"{typeof(T)} isn't managed by this pool.");
             }
+#endif
 
             IWrapper wrapper;
             if (!freeStack.TryPop(out var id))
@@ -55,7 +57,7 @@ namespace RishUI
             {
                 wrapper = GetWrapper(id);
             }
-            
+
 #if UNITY_EDITOR
             var currentContext = ManagedContext.Current;
             if (currentContext != null)

@@ -245,7 +245,7 @@ namespace RishUI
 
             Children = children;
             
-            Context = context;
+            // Context = context;
             
             OnSetupStem.Send();
         }

@@ -269,13 +269,13 @@ namespace RishUI
             {
                 throw new UnityException("Node isn't mounted");
             }
-#endif
             if (Element is not IRishElement rishElement)
             {
                 throw new UnityException("Only RishElements can render");
             }
+#endif
 
-            using (ManagedContext.New())
+            using (ManagedContext.New(true))
             {
 #if UNITY_EDITOR
                 AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);

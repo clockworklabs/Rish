@@ -36,6 +36,7 @@ namespace RishUI
         public T1 this[int index]
         {
             get => Managed?.Get(index) ?? default;
+            [RequiresManagedContext]
             set => Managed.Set(index, value);
         }
         public T1 this[Index index] => Managed?.Get(index) ?? default;

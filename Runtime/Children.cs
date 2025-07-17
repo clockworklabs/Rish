@@ -38,6 +38,7 @@ namespace RishUI
         public Element this[int index]
         {
             get => Managed?.Get(index) ?? Element.Null;
+            [RequiresManagedContext]
             set => Managed.Set(index, value);
         }
         public Element this[Index index] => Managed?.Get(index) ?? Element.Null;

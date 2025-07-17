@@ -66,7 +66,7 @@ namespace RishUI
             {
                 Ready = true;
                 Dirty();
-                return Rish.Create<Label, LabelProps>(default, default, default);
+                return Rish.Create<Label, LabelProps>(0, default, default);
             }
 #endif
             
