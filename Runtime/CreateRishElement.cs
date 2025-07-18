@@ -51,7 +51,7 @@ namespace RishUI
                 var node = parent.AddChild<T>(Key);
 #endif
                 if (node is not { Element: T element }) return;
-                if (element.SetProps(Props, OwnerContext))
+                if (element.SetProps(Props)) // TODO: Maybe we need to claim OwnerContext in RishElement?
                 {
 #if UNITY_EDITOR
                     node.Render(debugPrefix);

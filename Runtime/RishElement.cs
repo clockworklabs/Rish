@@ -104,7 +104,7 @@ namespace RishUI
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
-        internal bool SetProps(P value, ManagedContext context)
+        internal bool SetProps(P value)
         {
             var propsSet = _props.HasValue;
             var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
@@ -131,8 +131,6 @@ namespace RishUI
                 typedPropsListener?.PropsDidChange(oldValue);
             }
             allPropsListener?.PropsDidChange(oldValue);
-            
-            // ClaimContext(-2, context);
 
             return !propsSet || dirty;
         }

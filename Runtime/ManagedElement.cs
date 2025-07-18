@@ -9,7 +9,7 @@ namespace RishUI
         public ulong Key { get; protected set; }
         public abstract Type Type { get; }
         
-        protected ManagedContext OwnerContext { get; private set; }
+        private ManagedContext OwnerContext { get; set; }
         ManagedContext IManaged.OwnerContext => OwnerContext;
         
 #if UNITY_EDITOR

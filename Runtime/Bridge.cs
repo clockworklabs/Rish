@@ -198,18 +198,6 @@ namespace RishUI
                 }
             }
         }
-        
-        private ManagedContext _context;
-        private ManagedContext Context 
-        { 
-            get => _context;
-            set
-            {
-                _context?.Release();
-                value?.Claim();
-                _context = value;
-            }
-        }
 
         public Bridge(VisualElement element, bool propsAlwaysDirty = false)
         {
@@ -229,9 +217,9 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context, string debugPrefix)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
 #else
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props)
 #endif
         {
 #if UNITY_EDITOR
@@ -244,8 +232,6 @@ namespace RishUI
             Props = props;
 
             Children = children;
-            
-            // Context = context;
             
             OnSetupStem.Send();
         }
@@ -605,8 +591,6 @@ namespace RishUI
             Node = null;
             
             OnUnmountedStem.Send();
-
-            Context = null;
         }
     }
 

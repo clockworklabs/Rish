@@ -248,7 +248,7 @@ namespace RishUI
             {
                 rootClassName = rootClassName,
                 recovered = recovered
-            }, null);
+            });
             node.Dirty(true);
 
             return node;
