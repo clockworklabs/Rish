@@ -205,6 +205,19 @@ namespace RishUI
             PropsAlwaysDirty = propsAlwaysDirty;
         }
 
+        private ManagedContext _context;
+
+        private ManagedContext Context
+        {
+            get => _context;
+            set
+            {
+                _context?.Release();
+                _context = value;
+                value?.Claim();
+            }
+        }
+
         void IBridge.Mount(Node node)
         {
             Name = null;
@@ -217,9 +230,9 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context, string debugPrefix)
 #else
-        internal void Setup(DOMDescriptor descriptor, Children children, P props)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context)
 #endif
         {
 #if UNITY_EDITOR
@@ -232,6 +245,8 @@ namespace RishUI
             Props = props;
 
             Children = children;
+            
+            Context = context;
             
             OnSetupStem.Send();
         }
@@ -589,6 +604,8 @@ namespace RishUI
             Element.RemoveFromHierarchy();
             
             Node = null;
+            
+            Context = null;
             
             OnUnmountedStem.Send();
         }
