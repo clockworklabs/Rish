@@ -55,7 +55,12 @@ namespace RishUI.MemoryManagement
             context.OnFreed += SappyOnFreed;
             context.Claim();
         }
-        
+
+        public void Release(int id)
+        {
+            if (!WithId.TryGetValue(id, out var contextID)) return;
+            Release(contextID);
+        }
         private void Release(ulong contextID) => Release(ManagedContext.Get(contextID));
         public void Release(ManagedContext context)
         {

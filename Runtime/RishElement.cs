@@ -137,8 +137,13 @@ namespace RishUI
             return !propsSet || dirty;
         }
 
+        protected void ClaimCurrentContext() => ContextOwner.ClaimCurrent();
+        protected void ClaimContext(ManagedContext context) => ContextOwner.Claim(context);
+        protected void ReleaseContext(ManagedContext context) => ContextOwner.Release(context);
+        
         protected void ClaimCurrentContext(int id) => ContextOwner.ClaimCurrent(id);
         protected void ClaimContext(int id, ManagedContext context) => ContextOwner.Claim(id, context);
+        protected void ReleaseContext(int id) => ContextOwner.Release(id);
 
         private Action _sappyDirty;
         protected Action SappyDirty => _sappyDirty ??= Dirty;
