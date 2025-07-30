@@ -40,8 +40,8 @@ namespace RishUI
 
         ulong IPool.GetFreeID<T>()
         {
-#if UNITY_EDITOR
             var freeStack = GetFreeStackOrCreate<T>();
+#if UNITY_EDITOR
             if (freeStack == null)
             {
                 throw new UnityException($"{typeof(T)} isn't managed by this pool.");
