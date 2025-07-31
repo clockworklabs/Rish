@@ -8,10 +8,11 @@ namespace RishUI.MemoryManagement
         private Dictionary<ulong, int> TotalCount { get; } = new();
         private IndexedList<ulong> List { get; } = new();
         private Dictionary<int, ulong> WithId { get; } = new();
-        private IndexedList<ulong, IndexedList<int>> IdsByContextId { get; } = new();
         private Dictionary<ulong, int> NoIdCount { get; } = new();
         
         private int Count => TotalCount.Count;
+
+        private List<int> CachedList { get; } = new();
 
         public void ClaimCurrent() => ClaimCurrent(null);
         public void ClaimCurrent(int? id) => Claim(id, ManagedContext.Current);
@@ -33,12 +34,6 @@ namespace RishUI.MemoryManagement
             {
                 var idValue = id.Value;
                 WithId.Add(idValue, contextID);
-                if (!IdsByContextId.TryGetValue(contextID, out var ids))
-                {
-                    ids = new IndexedList<int>();
-                    IdsByContextId.Add(contextID, ids);
-                }
-                ids.Add(idValue);
             }
             else
             {
@@ -68,9 +63,7 @@ namespace RishUI.MemoryManagement
 
         public void Release(int id)
         {
-            if (!WithId.Remove(id, out var contextID) || !IdsByContextId.TryGetValue(contextID, out var ids)) return;
-            
-            ids.Remove(id);
+            if (!WithId.Remove(id, out var contextID)) return;
             
             InternalRelease(contextID);
         }
@@ -130,11 +123,6 @@ namespace RishUI.MemoryManagement
             TotalCount.Clear();
             List.Clear();
             WithId.Clear();
-            for (int i = 0, n = IdsByContextId.Count; i < n; i++)
-            {
-                var ids = IdsByContextId[i];
-                ids.Clear();
-            }
             NoIdCount.Clear();
         }
 
@@ -165,16 +153,15 @@ namespace RishUI.MemoryManagement
             
             List.Remove(contextID);
 
-            if (IdsByContextId.TryGetValue(contextID, out var ids))
+            CachedList.Clear();
+            foreach (var (key, value) in WithId)
             {
-                if(ids.Count > 0)
-                {
-                    foreach (var id in ids)
-                    {
-                        WithId.Remove(id);
-                    }
-                    ids.Clear();
-                }
+                if(value != contextID) continue;
+                CachedList.Add(key);
+            }
+            foreach (var key in CachedList)
+            {
+                WithId.Remove(key);
             }
             
             NoIdCount.Remove(contextID);
