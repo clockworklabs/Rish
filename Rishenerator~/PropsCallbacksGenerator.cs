@@ -146,15 +146,17 @@ namespace Rishenerator
                     return null;
                 }
                 var propsItems = new ItemizedProps(propsTypeSymbol);
-                if (propsItems.Empty)
+                if (propsItems.Empty && !propsItems.ContainsManagedMembers)
                 {
                     return null;
                 }
                 
-                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{typeSymbol.GetGenericsConstraints(false)}
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(propsItems.ContainsManagedMembers ? " : RishUI.MemoryManagement.IManagedProps" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
 {{");
-                
-                sourceCode.AppendLine(@$"
+
+                if (!propsItems.Empty)
+                {
+                    sourceCode.AppendLine(@$"
     private SappyPropsHolder _sappyProps;
     protected SappyPropsHolder SappyProps => _sappyProps ??= new SappyPropsHolder(this);
 
@@ -168,52 +170,49 @@ namespace Rishenerator
         }}
     }}");
 
-                var count = 0;
-                for (int i = 0, n = propsItems.Count; i < n; i++)
-                {
-                    var item = propsItems[i];
-                    if (!item.Valid) continue;
-
-                    var callbackName = ToPascal(item.Name);
-
-                    var alreadyFound = false;
-
-                    var currentMembers = typeSymbol.GetMembers(callbackName);
-                    if (currentMembers != null)
+                    for (int i = 0, n = propsItems.Count; i < n; i++)
                     {
-                        foreach (var current in currentMembers)
-                        {
-                            if (current is not IMethodSymbol currentMethod)
-                            {
-                                alreadyFound = true;
-                                break;
-                            }
-                            
-                            var parameters = currentMethod.Parameters;
-                            if (parameters.Length != item.Parameters.Length) continue;
+                        var item = propsItems[i];
+                        if (!item.Valid) continue;
 
-                            alreadyFound = true;
-                            for (int j = 0, m = parameters.Length; j < m; j++)
+                        var callbackName = ToPascal(item.Name);
+
+                        var alreadyFound = false;
+
+                        var currentMembers = typeSymbol.GetMembers(callbackName);
+                        if (currentMembers != null)
+                        {
+                            foreach (var current in currentMembers)
                             {
-                                var a = parameters[j];
-                                var b = item.Parameters[j];
-                                if (a.Type.GetFullName(true) != b.Type.GetFullName(true)) // TODO: Include generics?
+                                if (current is not IMethodSymbol currentMethod)
                                 {
-                                    alreadyFound = false;
+                                    alreadyFound = true;
                                     break;
+                                }
+
+                                var parameters = currentMethod.Parameters;
+                                if (parameters.Length != item.Parameters.Length) continue;
+
+                                alreadyFound = true;
+                                for (int j = 0, m = parameters.Length; j < m; j++)
+                                {
+                                    var a = parameters[j];
+                                    var b = item.Parameters[j];
+                                    if (a.Type.GetFullName(true) != b.Type.GetFullName(true)) // TODO: Include generics?
+                                    {
+                                        alreadyFound = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (alreadyFound)
-                    {
-                        callbackName = $"Rish{callbackName}";
-                    }
+                        if (alreadyFound)
+                        {
+                            callbackName = $"Rish{callbackName}";
+                        }
 
-                    count++;
-                    
-                    sourceCode.Append(@$"
+                        sourceCode.Append(@$"
     protected partial class SappyPropsHolder
     {{
         private {item.TypeFullName} _{callbackName};
@@ -221,41 +220,37 @@ namespace Rishenerator
     }}
     private {item.ReturnType?.GetFullName(true) ?? "void"} {callbackName}(");
 
-                    for (int j = 0, m = item.Parameters.Length; j < m; j++)
-                    {
-                        var parameter = item.Parameters[j];
-                        sourceCode.Append($"{parameter.Type.GetFullName(true)} {parameter.Name}");
-                        if (j + 1 < m)
+                        for (int j = 0, m = item.Parameters.Length; j < m; j++)
                         {
-                            sourceCode.Append(", ");
+                            var parameter = item.Parameters[j];
+                            sourceCode.Append($"{parameter.Type.GetFullName(true)} {parameter.Name}");
+                            if (j + 1 < m)
+                            {
+                                sourceCode.Append(", ");
+                            }
+                        }
+
+                        sourceCode.Append($") => Props.{item.Name}?.Invoke(");
+
+                        for (int j = 0, m = item.Parameters.Length; j < m; j++)
+                        {
+                            var parameter = item.Parameters[j];
+                            sourceCode.Append(parameter.Name);
+                            if (j + 1 < m)
+                            {
+                                sourceCode.Append(", ");
+                            }
+                        }
+
+                        if (item.ReturnType != null)
+                        {
+                            sourceCode.AppendLine(") ?? default;");
+                        }
+                        else
+                        {
+                            sourceCode.AppendLine(");");
                         }
                     }
-                    
-                    sourceCode.Append($") => Props.{item.Name}?.Invoke(");
-                    
-                    for (int j = 0, m = item.Parameters.Length; j < m; j++)
-                    {
-                        var parameter = item.Parameters[j];
-                        sourceCode.Append(parameter.Name);
-                        if (j + 1 < m)
-                        {
-                            sourceCode.Append(", ");
-                        }
-                    }
-
-                    if (item.ReturnType != null)
-                    {
-                        sourceCode.AppendLine(") ?? default;");
-                    }
-                    else
-                    {
-                        sourceCode.AppendLine(");");
-                    }
-                }
-
-                if (count == 0)
-                {
-                    return null;
                 }
                 
                 sourceCode.AppendLine("}");
@@ -312,19 +307,25 @@ namespace Rishenerator
                 public int Count => Items?.Count ?? 0;
                 public bool Empty => Count <= 0;
 
+                public bool ContainsManagedMembers { get; }
+                
                 public ItemizedProps(ITypeSymbol propsTypeSymbol)
                 {
+                    var containsManagedMembers = false;
                     foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                     {
-                        if (propsMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } stateFieldSymbol) continue;
+                        if (propsMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } propsFieldSymbol) continue;
 
-                        var type = stateFieldSymbol.Type;
+                        var type = propsFieldSymbol.Type;
+                        containsManagedMembers |= type.ContainsManagedMembers(true);
                         if (type.TypeKind != TypeKind.Delegate) continue;
 
                         Items ??= new List<PropsItem>();
-                        var item = new PropsItem(stateFieldSymbol);
+                        var item = new PropsItem(propsFieldSymbol);
                         Items.Add(item);
                     }
+                    
+                    ContainsManagedMembers = containsManagedMembers;
                 }
 
                 public PropsItem this[int i] => Items[i];

@@ -151,7 +151,7 @@ namespace Rishenerator
                     return null;
                 }
                 
-                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{typeSymbol.GetGenericsConstraints(false)}
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(stateItems.ContainsManagedMembers ? " : RishUI.MemoryManagement.IManagedState" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
 {{");
                 
                 sourceCode.AppendLine(@$"
@@ -173,10 +173,11 @@ namespace Rishenerator
         }}
     }}");
 
-                var count = 0;
                 for (int i = 0, n = stateItems.Count; i < n; i++)
                 {
                     var item = stateItems[i];
+
+                    if (!item.Valid) continue;
 
                     var itemTypeFullName = item.TypeFullName;
 
@@ -211,10 +212,8 @@ namespace Rishenerator
                     {
                         setterName = $"Rish{setterName}";
                     }
-
-                    count++;
                     
-                    var contextIndex = int.MinValue + count;
+                    var contextIndex = int.MinValue + i;
 
                     sourceCode.AppendLine(@$"
     protected partial class SappyStateHolder
@@ -270,11 +269,6 @@ namespace Rishenerator
     //                     }
     //                 }
                 }
-
-                if (count == 0)
-                {
-                    return null;
-                }
                 
                 sourceCode.AppendLine("}");
                 
@@ -305,6 +299,7 @@ namespace Rishenerator
                 
                 public bool MustCompare => FieldComparison != ComparersGenerator.FieldComparison.Ignore;
 
+                public bool Valid { get; }
                 public bool IsRishReferenceType => ManagedType != null;
                 // public List<string> OtherTypesFullNames { get; }
 
@@ -328,6 +323,8 @@ namespace Rishenerator
                             }
                         }
                     }
+
+                    Valid = !IsValueType || ManagedType != null || !type.ContainsManagedMembers(false);
 
                     // TODO: Deal with tuples and nullables in a better way
                     if (fieldSymbol.HasAttribute("RishUI.IgnoreComparisonAttribute"))
@@ -395,8 +392,11 @@ namespace Rishenerator
                 public int Count => Items?.Count ?? 0;
                 public bool Empty => Count <= 0;
                 
+                public bool ContainsManagedMembers { get; }
+                
                 public ItemizedState(ITypeSymbol stateTypeSymbol)
                 {
+                    var containsManagedMembers = false;
                     foreach (var stateMemberSymbol in stateTypeSymbol.GetMembers())
                     {
                         if (stateMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } stateFieldSymbol)
@@ -407,7 +407,10 @@ namespace Rishenerator
                         Items ??= new List<StateItem>();
                         var item = new StateItem(stateFieldSymbol);
                         Items.Add(item);
+                        containsManagedMembers |= item.Valid;
                     }
+                    
+                    ContainsManagedMembers = containsManagedMembers;
                 }
 
                 public StateItem this[int i] => Items[i];

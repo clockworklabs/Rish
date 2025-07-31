@@ -131,8 +131,11 @@ namespace RishUI
                 typedPropsListener?.PropsDidChange(oldValue);
             }
             allPropsListener?.PropsDidChange(oldValue);
-            
-            ClaimContext(-2, context);
+
+            if (this is IManagedProps)
+            {
+                ClaimContext(-2, context);
+            }
 
             return !propsSet || dirty;
         }
@@ -716,8 +719,11 @@ namespace RishUI
             if (autoControl)
             {
                 dirty = _state.HasValue && !IsDirty() && !RishUtils.SmartCompare(value, _state.Value);
-                
-                ClaimCurrentContext(-3);
+
+                if (this is IManagedState)
+                {
+                    ClaimCurrentContext(-3);
+                }
             }
             else
             {

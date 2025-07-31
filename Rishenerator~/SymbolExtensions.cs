@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Rishenerator
 {
@@ -459,5 +460,32 @@ namespace Rishenerator
             Accessibility.Public => "public",
             _ => throw new ArgumentOutOfRangeException()
         };
+
+        public static bool IsManaged(this ITypeSymbol typeSymbol)
+        {
+            foreach (var interfaceSymbol in typeSymbol.Interfaces)
+            {
+                if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference" || interfaceSymbol.IsManaged())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public static bool ContainsManagedMembers(this ITypeSymbol typeSymbol, bool checkSelf)
+        {
+            if (checkSelf && typeSymbol.IsManaged()) return true;
+
+            foreach (var memberSymbol in typeSymbol.GetMembers())
+            {
+                if (memberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } fieldSymbol) continue;
+
+                var type = fieldSymbol.Type;
+                if (type.ContainsManagedMembers(true)) return true;
+            }
+
+            return false;
+        }
     }
 }
