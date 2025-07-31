@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using Sappy;
-using UnityEngine;
 
 namespace RishUI.MemoryManagement
 {
     public partial class ContextOwner
     {
-        private IndexedList<ulong> All { get; } = new();
+        private Dictionary<ulong, int> TotalCount { get; } = new();
+        private IndexedList<ulong> List { get; } = new();
         private Dictionary<int, ulong> WithId { get; } = new();
         private IndexedList<ulong, IndexedList<int>> IdsByContextId { get; } = new();
+        private Dictionary<ulong, int> NoIdCount { get; } = new();
         
-        private int Count => All.Count;
+        private int Count => TotalCount.Count;
 
         public void ClaimCurrent() => ClaimCurrent(null);
         public void ClaimCurrent(int? id) => Claim(id, ManagedContext.Current);
@@ -21,25 +22,13 @@ namespace RishUI.MemoryManagement
             if (id.HasValue)
             {
                 var idValue = id.Value;
-                if (WithId.Remove(idValue, out var prevContextID))
-                {
-                    if (IdsByContextId.TryGetValue(prevContextID, out var ids))
-                    {
-                        ids.Remove(idValue);
-
-                        if (ids.Count <= 0)
-                        {
-                            Release(prevContextID);
-                        }
-                    }
-                }
+                Release(idValue);
             }
             
             if (context == null) return;
 
             var contextID = context.ID;
             
-            All.Add(contextID);
             if (id.HasValue)
             {
                 var idValue = id.Value;
@@ -51,59 +40,102 @@ namespace RishUI.MemoryManagement
                 }
                 ids.Add(idValue);
             }
-            
-            context.OnFreed += SappyOnFreed;
-            context.Claim();
+            else
+            {
+                if (NoIdCount.TryGetValue(contextID, out var noIdCount) && noIdCount > 0)
+                {
+                    NoIdCount[contextID] = noIdCount + 1;
+                }
+                else
+                {
+                    NoIdCount[contextID] = 1;
+                }
+            }
+
+            if (TotalCount.TryGetValue(contextID, out var totalCount) && totalCount > 0)
+            {
+                TotalCount[contextID] = totalCount + 1;
+            }
+            else
+            {
+                TotalCount[contextID] = 1;
+                List.Add(contextID);
+                
+                context.OnFreed += SappyOnFreed;
+                context.Claim();
+            }
         }
 
         public void Release(int id)
         {
-            if (!WithId.TryGetValue(id, out var contextID)) return;
-            Release(contextID);
+            if (!WithId.Remove(id, out var contextID) || !IdsByContextId.TryGetValue(contextID, out var ids)) return;
+            
+            ids.Remove(id);
+            
+            InternalRelease(contextID);
         }
-        private void Release(ulong contextID) => Release(ManagedContext.Get(contextID));
         public void Release(ManagedContext context)
         {
             if (context == null) return;
 
             var contextID = context.ID;
 
-            if (!All.Remove(contextID)) return;
+            if (!NoIdCount.TryGetValue(contextID, out var count) || count <= 0) return;
 
-            if (IdsByContextId.TryGetValue(contextID, out var ids))
+            if (count > 1)
             {
-                if(ids.Count > 0)
-                {
-                    foreach (var id in ids)
-                    {
-                        WithId.Remove(id);
-                    }
-                    ids.Clear();
-                }
+                NoIdCount[contextID] = count - 1;
             }
+            else
+            {
+                NoIdCount.Remove(contextID);
+            }
+            
+            InternalRelease(context);
+        }
+        private void InternalRelease(ulong contextID) => InternalRelease(ManagedContext.Get(contextID));
+        private void InternalRelease(ManagedContext context)
+        {
+            if (context == null) return;
 
-            context.OnFreed -= SappyOnFreed;
-            context.Release();
+            var contextID = context.ID;
+
+            if (!TotalCount.TryGetValue(contextID, out var count) || count <= 0) return;
+
+            if (count > 1)
+            {
+                TotalCount[contextID] = count - 1;
+            }
+            else
+            {
+                TotalCount.Remove(contextID);
+                List.Remove(contextID);
+                
+                context.OnFreed -= SappyOnFreed;
+                context.Release();
+            }
         }
         
         public void ReleaseAll()
         {
             if (Count == 0) return;
 
-            for (int i = 0, n = All.Count; i < n; i++)
+            for (int i = 0, n = List.Count; i < n; i++)
             {
-                var contextID = All[i];
+                var contextID = List[i];
                 var context = ManagedContext.Get(contextID);
                 context.OnFreed -= SappyOnFreed;
                 context.Release();
             }
-            All.Clear();
+            TotalCount.Clear();
+            List.Clear();
             WithId.Clear();
             for (int i = 0, n = IdsByContextId.Count; i < n; i++)
             {
                 var ids = IdsByContextId[i];
                 ids.Clear();
             }
+            NoIdCount.Clear();
         }
 
         [SapTarget]
@@ -122,15 +154,17 @@ namespace RishUI.MemoryManagement
             var contextID = context.ID;
             
 #if UNITY_EDITOR
-            if (!All.Remove(contextID))
+            if(!TotalCount.Remove(contextID))
             {
                 UnityEngine.Debug.LogError("We were not owners of the context that was freed.");
                 return;
             }
 #else
-            All.Remove(contextID);
+            TotalCount.Remove(contextID);
 #endif
             
+            List.Remove(contextID);
+
             if (IdsByContextId.TryGetValue(contextID, out var ids))
             {
                 if(ids.Count > 0)
@@ -142,6 +176,8 @@ namespace RishUI.MemoryManagement
                     ids.Clear();
                 }
             }
+            
+            NoIdCount.Remove(contextID);
         }
     }
 }
