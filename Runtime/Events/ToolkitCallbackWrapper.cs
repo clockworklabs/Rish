@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Sappy;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
     internal interface IToolkitCallbackWrapper
     {
-        bool Wraps<T>(EventCallback<T> callback) where T : EventBase<T>, new();
         void SetTarget(VisualElement visualElement);
     }
 
@@ -17,27 +18,18 @@ namespace RishUI.Events
         private bool OnlyAtTarget { get; set; }
 
         private VisualElement _target;
-        private VisualElement target
+        private VisualElement Target
         {
             get => _target;
             set
             {
-                if (value == _target)
-                {
-                    return;
-                }
+                if (value == _target) return;
         
-                if (_target != null)
-                {
-                    Unregister();
-                }
+                _target?.UnregisterCallback<T>(SappyHandleEvent, TrickleDown);
         
                 _target = value;
 
-                if (value != null)
-                {
-                    Register();
-                }
+                Target?.RegisterCallback<T>(SappyHandleEvent, TrickleDown);
             }
         }
 
@@ -48,23 +40,15 @@ namespace RishUI.Events
             OnlyAtTarget = phase == EventPhase.AtTargetOnly;
         }
 
-        bool IToolkitCallbackWrapper.Wraps<TEvent>(EventCallback<TEvent> callback)
-        {
-            if (callback is not EventCallback<T> typedCallback)
-            {
-                return false;
-            }
-            
-            return Callback == typedCallback;
-        }
-        void IToolkitCallbackWrapper.SetTarget(VisualElement visualElement) => target = visualElement;
+        void IToolkitCallbackWrapper.SetTarget(VisualElement visualElement) => Target = visualElement;
 
-        private void Register() => target.RegisterCallback<T>(HandleEvent, TrickleDown);
-        private void Unregister() => target.UnregisterCallback<T>(HandleEvent, TrickleDown);
 
+        private EventCallback<T> _sappyHandleEvent;
+        private EventCallback<T> SappyHandleEvent => _sappyHandleEvent ??= HandleEvent;
+        
         private void HandleEvent(T evt)
         {
-            if (OnlyAtTarget && (evt.target != evt.currentTarget || evt.target != target))
+            if (OnlyAtTarget && (evt.target != evt.currentTarget || evt.target != Target))
             {
                 return;
             }
@@ -76,9 +60,13 @@ namespace RishUI.Events
     internal static class ToolkitCallbacksPool
     {
         private static Dictionary<Type, Stack<IToolkitCallbackWrapper>> Pools { get; } = new();
+        private static Dictionary<int, IToolkitCallbackWrapper> All { get; } = new();
         
-        public static IToolkitCallbackWrapper Get<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
+        public static IToolkitCallbackWrapper New<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
         {
+            var hashCode = callback.GetHashCode();
+            if (All.ContainsKey(hashCode)) throw new UnityException("Already registered.");
+            
             var type = typeof(ToolkitCallbackWrapper<T>);
             if (!Pools.TryGetValue(type, out var pool))
             {
@@ -86,21 +74,34 @@ namespace RishUI.Events
                 Pools[type] = pool;
             }
 
-            var wrapper = pool.Count <= 0 ? new ToolkitCallbackWrapper<T>() : (ToolkitCallbackWrapper<T>) pool.Pop();
+            ToolkitCallbackWrapper<T> wrapper;
+            if (pool.Count > 0)
+            {
+                wrapper = (ToolkitCallbackWrapper<T>)pool.Pop();
+            }
+            else
+            {
+                wrapper = new ToolkitCallbackWrapper<T>();
+            }
             wrapper.Setup(callback, phase);
+            
+            All.Add(hashCode, wrapper);
             
             return wrapper;
         }
         
-        public static void Return(IToolkitCallbackWrapper toolkitCallback)
+        public static IToolkitCallbackWrapper Return<T>(EventCallback<T> callback) where T : EventBase<T>, new()
         {
-            var type = toolkitCallback.GetType();
-            if (!Pools.TryGetValue(type, out var pool))
-            {
-                return;
-            }
+            var hashCode = callback.GetHashCode();
+            if (!All.Remove(hashCode, out var wrapper)) return null;
             
-            pool.Push(toolkitCallback);
+            var type = callback.GetType();
+            if (Pools.TryGetValue(type, out var pool))
+            {
+                pool.Push(wrapper);
+            }
+
+            return wrapper;
         }
     }
 }

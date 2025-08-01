@@ -151,6 +151,7 @@ namespace RishUI
                 var node = parent.AddChild<T>(Key);
 #endif
                 if (node is not { Element: T element }) return;
+                
 #if UNITY_EDITOR
                 element.Bridge.Setup(Descriptor, Children, Props, debugPrefix); // TODO: Maybe we need to claim OwnerContext in Bridge?
 #else

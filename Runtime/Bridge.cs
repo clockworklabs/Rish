@@ -8,44 +8,21 @@ namespace RishUI
 {
     public interface IBridge
     {
-        SapTargets<Action> OnMounted { get; }
-        SapTargets<Action> OnUnmounted { get; }
-        
-        SapTargets<Action<Name>> OnName { get; }
-        SapTargets<Action<ClassName>> OnClassName { get; }
-        SapTargets<Action<Style>> OnStyle { get; }
         SapTargets<Action> OnSetup { get; }
         
         VisualElement Element { get; }
         
         void Mount(Node node);
+        void StartUnmounting();
         void RemoveFromHierarchy();
     }
-    public interface IBridge<P> : IBridge where P : struct
-    {
-        SapTargets<Action<P>> OnProps { get; }
-    }
     
-    public class Bridge<P> : IBridge<P> where P : struct
+    public class Bridge<P> : IBridge where P : struct
     {
-        private SapStem OnMountedStem { get; } = new();
-        private SapTargets<Action> OnMounted => OnMountedStem.Targets;
-        SapTargets<Action> IBridge.OnMounted => OnMounted;
         private SapStem OnUnmountedStem { get; } = new();
         public SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
-        SapTargets<Action> IBridge.OnUnmounted => OnUnmounted;
-        private SapStem<Name> OnNameStem { get; } = new();
-        private SapTargets<Action<Name>> OnName => OnNameStem.Targets;
-        SapTargets<Action<Name>> IBridge.OnName => OnName;
-        private SapStem<ClassName> OnClassNameStem { get; } = new();
-        private SapTargets<Action<ClassName>> OnClassName => OnClassNameStem.Targets;
-        SapTargets<Action<ClassName>> IBridge.OnClassName => OnClassName;
         private SapStem<Style> OnStyleStem { get; } = new();
         public SapTargets<Action<Style>> OnStyle => OnStyleStem.Targets;
-        SapTargets<Action<Style>> IBridge.OnStyle => OnStyle;
-        private SapStem<P> OnPropsStem { get; } = new();
-        private SapTargets<Action<P>> OnProps => OnPropsStem.Targets;
-        SapTargets<Action<P>> IBridge<P>.OnProps => OnProps;
         private SapStem OnSetupStem { get; } = new();
         private SapTargets<Action> OnSetup => OnSetupStem.Targets;
         SapTargets<Action> IBridge.OnSetup => OnSetup;
@@ -66,8 +43,6 @@ namespace RishUI
                 if (Element.name == v) return;
                 
                 Element.name = v;
-                
-                OnNameStem.Send(value);
             }
         }
 
@@ -83,8 +58,6 @@ namespace RishUI
                 if (notDirty) return;
 
                 Element.SetClassName(value);
-                
-                OnClassNameStem.Send(value);
             }
         }
 
@@ -154,8 +127,6 @@ namespace RishUI
                 if (Element is IVisualElement<P> propsElement)
                 {
                     propsElement.Setup(value);
-                    
-                    OnPropsStem.Send(value);
                 }
 #if UNITY_EDITOR
                 else
@@ -198,7 +169,12 @@ namespace RishUI
             
             Node = node;
             
-            OnMountedStem.Send();
+            var parentNode = node.Parent;
+            while (parentNode is { Element: IRishElement rishElement })
+            {
+                rishElement.EventsManager.OnMounted(Element);
+                parentNode = parentNode.Parent;
+            }
         }
 
 #if UNITY_EDITOR
@@ -911,6 +887,16 @@ namespace RishUI
         //         }
         //     }
         // }
+
+        void IBridge.StartUnmounting()
+        {
+            var parentNode = Node.Parent;
+            while (parentNode is { Element: IRishElement rishElement })
+            {
+                rishElement.EventsManager.OnUnmounted(Element);
+                parentNode = parentNode.Parent;
+            }
+        }
 
         void IBridge.RemoveFromHierarchy()
         {

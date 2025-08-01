@@ -24,11 +24,10 @@ namespace RishUI
         [RequiresManagedContext]
         Element Render();
         
-        IReadOnlyCollection<ToolkitManipulator> ToolkitManipulators { get; }
-        IReadOnlyCollection<IToolkitCallbackWrapper> ToolkitCallbacks { get; }
-        
         Node Node { get; }
         int FocusIndex { get; }
+        
+        ToolkitEventsManager EventsManager { get; }
     }
 
     public abstract class RishElement<P> : IRishElement where P : struct
@@ -48,18 +47,11 @@ namespace RishUI
         
         private ContextOwner ContextOwner { get; } = new();
 
-        private List<ToolkitManipulator> ToolkitManipulators { get; set; }
-        private IReadOnlyCollection<ToolkitManipulator> _readOnlyToolkitManipulators;
-        IReadOnlyCollection<ToolkitManipulator> IRishElement.ToolkitManipulators =>
-            _readOnlyToolkitManipulators ??= ToolkitManipulators?.AsReadOnly();
-
-        private List<IToolkitCallbackWrapper> ToolkitCallbacks { get; set; }
-        private IReadOnlyCollection<IToolkitCallbackWrapper> _readOnlyCallbackManipulators;
-        IReadOnlyCollection<IToolkitCallbackWrapper> IRishElement.ToolkitCallbacks =>
-            _readOnlyCallbackManipulators ??= ToolkitCallbacks?.AsReadOnly();
-
         private int FocusIndex { get; set; } = -1;
         int IRishElement.FocusIndex => FocusIndex;
+        
+        private ToolkitEventsManager EventsManager { get; } = new();
+        ToolkitEventsManager IRishElement.EventsManager => EventsManager;
         
         private Node Node { get; set; }
         Node IRishElement.Node => Node;
@@ -140,11 +132,10 @@ namespace RishUI
         protected void ClaimContext(int id, ManagedContext context) => ContextOwner.Claim(id, context);
         protected void ReleaseContext(int id) => ContextOwner.Release(id);
 
-        private Action _sappyDirty;
-        protected Action SappyDirty => _sappyDirty ??= Dirty;
         /// <summary>
         /// Flag this element as Dirty.
         /// </summary>
+        [SapTarget]
         protected void Dirty() => Dirty(false);
         /// <summary>
         /// Flag this element as Dirty.
@@ -152,11 +143,10 @@ namespace RishUI
         /// <param name="forceThisFrame">If true, Rish will render this element on this frame.</param>
         protected void Dirty(bool forceThisFrame) => OnDirtyStem.Send(forceThisFrame);
         
-        private Action _sappyCanUnmount;
-        protected Action SappyCanUnmount => _sappyCanUnmount ??= CanUnmount;
         /// <summary>
         /// Flags this element as ready to be unmounted after unmounting was requested.
         /// </summary>
+        [SapTarget]
         protected void CanUnmount()
         {
             if (!UnmountRequested || ReadyToUnmount)
@@ -182,14 +172,6 @@ namespace RishUI
             
             UnmountRequested = false;
             ReadyToUnmount = false;
-
-            if (ToolkitManipulators != null)
-            {
-                foreach (var manipulator in ToolkitManipulators)
-                {
-                    manipulator.Reset();
-                }
-            }
 
             if (this is IMountingListener listener)
             {
@@ -265,31 +247,24 @@ namespace RishUI
         
         public void AddManipulator(ToolkitManipulator manipulator)
         {
+            if (manipulator == null) return;
+            
             if (manipulator.Owner != null)
             {
-                if (manipulator.Owner == this)
-                {
-                    return;
-                }
+                if (manipulator.Owner == this) return;
                 
                 throw new UnityException("Manipulator already has an owner");
             }
 
             manipulator.Reset();
             manipulator.Owner = this;
-
-            ToolkitManipulators ??= new List<ToolkitManipulator>(5);
             
-            ToolkitManipulators.Add(manipulator);
-            Node?.ToolkitEventsManager.AddManipulator(manipulator);
+            EventsManager.AddManipulator(manipulator);
         }
         
         public void RemoveManipulator(ToolkitManipulator manipulator)
         {
-            if (ToolkitManipulators == null)
-            {
-                return;
-            }
+            if (manipulator == null) return;
             
             if (manipulator.Owner != this)
             {
@@ -298,8 +273,7 @@ namespace RishUI
 
             manipulator.Owner = null;
             
-            ToolkitManipulators.Remove(manipulator);
-            Node?.ToolkitEventsManager.RemoveManipulator(manipulator);
+            EventsManager.RemoveManipulator(manipulator);
         }
 
         /// <summary>
@@ -307,12 +281,10 @@ namespace RishUI
         /// </summary>
         public void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
         {
-            var wrapper = ToolkitCallbacksPool.Get(callback, phase);
+            if (callback == null) return;
+            var wrapper = ToolkitCallbacksPool.New(callback, phase);
 
-            ToolkitCallbacks ??= new List<IToolkitCallbackWrapper>(10);
-            
-            ToolkitCallbacks.Add(wrapper);
-            Node?.ToolkitEventsManager.AddCallback(wrapper);
+            EventsManager.AddCallback(wrapper);
         }
 
         /// <summary>
@@ -320,20 +292,11 @@ namespace RishUI
         /// </summary>
         public void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
         {
-            if (ToolkitCallbacks == null)
-            {
-                return;
-            }
-
-            for (var i = ToolkitCallbacks.Count - 1; i >= 0; i--)
-            {
-                var wrapper = ToolkitCallbacks[i];
-                if (!wrapper.Wraps(callback)) continue;
-                ListExtensions.RemoveAtSwapBack(ToolkitCallbacks, i);
-                Node?.ToolkitEventsManager.RemoveCallback(wrapper);
-                
-                ToolkitCallbacksPool.Return(wrapper);
-            }
+            if (callback == null) return;
+            var wrapper = ToolkitCallbacksPool.Return(callback);
+            if (wrapper == null) return;
+            
+            EventsManager.RemoveCallback(wrapper);
         }
         
         /// <summary>

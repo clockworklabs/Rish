@@ -1,9 +1,10 @@
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    public class DragManipulator : ToolkitManipulator
+    public partial class DragManipulator : ToolkitManipulator
     {
         private Pointer[] Pointers { get; }
 
@@ -24,24 +25,24 @@ namespace RishUI.Events
                 Pointers[i].SetTarget(target);
             }
 
-            target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
-            target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
-            target.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            target.RegisterCallback<PointerUpEvent>(OnPointerUp);
-            target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
-            target.RegisterCallback<PointerCaptureEvent>(OnPointerCaptured);
-            target.RegisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
+            target.RegisterCallback<PointerEnterEvent>(SappyOnPointerEnter.Callback);
+            target.RegisterCallback<PointerLeaveEvent>(SappyOnPointerLeave.Callback);
+            target.RegisterCallback<PointerDownEvent>(SappyOnPointerDown.Callback);
+            target.RegisterCallback<PointerUpEvent>(SappyOnPointerUp.Callback);
+            target.RegisterCallback<PointerMoveEvent>(SappyOnPointerMove.Callback);
+            target.RegisterCallback<PointerCaptureEvent>(SappyOnPointerCaptured.Callback);
+            target.RegisterCallback<PointerCaptureOutEvent>(SappyOnPointerReleased.Callback);
         }
 
         protected override void UnregisterCallbacks()
         {
-            target.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
-            target.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
-            target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
-            target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
-            target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
-            target.UnregisterCallback<PointerCaptureEvent>(OnPointerCaptured);
-            target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerReleased);
+            target.UnregisterCallback<PointerEnterEvent>(SappyOnPointerEnter.Callback);
+            target.UnregisterCallback<PointerLeaveEvent>(SappyOnPointerLeave.Callback);
+            target.UnregisterCallback<PointerDownEvent>(SappyOnPointerDown.Callback);
+            target.UnregisterCallback<PointerUpEvent>(SappyOnPointerUp.Callback);
+            target.UnregisterCallback<PointerMoveEvent>(SappyOnPointerMove.Callback);
+            target.UnregisterCallback<PointerCaptureEvent>(SappyOnPointerCaptured.Callback);
+            target.UnregisterCallback<PointerCaptureOutEvent>(SappyOnPointerReleased.Callback);
         }
 
         protected override void OnReset()
@@ -52,12 +53,19 @@ namespace RishUI.Events
             }
         }
 
+        [SapTarget(typeof(EventCallback<PointerEnterEvent>))]
         private void OnPointerEnter(PointerEnterEvent evt) => Pointers[evt.pointerId].OnEnter(evt);
+        [SapTarget(typeof(EventCallback<PointerLeaveEvent>))]
         private void OnPointerLeave(PointerLeaveEvent evt) => Pointers[evt.pointerId].OnLeave(evt);
+        [SapTarget(typeof(EventCallback<PointerDownEvent>))]
         private void OnPointerDown(PointerDownEvent evt) => Pointers[evt.pointerId].OnDown(evt);
+        [SapTarget(typeof(EventCallback<PointerUpEvent>))]
         private void OnPointerUp(PointerUpEvent evt) => Pointers[evt.pointerId].OnUp(evt);
+        [SapTarget(typeof(EventCallback<PointerMoveEvent>))]
         private void OnPointerMove(PointerMoveEvent evt) => Pointers[evt.pointerId].OnMove(evt);
+        [SapTarget(typeof(EventCallback<PointerCaptureEvent>))]
         private void OnPointerCaptured(PointerCaptureEvent evt) => Pointers[evt.pointerId].OnCapture(evt);
+        [SapTarget(typeof(EventCallback<PointerCaptureOutEvent>))]
         private void OnPointerReleased(PointerCaptureOutEvent evt) => Pointers[evt.pointerId].OnRelease(evt);
 
         private class Pointer

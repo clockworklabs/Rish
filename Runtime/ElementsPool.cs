@@ -69,10 +69,7 @@ namespace RishUI
 
         private static void Populate<T>(Stack<IElement> pool, int size) where T : IElement, new()
         {
-            if (pool == null || size <= 0)
-            {
-                return;
-            }
+            if (pool == null || size <= 0) return;
 
             for (var j = 0; j < size; j++)
             {

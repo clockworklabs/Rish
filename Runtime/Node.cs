@@ -35,7 +35,6 @@ namespace RishUI
         // --- Never changes -------------------------------------------------------------------------------------------
         // -------------------------------------------------------------------------------------------------------------
         internal int ID { get; }
-        internal ToolkitEventsManager ToolkitEventsManager { get; }
         internal InputSystem InputSystem { get; }
         private StateMachine Machine { get; }
 
@@ -229,7 +228,6 @@ namespace RishUI
         private Node(int id)
         {
             ID = id;
-            ToolkitEventsManager = new ToolkitEventsManager(this);
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
 
@@ -777,9 +775,19 @@ namespace RishUI
 
             public override void Exit()
             {
-                if(Node.Element is IRishElement rishElement)
+                switch (Node.Element)
                 {
-                    rishElement.OnDirty.Remove(Node.SappyDirty);
+                    case IRishElement rishElement:
+                        rishElement.OnDirty.Remove(Node.SappyDirty);
+                        break;
+                    case IInternalVisualElement visualElement:
+                        visualElement.Bridge.StartUnmounting();
+                        break;
+#if UNITY_EDITOR
+                    default:
+                        Debug.LogError("Node has no Element.");
+                        break;
+#endif
                 }
             }
 

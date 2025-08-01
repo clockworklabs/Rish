@@ -4,161 +4,78 @@ using UnityEngine.UIElements;
 
 namespace RishUI.Events
 {
-    internal partial class ToolkitEventsManager
+    internal class ToolkitEventsManager
     {
-        private Node Node { get; }
-        private IElement Element => Node.Element;
-        
         private List<ToolkitManipulator> Manipulators { get; set; }
         private List<IToolkitCallbackWrapper> Callbacks { get; set; }
         
-        public ToolkitEventsManager(Node node)
+        private VisualElement _visualElement;
+        private VisualElement VisualElement
         {
-            Node = node;
-            Node.OnMounted.Add(SappyOnMounted);
-            Node.OnUnmounted.Add(SappyOnUnmounted);
-        }
+            get => _visualElement;
+            set
+            {
+                if (_visualElement == value) return;
+                
+                _visualElement = value;
 
-        [SapTarget]
-        private void OnMounted()
-        {
-            if (Element is IRishElement rishElement)
-            {
-                AddManipulators(rishElement.ToolkitManipulators);
-                AddCallbacks(rishElement.ToolkitCallbacks);
-            }
-            
-            if (!Node.Parent?.IsVisualElement ?? false)
-            {
-                AddManipulators(Node.Parent?.ToolkitEventsManager.Manipulators);
-                AddCallbacks(Node.Parent?.ToolkitEventsManager.Callbacks);
-            }
-        }
-
-        [SapTarget]
-        private void OnUnmounted()
-        {
-            if (Manipulators != null)
-            {
-                if (Element is VisualElement)
+                if(Manipulators != null)
                 {
                     foreach (var manipulator in Manipulators)
                     {
-                        manipulator.SetTarget(null);
+                        manipulator.SetTarget(value);
                     }
                 }
-            
-                Manipulators.Clear();
-            }
-            
-            if (Callbacks != null)
-            {
-                if (Element is VisualElement)
+                if(Callbacks != null)
                 {
                     foreach (var callback in Callbacks)
                     {
-                        callback.SetTarget(null);
+                        callback.SetTarget(value);
                     }
                 }
-            
-                Callbacks.Clear();
             }
         }
-
+        
+        public void OnMounted(VisualElement element)
+        {
+            VisualElement = element;
+        }
+        public void OnUnmounted(VisualElement element)
+        {
+            if (VisualElement != element) return;
+            VisualElement = null;
+        }
+        
         public void AddManipulator(ToolkitManipulator manipulator)
         {
             Manipulators ??= new List<ToolkitManipulator>(5);
             Manipulators.Add(manipulator);
-            
-            if (Element is VisualElement visualElement)
-            {
-                manipulator.SetTarget(visualElement);
-            }
-            else if(Node.Children != null)
-            {
-                foreach (var child in Node.Children)
-                {
-                    child.ToolkitEventsManager.AddManipulator(manipulator);
-                }
-            }
-        }
 
+            manipulator.SetTarget(VisualElement);
+        }
         public void RemoveManipulator(ToolkitManipulator manipulator)
         {
+            if (Manipulators == null) return;
+            
             Manipulators.Remove(manipulator);
             
-            if (Element is VisualElement)
-            {
-                manipulator.SetTarget(null);
-            }
-            else if(Node.Children != null)
-            {
-                foreach (var child in Node.Children)
-                {
-                    child.ToolkitEventsManager.RemoveManipulator(manipulator);
-                }
-            }
+            manipulator.SetTarget(null);
         }
 
-        public void AddCallback(IToolkitCallbackWrapper toolkitCallback)
+        public void AddCallback(IToolkitCallbackWrapper callback)
         {
             Callbacks ??= new List<IToolkitCallbackWrapper>(5);
-            Callbacks.Add(toolkitCallback);
+            Callbacks.Add(callback);
             
-            if (Element is VisualElement visualElement)
-            {
-                toolkitCallback.SetTarget(visualElement);
-            }
-            else if(Node.Children != null)
-            {
-                foreach (var child in Node.Children)
-                {
-                    child.ToolkitEventsManager.AddCallback(toolkitCallback);
-                }
-            }
+            callback.SetTarget(VisualElement);
         }
-
-        public void RemoveCallback(IToolkitCallbackWrapper toolkitCallback)
+        public void RemoveCallback(IToolkitCallbackWrapper callback)
         {
-            Callbacks.Remove(toolkitCallback);
+            if (Callbacks == null) return;
             
-            if (Element is VisualElement)
-            {
-                toolkitCallback.SetTarget(null);
-            }
-            else if(Node.Children != null)
-            {
-                foreach (var child in Node.Children)
-                {
-                    child.ToolkitEventsManager.RemoveCallback(toolkitCallback);
-                }
-            }
-        }
-
-        private void AddManipulators(IReadOnlyCollection<ToolkitManipulator> manipulators)
-        {
-            if (manipulators == null)
-            {
-                return;
-            }
+            Callbacks.Remove(callback);
             
-            foreach (var manipulator in manipulators)
-            {
-                AddManipulator(manipulator);
-            }
-        }
-
-        private void AddCallbacks(IReadOnlyCollection<IToolkitCallbackWrapper> callbacks)
-        {
-            if (callbacks == null)
-            {
-                return;
-            }
-            
-            foreach (var callback in callbacks)
-            {
-                AddCallback(callback);
-            }
+            callback.SetTarget(null);
         }
     }
 }
