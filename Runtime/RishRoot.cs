@@ -13,13 +13,11 @@ namespace RishUI
     public class RishRoot : MonoBehaviour
     {
         private SapStem OnStartStem { get; } = new();
-        [SapEvent]
-        public event Action OnStart { add => OnStartStem.AddTarget(value); remove => OnStartStem.RemoveTarget(value); }
+        public SapTargets<Action> OnStart => OnStartStem.Targets;
         
 #if UNITY_EDITOR
         private SapStem<RishRoot> OnStepStem { get; } = new();
-        [SapEvent]
-        public event Action<RishRoot> OnStep { add => OnStepStem.AddTarget(value); remove => OnStepStem.RemoveTarget(value); }
+        public event Action<RishRoot> OnStep { add => OnStepStem.Targets.AddLessPerformant(value); remove => OnStepStem.Targets.RemoveLessPerformant(value); }
 #endif
 
         [SerializeField]

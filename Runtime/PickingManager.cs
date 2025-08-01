@@ -63,7 +63,7 @@ namespace RishUI
         protected PickingManager(IBridge bridge)
         {
             Bridge = bridge;
-            Bridge.OnSetup += SappyUpdate;
+            Bridge.OnSetup.Add(SappyUpdate);
             Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
         }
 

@@ -46,7 +46,7 @@ namespace RishUI
                 }
             }
 
-            node.OnInactive += SappyRemove;
+            node.OnInactive.Add(SappyRemove);
             Ids.Add(node.ID, null);
 
             if (forceThisFrame)
@@ -238,7 +238,7 @@ namespace RishUI
                 return;
             }
 #endif
-            node.OnInactive -= SappyRemove;
+            node.OnInactive.Remove(SappyRemove);
             Ids.Remove(node.ID);
             queue?.ResetNode(node);
         }

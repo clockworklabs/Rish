@@ -98,8 +98,8 @@ namespace RishUI.Input
         public InputSystem(Node node)
         {
             Node = node;
-            Node.OnMounted += SappyOnMounted;
-            Node.OnBeforeUnmount += SappyOnBeforeUnmounted;
+            Node.OnMounted.Add(SappyOnMounted);
+            Node.OnBeforeUnmount.Add(SappyOnBeforeUnmounted);
         }
 
         [SapTarget]

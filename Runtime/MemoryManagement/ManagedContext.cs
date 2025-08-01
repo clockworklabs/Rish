@@ -7,8 +7,7 @@ namespace RishUI.MemoryManagement
     public class ManagedContext : IDisposable
     {
         private SapStem<ManagedContext> OnFreedStem { get; } = new();
-        [SapEvent]
-        internal event Action<ManagedContext> OnFreed { add => OnFreedStem.AddTarget(value); remove => OnFreedStem.RemoveTarget(value); }
+        internal SapTargets<Action<ManagedContext>> OnFreed => OnFreedStem.Targets;
         
         internal ulong ID { get; }
         private List<IWrapper> References { get; } = new();

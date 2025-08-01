@@ -15,17 +15,13 @@ namespace RishUI
     public partial class Node : FastPriorityQueueNode
     {
         private SapStem OnMountedStem { get; } = new();
-        [SapEvent]
-        internal event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        internal SapTargets<Action> OnMounted => OnMountedStem.Targets;
         private SapStem OnBeforeUnmountStem { get; } = new();
-        [SapEvent]
-        internal event Action OnBeforeUnmount { add => OnBeforeUnmountStem.AddTarget(value); remove => OnBeforeUnmountStem.RemoveTarget(value); }
+        internal SapTargets<Action> OnBeforeUnmount => OnBeforeUnmountStem.Targets;
         private SapStem OnUnmountedStem { get; } = new();
-        [SapEvent]
-        internal event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        internal SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
         private SapStem<Node> OnInactiveStem { get; } = new(); // TODO: Maybe uint?
-        [SapEvent]
-        internal event Action<Node> OnInactive { add => OnInactiveStem.AddTarget(value); remove => OnInactiveStem.RemoveTarget(value); }
+        internal SapTargets<Action<Node>> OnInactive => OnInactiveStem.Targets;
 
         // -------------------------------------------------------------------------------------------------------------
         // --- POOL ----------------------------------------------------------------------------------------------------
@@ -237,7 +233,7 @@ namespace RishUI
             InputSystem = new InputSystem(this);
             Machine = new StateMachine(this);
 
-            Machine.OnChange += SappyOnStateChange;
+            Machine.OnChange.Add(SappyOnStateChange);
         }
 
         internal static Node CreateRoot(Tree tree, string rootClassName, bool recovered)
@@ -563,8 +559,7 @@ namespace RishUI
         private class StateMachine
         {
             private SapStem<State> OnChangeStem { get; } = new();
-            [SapEvent]
-            public event Action<State> OnChange { add => OnChangeStem.AddTarget(value); remove => OnChangeStem.RemoveTarget(value); }
+            public SapTargets<Action<State>> OnChange => OnChangeStem.Targets;
 
             private State _currentState;
             public State CurrentState
@@ -766,7 +761,7 @@ namespace RishUI
                 switch (Node.Element)
                 {
                     case IRishElement rishElement:
-                        rishElement.OnDirty += Node.SappyDirty;
+                        rishElement.OnDirty.Add(Node.SappyDirty);
                         rishElement.Mount(Node);
                         break;
                     case IInternalVisualElement visualElement:
@@ -784,7 +779,7 @@ namespace RishUI
             {
                 if(Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.SappyDirty;
+                    rishElement.OnDirty.Remove(Node.SappyDirty);
                 }
             }
 
@@ -821,8 +816,8 @@ namespace RishUI
 
                 if (Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty += Node.SappyDirty;
-                    rishElement.OnReadyToUnmount += SappyElementReadyToUnmount;
+                    rishElement.OnDirty.Add(Node.SappyDirty);
+                    rishElement.OnReadyToUnmount.Add(SappyElementReadyToUnmount);
                     rishElement.RequestUnmount();
                 }
                 else
@@ -835,8 +830,8 @@ namespace RishUI
             {
                 if (!ElementReady && Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.SappyDirty;
-                    rishElement.OnReadyToUnmount -= SappyElementReadyToUnmount;
+                    rishElement.OnDirty.Remove(Node.SappyDirty);
+                    rishElement.OnReadyToUnmount.Remove(SappyElementReadyToUnmount);
                 }
                 ElementReady = false;
 
@@ -845,7 +840,7 @@ namespace RishUI
                     for (int i = 0, n = Unmounting.Count; i < n; i++)
                     {
                         var child = Unmounting[i];
-                        child.Machine.OnChange -= SappyOnStateChange;
+                        child.Machine.OnChange.Remove(SappyOnStateChange);
                     }
 
                     UnmountingSet.Clear();
@@ -873,8 +868,8 @@ namespace RishUI
                 ElementReady = true;
                 if (Node.Element is IRishElement rishElement)
                 {
-                    rishElement.OnDirty -= Node.SappyDirty;
-                    rishElement.OnReadyToUnmount -= SappyElementReadyToUnmount;
+                    rishElement.OnDirty.Remove(Node.SappyDirty);
+                    rishElement.OnReadyToUnmount.Remove(SappyElementReadyToUnmount);
                 }
 
                 Node.Clear();
@@ -904,7 +899,7 @@ namespace RishUI
                         if (UnmountingSet.Add(childId))
                         {
                             Unmounting.Add(child);
-                            child.Machine.OnChange += SappyOnStateChange;
+                            child.Machine.OnChange.Add(SappyOnStateChange);
                         }
 #if UNITY_EDITOR
                         else

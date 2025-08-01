@@ -14,10 +14,8 @@ namespace RishUI
 
     internal interface IRishElement : IElement
     {
-        [SapEvent]
-        event Action<bool> OnDirty;
-        [SapEvent]
-        event Action OnReadyToUnmount;
+        SapTargets<Action<bool>> OnDirty { get; }
+        SapTargets<Action> OnReadyToUnmount { get; }
         
         void Mount(Node node);
         void RequestUnmount();
@@ -33,24 +31,20 @@ namespace RishUI
         int FocusIndex { get; }
     }
 
-    [Sappy]
     public abstract class RishElement<P> : IRishElement, IRishEventTarget where P : struct
     {
         private SapStem<bool> OnDirtyStem { get; } = new();
-        event Action<bool> IRishElement.OnDirty { add => OnDirtyStem.AddTarget(value); remove => OnDirtyStem.RemoveTarget(value); }
+        SapTargets<Action<bool>> IRishElement.OnDirty => OnDirtyStem.Targets;
         
         private SapStem OnReadyToUnmountStem { get; } = new();
-        event Action IRishElement.OnReadyToUnmount { add => OnReadyToUnmountStem.AddTarget(value); remove => OnReadyToUnmountStem.RemoveTarget(value); }
+        SapTargets<Action> IRishElement.OnReadyToUnmount => OnReadyToUnmountStem.Targets;
 
         private SapStem OnMountedStem { get; } = new();
-        [SapEvent]
-        private protected event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        private protected SapTargets<Action> OnMounted => OnMountedStem.Targets;
         private SapStem OnUnmountingStem { get; } = new();
-        [SapEvent]
-        private protected event Action OnUnmounting { add => OnUnmountingStem.AddTarget(value); remove => OnUnmountingStem.RemoveTarget(value); }
+        private protected SapTargets<Action> OnUnmounting => OnUnmountingStem.Targets;
         private SapStem OnUnmountedStem { get; } = new();
-        [SapEvent]
-        private protected event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        private protected SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
         
         private ContextOwner ContextOwner { get; } = new();
         
@@ -647,7 +641,7 @@ namespace RishUI
         protected ulong GetNodeHashCode() => Node.HashCode;
     }
     
-    public abstract class RishElement<P, S> : RishElement<P> where P : struct where S : struct
+    public abstract partial class RishElement<P, S> : RishElement<P> where P : struct where S : struct
     {
         private S? _state;
         protected S State
@@ -669,21 +663,12 @@ namespace RishUI
         }
 
         protected bool IsMounted { get; private set; }
-        
-        private Action _sappySetDefaultState;
-        private Action SappySetDefaultState => _sappySetDefaultState ??= SetDefaultState;
-        
-        private Action _sappyDisposeReferences;
-        private Action SappyDisposeReferences => _sappyDisposeReferences ??= ClearIsMounted;
-        
-        private Action _sappyClearState;
-        private Action SappyClearState => _sappyClearState ??= ClearState;
 
         protected RishElement()
         {
-            OnMounted += SappySetDefaultState;
-            OnUnmounting += SappyDisposeReferences;
-            OnUnmounted += SappyClearState;
+            OnMounted.Add(SappySetDefaultState);
+            OnUnmounting.Add(SappyClearIsMounted);
+            OnUnmounted.Add(SappyClearState);
         }
 
         [SapTarget]

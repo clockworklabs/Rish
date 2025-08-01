@@ -15,8 +15,8 @@ namespace RishUI.Events
         public ToolkitEventsManager(Node node)
         {
             Node = node;
-            Node.OnMounted += SappyOnMounted;
-            Node.OnUnmounted += SappyOnUnmounted;
+            Node.OnMounted.Add(SappyOnMounted);
+            Node.OnUnmounted.Add(SappyOnUnmounted);
         }
 
         [SapTarget]

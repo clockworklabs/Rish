@@ -56,7 +56,7 @@ namespace RishUI.MemoryManagement
                 TotalCount[contextID] = 1;
                 List.Add(contextID);
                 
-                context.OnFreed += SappyOnFreed;
+                context.OnFreed.Add(SappyOnFreed);
                 context.Claim();
             }
         }
@@ -104,7 +104,7 @@ namespace RishUI.MemoryManagement
                 TotalCount.Remove(contextID);
                 List.Remove(contextID);
                 
-                context.OnFreed -= SappyOnFreed;
+                context.OnFreed.Remove(SappyOnFreed);
                 context.Release();
             }
         }
@@ -117,7 +117,7 @@ namespace RishUI.MemoryManagement
             {
                 var contextID = List[i];
                 var context = ManagedContext.Get(contextID);
-                context.OnFreed -= SappyOnFreed;
+                context.OnFreed.Remove(SappyOnFreed);
                 context.Release();
             }
             TotalCount.Clear();
@@ -137,7 +137,7 @@ namespace RishUI.MemoryManagement
             }
 #endif
             
-            context.OnFreed -= SappyOnFreed;
+            context.OnFreed.Remove(SappyOnFreed);
             
             var contextID = context.ID;
             

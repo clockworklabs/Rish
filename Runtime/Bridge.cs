@@ -8,19 +8,13 @@ namespace RishUI
 {
     public interface IBridge
     {
-        [SapEvent]
-        event Action OnMounted;
-        [SapEvent]
-        event Action OnUnmounted;
+        SapTargets<Action> OnMounted { get; }
+        SapTargets<Action> OnUnmounted { get; }
         
-        [SapEvent]
-        event Action<Name> OnName;
-        [SapEvent]
-        event Action<ClassName> OnClassName;
-        [SapEvent]
-        event Action<Style> OnStyle;
-        [SapEvent]
-        event Action OnSetup;
+        SapTargets<Action<Name>> OnName { get; }
+        SapTargets<Action<ClassName>> OnClassName { get; }
+        SapTargets<Action<Style>> OnStyle { get; }
+        SapTargets<Action> OnSetup { get; }
         
         VisualElement Element { get; }
         
@@ -29,40 +23,32 @@ namespace RishUI
     }
     public interface IBridge<P> : IBridge where P : struct
     {
-        [SapEvent]
-        event Action<P> OnProps;
+        SapTargets<Action<P>> OnProps { get; }
     }
     
     public class Bridge<P> : IBridge<P> where P : struct
     {
         private SapStem OnMountedStem { get; } = new();
-        [SapEvent]
-        public event Action OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
-        event Action IBridge.OnMounted { add => OnMountedStem.AddTarget(value); remove => OnMountedStem.RemoveTarget(value); }
+        private SapTargets<Action> OnMounted => OnMountedStem.Targets;
+        SapTargets<Action> IBridge.OnMounted => OnMounted;
         private SapStem OnUnmountedStem { get; } = new();
-        [SapEvent]
-        public event Action OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
-        event Action IBridge.OnUnmounted { add => OnUnmountedStem.AddTarget(value); remove => OnUnmountedStem.RemoveTarget(value); }
+        public SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
+        SapTargets<Action> IBridge.OnUnmounted => OnUnmounted;
         private SapStem<Name> OnNameStem { get; } = new();
-        [SapEvent]
-        public event Action<Name> OnName { add => OnNameStem.AddTarget(value); remove => OnNameStem.RemoveTarget(value); }
-        event Action<Name> IBridge.OnName { add => OnNameStem.AddTarget(value); remove => OnNameStem.RemoveTarget(value); }
+        private SapTargets<Action<Name>> OnName => OnNameStem.Targets;
+        SapTargets<Action<Name>> IBridge.OnName => OnName;
         private SapStem<ClassName> OnClassNameStem { get; } = new();
-        [SapEvent]
-        public event Action<ClassName> OnClassName { add => OnClassNameStem.AddTarget(value); remove => OnClassNameStem.RemoveTarget(value); }
-        event Action<ClassName> IBridge.OnClassName { add => OnClassNameStem.AddTarget(value); remove => OnClassNameStem.RemoveTarget(value); }
+        private SapTargets<Action<ClassName>> OnClassName => OnClassNameStem.Targets;
+        SapTargets<Action<ClassName>> IBridge.OnClassName => OnClassName;
         private SapStem<Style> OnStyleStem { get; } = new();
-        [SapEvent]
-        public event Action<Style> OnStyle { add => OnStyleStem.AddTarget(value); remove => OnStyleStem.RemoveTarget(value); }
-        event Action<Style> IBridge.OnStyle { add => OnStyleStem.AddTarget(value); remove => OnStyleStem.RemoveTarget(value); }
+        public SapTargets<Action<Style>> OnStyle => OnStyleStem.Targets;
+        SapTargets<Action<Style>> IBridge.OnStyle => OnStyle;
         private SapStem<P> OnPropsStem { get; } = new();
-        [SapEvent]
-        public event Action<P> OnProps { add => OnPropsStem.AddTarget(value); remove => OnPropsStem.RemoveTarget(value); }
-        event Action<P> IBridge<P>.OnProps { add => OnPropsStem.AddTarget(value); remove => OnPropsStem.RemoveTarget(value); }
+        private SapTargets<Action<P>> OnProps => OnPropsStem.Targets;
+        SapTargets<Action<P>> IBridge<P>.OnProps => OnProps;
         private SapStem OnSetupStem { get; } = new();
-        [SapEvent]
-        public event Action OnSetup { add => OnSetupStem.AddTarget(value); remove => OnSetupStem.RemoveTarget(value); }
-        event Action IBridge.OnSetup { add => OnSetupStem.AddTarget(value); remove => OnSetupStem.RemoveTarget(value); }
+        private SapTargets<Action> OnSetup => OnSetupStem.Targets;
+        SapTargets<Action> IBridge.OnSetup => OnSetup;
         
         private VisualElement Element { get; }
         VisualElement IBridge.Element => Element;
@@ -205,19 +191,6 @@ namespace RishUI
             PropsAlwaysDirty = propsAlwaysDirty;
         }
 
-        private ManagedContext _context;
-
-        private ManagedContext Context
-        {
-            get => _context;
-            set
-            {
-                _context?.Release();
-                _context = value;
-                value?.Claim();
-            }
-        }
-
         void IBridge.Mount(Node node)
         {
             Name = null;
@@ -230,9 +203,9 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context, string debugPrefix)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
 #else
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, ManagedContext context)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props)
 #endif
         {
 #if UNITY_EDITOR
@@ -245,8 +218,6 @@ namespace RishUI
             Props = props;
 
             Children = children;
-            
-            Context = context;
             
             OnSetupStem.Send();
         }
@@ -604,8 +575,6 @@ namespace RishUI
             Element.RemoveFromHierarchy();
             
             Node = null;
-            
-            Context = null;
             
             OnUnmountedStem.Send();
         }
