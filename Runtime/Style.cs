@@ -7,7 +7,6 @@ namespace RishUI
     /// <summary>
     /// Inline styling for VisualElements.
     /// </summary>
-    [AutoComparer]
     public struct Style
     {
         public StyleEnum<Align> alignContent;

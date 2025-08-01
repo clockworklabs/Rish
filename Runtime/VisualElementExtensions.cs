@@ -7,95 +7,371 @@ namespace RishUI
 {
     public static class VisualElementExtensions
     {
+        private static readonly UnityEngine.UIElements.StyleEnum<Align> NullAlign = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<DisplayStyle> NullDisplayStyle = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<FlexDirection> NullFlexDirection = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<Wrap> NullWrap = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<Justify> NullJustify = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<Overflow> NullOverflow = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<Position> NullPosition = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<TextOverflow> NullTextOverflow = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<FontStyle> NullFontStyle = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<OverflowClipBox> NullOverflowClipBox = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<TextAnchor> NullTextAnchor = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<TextOverflowPosition> NullTextOverflowPosition = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<Visibility> NullVisibility = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleEnum<WhiteSpace> NullWhiteSpace = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleColor NullColor = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleBackground NullBackground = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleBackgroundPosition NullBackgroundPosition = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleBackgroundRepeat NullBackgroundRepeat = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleBackgroundSize NullBackgroundSize = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleLength NullLength = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleFloat NullFloat = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleInt NullInt = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleCursor NullCursor = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleFont NullFont = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleFontDefinition NullFontDefinition = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleRotate NullRotate = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleScale NullScale = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleTextShadow NullTextShadow = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleTransformOrigin NullTransformOrigin = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleTranslate NullTranslate = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleList<TimeValue> NullTimeValue = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleList<StylePropertyName> NullStylePropertyName = new(StyleKeyword.Null);
+        private static readonly UnityEngine.UIElements.StyleList<EasingFunction> NullEasingFunction = new(StyleKeyword.Null);
+        
         public static void ResetInlineStyles(this VisualElement element)
         {
+#if UNITY_EDITOR
             if (element == null)
             {
                 throw new ArgumentNullException(nameof(element));
             }
+#endif
 
             var style = element.style;
 
-            style.alignContent = StyleKeyword.Null;
-            style.alignItems = StyleKeyword.Null;
-            style.alignSelf = StyleKeyword.Null;
-            style.backgroundColor = StyleKeyword.Null;
-            style.backgroundImage = StyleKeyword.Null;
-            style.backgroundPositionX = StyleKeyword.Null;
-            style.backgroundPositionY = StyleKeyword.Null;
-            style.backgroundRepeat = StyleKeyword.Null;
-            style.backgroundSize = StyleKeyword.Null;
-            style.borderBottomColor = StyleKeyword.Null;
-            style.borderBottomLeftRadius = StyleKeyword.Null;
-            style.borderBottomRightRadius = StyleKeyword.Null;
-            style.borderBottomWidth = StyleKeyword.Null;
-            style.borderLeftColor = StyleKeyword.Null;
-            style.borderLeftWidth = StyleKeyword.Null;
-            style.borderRightColor = StyleKeyword.Null;
-            style.borderRightWidth = StyleKeyword.Null;
-            style.borderTopColor = StyleKeyword.Null;
-            style.borderTopLeftRadius = StyleKeyword.Null;
-            style.borderTopRightRadius = StyleKeyword.Null;
-            style.borderTopWidth = StyleKeyword.Null;
-            style.bottom = StyleKeyword.Null;
-            style.color = StyleKeyword.Null;
-            style.cursor = StyleKeyword.Null;
-            style.display = StyleKeyword.Null;
-            style.flexBasis = StyleKeyword.Null;
-            style.flexDirection = StyleKeyword.Null;
-            style.flexGrow = StyleKeyword.Null;
-            style.flexShrink = StyleKeyword.Null;
-            style.flexWrap = StyleKeyword.Null;
-            style.fontSize = StyleKeyword.Null;
-            style.height = StyleKeyword.Null;
-            style.justifyContent = StyleKeyword.Null;
-            style.left = StyleKeyword.Null;
-            style.letterSpacing = StyleKeyword.Null;
-            style.marginBottom = StyleKeyword.Null;
-            style.marginLeft = StyleKeyword.Null;
-            style.marginRight = StyleKeyword.Null;
-            style.marginTop = StyleKeyword.Null;
-            style.maxHeight = StyleKeyword.Null;
-            style.maxWidth = StyleKeyword.Null;
-            style.minHeight = StyleKeyword.Null;
-            style.minWidth = StyleKeyword.Null;
-            style.opacity = StyleKeyword.Null;
-            style.overflow = StyleKeyword.Null;
-            style.paddingBottom = StyleKeyword.Null;
-            style.paddingLeft = StyleKeyword.Null;
-            style.paddingRight = StyleKeyword.Null;
-            style.paddingTop = StyleKeyword.Null;
-            style.position = StyleKeyword.Null;
-            style.right = StyleKeyword.Null;
-            style.rotate = StyleKeyword.Null;
-            style.scale = StyleKeyword.Null;
-            style.textOverflow = StyleKeyword.Null;
-            style.textShadow = StyleKeyword.Null;
-            style.top = StyleKeyword.Null;
-            style.transformOrigin = StyleKeyword.Null;
-            style.transitionDelay = StyleKeyword.Null;
-            style.transitionDuration = StyleKeyword.Null;
-            style.transitionProperty = StyleKeyword.Null;
-            style.transitionTimingFunction = StyleKeyword.Null;
-            style.translate = StyleKeyword.Null;
-            style.unityBackgroundImageTintColor = StyleKeyword.Null;
-            style.unityFont = StyleKeyword.Null;
-            style.unityFontDefinition = StyleKeyword.Null;
-            style.unityFontStyleAndWeight = StyleKeyword.Null;
-            style.unityOverflowClipBox = StyleKeyword.Null;
-            style.unityParagraphSpacing = StyleKeyword.Null;
-            style.unitySliceBottom = StyleKeyword.Null;
-            style.unitySliceLeft = StyleKeyword.Null;
-            style.unitySliceRight = StyleKeyword.Null;
-            style.unitySliceTop = StyleKeyword.Null;
-            style.unityTextAlign = StyleKeyword.Null;
-            style.unityTextOutlineColor = StyleKeyword.Null;
-            style.unityTextOutlineWidth = StyleKeyword.Null;
-            style.unityTextOverflowPosition = StyleKeyword.Null;
-            style.visibility = StyleKeyword.Null;
-            style.whiteSpace = StyleKeyword.Null;
-            style.width = StyleKeyword.Null;
-            style.wordSpacing = StyleKeyword.Null;
+            if(!RishUtils.MemCmp(style.alignContent, NullAlign))
+            {
+                style.alignContent = NullAlign;
+            }
+            if(!RishUtils.MemCmp(style.alignItems, NullAlign))
+            {
+                style.alignItems = NullAlign;
+            }
+            if(!RishUtils.MemCmp(style.alignSelf, NullAlign))
+            {
+                style.alignSelf = NullAlign;
+            }
+            if(!RishUtils.MemCmp(style.backgroundColor, NullColor))
+            {
+                style.backgroundColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.backgroundImage, NullBackground))
+            {
+                style.backgroundImage = NullBackground;
+            }
+            if(!RishUtils.MemCmp(style.backgroundPositionX, NullBackgroundPosition))
+            {
+                style.backgroundPositionX = NullBackgroundPosition;
+            }
+            if(!RishUtils.MemCmp(style.backgroundPositionY, NullBackgroundPosition))
+            {
+                style.backgroundPositionY = NullBackgroundPosition;
+            }
+            if(!RishUtils.MemCmp(style.backgroundRepeat, NullBackgroundRepeat))
+            {
+                style.backgroundRepeat = NullBackgroundRepeat;
+            }
+            if(!RishUtils.MemCmp(style.backgroundSize, NullBackgroundSize))
+            {
+                style.backgroundSize = NullBackgroundSize;
+            }
+            if(!RishUtils.MemCmp(style.borderBottomColor, NullColor))
+            {
+                style.borderBottomColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.borderBottomLeftRadius, NullLength))
+            {
+                style.borderBottomLeftRadius = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.borderBottomRightRadius, NullLength))
+            {
+                style.borderBottomRightRadius = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.borderBottomWidth, NullFloat))
+            {
+                style.borderBottomWidth = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.borderLeftColor, NullColor))
+            {
+                style.borderLeftColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.borderLeftWidth, NullFloat))
+            {
+                style.borderLeftWidth = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.borderRightColor, NullColor))
+            {
+                style.borderRightColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.borderRightWidth, NullFloat))
+            {
+                style.borderRightWidth = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.borderTopColor, NullColor))
+            {
+                style.borderTopColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.borderTopLeftRadius, NullLength))
+            {
+                style.borderTopLeftRadius = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.borderTopRightRadius, NullLength))
+            {
+                style.borderTopRightRadius = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.borderTopWidth, NullFloat))
+            {
+                style.borderTopWidth = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.bottom, NullLength))
+            {
+                style.bottom = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.color, NullColor))
+            {
+                style.color = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.cursor, NullCursor))
+            {
+                style.cursor = NullCursor;
+            }
+            if(!RishUtils.MemCmp(style.display, NullDisplayStyle))
+            {
+                style.display = NullDisplayStyle;
+            }
+            if(!RishUtils.MemCmp(style.flexBasis, NullLength))
+            {
+                style.flexBasis = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.flexDirection, NullFlexDirection))
+            {
+                style.flexDirection = NullFlexDirection;
+            }
+            if(!RishUtils.MemCmp(style.flexGrow, NullFloat))
+            {
+                style.flexGrow = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.flexShrink, NullFloat))
+            {
+                style.flexShrink = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.flexWrap, NullWrap))
+            {
+                style.flexWrap = NullWrap;
+            }
+            if(!RishUtils.MemCmp(style.fontSize, NullLength))
+            {
+                style.fontSize = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.height, NullLength))
+            {
+                style.height = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.justifyContent, NullJustify))
+            {
+                style.justifyContent = NullJustify;
+            }
+            if(!RishUtils.MemCmp(style.left, NullLength))
+            {
+                style.left = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.letterSpacing, NullLength))
+            {
+                style.letterSpacing = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.marginBottom, NullLength))
+            {
+                style.marginBottom = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.marginLeft, NullLength))
+            {
+                style.marginLeft = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.marginRight, NullLength))
+            {
+                style.marginRight = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.marginTop, NullLength))
+            {
+                style.marginTop = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.maxHeight, NullLength))
+            {
+                style.maxHeight = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.maxWidth, NullLength))
+            {
+                style.maxWidth = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.minHeight, NullLength))
+            {
+                style.minHeight = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.minWidth, NullLength))
+            {
+                style.minWidth = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.opacity, NullFloat))
+            {
+                style.opacity = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.overflow, NullOverflow))
+            {
+                style.overflow = NullOverflow;
+            }
+            if(!RishUtils.MemCmp(style.paddingBottom, NullLength))
+            {
+                style.paddingBottom = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.paddingLeft, NullLength))
+            {
+                style.paddingLeft = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.paddingRight, NullLength))
+            {
+                style.paddingRight = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.paddingTop, NullLength))
+            {
+                style.paddingTop = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.position, NullPosition))
+            {
+                style.position = NullPosition;
+            }
+            if(!RishUtils.MemCmp(style.right, NullLength))
+            {
+                style.right = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.rotate, NullRotate))
+            {
+                style.rotate = NullRotate;
+            }
+            if(!RishUtils.MemCmp(style.scale, NullScale))
+            {
+                style.scale = NullScale;
+            }
+            if(!RishUtils.MemCmp(style.textOverflow, NullTextOverflow))
+            {
+                style.textOverflow = NullTextOverflow;
+            }
+            if(!RishUtils.MemCmp(style.textShadow, NullTextShadow))
+            {
+                style.textShadow = NullTextShadow;
+            }
+            if(!RishUtils.MemCmp(style.top, NullLength))
+            {
+                style.top = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.transformOrigin, NullTransformOrigin))
+            {
+                style.transformOrigin = NullTransformOrigin;
+            }
+            if(!RishUtils.MemCmp(style.transitionDelay, NullTimeValue))
+            {
+                style.transitionDelay = NullTimeValue;
+            }
+            if(!RishUtils.MemCmp(style.transitionDuration, NullTimeValue))
+            {
+                style.transitionDuration = NullTimeValue;
+            }
+            if(!RishUtils.MemCmp(style.transitionProperty, NullStylePropertyName))
+            {
+                style.transitionProperty = NullStylePropertyName;
+            }
+            if(!RishUtils.MemCmp(style.transitionTimingFunction, NullEasingFunction))
+            {
+                style.transitionTimingFunction = NullEasingFunction;
+            }
+            if(!RishUtils.MemCmp(style.translate, NullTranslate))
+            {
+                style.translate = NullTranslate;
+            }
+            if(!RishUtils.MemCmp(style.unityBackgroundImageTintColor, NullColor))
+            {
+                style.unityBackgroundImageTintColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.unityFont, NullFont))
+            {
+                style.unityFont = NullFont;
+            }
+            if(!RishUtils.MemCmp(style.unityFontDefinition, NullFontDefinition))
+            {
+                style.unityFontDefinition = NullFontDefinition;
+            }
+            if(!RishUtils.MemCmp(style.unityFontStyleAndWeight, NullFontStyle))
+            {
+                style.unityFontStyleAndWeight = NullFontStyle;
+            }
+            if(!RishUtils.MemCmp(style.unityOverflowClipBox, NullOverflowClipBox))
+            {
+                style.unityOverflowClipBox = NullOverflowClipBox;
+            }
+            if(!RishUtils.MemCmp(style.unityParagraphSpacing, NullLength))
+            {
+                style.unityParagraphSpacing = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.unitySliceBottom, NullInt))
+            {
+                style.unitySliceBottom = NullInt;
+            }
+            if(!RishUtils.MemCmp(style.unitySliceLeft, NullInt))
+            {
+                style.unitySliceLeft = NullInt;
+            }
+            if(!RishUtils.MemCmp(style.unitySliceRight, NullInt))
+            {
+                style.unitySliceRight = NullInt;
+            }
+            if(!RishUtils.MemCmp(style.unitySliceTop, NullInt))
+            {
+                style.unitySliceTop = NullInt;
+            }
+            if(!RishUtils.MemCmp(style.unityTextAlign, NullTextAnchor))
+            {
+                style.unityTextAlign = NullTextAnchor;
+            }
+            if(!RishUtils.MemCmp(style.unityTextOutlineColor, NullColor))
+            {
+                style.unityTextOutlineColor = NullColor;
+            }
+            if(!RishUtils.MemCmp(style.unityTextOutlineWidth, NullFloat))
+            {
+                style.unityTextOutlineWidth = NullFloat;
+            }
+            if(!RishUtils.MemCmp(style.unityTextOverflowPosition, NullTextOverflowPosition))
+            {
+                style.unityTextOverflowPosition = NullTextOverflowPosition;
+            }
+            if(!RishUtils.MemCmp(style.visibility, NullVisibility))
+            {
+                style.visibility = NullVisibility;
+            }
+            if(!RishUtils.MemCmp(style.whiteSpace, NullWhiteSpace))
+            {
+                style.whiteSpace = NullWhiteSpace;
+            }
+            if(!RishUtils.MemCmp(style.width, NullLength))
+            {
+                style.width = NullLength;
+            }
+            if(!RishUtils.MemCmp(style.wordSpacing, NullLength))
+            {
+                style.wordSpacing = NullLength;
+            }
             
             if (element is ICustomPicking customPicking)
             {
@@ -154,6 +430,7 @@ namespace RishUI
 
             var elementStyle = element.style;
 
+            // TODO: We can improve the performance of this if we compare before assigning
             elementStyle.alignContent = style.alignContent;
             elementStyle.alignItems = style.alignItems;
             elementStyle.alignSelf = style.alignSelf;

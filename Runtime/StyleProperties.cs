@@ -33,7 +33,6 @@ namespace RishUI
         RishStyleKeyword keyword { get; }
     }
     
-    [CustomComparer]
     public readonly struct StyleBackground : IStyleValue<Background>
     {
         public readonly Background value;
@@ -72,20 +71,6 @@ namespace RishUI
 
         public static implicit operator StyleBackground(UnityEngine.UIElements.StyleBackground style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleBackground a, StyleBackground b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value.Equals(b.value);
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public enum BackgroundHorizontalPositionKeyword { Center, Left, Right }
@@ -157,7 +142,6 @@ namespace RishUI
             };
         }
     }
-    [CustomComparer]
     public readonly struct StyleBackgroundHorizontalPosition : IStyleValue<BackgroundPosition>
     {
         public readonly BackgroundPosition value;
@@ -194,20 +178,6 @@ namespace RishUI
 
         public static implicit operator StyleBackgroundHorizontalPosition(StyleBackgroundPosition style) =>
             style.keyword == StyleKeyword.Undefined ? (BackgroundHorizontalPosition)style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleBackgroundHorizontalPosition a, StyleBackgroundHorizontalPosition b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value.Equals(b.value);
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public enum BackgroundVerticalPositionKeyword { Center, Top, Bottom }
@@ -279,7 +249,6 @@ namespace RishUI
             };
         }
     }
-    [CustomComparer]
     public readonly struct StyleBackgroundVerticalPosition : IStyleValue<BackgroundPosition>
     {
         public readonly BackgroundPosition value;
@@ -316,20 +285,6 @@ namespace RishUI
 
         public static implicit operator StyleBackgroundVerticalPosition(StyleBackgroundPosition style) =>
             style.keyword == StyleKeyword.Undefined ? (BackgroundVerticalPosition)style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleBackgroundVerticalPosition a, StyleBackgroundVerticalPosition b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value.Equals(b.value);
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public enum RepeatHorizontally { NoRepeat, Space, Round, Repeat }
@@ -456,7 +411,6 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    [CustomComparer]
     public readonly struct StyleCursor : IStyleValue<Cursor>
     {
         public readonly Cursor value;
@@ -487,20 +441,6 @@ namespace RishUI
 
         public static implicit operator StyleCursor(UnityEngine.UIElements.StyleCursor style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleCursor a, StyleCursor b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value.Equals(b.value);
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public readonly struct StyleEnum<T> : IStyleValue<T> where T : unmanaged, IConvertible
@@ -567,7 +507,6 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    [CustomComparer]
     public readonly struct StyleFont : IStyleValue<Font>
     {
         public readonly Font value;
@@ -598,22 +537,8 @@ namespace RishUI
 
         public static implicit operator StyleFont(UnityEngine.UIElements.StyleFont style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleFont a, StyleFont b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value == b.value;
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
-    [CustomComparer]
+    
     public readonly struct StyleFontDefinition : IStyleValue<FontDefinition>
     {
         public readonly FontDefinition value;
@@ -648,20 +573,6 @@ namespace RishUI
 
         public static implicit operator StyleFontDefinition(UnityEngine.UIElements.StyleFontDefinition style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleFontDefinition a, StyleFontDefinition b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value.Equals(b.value);
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public readonly struct StyleInt : IStyleValue<int>
@@ -732,7 +643,6 @@ namespace RishUI
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
     }
     
-    [CustomComparer]
     public readonly struct StyleList<T> : IStyleValue<List<T>>
     {
         public readonly List<T> value;
@@ -763,20 +673,6 @@ namespace RishUI
 
         public static implicit operator StyleList<T>(UnityEngine.UIElements.StyleList<T> style) =>
             style.keyword == StyleKeyword.Undefined ? style.value : style.keyword.FromNative();
-
-        [Comparer]
-        private static bool Equals(StyleList<T> a, StyleList<T> b)
-        {
-            var aNotNull = a.IsNotNull();
-            var bNotNull = b.IsNotNull();
-
-            if (aNotNull && bNotNull)
-            {
-                return a.value == b.value;
-            }
-
-            return aNotNull == bNotNull;
-        }
     }
     
     public readonly struct StyleRotate : IStyleValue<Angle>
