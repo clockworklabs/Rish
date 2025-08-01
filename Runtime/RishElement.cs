@@ -31,7 +31,7 @@ namespace RishUI
         int FocusIndex { get; }
     }
 
-    public abstract class RishElement<P> : IRishElement, IRishEventTarget where P : struct
+    public abstract class RishElement<P> : IRishElement where P : struct
     {
         private SapStem<bool> OnDirtyStem { get; } = new();
         SapTargets<Action<bool>> IRishElement.OnDirty => OnDirtyStem.Targets;
@@ -47,8 +47,6 @@ namespace RishUI
         private protected SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
         
         private ContextOwner ContextOwner { get; } = new();
-        
-        private List<ICallbackWrapper> Callbacks { get; set; }
 
         private List<ToolkitManipulator> ToolkitManipulators { get; set; }
         private IReadOnlyCollection<ToolkitManipulator> _readOnlyToolkitManipulators;
@@ -265,54 +263,6 @@ namespace RishUI
         [RequiresManagedContext]
         protected abstract Element Render();
         
-        /// <summary>
-        /// Dispatch an event.
-        /// </summary>
-        public void SendEvent(RishEventBase evt) => EventsDispatcher.Dispatch(evt);
-
-        /// <summary>
-        /// Register event callback for a Rish event.
-        /// </summary>
-        public void RegisterRishCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : RishEventBase<TEventType>, new()
-        {
-            var wrapper = CallbacksPool.Get(this, callback, phase);
-
-            Callbacks ??= new List<ICallbackWrapper>(10);
-            Callbacks.Add(wrapper);
-        }
-
-        /// <summary>
-        /// Unregister event callback for a Rish event.
-        /// </summary>
-        public void UnregisterRishCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : RishEventBase<TEventType>, new()
-        {
-            if (Callbacks == null)
-            {
-                return;
-            }
-
-            for (var i = Callbacks.Count - 1; i >= 0; i--)
-            {
-                var wrapper = Callbacks[i];
-                if (!wrapper.Wraps(callback)) continue;
-                ListExtensions.RemoveAtSwapBack(Callbacks, i);
-                CallbacksPool.Return(wrapper);
-            }
-        }
-
-        void IRishEventTarget.HandleRishEvent(RishEventBase evt, EventPhase phase)
-        {
-            if (Callbacks == null)
-            {
-                return;
-            }
-            
-            foreach (var callback in Callbacks)
-            {
-                callback.Handle(evt, phase);
-            }
-        }
-
         public void AddManipulator(ToolkitManipulator manipulator)
         {
             if (manipulator.Owner != null)
