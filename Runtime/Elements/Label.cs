@@ -25,10 +25,10 @@ namespace RishUI.Elements
             Bridge = new Bridge<LabelProps>(this);
             PickingManager = new RectPickingManager(Bridge);
             
-            RegisterCallback<AttachToPanelEvent>(OnMounted);
-            RegisterCallback<DetachFromPanelEvent>(OnUnmounted);
+            RegisterCallback<VisualChangeEvent>(SappyOnVisualChange.Callback);
             
-            RegisterCallback<VisualChangeEvent>(OnVisualChange);
+            Bridge.OnMounted.Add(SappyOnMounted);
+            Bridge.OnUnmounted.Add(SappyOnUnmounted);
         }
 
         void IVisualElement<LabelProps>.Setup(LabelProps props)
@@ -41,22 +41,22 @@ namespace RishUI.Elements
             enableRichText = props.enableRichText ?? true;
         }
 
-        [SapTarget(typeof(EventCallback<AttachToPanelEvent>))]
-        private void OnMounted(AttachToPanelEvent evt)
+        [SapTarget]
+        private void OnMounted()
         {
             Parent = parent;
-            Parent?.RegisterCallback<VisualChangeEvent>(OnVisualChange);
+            Parent?.RegisterCallback<VisualChangeEvent>(SappyOnVisualChange.Callback);
         }
 
-        [SapTarget(typeof(EventCallback<DetachFromPanelEvent>))]
-        private void OnUnmounted(DetachFromPanelEvent evt)
+        [SapTarget]
+        private void OnUnmounted()
         {
-            Parent?.UnregisterCallback<VisualChangeEvent>(OnVisualChange);
+            Parent?.UnregisterCallback<VisualChangeEvent>(SappyOnVisualChange.Callback);
             Parent = null;
             
             if(!RishUtils.MemCmp(style.width, VisualElementExtensions.NullLength))
             {
-                style.width = RishUI.VisualElementExtensions.NullLength;
+                style.width = VisualElementExtensions.NullLength;
             }
             if(!RishUtils.MemCmp(style.height, VisualElementExtensions.NullLength))
             {

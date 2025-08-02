@@ -21,6 +21,8 @@ namespace RishUI
     {
         private SapStem OnUnmountedStem { get; } = new();
         public SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
+        private SapStem OnMountedStem { get; } = new();
+        public SapTargets<Action> OnMounted => OnMountedStem.Targets;
         private SapStem<Style> OnStyleStem { get; } = new();
         public SapTargets<Action<Style>> OnStyle => OnStyleStem.Targets;
         private SapStem OnSetupStem { get; } = new();
@@ -168,6 +170,8 @@ namespace RishUI
             // Element.ResetInlineStyles();
             
             Node = node;
+            
+            OnMountedStem.Send();
             
             var parentNode = node.Parent;
             while (parentNode is { Element: IRishElement rishElement })
