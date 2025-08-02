@@ -64,12 +64,14 @@ namespace RishUI
         {
             Bridge = bridge;
             Bridge.OnSetup.Add(SappyUpdate);
-            Element.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyle);
+            Bridge.OnUnmounted.Add(SappyOnUnmounted);
+            Element.RegisterCallback<CustomStyleResolvedEvent>(SappyOnCustomStyle.Callback);
         }
 
         public void Enable() => Enabled = true;
         public void Disable() => Enabled = false;
         
+        [SapTarget(typeof(EventCallback<CustomStyleResolvedEvent>))]
         private void OnCustomStyle(CustomStyleResolvedEvent evt)
         {
             var customStyle = evt.customStyle;
@@ -119,6 +121,16 @@ namespace RishUI
             }
 
             PointerDetection = target;
+        }
+
+        [SapTarget]
+        private void OnUnmounted()
+        {
+            var style = Element.style;
+            if (!RishUtils.MemCmp(style.unityBackgroundScaleMode, StyleKeyword.Null))
+            {
+                Element.style.unityBackgroundScaleMode = StyleKeyword.Null;
+            }
         }
 
         private PointerDetectionMode GetInherited()

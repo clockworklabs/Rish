@@ -8,6 +8,7 @@ namespace RishUI
 {
     public interface IBridge
     {
+        SapTargets<Action> OnUnmounted { get; }
         SapTargets<Action> OnSetup { get; }
         
         VisualElement Element { get; }
