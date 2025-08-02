@@ -279,25 +279,14 @@ namespace RishUI
         /// <summary>
         /// Register event callback for a UIToolkit event. This element must have a VisualElement descendant to be able to handle UIToolkit events.
         /// </summary>
-        public void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new()
-        {
-            if (callback == null) return;
-            var wrapper = ToolkitCallbacksPool.New(callback, phase);
-
-            EventsManager.AddCallback(wrapper);
-        }
+        public void RegisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new() =>
+            EventsManager.AddCallback(callback, phase);
 
         /// <summary>
         /// Unregister event callback for a UIToolkit event.
         /// </summary>
-        public void UnregisterCallback<TEventType>(EventCallback<TEventType> callback) where TEventType : EventBase<TEventType>, new()
-        {
-            if (callback == null) return;
-            var wrapper = ToolkitCallbacksPool.Return(callback);
-            if (wrapper == null) return;
-            
-            EventsManager.RemoveCallback(wrapper);
-        }
+        public void UnregisterCallback<TEventType>(EventCallback<TEventType> callback, EventPhase phase = EventPhase.BubbleUp) where TEventType : EventBase<TEventType>, new() =>
+            EventsManager.RemoveCallback(callback, phase);
         
         /// <summary>
         /// Flags this element as focusable.

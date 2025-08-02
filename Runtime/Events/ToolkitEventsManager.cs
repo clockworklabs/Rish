@@ -62,20 +62,50 @@ namespace RishUI.Events
             manipulator.SetTarget(null);
         }
 
-        public void AddCallback(IToolkitCallbackWrapper callback)
+        public void AddCallback<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
         {
-            Callbacks ??= new List<IToolkitCallbackWrapper>(5);
-            Callbacks.Add(callback);
+            if (callback == null) return;
+            var wrapper = ToolkitCallbacksPool.New(callback, phase);
             
-            callback.SetTarget(VisualElement);
+            Callbacks ??= new List<IToolkitCallbackWrapper>(5);
+            Callbacks.Add(wrapper);
+            
+            wrapper.SetTarget(VisualElement);
         }
-        public void RemoveCallback(IToolkitCallbackWrapper callback)
+        public void RemoveCallback<T>(EventCallback<T> callback, EventPhase phase) where T : EventBase<T>, new()
         {
             if (Callbacks == null) return;
+
+            var index = -1;
+            for (int i = 0, n = Callbacks.Count; i < n; i++)
+            {
+                var found = false;
+                switch (Callbacks[i].Wraps(callback, phase))
+                {
+                    case IToolkitCallbackWrapper.WrapResult.Callback:
+                        if (index < 0)
+                        {
+                            index = i;
+                        }
+                        break;
+                    case IToolkitCallbackWrapper.WrapResult.CallbackAndPhase:
+                        index = i;
+                        found = true;
+                        break;
+                }
+
+                if (found) break;
+            }
+
+            if (index < 0) return;
             
-            Callbacks.Remove(callback);
+            var wrapper = (ToolkitCallbackWrapper<T>)Callbacks[index];
             
-            callback.SetTarget(null);
+            wrapper.SetTarget(null);
+            
+            ToolkitCallbacksPool.Return(wrapper);
+            
+            Callbacks.RemoveAtSwapBack(index);
         }
     }
 }
