@@ -7,39 +7,39 @@ namespace RishUI
 {
     public static class VisualElementExtensions
     {
-        private static readonly UnityEngine.UIElements.StyleEnum<Align> NullAlign = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<DisplayStyle> NullDisplayStyle = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<FlexDirection> NullFlexDirection = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<Wrap> NullWrap = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<Justify> NullJustify = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<Overflow> NullOverflow = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<Position> NullPosition = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<TextOverflow> NullTextOverflow = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<FontStyle> NullFontStyle = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<OverflowClipBox> NullOverflowClipBox = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<TextAnchor> NullTextAnchor = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<TextOverflowPosition> NullTextOverflowPosition = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<Visibility> NullVisibility = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleEnum<WhiteSpace> NullWhiteSpace = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleColor NullColor = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleBackground NullBackground = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleBackgroundPosition NullBackgroundPosition = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleBackgroundRepeat NullBackgroundRepeat = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleBackgroundSize NullBackgroundSize = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleLength NullLength = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleFloat NullFloat = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleInt NullInt = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleCursor NullCursor = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleFont NullFont = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleFontDefinition NullFontDefinition = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleRotate NullRotate = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleScale NullScale = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleTextShadow NullTextShadow = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleTransformOrigin NullTransformOrigin = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleTranslate NullTranslate = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleList<TimeValue> NullTimeValue = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleList<StylePropertyName> NullStylePropertyName = new(StyleKeyword.Null);
-        private static readonly UnityEngine.UIElements.StyleList<EasingFunction> NullEasingFunction = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Align> NullAlign = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<DisplayStyle> NullDisplayStyle = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<FlexDirection> NullFlexDirection = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Wrap> NullWrap = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Justify> NullJustify = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Overflow> NullOverflow = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Position> NullPosition = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<TextOverflow> NullTextOverflow = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<FontStyle> NullFontStyle = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<OverflowClipBox> NullOverflowClipBox = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<TextAnchor> NullTextAnchor = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<TextOverflowPosition> NullTextOverflowPosition = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<Visibility> NullVisibility = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleEnum<WhiteSpace> NullWhiteSpace = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleColor NullColor = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleBackground NullBackground = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleBackgroundPosition NullBackgroundPosition = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleBackgroundRepeat NullBackgroundRepeat = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleBackgroundSize NullBackgroundSize = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleLength NullLength = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleFloat NullFloat = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleInt NullInt = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleCursor NullCursor = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleFont NullFont = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleFontDefinition NullFontDefinition = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleRotate NullRotate = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleScale NullScale = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleTextShadow NullTextShadow = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleTransformOrigin NullTransformOrigin = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleTranslate NullTranslate = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleList<TimeValue> NullTimeValue = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleList<StylePropertyName> NullStylePropertyName = new(StyleKeyword.Null);
+        public static readonly UnityEngine.UIElements.StyleList<EasingFunction> NullEasingFunction = new(StyleKeyword.Null);
         
         public static void ResetInlineStyles(this VisualElement element)
         {

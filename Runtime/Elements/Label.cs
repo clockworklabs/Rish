@@ -1,4 +1,5 @@
 using RishUI.Events;
+using Sappy;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -40,18 +41,30 @@ namespace RishUI.Elements
             enableRichText = props.enableRichText ?? true;
         }
 
+        [SapTarget(typeof(EventCallback<AttachToPanelEvent>))]
         private void OnMounted(AttachToPanelEvent evt)
         {
             Parent = parent;
             Parent?.RegisterCallback<VisualChangeEvent>(OnVisualChange);
         }
 
+        [SapTarget(typeof(EventCallback<DetachFromPanelEvent>))]
         private void OnUnmounted(DetachFromPanelEvent evt)
         {
             Parent?.UnregisterCallback<VisualChangeEvent>(OnVisualChange);
             Parent = null;
+            
+            if(!RishUtils.MemCmp(style.width, VisualElementExtensions.NullLength))
+            {
+                style.width = RishUI.VisualElementExtensions.NullLength;
+            }
+            if(!RishUtils.MemCmp(style.height, VisualElementExtensions.NullLength))
+            {
+                style.height = VisualElementExtensions.NullLength;
+            }
         }
 
+        [SapTarget(typeof(EventCallback<VisualChangeEvent>))]
         private void OnVisualChange(VisualChangeEvent evt)
         {
             SetSize();
