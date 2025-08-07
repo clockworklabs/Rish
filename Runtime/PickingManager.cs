@@ -64,7 +64,6 @@ namespace RishUI
         {
             Bridge = bridge;
             Bridge.OnSetup.Add(SappyUpdate);
-            Bridge.OnUnmounted.Add(SappyOnUnmounted);
             Element.RegisterCallback<CustomStyleResolvedEvent>(SappyOnCustomStyle.Callback);
         }
 
@@ -121,16 +120,6 @@ namespace RishUI
             }
 
             PointerDetection = target;
-        }
-
-        [SapTarget]
-        private void OnUnmounted()
-        {
-            var style = Element.style;
-            if (!RishUtils.MemCmp(style.unityBackgroundScaleMode, StyleKeyword.Null))
-            {
-                style.unityBackgroundScaleMode = StyleKeyword.Null;
-            }
         }
 
         private PointerDetectionMode GetInherited()
@@ -301,7 +290,7 @@ namespace RishUI
 
             BackgroundScaleMode = resolvedStyle.unityBackgroundScaleMode.value;
         }
-        
+
         protected override bool Raycast(Vector2 localPoint)
         {
             var layout = Element.layout;

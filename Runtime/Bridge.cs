@@ -155,6 +155,8 @@ namespace RishUI
 
                 if (value == null)
                 {
+                    _className = ClassName.Null;
+                    _style = default;
                     _children = Children.Null;
                     _props = null;
                 }
@@ -563,6 +565,10 @@ namespace RishUI
             // Element.SendEvent(unmountingEvt);
             
             Element.RemoveFromHierarchy();
+            // These are necessary because VisualElements change inline styles from within so even if we don't set something manually, something might have been changed by UIToolkit
+            Name = null;
+            Element.ResetInlineStyles();
+            Element.ClearClassList();
             
             Node = null;
             

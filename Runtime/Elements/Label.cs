@@ -53,15 +53,6 @@ namespace RishUI.Elements
         {
             Parent?.UnregisterCallback<VisualChangeEvent>(SappyOnVisualChange.Callback);
             Parent = null;
-            
-            if(!RishUtils.MemCmp(style.width, VisualElementExtensions.NullLength))
-            {
-                style.width = VisualElementExtensions.NullLength;
-            }
-            if(!RishUtils.MemCmp(style.height, VisualElementExtensions.NullLength))
-            {
-                style.height = VisualElementExtensions.NullLength;
-            }
         }
 
         [SapTarget(typeof(EventCallback<VisualChangeEvent>))]
