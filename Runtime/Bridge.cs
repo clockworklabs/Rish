@@ -155,8 +155,6 @@ namespace RishUI
 
                 if (value == null)
                 {
-                    _className = ClassName.Null;
-                    _style = default;
                     _children = Children.Null;
                     _props = null;
                 }
@@ -171,11 +169,6 @@ namespace RishUI
 
         void IBridge.Mount(Node node)
         {
-            // This shouldn't be necessary
-            Name = null;
-            Element.ClearClassList();
-            Element.ResetInlineStyles();
-            
             Node = node;
             
             OnMountedStem.Send();
