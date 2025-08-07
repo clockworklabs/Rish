@@ -63,6 +63,12 @@ namespace RishUI
         public static implicit operator StyleBackground(Sprite v) => new(v);
         public static implicit operator StyleBackground(VectorImage v) => new(v);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleBackground result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleBackground(StyleBackground style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -169,6 +175,12 @@ namespace RishUI
         public static implicit operator StyleBackgroundHorizontalPosition(BackgroundHorizontalPositionKeyword keyword) => new(keyword);
         public static implicit operator StyleBackgroundHorizontalPosition(Length length) => new(length);
         public static implicit operator StyleBackgroundHorizontalPosition((BackgroundHorizontalPositionKeyword keyword, Length offset) v) => new(v.keyword, v.offset);
+
+        public bool AsNative(out StyleBackgroundPosition result)
+        {
+            result = this;
+            return true;
+        }
 
         public static implicit operator StyleBackgroundPosition(StyleBackgroundHorizontalPosition style) => style.keyword switch
         {
@@ -277,6 +289,12 @@ namespace RishUI
         public static implicit operator StyleBackgroundVerticalPosition(Length length) => new(length);
         public static implicit operator StyleBackgroundVerticalPosition((BackgroundVerticalPositionKeyword keyword, Length offset) v) => new(v.keyword, v.offset);
 
+        public bool AsNative(out StyleBackgroundPosition result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator StyleBackgroundPosition(StyleBackgroundVerticalPosition style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -331,6 +349,12 @@ namespace RishUI
         public static implicit operator StyleBackgroundRepeat((RepeatHorizontally x, RepeatVertically y) v) => new(v.x, v.y);
         public static implicit operator StyleBackgroundRepeat((RepeatVertically y, RepeatHorizontally x) v) => new(v.y, v.x);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleBackgroundRepeat result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleBackgroundRepeat(StyleBackgroundRepeat style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -369,6 +393,12 @@ namespace RishUI
         public static implicit operator StyleBackgroundSize(Length x) => new(x);
         public static implicit operator StyleBackgroundSize((Length x, Length y) v) => new(v.x, v.y);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleBackgroundSize result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleBackgroundSize(StyleBackgroundSize style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -401,6 +431,12 @@ namespace RishUI
         public static implicit operator StyleColor(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleColor(Color v) => new(v);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleColor result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleColor(StyleColor style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -432,6 +468,12 @@ namespace RishUI
         
         public static implicit operator StyleCursor(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleCursor(Cursor v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleCursor result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleCursor(StyleCursor style) => style.keyword switch
         {
@@ -465,6 +507,12 @@ namespace RishUI
         public static implicit operator StyleEnum<T>(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleEnum<T>(T v) => new(v);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleEnum<T> result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleEnum<T>(StyleEnum<T> style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -496,6 +544,12 @@ namespace RishUI
         
         public static implicit operator StyleFloat(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleFloat(float v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleFloat result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleFloat(StyleFloat style) => style.keyword switch
         {
@@ -528,6 +582,12 @@ namespace RishUI
         
         public static implicit operator StyleFont(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleFont(Font v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleFont result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleFont(StyleFont style) => style.keyword switch
         {
@@ -564,6 +624,12 @@ namespace RishUI
         public static implicit operator StyleFontDefinition(FontDefinition v) => new(v);
         public static implicit operator StyleFontDefinition(Font v) => new(v);
         public static implicit operator StyleFontDefinition(FontAsset v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleFontDefinition result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleFontDefinition(StyleFontDefinition style) => style.keyword switch
         {
@@ -596,6 +662,12 @@ namespace RishUI
         
         public static implicit operator StyleInt(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleInt(int v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleInt result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleInt(StyleInt style) => style.keyword switch
         {
@@ -631,6 +703,12 @@ namespace RishUI
         public static implicit operator StyleLength(Length v) => new(v);
         public static implicit operator StyleLength(float v) => new(v);
 
+        public bool AsNative(out UnityEngine.UIElements.StyleLength result)
+        {
+            result = this;
+            return true;
+        }
+
         public static implicit operator UnityEngine.UIElements.StyleLength(StyleLength style) => style.keyword switch
         {
             RishStyleKeyword.Undefined => style.value,
@@ -664,6 +742,12 @@ namespace RishUI
         
         public static implicit operator StyleList<T>(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleList<T>(List<T> v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleList<T> result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleList<T>(StyleList<T> style) => style.keyword switch
         {
@@ -698,6 +782,12 @@ namespace RishUI
         public static implicit operator StyleRotate(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleRotate(Angle v) => new(v);
         public static implicit operator StyleRotate(float v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleRotate result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleRotate(StyleRotate style) => style.keyword switch
         {
@@ -732,6 +822,12 @@ namespace RishUI
         public static implicit operator StyleScale(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleScale(Vector3 v) => new(v);
         public static implicit operator StyleScale(float v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleScale result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleScale(StyleScale style) => style.keyword switch
         {
@@ -764,6 +860,12 @@ namespace RishUI
         
         public static implicit operator StyleTextShadow(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleTextShadow(TextShadow v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleTextShadow result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleTextShadow(StyleTextShadow style) => style.keyword switch
         {
@@ -796,6 +898,12 @@ namespace RishUI
         
         public static implicit operator StyleTransformOrigin(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleTransformOrigin(TransformOrigin v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleTransformOrigin result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleTransformOrigin(StyleTransformOrigin style) => style.keyword switch
         {
@@ -828,6 +936,12 @@ namespace RishUI
         
         public static implicit operator StyleTranslate(RishStyleKeyword keyword) => new(keyword);
         public static implicit operator StyleTranslate(Translate v) => new(v);
+
+        public bool AsNative(out UnityEngine.UIElements.StyleTranslate result)
+        {
+            result = this;
+            return true;
+        }
         
         public static implicit operator UnityEngine.UIElements.StyleTranslate(StyleTranslate style) => style.keyword switch
         {
