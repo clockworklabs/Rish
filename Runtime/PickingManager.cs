@@ -64,7 +64,7 @@ namespace RishUI
         {
             Bridge = bridge;
             Bridge.OnSetup.Add(SappyUpdate);
-            // Bridge.OnUnmounted.Add(SappyOnUnmounted);
+            Bridge.OnUnmounted.Add(SappyOnUnmounted);
             Element.RegisterCallback<CustomStyleResolvedEvent>(SappyOnCustomStyle.Callback);
         }
 
@@ -123,16 +123,15 @@ namespace RishUI
             PointerDetection = target;
         }
 
-        // TODO: We can enable this after removing ResetInlineStyles in Bridge
-        // [SapTarget]
-        // private void OnUnmounted()
-        // {
-        //     var style = Element.style;
-        //     if (!RishUtils.MemCmp(style.unityBackgroundScaleMode, StyleKeyword.Null))
-        //     {
-        //         style.unityBackgroundScaleMode = StyleKeyword.Null;
-        //     }
-        // }
+        [SapTarget]
+        private void OnUnmounted()
+        {
+            var style = Element.style;
+            if (!RishUtils.MemCmp(style.unityBackgroundScaleMode, StyleKeyword.Null))
+            {
+                style.unityBackgroundScaleMode = StyleKeyword.Null;
+            }
+        }
 
         private PointerDetectionMode GetInherited()
         {
