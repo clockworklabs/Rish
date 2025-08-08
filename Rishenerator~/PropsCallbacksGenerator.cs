@@ -303,7 +303,7 @@ namespace Rishenerator
                 foreach (var child in type.GetMembers())
                 {
                     if (child is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } childField) continue;
-                    count -= AddDependencies($"{parent}.{childField.Name}", childField.Type, initialIndex + count, builder);
+                    count += AddDependencies($"{parent}.{childField.Name}", childField.Type, initialIndex - count, builder);
                 }
                 
                 return count;
