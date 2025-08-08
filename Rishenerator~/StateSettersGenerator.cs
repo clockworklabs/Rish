@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -173,11 +174,10 @@ namespace Rishenerator
         }}
     }}");
 
+                var contextId = int.MinValue + 1;
                 for (int i = 0, n = stateItems.Count; i < n; i++)
                 {
                     var item = stateItems[i];
-
-                    if (!item.Valid) continue;
 
                     var itemTypeFullName = item.TypeFullName;
 
@@ -212,8 +212,6 @@ namespace Rishenerator
                     {
                         setterName = $"Rish{setterName}";
                     }
-                    
-                    var contextIndex = int.MinValue + i;
 
                     sourceCode.AppendLine(@$"
     protected partial class SappyStateHolder
@@ -230,20 +228,10 @@ namespace Rishenerator
 
                     if (item.MustCompare)
                     {
-                        sourceCode.AppendLine($"if({item.GetComparison("v", $"state.{item.Name}")}) return;");
+                        sourceCode.AppendLine($"        if({item.GetComparison("v", $"state.{item.Name}")}) return;");
                     }
-
-                    sourceCode.AppendLine(@$"
-        
-        state.{item.Name} = v;
-        SetState(state, false);");
-
-                    if (item.IsRishReferenceType)
-                    {
-                        sourceCode.AppendLine(@$"
-        var context = RishUI.Rish.GetOwnerContext<{item.TypeFullName}, {item.ManagedType.GetFullName(true)}>(v);
-        ClaimContext({contextIndex}, context);");
-                    }
+                    
+                    contextId += AddDependencies("v", item.FieldSymbol, contextId, sourceCode);
 
                     if (item.MustCompare)
                     {
@@ -287,24 +275,50 @@ namespace Rishenerator
                 return new string(a);
             }
 
+            private static int AddDependencies(string parent, IFieldSymbol field, int initialIndex, StringBuilder builder)
+            {
+                var type = field.Type;
+                if (!type.IsValueType) return 0;
+                
+                foreach (var interfaceSymbol in type.Interfaces)
+                {
+                    if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference")
+                    {
+                        var ctxName = $"ctx{-initialIndex}";
+                        var managedType = interfaceSymbol.TypeArguments[0];
+                        builder.AppendLine(@$"
+        var {ctxName} = RishUI.Rish.GetOwnerContext<{type.GetFullName(true)}, {managedType.GetFullName(true)}>({parent});
+        ClaimContext({initialIndex}, {ctxName});");
+                        return 1;
+                    }
+                }
+                
+                var count = 0;
+                foreach (var child in type.GetMembers())
+                {
+                    if (child is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } childField) continue;
+                    count += AddDependencies($"{parent}.{childField.Name}", childField, initialIndex + count, builder);
+                }
+                
+                return count;
+            }
 
             private class StateItem
             {
+                public IFieldSymbol FieldSymbol { get; }
                 public string Name { get; }
                 public string TypeFullName { get; }
                 private bool IsValueType { get; }
                 private bool SmartComparison { get; }
-                public ITypeSymbol ManagedType { get; }
                 private ComparersGenerator.FieldComparison FieldComparison { get; }
                 
                 public bool MustCompare => FieldComparison != ComparersGenerator.FieldComparison.Ignore;
 
-                public bool Valid { get; }
-                public bool IsRishReferenceType => ManagedType != null;
                 // public List<string> OtherTypesFullNames { get; }
 
                 public StateItem(IFieldSymbol fieldSymbol)
                 {
+                    FieldSymbol = fieldSymbol;
                     Name = fieldSymbol.Name;
                     var type = fieldSymbol.Type;
                     TypeFullName = type.GetFullName(true);
@@ -312,20 +326,6 @@ namespace Rishenerator
                     IsValueType = type.IsValueType;
                     SmartComparison = IsValueType && (fieldSymbol.NullableAnnotation == NullableAnnotation.Annotated || (type.TypeKind == TypeKind.Struct && (type.HasAttribute("RishUI.AutoComparerAttribute") || type.HasAttribute("RishUI.CustomComparerAttribute"))));
                     
-                    if (IsValueType)
-                    {
-                        foreach (var interfaceSymbol in type.Interfaces)
-                        {
-                            if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference")
-                            {
-                                ManagedType = interfaceSymbol.TypeArguments[0];
-                                break;
-                            }
-                        }
-                    }
-
-                    Valid = !IsValueType || ManagedType != null || !type.ContainsManagedMembers(false);
-
                     // TODO: Deal with tuples and nullables in a better way
                     if (fieldSymbol.HasAttribute("RishUI.IgnoreComparisonAttribute"))
                     {
@@ -391,12 +391,10 @@ namespace Rishenerator
                 private List<StateItem> Items { get; }
                 public int Count => Items?.Count ?? 0;
                 public bool Empty => Count <= 0;
-                
                 public bool ContainsManagedMembers { get; }
                 
                 public ItemizedState(ITypeSymbol stateTypeSymbol)
                 {
-                    var containsManagedMembers = false;
                     foreach (var stateMemberSymbol in stateTypeSymbol.GetMembers())
                     {
                         if (stateMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } stateFieldSymbol)
@@ -407,10 +405,9 @@ namespace Rishenerator
                         Items ??= new List<StateItem>();
                         var item = new StateItem(stateFieldSymbol);
                         Items.Add(item);
-                        containsManagedMembers |= item.Valid;
+
+                        ContainsManagedMembers = stateTypeSymbol.ContainsManagedMembers(false);
                     }
-                    
-                    ContainsManagedMembers = containsManagedMembers;
                 }
 
                 public StateItem this[int i] => Items[i];
