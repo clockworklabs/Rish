@@ -116,9 +116,9 @@ namespace RishUI
             }
             allPropsListener?.PropsDidChange(oldValue);
 
-            if (this is IManagedProps)
+            if (this is IManaged<P> managed)
             {
-                ClaimContext(-2, context);
+                managed.ClaimReferences(value);
             }
 
             return !propsSet || dirty;
@@ -237,7 +237,6 @@ namespace RishUI
             Node.ClearDirty();
 
             var element = Render();
-            ClaimCurrentContext(-1);
 
             return element;
         }
@@ -607,9 +606,9 @@ namespace RishUI
             {
                 dirty = _state.HasValue && !IsDirty() && !RishUtils.SmartCompare(value, _state.Value);
 
-                if (this is IManagedState)
+                if (this is IManaged<S> managed)
                 {
-                    ClaimCurrentContext(-3);
+                    managed.ClaimReferences(value);
                 }
             }
             else

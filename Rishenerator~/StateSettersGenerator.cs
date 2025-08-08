@@ -152,8 +152,20 @@ namespace Rishenerator
                     return null;
                 }
                 
-                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(stateItems.ContainsManagedMembers ? " : RishUI.MemoryManagement.IManagedState" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(stateItems.ContainsManagedMembers ? $" : RishUI.MemoryManagement.IManaged<{stateTypeSymbolFullName}>" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
 {{");
+                
+                var contextId = int.MinValue + 1;
+                if (stateItems.ContainsManagedMembers)
+                {
+                    sourceCode.AppendLine($@"
+    void RishUI.MemoryManagement.IManaged<{stateTypeSymbolFullName}>.ClaimReferences({stateTypeSymbolFullName} state)
+    {{");
+
+                    contextId += AddDependencies("state", stateTypeSymbol, contextId, sourceCode);
+                    
+                    sourceCode.AppendLine("    }");
+                }
                 
                 sourceCode.AppendLine(@$"
     private SappyStateHolder _sappyState;
@@ -174,7 +186,6 @@ namespace Rishenerator
         }}
     }}");
 
-                var contextId = int.MinValue + 1;
                 for (int i = 0, n = stateItems.Count; i < n; i++)
                 {
                     var item = stateItems[i];
@@ -231,7 +242,12 @@ namespace Rishenerator
                         sourceCode.AppendLine($"        if({item.GetComparison("v", $"state.{item.Name}")}) return;");
                     }
                     
-                    contextId += AddDependencies("v", item.FieldSymbol, contextId, sourceCode);
+                    sourceCode.AppendLine(@$"
+        
+        state.{item.Name} = v;
+        SetState(state, false);");
+                    
+                    contextId += AddDependencies("v", item.FieldSymbol.Type, contextId, sourceCode);
 
                     if (item.MustCompare)
                     {
@@ -275,9 +291,9 @@ namespace Rishenerator
                 return new string(a);
             }
 
-            private static int AddDependencies(string parent, IFieldSymbol field, int initialIndex, StringBuilder builder)
+            // Copy and paste in many places. We should move to a common utility function.
+            private static int AddDependencies(string parent, ITypeSymbol type, int initialIndex, StringBuilder builder)
             {
-                var type = field.Type;
                 if (!type.IsValueType) return 0;
                 
                 foreach (var interfaceSymbol in type.Interfaces)
@@ -297,7 +313,7 @@ namespace Rishenerator
                 foreach (var child in type.GetMembers())
                 {
                     if (child is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } childField) continue;
-                    count += AddDependencies($"{parent}.{childField.Name}", childField, initialIndex + count, builder);
+                    count += AddDependencies($"{parent}.{childField.Name}", childField.Type, initialIndex + count, builder);
                 }
                 
                 return count;
@@ -405,9 +421,9 @@ namespace Rishenerator
                         Items ??= new List<StateItem>();
                         var item = new StateItem(stateFieldSymbol);
                         Items.Add(item);
-
-                        ContainsManagedMembers = stateTypeSymbol.ContainsManagedMembers(false);
                     }
+                    
+                    ContainsManagedMembers = stateTypeSymbol.ContainsManagedMembers(false);
                 }
 
                 public StateItem this[int i] => Items[i];

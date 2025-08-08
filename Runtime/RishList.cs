@@ -269,4 +269,11 @@ namespace RishUI
             }
         }
     }
+
+    [DependenciesProvider]
+    public static class RishListDependencyProvider
+    {
+        [Dependency]
+        private static void AddDependency<T>(ManagedContext ctx, RishList<T> v) where T : struct => ctx.AddDependency(Rish.GetOwnerContext<RishList<T>, ManagedRishList<T>>(v));
+    }
 }

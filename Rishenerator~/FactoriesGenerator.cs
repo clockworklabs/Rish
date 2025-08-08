@@ -247,9 +247,6 @@ namespace Rishenerator
                 var sourceCode = new StringBuilder();
                 
                 var typeSymbolFullName = typeSymbol.GetFullName(true);
-                
-                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{typeSymbol.GetGenericsConstraints(false)}
-{{");
 
                 var interfaceTypeSymbol = typeSymbol.Interfaces.FirstOrDefault(s => s.GetFullName(false) == "RishUI.IVisualElement");
                 var typeArguments = interfaceTypeSymbol.TypeArguments;
@@ -258,6 +255,22 @@ namespace Rishenerator
                 if (propsTypeSymbolFullName == "RishUI.NoProps")
                 {
                     propsTypeSymbol = null;
+                }
+
+                var managedProps = propsTypeSymbol?.ContainsManagedMembers(false) ?? false;
+                
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(managedProps ? $" : RishUI.MemoryManagement.IManaged<{propsTypeSymbolFullName}>" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
+{{");
+
+                if (managedProps)
+                {
+                    sourceCode.AppendLine($@"
+    void RishUI.MemoryManagement.IManaged<{propsTypeSymbolFullName}>.ClaimReferences({propsTypeSymbolFullName} props)
+    {{");
+
+                    AddDependencies("props", propsTypeSymbol, 3, sourceCode);
+                    
+                    sourceCode.AppendLine("    }");
                 }
 
                 if (propsTypeSymbol != null)
@@ -855,6 +868,34 @@ namespace Rishenerator
                 }
 
                 return propsTypeSymbol.GetDefault();
+            }
+
+            // Copy and paste in many places. We should move to a common utility function.
+            private static int AddDependencies(string parent, ITypeSymbol type, int initialIndex, StringBuilder builder)
+            {
+                if (!type.IsValueType) return 0;
+                
+                foreach (var interfaceSymbol in type.Interfaces)
+                {
+                    if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference")
+                    {
+                        var ctxName = $"ctx{initialIndex}";
+                        var managedType = interfaceSymbol.TypeArguments[0];
+                        builder.AppendLine(@$"
+        var {ctxName} = RishUI.Rish.GetOwnerContext<{type.GetFullName(true)}, {managedType.GetFullName(true)}>({parent});
+        Bridge.ClaimContext({initialIndex}, {ctxName});");
+                        return 1;
+                    }
+                }
+                
+                var count = 0;
+                foreach (var child in type.GetMembers())
+                {
+                    if (child is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } childField) continue;
+                    count += AddDependencies($"{parent}.{childField.Name}", childField.Type, initialIndex + count, builder);
+                }
+                
+                return count;
             }
 
 

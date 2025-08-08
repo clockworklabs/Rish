@@ -34,6 +34,8 @@ namespace RishUI
         VisualElement IBridge.Element => Element;
         private bool PropsAlwaysDirty { get; }
         
+        private ContextOwner ContextOwner { get; } = new();
+        
 #if UNITY_EDITOR
         private string DebugPrefix { get; set; }
 #endif
@@ -57,6 +59,8 @@ namespace RishUI
                 var notDirty = RishUtils.Compare(_className, value);
                 
                 _className = value;
+                
+                ClaimContext(1, Rish.GetOwnerContext<ClassName, ManagedClassName>(value));
                 
                 if (notDirty) return;
 
@@ -108,6 +112,8 @@ namespace RishUI
                 var notDirty = RishUtils.Compare(_children, value);
 
                 _children = value;
+                
+                ClaimContext(2, Rish.GetOwnerContext<Children, ManagedChildren>(value));
 
                 if (notDirty) return;
                 
@@ -127,6 +133,11 @@ namespace RishUI
                 var notDirty = !PropsAlwaysDirty && _props.HasValue && RishUtils.SmartCompare(_props.Value, value);
                 
                 _props = value;
+
+                if (Element is IManaged<P> managed)
+                {
+                    managed.ClaimReferences(value);
+                }
                 
                 if (notDirty) return;
                 
@@ -167,6 +178,11 @@ namespace RishUI
         {
             Element = element;
             PropsAlwaysDirty = propsAlwaysDirty;
+        }
+
+        public void ClaimContext(int id, ManagedContext ctx)
+        {
+            ContextOwner.Claim(id, ctx);
         }
 
         void IBridge.Mount(Node node)
@@ -569,6 +585,8 @@ namespace RishUI
             Name = null;
             Element.ResetInlineStyles();
             Element.ClearClassList();
+            
+            ContextOwner.ReleaseAll();
             
             Node = null;
             

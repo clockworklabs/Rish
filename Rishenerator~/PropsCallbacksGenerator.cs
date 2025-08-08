@@ -151,8 +151,19 @@ namespace Rishenerator
                     return null;
                 }
                 
-                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(propsItems.ContainsManagedMembers ? " : RishUI.MemoryManagement.IManagedProps" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
+                sourceCode.AppendLine(@$"{typeSymbol.DeclaredAccessibility.ToModifiers()} partial class {typeSymbol.Name}{typeSymbol.GetGenericsName(false)}{(propsItems.ContainsManagedMembers ? $" : RishUI.MemoryManagement.IManaged<{propsTypeSymbolFullName}>" : string.Empty)}{typeSymbol.GetGenericsConstraints(false)}
 {{");
+
+                if (propsItems.ContainsManagedMembers)
+                {
+                    sourceCode.AppendLine($@"
+    void RishUI.MemoryManagement.IManaged<{propsTypeSymbolFullName}>.ClaimReferences({propsTypeSymbolFullName} props)
+    {{");
+
+                    AddDependencies("props", propsTypeSymbol, -2, sourceCode);
+                    
+                    sourceCode.AppendLine("    }");
+                }
 
                 if (!propsItems.Empty)
                 {
@@ -270,7 +281,34 @@ namespace Rishenerator
                 return new string(a);
             }
 
-
+            // Copy and paste in many places. We should move to a common utility function.
+            private static int AddDependencies(string parent, ITypeSymbol type, int initialIndex, StringBuilder builder)
+            {
+                if (!type.IsValueType) return 0;
+                
+                foreach (var interfaceSymbol in type.Interfaces)
+                {
+                    if (interfaceSymbol.GetFullName(false) == "RishUI.MemoryManagement.IReference")
+                    {
+                        var ctxName = $"ctx{-initialIndex}";
+                        var managedType = interfaceSymbol.TypeArguments[0];
+                        builder.AppendLine(@$"
+        var {ctxName} = RishUI.Rish.GetOwnerContext<{type.GetFullName(true)}, {managedType.GetFullName(true)}>({parent});
+        ClaimContext({initialIndex}, {ctxName});");
+                        return 1;
+                    }
+                }
+                
+                var count = 0;
+                foreach (var child in type.GetMembers())
+                {
+                    if (child is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } childField) continue;
+                    count -= AddDependencies($"{parent}.{childField.Name}", childField.Type, initialIndex + count, builder);
+                }
+                
+                return count;
+            }
+            
             private class PropsItem
             {
                 public string Name { get; }
@@ -311,13 +349,11 @@ namespace Rishenerator
                 
                 public ItemizedProps(ITypeSymbol propsTypeSymbol)
                 {
-                    var containsManagedMembers = false;
                     foreach (var propsMemberSymbol in propsTypeSymbol.GetMembers())
                     {
                         if (propsMemberSymbol is not IFieldSymbol { DeclaredAccessibility: Accessibility.Public, IsReadOnly: false, IsStatic: false } propsFieldSymbol) continue;
 
                         var type = propsFieldSymbol.Type;
-                        containsManagedMembers |= type.ContainsManagedMembers(true);
                         if (type.TypeKind != TypeKind.Delegate) continue;
 
                         Items ??= new List<PropsItem>();
@@ -325,7 +361,7 @@ namespace Rishenerator
                         Items.Add(item);
                     }
                     
-                    ContainsManagedMembers = containsManagedMembers;
+                    ContainsManagedMembers = propsTypeSymbol.ContainsManagedMembers(false);
                 }
 
                 public PropsItem this[int i] => Items[i];

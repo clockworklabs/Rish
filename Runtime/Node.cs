@@ -269,7 +269,7 @@ namespace RishUI
                 throw new UnityException("Only RishElements can render");
             }
 
-            using (ManagedContext.New(true))
+            using (ManagedContext.New())
             {
 #if UNITY_EDITOR
                 AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);

@@ -179,4 +179,11 @@ namespace RishUI
             public Element GetValue(Element defaultValue) => _custom ? _value : defaultValue;
         }
     }
+
+    [DependenciesProvider]
+    public static class ElementDependencyProvider
+    {
+        [Dependency]
+        private static void AddDependency(ManagedContext ctx, Element v) => ctx.AddDependency(Rish.GetOwnerContext<Element,ManagedElement>(v));
+    }
 }

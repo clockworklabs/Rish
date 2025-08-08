@@ -55,13 +55,17 @@ namespace RishUI.MemoryManagement
 
         internal void Claim()
         {
+#if UNITY_EDITOR
             if (!ManagedStack.IsActive(this)) throw new InvalidOperationException("This ManagedContext is not active.");
+#endif
 
             ClaimedCount++;
         }
         internal void Release()
         {
+#if UNITY_EDITOR
             if (!ManagedStack.IsActive(this)) throw new InvalidOperationException("This ManagedContext is not active.");
+#endif
             
             ClaimedCount--;
             

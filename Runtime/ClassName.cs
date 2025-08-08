@@ -752,4 +752,11 @@ namespace RishUI
             public ClassName GetValue(ClassName defaultValue) => _custom ? _value : defaultValue;
         }
     }
+
+    [DependenciesProvider]
+    public static class ClassNameDependencyProvider
+    {
+        [Dependency]
+        private static void AddDependency(ManagedContext ctx, ClassName v) => ctx.AddDependency(Rish.GetOwnerContext<ClassName, ManagedClassName>(v));
+    }
 }

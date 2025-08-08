@@ -1,4 +1,7 @@
 ﻿namespace RishUI.MemoryManagement
 {
-    public interface IManagedProps { }
+    public interface IManaged<in T> where T : struct
+    {
+        void ClaimReferences(T value);
+    }
 }

@@ -75,6 +75,8 @@ namespace RishUI
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
                 return;
             }
+
+            OwnerContext.AddDependencies(element);
             
             Elements[index] = element;
         }
@@ -88,6 +90,8 @@ namespace RishUI
                 Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
                 return;
             }
+
+            OwnerContext.AddDependencies(element);
             
             Elements.Add(element);
         }

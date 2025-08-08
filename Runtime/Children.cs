@@ -316,4 +316,11 @@ namespace RishUI
             public Children GetValue(Children defaultValue) => _custom ? _value : defaultValue;
         }
     }
+
+    [DependenciesProvider]
+    public static class ChildrenDependencyProvider
+    {
+        [Dependency]
+        private static void AddDependency(ManagedContext ctx, Children v) => ctx.AddDependency(Rish.GetOwnerContext<Children, ManagedChildren>(v));
+    }
 }
