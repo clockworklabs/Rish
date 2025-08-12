@@ -10,9 +10,6 @@ namespace RishUI
         private DirtyQueue DirtyQueue { get; }
         public VisualElement RootVisualElement { get; }
         private Node RootNode { get; }
-        
-        private HashSet<int> DirtyPositionIds { get; } = new(InitialSize);
-        private List<Node> DirtyPositionList { get; } = new(InitialSize);
 
         private List<Node> FreeNodes { get; set; } = new(InitialSize);
         private List<Node> FreeNodesBuffer { get; set; } = new(InitialSize);
@@ -30,12 +27,6 @@ namespace RishUI
         public bool IsDirty(Node node) => DirtyQueue.IsDirty(node);
         public void ClearDirty(Node node) => DirtyQueue.Remove(node);
 
-        public void DirtyPosition(Node node)
-        {
-            if (!DirtyPositionIds.Add(node.ID)) return;
-            DirtyPositionList.Add(node);
-        }
-
         #if UNITY_EDITOR
         public double Update(uint maxUpdates, float? maxUpdateTime, bool debug)
         #else
@@ -49,14 +40,6 @@ namespace RishUI
 #else
             var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime);
 #endif
-
-            for (int i = 0, n = DirtyPositionList.Count; i < n; i++)
-            {
-                var node = DirtyPositionList[i];
-                node.UpdateRealIndex();
-            }
-            DirtyPositionIds.Clear();
-            DirtyPositionList.Clear();
             
             ReturnFreeNodesToPool();
 
@@ -67,8 +50,6 @@ namespace RishUI
         {
             RootNode.Unmount(true);
             DirtyQueue.Dispose();
-            DirtyPositionIds.Clear();
-            DirtyPositionList.Clear();
             ReturnFreeNodesToPool();
             ReturnNodesToPool(FreeNodesBuffer);
         }

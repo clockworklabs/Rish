@@ -18,8 +18,6 @@ namespace RishUI
         internal SapTargets<Action> OnMounted => OnMountedStem.Targets;
         private SapStem OnBeforeUnmountStem { get; } = new();
         internal SapTargets<Action> OnBeforeUnmount => OnBeforeUnmountStem.Targets;
-        private SapStem OnUnmountedStem { get; } = new();
-        internal SapTargets<Action> OnUnmounted => OnUnmountedStem.Targets;
         private SapStem<Node> OnInactiveStem { get; } = new(); // TODO: Maybe uint?
         internal SapTargets<Action<Node>> OnInactive => OnInactiveStem.Targets;
 
@@ -82,10 +80,61 @@ namespace RishUI
 
                 _virtualIndex = value;
 
-                if (value < 0) return;
+                if (value < 0)
+                {
+                    RealIndex = -1;
+                    return;
+                }
 
                 HashCode = ComputeHashCodeInTree();
-                Tree.DirtyPosition(this);
+
+                var subTreeRoot = GetSubTreeRoot();
+                var previousSibling = subTreeRoot?.GetPreviousSibling();
+                var previousRealIndex = previousSibling?.RealIndex ?? -1;
+                if (IsVisualElement)
+                {
+                    RealIndex = previousRealIndex + 1;
+                }
+                else
+                {
+                    var leaf = GetSubTreeLeaf();
+                    leaf.RealIndex = leaf.IsVisualElement ? previousRealIndex + 1 : previousRealIndex;
+                }
+            }
+        }
+
+        private int _realIndex = -1;
+        private int RealIndex
+        {
+            get => _realIndex;
+            set
+            {
+                if (_realIndex == value) return;
+
+                _realIndex = value;
+
+                if (value < 0) return;
+                
+                if (IsVisualElement)
+                {
+                    UpdateVisualIndex(true);
+                }
+                
+                var parent = Parent;
+                if (parent == null) return;
+                
+                if (parent.IsVisualElement)
+                {
+                    var nextSiblingLeaf = GetNextSibling()?.GetSubTreeLeaf();
+                    if (nextSiblingLeaf != null)
+                    {
+                        nextSiblingLeaf.RealIndex = nextSiblingLeaf.IsVisualElement ? value + 1 : value;
+                    }
+                }
+                else
+                {
+                    parent.RealIndex = value;
+                }
             }
         }
 
@@ -116,11 +165,43 @@ namespace RishUI
             }
         }
 
+
         private Node GetPreviousSibling()
         {
-            var virtualIndex = Mathf.Min(VirtualIndex, Parent.VirtualChildren.Count);
-
-            return virtualIndex <= 0 ? null : Parent.VirtualChildren[virtualIndex - 1];
+            if (Parent == null) return null;
+            var prevIndex = VirtualIndex - 1;
+            return prevIndex < 0 || prevIndex >= Parent.ChildCount ? null : Parent.VirtualChildren[prevIndex];
+        }
+        private Node GetNextSibling()
+        {
+            if (Parent == null) return null;
+            var nextIndex = VirtualIndex + 1;
+            return nextIndex < 0 || nextIndex >= Parent.ChildCount ? null : Parent.VirtualChildren[nextIndex];
+        }
+        // It's nicer recursively, but I want to squeeze all performance I can from these very common functions
+        private Node GetSubTreeRoot()
+        {
+            var node = this;
+            while (node.Parent != null && !node.Parent.IsVisualElement)
+            {
+                node = node.Parent;
+            }
+            return node;
+        }
+        // It's nicer recursively, but I want to squeeze all performance I can from these very common functions
+        private Node GetSubTreeLeaf()
+        {
+            var node = this;
+            while (!node.IsVisualElement)
+            {
+                var firstChild = node.ChildCount > 0 ? node.VirtualChildren.FirstOrDefault() : null;
+                if (firstChild == null)
+                {
+                    break;
+                }
+                node = firstChild;
+            }
+            return node;
         }
 
         internal T GetFirstAncestorOfType<T>() where T : class
@@ -152,43 +233,36 @@ namespace RishUI
             return parent.GetFirstAncestorOfType<T>();
         }
 
-        private bool IsRealTree()
+        private void UpdateVisualIndex(bool strict = false)
         {
-            if (IsVisualElement)
+#if UNITY_EDITOR
+            if (strict && !IsVisualElement)
             {
-                return true;
+                throw new UnityException("This node is not a VisualElement.");
             }
-
-            return VirtualChildren is { Count: > 0 } && VirtualChildren[0].IsRealTree();
-        }
-        private int GetRealIndex()
-        {
-            if (IsRoot)
+#endif
+            
+            VisualElement visualElement;
+            if (strict)
             {
-                return 0;
+                visualElement = VisualElement;
             }
-
-            if (!Parent.IsVisualElement)
+            else
             {
-                return Parent.GetRealIndex();
+                visualElement = GetVisualChild()?.VisualElement;
+                if (visualElement == null) return;
             }
-
-            var prev = GetPreviousSibling()?.GetRealIndex() ?? -1;
-            return IsRealTree() ? prev + 1 : prev;
-        }
-
-        internal void UpdateRealIndex()
-        {
-            var visualNode = GetVisualChild();
-            var visualElement = visualNode?.VisualElement;
-            var parent = visualElement?.parent;
-            if (parent == null)
+            
+            var visualParent = visualElement.parent;
+#if UNITY_EDITOR
+            if (visualParent == null)
             {
-                return;
+                throw new UnityException("No visual parent.");
             }
+#endif
 
-            var currentIndex = parent.IndexOf(visualElement);
-            var index = visualNode.GetRealIndex();
+            var currentIndex = visualParent.IndexOf(visualElement);
+            var index = RealIndex;
 
             if (currentIndex == index)
             {
@@ -199,19 +273,30 @@ namespace RishUI
             {
                 visualElement.SendToBack();
             }
-            else if (index >= VisualParent.childCount - 1)
+            else if (index >= visualParent.childCount - 1)
             {
                 visualElement.BringToFront();
             }
             else if(currentIndex < index)
             {
-                visualElement.PlaceInFront(VisualParent[index]);
+                visualElement.PlaceInFront(visualParent[index]);
             }
             else
             {
-                visualElement.PlaceBehind(VisualParent[index]);
+                visualElement.PlaceBehind(visualParent[index]);
             }
         }
+
+        // internal void Debug() => Debug("-");
+        // private void Debug(string prefix)
+        // {
+        //     UnityEngine.Debug.Log($"{prefix} {Type.FullName} #{ID}: {VirtualIndex} - {RealIndex}{(IsVisualElement ? $"/{VisualElement.parent.IndexOf(VisualElement)}" : string.Empty)}");
+        //
+        //     for (int i = 0, n = ChildCount; i < n; i++)
+        //     {
+        //         VirtualChildren[i].Debug($"{prefix}-");
+        //     }
+        // }
 
         internal Node GetVisualChild()
         {
@@ -219,8 +304,14 @@ namespace RishUI
             {
                 return this;
             }
-
-            return VirtualChildren?.Count > 0 ? VirtualChildren[0].GetVisualChild() : null;
+            
+            var child = ChildCount > 0 ? VirtualChildren.FirstOrDefault() : null;
+            while (child != null && !child.IsVisualElement)
+            {
+                child = child.ChildCount > 0 ? child.VirtualChildren.FirstOrDefault() : null;
+            }
+            
+            return child;
         }
 
         internal bool IsActive() => Machine.IsIn<ActiveState>();
@@ -349,6 +440,11 @@ namespace RishUI
             Rendering = false;
 #endif
 
+            if(!IsVisualElement && ChildCount <= 0)
+            {
+                RealIndex = GetSubTreeRoot()?.GetPreviousSibling()?.RealIndex ?? -1;
+            }
+
             var childrenCount = VirtualChildren?.Count ?? 0;
             var unmountingCount = childrenCount - ChildCount;
             if (unmountingCount > 0)
@@ -364,7 +460,7 @@ namespace RishUI
 
                 foreach (var child in UnmountingChildren)
                 {
-                    Tree.DirtyPosition(child);
+                    child.UpdateVisualIndex();
                 }
             }
         }
@@ -399,7 +495,7 @@ namespace RishUI
 #if UNITY_EDITOR
                     if (!currentChild.IsActive())
                     {
-                        Debug.LogError($"This child is in state {currentChild.Machine.CurrentState} and yet is still in VirtualChildren.");
+                        UnityEngine.Debug.LogError($"This child is in state {currentChild.Machine.CurrentState} and yet is still in VirtualChildren.");
                         continue;
                     }
 #endif
@@ -473,7 +569,7 @@ namespace RishUI
 #if UNITY_EDITOR
             if (Tree == null)
             {
-                Debug.LogError($"Null Tree. Node is in {Machine.CurrentState}.");
+                UnityEngine.Debug.LogError($"Null Tree. Node is in {Machine.CurrentState}.");
             }
             else
             {
@@ -514,17 +610,10 @@ namespace RishUI
         [SapTarget]
         private void OnStateChange(State state)
         {
-            switch (state)
+            if (state is MountedState)
             {
-                case MountedState:
-                    OnMountedStem.Send();
-                    break;
-                case UnmountedState:
-                    OnUnmountedStem.Send();
-                    break;
-            }
-
-            if (state is not ActiveState)
+                OnMountedStem.Send();
+            } else if (state is not ActiveState)
             {
                 OnInactiveStem.Send(this);
             }
@@ -575,7 +664,7 @@ namespace RishUI
 
                     // if (_currentState != null)
                     // {
-                    //     UnityEngine.Debug.Log($"{Node.ID} ({Node.Type?.FullName}): {_currentState.GetType().Name} -> {value.GetType().Name}");
+                    //     UnityEngine.UnityEngine.Debug.Log($"{Node.ID} ({Node.Type?.FullName}): {_currentState.GetType().Name} -> {value.GetType().Name}");
                     // }
 
                     switch (_currentState)
@@ -767,7 +856,7 @@ namespace RishUI
                         break;
 #if UNITY_EDITOR
                     default:
-                        Debug.LogError("Node has no Element.");
+                        UnityEngine.Debug.LogError("Node has no Element.");
                         break;
 #endif
                 }
@@ -785,7 +874,7 @@ namespace RishUI
                         break;
 #if UNITY_EDITOR
                     default:
-                        Debug.LogError("Node has no Element.");
+                        UnityEngine.Debug.LogError("Node has no Element.");
                         break;
 #endif
                 }
@@ -818,7 +907,7 @@ namespace RishUI
 #if UNITY_EDITOR
                 if (UnmountingSet is { Count: > 0 } || Unmounting is { Count: > 0 })
                 {
-                    Debug.LogError("UnmountRequestedState didn't reset properly.");
+                    UnityEngine.Debug.LogError("UnmountRequestedState didn't reset properly.");
                 }
 #endif
 
@@ -869,7 +958,7 @@ namespace RishUI
 #if UNITY_EDITOR
                 if (ElementReady)
                 {
-                    Debug.LogError("Element was already ready to unmount.");
+                    UnityEngine.Debug.LogError("Element was already ready to unmount.");
                 }
 #endif
 
@@ -899,7 +988,7 @@ namespace RishUI
 #if UNITY_EDITOR
                         if (!child.Machine.IsIn<UnmountRequestedState>() && !child.Machine.IsIn<ReadyToUnmountState>())
                         {
-                            Debug.LogError($"This child is not in the right state. Its state is {child.Machine.CurrentState} and it shouldn't be in UnmountingChildren.");
+                            UnityEngine.Debug.LogError($"This child is not in the right state. Its state is {child.Machine.CurrentState} and it shouldn't be in UnmountingChildren.");
                         }
 #endif
 
@@ -912,7 +1001,7 @@ namespace RishUI
 #if UNITY_EDITOR
                         else
                         {
-                            Debug.LogError("Duplicated children in UnmountingChildren. This should never happen.");
+                            UnityEngine.Debug.LogError("Duplicated children in UnmountingChildren. This should never happen.");
                         }
 #endif
                     }
@@ -974,7 +1063,7 @@ namespace RishUI
                     parentUnmountingChildren.RemoveAt(index);
                     foreach (var child in parentUnmountingChildren)
                     {
-                        Node.Tree.DirtyPosition(child);
+                        child.UpdateVisualIndex();
                     }
                 }
 
