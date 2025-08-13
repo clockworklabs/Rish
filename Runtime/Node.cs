@@ -334,7 +334,6 @@ namespace RishUI
                 rootClassName = rootClassName,
                 recovered = recovered
             });
-            node.Dirty(true);
 
             return node;
         }
@@ -466,9 +465,9 @@ namespace RishUI
         }
         
 #if UNITY_EDITOR
-        internal Node AddChild<T>(ulong key, string debugPrefix) where T : class, IElement, new()
+        internal T AddChild<T>(ulong key, string debugPrefix) where T : class, IElement, new()
 #else
-        internal Node AddChild<T>(ulong key) where T : class, IElement, new()
+        internal T AddChild<T>(ulong key) where T : class, IElement, new()
 #endif
         {
 #if UNITY_EDITOR
@@ -560,7 +559,7 @@ namespace RishUI
             }
 #endif
 
-            return child;
+            return child.Element as T;
         }
 
         [SapTarget]

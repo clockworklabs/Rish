@@ -46,19 +46,11 @@ namespace RishUI
 #endif
             {
 #if UNITY_EDITOR
-                var node = parent.AddChild<T>(Key, debugPrefix);
+                var element = parent.AddChild<T>(Key, debugPrefix); 
 #else
-                var node = parent.AddChild<T>(Key);
+                var element = parent.AddChild<T>(Key);
 #endif
-                if (node is not { Element: T element }) return;
-                if (element.SetProps(Props))
-                {
-#if UNITY_EDITOR
-                    node.Render(debugPrefix);
-#else
-                    node.Render();
-#endif
-                }
+                element?.SetProps(Props); 
             }
 
             public override bool Equals(ManagedElement other)

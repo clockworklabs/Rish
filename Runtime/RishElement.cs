@@ -88,7 +88,7 @@ namespace RishUI
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
-        internal bool SetProps(P value)
+        internal void SetProps(P value)
         {
             var propsSet = _props.HasValue;
             var dirty = propsSet && !RishUtils.SmartCompare(value, _props.Value);
@@ -120,8 +120,11 @@ namespace RishUI
             {
                 managed.ClaimReferences(value);
             }
-
-            return !propsSet || dirty;
+            
+            if (!propsSet || dirty) 
+            { 
+                Dirty(); 
+            }
         }
 
         protected void ClaimCurrentContext() => ContextOwner.ClaimCurrent();
@@ -233,8 +236,6 @@ namespace RishUI
                 throw new UnityException($"Invalid state. Props of {GetType().Name} ({typeof(P)}) was never set.");
             }
 #endif
-
-            Node.ClearDirty();
 
             var element = Render();
 
