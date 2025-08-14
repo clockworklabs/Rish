@@ -34,15 +34,25 @@ namespace RishUI
         }
         [SerializeField]
         private bool _chainRender;
-        private bool ChainRender => _chainRender;
+        public bool ChainRender
+        {
+            get=> _chainRender;
+            set => _chainRender = value;
+        }
 
         [SerializeField]
         private uint _maxUpdatesPerStep;
-        private uint MaxUpdatesPerStep => _maxUpdatesPerStep;
+        public uint MaxUpdatesPerStep {
+            get => _maxUpdatesPerStep;
+            set => _maxUpdatesPerStep = value;
+        }
 
         [SerializeField]
         private float _maxTargetTimePerStep;
-        private float MaxTargetTimePerStep => _maxTargetTimePerStep;
+        public float MaxTargetTimePerStep {
+            get => _maxTargetTimePerStep;
+            set => _maxTargetTimePerStep = value;
+        }
 
         [SerializeField]
         private StyleSheet[] _styleSheets;
