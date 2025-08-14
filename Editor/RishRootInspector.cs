@@ -27,6 +27,7 @@ namespace RishUI.Editor
             var container = new VisualElement();
             
             container.Add(new PropertyField(serializedObject.FindProperty("_manualUpdate")));
+            container.Add(new PropertyField(serializedObject.FindProperty("_chainRender")));
             container.Add(new PropertyField(serializedObject.FindProperty("_maxUpdatesPerStep")));
             container.Add(new PropertyField(serializedObject.FindProperty("_maxTargetTimePerStep")));
             

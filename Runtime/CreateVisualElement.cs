@@ -140,21 +140,22 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            internal override void Invoke(Node parent, string debugPrefix)
+            internal override void Invoke(Node parent, bool chain, string debugPrefix)
 #else
-            internal override void Invoke(Node parent)
+            internal override void Invoke(Node parent, bool chain)
 #endif
             {
 #if UNITY_EDITOR
-                var element = parent.AddChild<T>(Key, debugPrefix);
+                var node = parent.AddChild<T>(Key, debugPrefix);
 #else
-                var element = parent.AddChild<T>(Key);
+                var node = parent.AddChild<T>(Key);
 #endif
+                if (node is not { Element: T element }) return;
                 
 #if UNITY_EDITOR
-                element?.Bridge.Setup(Descriptor, Children, Props, debugPrefix); // TODO: Maybe we need to claim OwnerContext in Bridge?
+                element.Bridge.Setup(Descriptor, Children, Props, chain, debugPrefix);
 #else
-                element?.Bridge.Setup(Descriptor, Children, Props);
+                element.Bridge.Setup(Descriptor, Children, Props, chain);
 #endif
             }
 

@@ -36,10 +36,6 @@ namespace RishUI
         
         private ContextOwner ContextOwner { get; } = new();
         
-#if UNITY_EDITOR
-        private string DebugPrefix { get; set; }
-#endif
-
         private Name Name
         {
             set
@@ -105,24 +101,25 @@ namespace RishUI
         }
 
         private Children _children;
-        private Children Children
+#if UNITY_EDITOR
+        private void SetChildren(Children value, bool chain, string debugPrefix)
+#else
+        private void SetChildren(Children value, bool chain)
+#endif
         {
-            set
-            {
-                var notDirty = RishUtils.Compare(_children, value);
+            var notDirty = RishUtils.Compare(_children, value);
 
-                _children = value;
+            _children = value;
                 
-                ClaimContext(2, Rish.GetOwnerContext<Children, ManagedChildren>(value));
+            ClaimContext(2, Rish.GetOwnerContext<Children, ManagedChildren>(value));
 
-                if (notDirty) return;
+            if (notDirty) return;
                 
 #if UNITY_EDITOR
-                Node.AttachChildren(value, DebugPrefix != null ? $"{DebugPrefix}-" : null);
+            Node.AttachChildren(value, chain, debugPrefix != null ? $"{debugPrefix}-" : null);
 #else
-                Node.AttachChildren(value);
+            Node.AttachChildren(value, chain);
 #endif
-            }
         }
 
         private P? _props;
@@ -200,21 +197,22 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        internal void Setup(DOMDescriptor descriptor, Children children, P props, string debugPrefix)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, bool chain, string debugPrefix)
 #else
-        internal void Setup(DOMDescriptor descriptor, Children children, P props)
+        internal void Setup(DOMDescriptor descriptor, Children children, P props, bool chain)
 #endif
         {
-#if UNITY_EDITOR
-            DebugPrefix = debugPrefix;
-#endif
             Name = descriptor.name;
             ClassName = descriptor.className;
             Style = descriptor.style;
 
             Props = props;
 
-            Children = children;
+#if UNITY_EDITOR
+            SetChildren(children, chain, debugPrefix);
+#else
+            SetChildren(children, chain);
+#endif
             
             OnSetupStem.Send();
         }

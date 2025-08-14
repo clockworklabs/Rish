@@ -40,17 +40,32 @@ namespace RishUI
             }
 
 #if UNITY_EDITOR
-            internal override void Invoke(Node parent, string debugPrefix)
+            internal override void Invoke(Node parent, bool chain, string debugPrefix)
 #else
-            internal override void Invoke(Node parent)
+            internal override void Invoke(Node parent, bool chain)
 #endif
             {
-#if UNITY_EDITOR
-                var element = parent.AddChild<T>(Key, debugPrefix); 
-#else
-                var element = parent.AddChild<T>(Key);
-#endif
-                element?.SetProps(Props); 
+#if UNITY_EDITOR 
+                var node = parent.AddChild<T>(Key, debugPrefix); 
+#else 
+                var node = parent.AddChild<T>(Key); 
+#endif 
+                if (node is not { Element: T element }) return; 
+                if (element.SetProps(Props)) 
+                {
+                    if (chain)
+                    {
+#if UNITY_EDITOR 
+                        node.Render(true, debugPrefix);
+#else 
+                        node.Render(true);
+#endif 
+                    }
+                    else
+                    {
+                        node.Dirty(true);
+                    }
+                } 
             }
 
             public override bool Equals(ManagedElement other)

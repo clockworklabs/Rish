@@ -13,9 +13,9 @@ namespace RishUI
         ManagedContext IManaged.OwnerContext => OwnerContext;
         
 #if UNITY_EDITOR
-        internal abstract void Invoke(Node parent, string debugPrefix);
+        internal abstract void Invoke(Node parent, bool chain, string debugPrefix);
 #else
-        internal abstract void Invoke(Node parent);
+        internal abstract void Invoke(Node parent, bool chain);
 #endif
         public abstract bool Equals(ManagedElement other);
         

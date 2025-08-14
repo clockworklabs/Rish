@@ -28,17 +28,17 @@ namespace RishUI
         public void ClearDirty(Node node) => DirtyQueue.Remove(node);
 
         #if UNITY_EDITOR
-        public double Update(uint maxUpdates, float? maxUpdateTime, bool debug)
+        public double Update(bool chain, uint maxUpdates, float? maxUpdateTime, bool debug)
         #else
-        public double Update(uint maxUpdates, float? maxUpdateTime)
+        public double Update(bool chain, uint maxUpdates, float? maxUpdateTime)
         #endif
         {
             (FreeNodes, FreeNodesBuffer) = (FreeNodesBuffer, FreeNodes);
             
 #if UNITY_EDITOR
-            var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime, debug);
+            var updateTime = DirtyQueue.Update(chain, maxUpdates, maxUpdateTime, debug);
 #else
-            var updateTime = DirtyQueue.Update(maxUpdates, maxUpdateTime);
+            var updateTime = DirtyQueue.Update(chain, maxUpdates, maxUpdateTime);
 #endif
             
             ReturnFreeNodesToPool();

@@ -32,6 +32,9 @@ namespace RishUI
                 enabled = !value;
             }
         }
+        [SerializeField]
+        private bool _chainRender;
+        private bool ChainRender => _chainRender;
 
         [SerializeField]
         private uint _maxUpdatesPerStep;
@@ -197,9 +200,9 @@ namespace RishUI
             try
             {
 #if UNITY_EDITOR
-                updateTime = Tree.Update(MaxUpdatesPerStep, maxUpdateTime, DebugRender);
+                updateTime = Tree.Update(ChainRender, MaxUpdatesPerStep, maxUpdateTime, DebugRender);
 #else
-                updateTime = Tree.Update(MaxUpdatesPerStep, maxUpdateTime);
+                updateTime = Tree.Update(ChainRender, MaxUpdatesPerStep, maxUpdateTime);
 #endif
             }
             catch (Exception e)

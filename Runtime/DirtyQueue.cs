@@ -67,9 +67,9 @@ namespace RishUI
         }
 
 #if UNITY_EDITOR
-        public double Update(uint maxCount, float? maxTime, bool debug)
+        public double Update(bool chain, uint maxCount, float? maxTime, bool debug)
 #else
-        public double Update(uint maxCount, float? maxTime)
+        public double Update(bool chain, uint maxCount, float? maxTime)
 #endif
         {
             var timeLimited = maxTime.HasValue;
@@ -107,9 +107,9 @@ namespace RishUI
                         CurrentDepth = node.Depth;
                     }
 #if UNITY_EDITOR
-                    node.Render(debug ? "" : null);
+                    node.Render(chain, debug ? "" : null);
 #else
-                    node.Render();
+                    node.Render(chain);
 #endif
                     count++;
                     time = timeLimited ? Stopwatch.Elapsed.TotalSeconds : 0;

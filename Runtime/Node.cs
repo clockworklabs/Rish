@@ -334,6 +334,7 @@ namespace RishUI
                 rootClassName = rootClassName,
                 recovered = recovered
             });
+            node.Dirty(true);
 
             return node;
         }
@@ -343,9 +344,9 @@ namespace RishUI
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);
 
 #if UNITY_EDITOR
-        internal void Render(string debugPrefix)
+        internal void Render(bool chain, string debugPrefix)
 #else
-        internal void Render()
+        internal void Render(bool chain)
 #endif
         {
 #if UNITY_EDITOR
@@ -359,38 +360,43 @@ namespace RishUI
                 throw new UnityException("Only RishElements can render");
             }
 
+            if (chain)
+            {
+                ClearDirty();
+            }
+
             using (ManagedContext.New())
             {
 #if UNITY_EDITOR
-                AttachElement(rishElement.Render(), debugPrefix != null ? $"{debugPrefix}-" : null);
+                AttachElement(rishElement.Render(), chain, debugPrefix != null ? $"{debugPrefix}-" : null);
 #else
-                AttachElement(rishElement.Render());
+                AttachElement(rishElement.Render(), chain);
 #endif
             }
         }
 
         
 #if UNITY_EDITOR
-        private void AttachElement(Element element, string debugPrefix)
+        private void AttachElement(Element element, bool chain, string debugPrefix)
 #else
-        private void AttachElement(Element element)
+        private void AttachElement(Element element, bool chain)
 #endif
         {
             Clear();
 
 #if UNITY_EDITOR
-            element.Invoke(this, debugPrefix);
+            element.Invoke(this, chain, debugPrefix);
 #else
-            element.Invoke(this);
+            element.Invoke(this, chain);
 #endif
 
             Clean();
         }
 
 #if UNITY_EDITOR
-        internal void AttachChildren(Children children, string debugPrefix)
+        internal void AttachChildren(Children children, bool chain, string debugPrefix)
 #else
-        internal void AttachChildren(Children children)
+        internal void AttachChildren(Children children, bool chain)
 #endif
         {
 #if UNITY_EDITOR
@@ -405,9 +411,9 @@ namespace RishUI
             foreach (var element in children)
             {
 #if UNITY_EDITOR
-                element.Invoke(this, debugPrefix);
+                element.Invoke(this, chain, debugPrefix);
 #else
-                element.Invoke(this);
+                element.Invoke(this, chain);
 #endif
             }
 
@@ -465,9 +471,9 @@ namespace RishUI
         }
         
 #if UNITY_EDITOR
-        internal T AddChild<T>(ulong key, string debugPrefix) where T : class, IElement, new()
+        internal Node AddChild<T>(ulong key, string debugPrefix) where T : class, IElement, new()
 #else
-        internal T AddChild<T>(ulong key) where T : class, IElement, new()
+        internal Node AddChild<T>(ulong key) where T : class, IElement, new()
 #endif
         {
 #if UNITY_EDITOR
@@ -559,11 +565,11 @@ namespace RishUI
             }
 #endif
 
-            return child.Element as T;
+            return child;
         }
 
         [SapTarget]
-        private void Dirty(bool forceThisFrame)
+        internal void Dirty(bool forceThisFrame)
         {
 #if UNITY_EDITOR
             if (Tree == null)
