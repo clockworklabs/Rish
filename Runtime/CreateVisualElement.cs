@@ -137,6 +137,10 @@ namespace RishUI
                 Descriptor = descriptor;
                 Props = props;
                 Children = children;
+                
+                OwnerContext.AddDependencies(Props);
+                OwnerContext.AddDependencies(Descriptor.className);
+                OwnerContext.AddDependencies(Children);
             }
 
 #if UNITY_EDITOR

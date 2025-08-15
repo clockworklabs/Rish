@@ -33,10 +33,14 @@ namespace RishUI
             
             private P Props { get; set; }
 
+            private ContextOwner ContextOwner { get; } = new();
+
             public void Factory(ulong key, P props)
             {
                 Key = key;
                 Props = props;
+
+                OwnerContext.AddDependencies(Props);
             }
 
 #if UNITY_EDITOR
