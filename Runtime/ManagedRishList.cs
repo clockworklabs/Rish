@@ -96,6 +96,21 @@ namespace RishUI
             Elements.Add(element);
         }
 
+        [RequiresManagedContext]
+        public void Insert(int index, T element)
+        {
+            if (Closed)
+            {
+                // throw new UnityException("RishList already closed. You can't modify it after the initial creation.");
+                Debug.LogError("RishList already closed. You can't modify it after the initial creation.");
+                return;
+            }
+
+            OwnerContext.AddDependencies(element);
+            
+            Elements.Insert(index, element);
+        }
+
         public void Sort()
         {
             if (Closed)

@@ -71,6 +71,23 @@ namespace RishUI
             ClassNames.Add(className);
         }
 
+        [RequiresManagedContext]
+        public void Insert(int index, string className)
+        {
+            if (Closed)
+            {
+                Debug.LogError("ClassName already closed. You can't modify it after the initial creation.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(className))
+            {
+                return;
+            }
+            
+            ClassNames.Insert(index, className);
+        }
+
         IEnumerator<string> IEnumerable<string>.GetEnumerator() => ClassNames.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)ClassNames).GetEnumerator();
 

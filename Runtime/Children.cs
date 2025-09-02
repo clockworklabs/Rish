@@ -71,6 +71,18 @@ namespace RishUI
             }
         }
 
+        [RequiresManagedContext]
+        public void Insert(int index, Element element)
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedChildren>();
+                _managed = Rish.GetManaged<ManagedChildren>(_id);
+            }
+
+            Managed?.Insert(index, element);
+        }
+
         IEnumerator<Element> IEnumerable<Element>.GetEnumerator()
         {
             if (_id == 0)

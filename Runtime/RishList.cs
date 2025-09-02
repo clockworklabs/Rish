@@ -68,6 +68,18 @@ namespace RishUI
                 Managed?.Add(element);
             }
         }
+        
+        [RequiresManagedContext]
+        public void Insert(int index, T element)
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedRishList<T>>();
+                _managed = Rish.GetManaged<ManagedRishList<T>>(_id);
+            }
+
+            Managed?.Insert(index, element);
+        }
 
         [RequiresManagedContext]
         public void Sort() => Managed?.Sort();

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using RishUI.MemoryManagement;
 using Unity.Collections;
-using UnityEngine;
 
 namespace RishUI
 {
@@ -94,6 +93,29 @@ namespace RishUI
             {
                 Managed.Add(element);
             }
+        }
+        
+        [RequiresManagedContext]
+        public void Insert(int index, FixedString32Bytes element)
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
+            }
+
+            Managed.Insert(index, element.Value);
+        }
+        [RequiresManagedContext]
+        public void Insert(int index, string element)
+        {
+            if (_id == 0)
+            {
+                _id = Rish.GetFreeID<ManagedClassName>();
+                _managed = Rish.GetManaged<ManagedClassName>(_id);
+            }
+
+            Managed.Insert(index, element);
         }
 
         [RequiresManagedContext]

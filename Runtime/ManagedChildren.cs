@@ -99,6 +99,22 @@ namespace RishUI
             Elements.Add(element);
         }
 
+        [RequiresManagedContext]
+        public void Insert(int index, Element element)
+        {
+            if (Closed)
+            {
+                // throw new UnityException("Children already closed. You can't modify it after the initial creation.");
+                Debug.LogError("Children already closed. You can't modify it after the initial creation.");
+                return;
+            }
+
+            var otherContext = Rish.GetOwnerContext<ManagedElement>(element.ID);
+            OwnerContext.AddDependency(otherContext);
+            
+            Elements.Insert(index, element);
+        }
+
         IEnumerator<Element> IEnumerable<Element>.GetEnumerator() => Elements.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Elements).GetEnumerator();
 
