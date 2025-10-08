@@ -1,3 +1,4 @@
+using System;
 using RishUI.Events;
 using Sappy;
 using UnityEngine;
@@ -19,6 +20,8 @@ namespace RishUI.Elements
         private LengthRange? HeightRange { get; set; }
         
         private VisualElement Parent { get; set; }
+        
+        private Action<bool> OnElidedCallback { get; set; }
 
         public Label()
         {
@@ -29,10 +32,14 @@ namespace RishUI.Elements
             
             Bridge.OnMounted.Add(SappyOnMounted);
             Bridge.OnUnmounted.Add(SappyOnUnmounted);
+            
+            generateVisualContent += OnGenerateVisualContent;
         }
 
         void IVisualElement<LabelProps>.Setup(LabelProps props)
         {
+            OnElidedCallback = props.onElided;
+            
             WidthRange = props.widthRange;
             HeightRange = props.heightRange;
             text = props.text;
@@ -53,12 +60,19 @@ namespace RishUI.Elements
         {
             Parent?.UnregisterCallback<VisualChangeEvent>(SappyOnVisualChange.Callback);
             Parent = null;
+            OnElidedCallback = null;
         }
 
         [SapTarget(typeof(EventCallback<VisualChangeEvent>))]
-        private void OnVisualChange(VisualChangeEvent evt)
+        private void OnVisualChange(VisualChangeEvent _) => OnChange();
+        
+        private void OnGenerateVisualContent(MeshGenerationContext _) => OnChange();
+
+        private void OnChange()
         {
             SetSize();
+
+            OnElidedCallback?.Invoke(isElided);
         }
 
         private void SetSize()
@@ -109,5 +123,8 @@ namespace RishUI.Elements
 
         public bool? enableRichText;
         public bool? parseEscapeSequences;
+
+        [IgnoreComparison]
+        public Action<bool> onElided;
     }
 }
