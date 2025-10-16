@@ -102,14 +102,14 @@ namespace RishUI.Events
 
             public void OnEnter(PointerEnterEvent evt)
             {
-                LastEvent.Copy(evt);
+                LastEvent.Copy(evt, false);
 
                 Hovering = true;
             }
 
             public void OnLeave(PointerLeaveEvent evt)
             {
-                LastEvent.Copy(evt);
+                LastEvent.Copy(evt, false);
 
                 Hovering = false;
 
@@ -121,14 +121,14 @@ namespace RishUI.Events
 
             public void OnDown(PointerDownEvent evt)
             {
-                LastEvent.Copy(evt);
+                LastEvent.Copy(evt, true);
 
                 Pressed = true;
             }
 
             public void OnUp(PointerUpEvent evt)
             {
-                LastEvent.Copy(evt);
+                LastEvent.Copy(evt, false);
 
                 Pressed = false;
 
@@ -140,7 +140,7 @@ namespace RishUI.Events
 
             public void OnMove(PointerMoveEvent evt)
             {
-                LastEvent.Copy(evt);
+                LastEvent.Copy(evt, false);
 
                 if (!Pressed)
                 {
@@ -235,7 +235,7 @@ namespace RishUI.Events
 
             private class PointerEvent : IPointerEvent
             {
-                public bool Valid { get; set; }
+                public bool Valid { get; private set; }
 
                 public int pointerId { get; private set; }
                 public string pointerType { get; private set; }
@@ -265,7 +265,7 @@ namespace RishUI.Events
 
                 public void Reset() => Valid = false;
 
-                public void Copy(IPointerEvent pointerEvent)
+                public void Copy(IPointerEvent pointerEvent, bool copyButton)
                 {
                     // TODO: This doesn't work properly on Mac (position is wrong because the app has the wrong size for whatever reason)
                     // TODO: Test in build
@@ -275,12 +275,10 @@ namespace RishUI.Events
                     var dp = pointerEvent.deltaPosition;
 #endif
 
-                    Valid = true;
-
                     pointerId = pointerEvent.pointerId;
                     pointerType = pointerEvent.pointerType;
                     isPrimary = pointerEvent.isPrimary;
-                    button = pointerEvent.button;
+                    button = copyButton || !Valid ? pointerEvent.button : button;
                     pressedButtons = pointerEvent.pressedButtons;
                     position = pointerEvent.position;
                     localPosition = pointerEvent.localPosition;
@@ -300,6 +298,10 @@ namespace RishUI.Events
                     commandKey = pointerEvent.commandKey;
                     altKey = pointerEvent.altKey;
                     actionKey = pointerEvent.actionKey;
+                    tilt = pointerEvent.tilt;
+                    penStatus = pointerEvent.penStatus;
+
+                    Valid = true;
                 }
             }
         }
