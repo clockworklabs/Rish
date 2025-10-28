@@ -157,18 +157,19 @@ namespace RishUI.Events
 
             public void OnCapture(PointerCaptureEvent evt)
             {
-                if (evt.target != Target && Dragging)
-                {
+                if (evt.target == Target) return;
+
+                if(Dragging) {
                     EndDragging();
+                } else {
+                    Hovering = false;
+                    Pressed = false;
                 }
             }
 
             public void OnRelease(PointerCaptureOutEvent evt)
             {
-                if (evt.target != Target)
-                {
-                    return;
-                }
+                if (evt.target != Target) return;
 
                 if (Dragging && !Hovering)
                 {
