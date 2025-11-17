@@ -16,7 +16,7 @@ namespace RishUI.Input
                 
                 _focused = value;
 
-                FocusedVisualElement = value?.Node?.GetVisualChild()?.VisualElement;
+                FocusedVisualElement = value?.Node?.GetVisualDescendant()?.VisualElement;
             }
         }
         private static VisualElement _focusedVisualElement;
@@ -76,7 +76,7 @@ namespace RishUI.Input
                     Blur();
                 }
                 
-                var visualElement = Node?.GetVisualChild()?.VisualElement;
+                var visualElement = Node?.GetVisualDescendant()?.VisualElement;
                 if (visualElement != null)
                 {
                     visualElement.focusable = value > 0;
@@ -340,12 +340,12 @@ namespace RishUI.Input
                     }
                     
                     // Release previous VisualElement
-                    _capturing?.Node?.GetVisualChild()?.VisualElement?.ReleasePointer(PointerId);
+                    _capturing?.Node?.GetVisualDescendant()?.VisualElement?.ReleasePointer(PointerId);
                 
                     _capturing = value;
                 
                     // Capture new VisualElement
-                    _capturing?.Node?.GetVisualChild()?.VisualElement?.CapturePointer(PointerId);
+                    _capturing?.Node?.GetVisualDescendant()?.VisualElement?.CapturePointer(PointerId);
                 }
             }
 

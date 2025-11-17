@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 namespace RishUI
 {
-    // TODO: We should revisit.
+    // TODO: We should revisit. We can probably improve performance and clean it.
     public partial class Node : FastPriorityQueueNode
     {
         private SapStem OnMountedStem { get; } = new();
@@ -80,62 +80,53 @@ namespace RishUI
 
                 _virtualIndex = value;
 
-                if (value < 0)
-                {
-                    RealIndex = -1;
-                    return;
-                }
+                if (value < 0) return;
 
                 HashCode = ComputeHashCodeInTree();
 
-                var subTreeRoot = GetSubTreeRoot();
-                var previousSibling = subTreeRoot?.GetPreviousSibling();
-                var previousRealIndex = previousSibling?.RealIndex ?? -1;
-                if (IsVisualElement)
+                if (TryGetVisualDescendant(out var visualDescendant))
                 {
-                    RealIndex = previousRealIndex + 1;
-                }
-                else
-                {
-                    var leaf = GetSubTreeLeaf();
-                    leaf.RealIndex = leaf.IsVisualElement ? previousRealIndex + 1 : previousRealIndex;
+                    visualDescendant.UpdateVisualIndex(true);
                 }
             }
         }
 
-        private int _realIndex = -1;
-        private int RealIndex
+        private bool IsVisualTree()
         {
-            get => _realIndex;
-            set
+            var node = this;
+            do
             {
-                if (_realIndex == value) return;
+                if (node.IsVisualElement) return true;
+                node = node.ChildCount > 0 ? node.VirtualChildren[0] : null;
+            } while(node != null);
 
-                _realIndex = value;
+            return false;
+        }
 
-                if (value < 0) return;
-                
-                if (IsVisualElement)
+        private int GetRealIndex()
+        {
+            if (!IsVisualElement) return -1;
+            var node = this;
+            while (node.Parent != null && !node.Parent.IsVisualElement)
+            {
+                node = node.Parent;
+            }
+            
+            var parent = node.Parent;
+
+            if (parent == null) return 0;
+
+            var index = -1;
+            for (var i = node.VirtualIndex - 1; i >= 0; i--)
+            {
+                var sibling = parent.VirtualChildren[i];
+                if (sibling.IsVisualTree())
                 {
-                    UpdateVisualIndex(true);
-                }
-                
-                var parent = Parent;
-                if (parent == null) return;
-                
-                if (parent.IsVisualElement)
-                {
-                    var nextSiblingLeaf = GetNextSibling()?.GetSubTreeLeaf();
-                    if (nextSiblingLeaf != null)
-                    {
-                        nextSiblingLeaf.RealIndex = nextSiblingLeaf.IsVisualElement ? value + 1 : value;
-                    }
-                }
-                else
-                {
-                    parent.RealIndex = value;
+                    index += 1;
                 }
             }
+
+            return index + 1;
         }
 
         internal ulong HashCode { get; private set; }
@@ -164,44 +155,20 @@ namespace RishUI
                 return count;
             }
         }
-
-
-        private Node GetPreviousSibling()
-        {
-            if (Parent == null) return null;
-            var prevIndex = VirtualIndex - 1;
-            return prevIndex < 0 || prevIndex >= Parent.ChildCount ? null : Parent.VirtualChildren[prevIndex];
-        }
-        private Node GetNextSibling()
-        {
-            if (Parent == null) return null;
-            var nextIndex = VirtualIndex + 1;
-            return nextIndex < 0 || nextIndex >= Parent.ChildCount ? null : Parent.VirtualChildren[nextIndex];
-        }
-        // It's nicer recursively, but I want to squeeze all performance I can from these very common functions
-        private Node GetSubTreeRoot()
+        
+        internal Node GetVisualDescendant()
         {
             var node = this;
-            while (node.Parent != null && !node.Parent.IsVisualElement)
+            while (node is { IsVisualElement: false })
             {
-                node = node.Parent;
+                node = node.ChildCount > 0 ? node.VirtualChildren.FirstOrDefault() : null;
             }
             return node;
         }
-        // It's nicer recursively, but I want to squeeze all performance I can from these very common functions
-        private Node GetSubTreeLeaf()
+        private bool TryGetVisualDescendant(out Node node)
         {
-            var node = this;
-            while (!node.IsVisualElement)
-            {
-                var firstChild = node.ChildCount > 0 ? node.VirtualChildren.FirstOrDefault() : null;
-                if (firstChild == null)
-                {
-                    break;
-                }
-                node = firstChild;
-            }
-            return node;
+            node = GetVisualDescendant();
+            return node != null;
         }
 
         internal T GetFirstAncestorOfType<T>() where T : class
@@ -247,10 +214,13 @@ namespace RishUI
             {
                 visualElement = VisualElement;
             }
+            else if(TryGetVisualDescendant(out var visualDescendant))
+            {
+                visualElement = visualDescendant.VisualElement;
+            }
             else
             {
-                visualElement = GetVisualChild()?.VisualElement;
-                if (visualElement == null) return;
+                return;
             }
             
             var visualParent = visualElement.parent;
@@ -262,7 +232,7 @@ namespace RishUI
 #endif
 
             var currentIndex = visualParent.IndexOf(visualElement);
-            var index = RealIndex;
+            var index = GetRealIndex();
 
             if (currentIndex == index)
             {
@@ -297,22 +267,6 @@ namespace RishUI
         //         VirtualChildren[i].Debug($"{prefix}-");
         //     }
         // }
-
-        internal Node GetVisualChild()
-        {
-            if (IsVisualElement)
-            {
-                return this;
-            }
-            
-            var child = ChildCount > 0 ? VirtualChildren.FirstOrDefault() : null;
-            while (child != null && !child.IsVisualElement)
-            {
-                child = child.ChildCount > 0 ? child.VirtualChildren.FirstOrDefault() : null;
-            }
-            
-            return child;
-        }
 
         internal bool IsActive() => Machine.IsIn<ActiveState>();
 
@@ -445,10 +399,10 @@ namespace RishUI
             Rendering = false;
 #endif
 
-            if(!IsVisualElement && ChildCount <= 0)
-            {
-                RealIndex = GetSubTreeRoot()?.GetPreviousSibling()?.RealIndex ?? -1;
-            }
+            // if(!IsVisualElement && ChildCount <= 0)
+            // {
+            //     RealIndex = GetSubTreeRoot()?.GetPreviousSibling()?.RealIndex ?? -1;
+            // }
 
             var childrenCount = VirtualChildren?.Count ?? 0;
             var unmountingCount = childrenCount - ChildCount;

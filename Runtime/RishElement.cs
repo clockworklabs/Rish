@@ -84,7 +84,7 @@ namespace RishUI
         public T GetFirstAncestorOfType<T>() where T : class => Node?.GetFirstAncestorOfType<T>();
 
         VisualElement IElement.GetDOMChild() => GetDOMChild();
-        private VisualElement GetDOMChild() => Node?.GetVisualChild()?.VisualElement;
+        private VisualElement GetDOMChild() => Node?.GetVisualDescendant()?.VisualElement;
         
         private VisualElement GetDOMParent() => GetFirstAncestorOfType<VisualElement>();
 
