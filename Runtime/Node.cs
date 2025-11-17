@@ -117,7 +117,7 @@ namespace RishUI
             if (parent == null) return 0;
 
             var index = -1;
-            for (var i = node.VirtualIndex - 1; i >= 0; i--)
+            for (var i = Mathf.Min(node.VirtualIndex, parent.VirtualChildren.Count) - 1; i >= 0; i--)
             {
                 var sibling = parent.VirtualChildren[i];
                 if (sibling.IsVisualTree())
