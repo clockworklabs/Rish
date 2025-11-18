@@ -273,8 +273,6 @@ namespace RishUI
 
         public bool IsEmpty() => RishUtils.MemCmp(this, new Style());
 
-        public Style WithLayout(LayoutStyle layoutStyle) => layoutStyle.Combine(this);
-
         public static Style FromElement(VisualElement element)
         {
             if (element == null)
