@@ -27,6 +27,23 @@ namespace RishUI
         public bool IsDirty(Node node) => DirtyQueue.IsDirty(node);
         public void ClearDirty(Node node) => DirtyQueue.Remove(node);
 
+        public void ForceRender() => ForceRender(RootNode);
+        private void ForceRender(Node node)
+        {
+            if (node == null) return;
+            if(!node.IsVisualElement)
+            {
+                Dirty(node, true);
+            }
+            if(node.Children != null)
+            {
+                foreach (var child in node.Children)
+                {
+                    ForceRender(child);
+                }
+            }
+        }
+
         #if UNITY_EDITOR
         public double Update(bool chain, uint maxUpdates, float? maxUpdateTime, bool debug)
         #else

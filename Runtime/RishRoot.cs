@@ -179,6 +179,8 @@ namespace RishUI
             OnStartStem.Send();
         }
 
+        public void ForceRender() => Tree.ForceRender();
+
         public void Step()
         {
             var timeLimited = MaxTargetTimePerStep > 0;
