@@ -36,12 +36,12 @@ namespace RishUI
         public int Count => Managed?.Count ?? 0;
         public string this[int index] => Managed?.Get(index);
 
-        public ClassName(FixedString32Bytes className)
-        {
-            _id = Rish.GetFreeID<ManagedClassName>();
-            _managed = Rish.GetManaged<ManagedClassName>(_id);
-            _managed.Add(className.Value);
-        }
+        public ClassName(FixedString32Bytes className) : this(className.Value) { }
+        public ClassName(FixedString64Bytes className) : this(className.Value) { }
+        public ClassName(FixedString128Bytes className) : this(className.Value) { }
+        public ClassName(FixedString512Bytes className) : this(className.Value) { }
+        public ClassName(FixedString4096Bytes className) : this(className.Value) { }
+        public ClassName(RishString className) : this(className.value) { }
         public ClassName(string className)
         {
             _id = Rish.GetFreeID<ManagedClassName>();
@@ -59,16 +59,17 @@ namespace RishUI
         }
         
         [RequiresManagedContext]
-        public void Add(FixedString32Bytes element)
-        {
-            if (_id == 0)
-            {
-                _id = Rish.GetFreeID<ManagedClassName>();
-                _managed = Rish.GetManaged<ManagedClassName>(_id);
-            }
-
-            Managed.Add(element.Value);
-        }
+        public void Add(FixedString32Bytes element) => Add(element.Value);
+        [RequiresManagedContext]
+        public void Add(FixedString64Bytes element) => Add(element.Value);
+        [RequiresManagedContext]
+        public void Add(FixedString128Bytes element) => Add(element.Value);
+        [RequiresManagedContext]
+        public void Add(FixedString512Bytes element) => Add(element.Value);
+        [RequiresManagedContext]
+        public void Add(FixedString4096Bytes element) => Add(element.Value);
+        [RequiresManagedContext]
+        public void Add(RishString element) => Add(element.value);
         [RequiresManagedContext]
         public void Add(string element)
         {
@@ -96,16 +97,17 @@ namespace RishUI
         }
         
         [RequiresManagedContext]
-        public void Insert(int index, FixedString32Bytes element)
-        {
-            if (_id == 0)
-            {
-                _id = Rish.GetFreeID<ManagedClassName>();
-                _managed = Rish.GetManaged<ManagedClassName>(_id);
-            }
-
-            Managed.Insert(index, element.Value);
-        }
+        public void Insert(int index, FixedString32Bytes element) => Insert(index, element.Value);
+        [RequiresManagedContext]
+        public void Insert(int index, FixedString64Bytes element) => Insert(index, element.Value);
+        [RequiresManagedContext]
+        public void Insert(int index, FixedString128Bytes element) => Insert(index, element.Value);
+        [RequiresManagedContext]
+        public void Insert(int index, FixedString512Bytes element) => Insert(index, element.Value);
+        [RequiresManagedContext]
+        public void Insert(int index, FixedString4096Bytes element) => Insert(index, element.Value);
+        [RequiresManagedContext]
+        public void Insert(int index, RishString element) => Insert(index, element.value);
         [RequiresManagedContext]
         public void Insert(int index, string element)
         {
@@ -118,6 +120,30 @@ namespace RishUI
             Managed.Insert(index, element);
         }
 
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, FixedString32Bytes right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, FixedString64Bytes right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, FixedString128Bytes right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, FixedString512Bytes right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, FixedString4096Bytes right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, RishString right) => left + new ClassName(right);
+        [RequiresManagedContext]
+        public static ClassName operator +(FixedString32Bytes left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(FixedString64Bytes left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(FixedString128Bytes left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(FixedString512Bytes left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(FixedString4096Bytes left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(RishString left, ClassName right) => new ClassName(left) + right;
         [RequiresManagedContext]
         public static ClassName operator +(ClassName left, ClassName right) => new()
         {
@@ -145,17 +171,19 @@ namespace RishUI
         }
         
         [RequiresManagedContext]
-        public static implicit operator ClassName(string element) => new ClassName { element };
+        public static implicit operator ClassName(string element) => new(element);
         [RequiresManagedContext]
-        public static implicit operator ClassName(FixedString32Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(RishString element) => new (element);
         [RequiresManagedContext]
-        public static implicit operator ClassName(FixedString64Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString32Bytes element) => new(element);
         [RequiresManagedContext]
-        public static implicit operator ClassName(FixedString128Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString64Bytes element) => new(element);
         [RequiresManagedContext]
-        public static implicit operator ClassName(FixedString512Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString128Bytes element) => new(element);
         [RequiresManagedContext]
-        public static implicit operator ClassName(FixedString4096Bytes element) => new ClassName { element };
+        public static implicit operator ClassName(FixedString512Bytes element) => new(element);
+        [RequiresManagedContext]
+        public static implicit operator ClassName(FixedString4096Bytes element) => new(element);
 
         [RequiresManagedContext]
         public static implicit operator ClassName(ClassName[] array)
@@ -235,6 +263,17 @@ namespace RishUI
             return children;
         }
         [RequiresManagedContext]
+        public static implicit operator ClassName(RishString[] array)
+        {
+            var children = new ClassName();
+            foreach (var element in array)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        [RequiresManagedContext]
         public static implicit operator ClassName(List<ClassName> list)
         {
             var children = new ClassName();
@@ -302,6 +341,17 @@ namespace RishUI
         }
         [RequiresManagedContext]
         public static implicit operator ClassName(List<FixedString4096Bytes> list)
+        {
+            var children = new ClassName();
+            foreach (var element in list)
+            {
+                children.Add(element);
+            }
+
+            return children;
+        }
+        [RequiresManagedContext]
+        public static implicit operator ClassName(List<RishString> list)
         {
             var children = new ClassName();
             foreach (var element in list)
