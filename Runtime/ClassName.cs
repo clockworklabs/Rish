@@ -133,6 +133,8 @@ namespace RishUI
         [RequiresManagedContext]
         public static ClassName operator +(ClassName left, RishString right) => left + new ClassName(right);
         [RequiresManagedContext]
+        public static ClassName operator +(ClassName left, string right) => left + new ClassName(right);
+        [RequiresManagedContext]
         public static ClassName operator +(FixedString32Bytes left, ClassName right) => new ClassName(left) + right;
         [RequiresManagedContext]
         public static ClassName operator +(FixedString64Bytes left, ClassName right) => new ClassName(left) + right;
@@ -144,6 +146,8 @@ namespace RishUI
         public static ClassName operator +(FixedString4096Bytes left, ClassName right) => new ClassName(left) + right;
         [RequiresManagedContext]
         public static ClassName operator +(RishString left, ClassName right) => new ClassName(left) + right;
+        [RequiresManagedContext]
+        public static ClassName operator +(string left, ClassName right) => new ClassName(left) + right;
         [RequiresManagedContext]
         public static ClassName operator +(ClassName left, ClassName right) => new()
         {
