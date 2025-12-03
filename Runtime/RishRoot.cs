@@ -179,7 +179,7 @@ namespace RishUI
             OnStartStem.Send();
         }
 
-        public void ForceRender() => Tree.ForceRender();
+        public void ForceRender(int? nodeId = null) => Tree.ForceRender(nodeId);
 
         public void Step()
         {

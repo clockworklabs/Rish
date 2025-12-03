@@ -293,6 +293,14 @@ namespace RishUI
             return node;
         }
 
+        public bool IsAncestorOf(Node node) => node.IsDescendantOf(this);
+        public bool IsDescendantOf(Node node)
+        {
+            if(node == null || Parent == null) return false;
+            
+            return Parent == node || Parent.IsDescendantOf(node);
+        }
+
         private T MountAs<T>(Node parent, ulong key, int index) where T : class, IElement, new() => Machine.MountAs<T>(parent, key, index);
 
         internal void Unmount(bool forceUnmount) => Machine.Unmount(forceUnmount);

@@ -27,7 +27,19 @@ namespace RishUI
         public bool IsDirty(Node node) => DirtyQueue.IsDirty(node);
         public void ClearDirty(Node node) => DirtyQueue.Remove(node);
 
-        public void ForceRender() => ForceRender(RootNode);
+        public void ForceRender(int? nodeId)
+        {
+            if (nodeId.HasValue)
+            {
+                var node = Node.GetNode(nodeId.Value);
+                if (RootNode.IsDescendantOf(node))
+                {
+                    ForceRender(node);
+                }
+            }
+            
+            ForceRender(RootNode);
+        }
         private void ForceRender(Node node)
         {
             if (node == null) return;
