@@ -114,8 +114,13 @@ namespace RishUI
         
         private Stopwatch Stopwatch { get; set; }
         private const int RecordedStepsCount = 10;
+        private const float InvRecordedStepsCount = 1f / RecordedStepsCount;
+        private Queue<float> RecordedStepTimes { get; } = new(RecordedStepsCount);
+        private float TotalRecordedStepTime { get; set; }
         private Queue<float> RecordedExtraTimes { get; } = new(RecordedStepsCount);
         private float TotalRecordedExtraTime { get; set; }
+        
+        public float AverageStepTime => TotalRecordedStepTime * InvRecordedStepsCount;
 
         private IEnumerator Start()
         {
@@ -242,8 +247,22 @@ namespace RishUI
             Stopwatch.Stop();
             
             var stepTime = Stopwatch.Elapsed.TotalSeconds;
+            RecordStepTime((float)stepTime);
             var extraTime = (float)(stepTime - updateTime.Value);
+            RecordExtraTime(extraTime);
+        }
 
+        private void RecordStepTime(float updateTime)
+        {
+            if (RecordedStepTimes.Count >= RecordedStepsCount)
+            {
+                TotalRecordedStepTime -= RecordedStepTimes.Dequeue();
+            }
+            TotalRecordedStepTime += updateTime;
+            RecordedStepTimes.Enqueue(updateTime);
+        }
+        private void RecordExtraTime(float extraTime)
+        {
             if (RecordedExtraTimes.Count >= RecordedStepsCount)
             {
                 TotalRecordedExtraTime -= RecordedExtraTimes.Dequeue();

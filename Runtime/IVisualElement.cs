@@ -15,6 +15,8 @@ namespace RishUI
         void Setup(P props);
 
         IBridge IInternalVisualElement.Bridge => Bridge;
+        
+        // T GetFirstAncestorOfType<T>() where T : class => ((IBridge)Bridge).GetFirstAncestorOfType<T>();
     }
     
     /// <summary>

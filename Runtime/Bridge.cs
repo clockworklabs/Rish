@@ -16,6 +16,8 @@ namespace RishUI
         void Mount(Node node);
         void StartUnmounting();
         void RemoveFromHierarchy();
+
+        T GetFirstAncestorOfType<T>() where T : class;
     }
     
     public class Bridge<P> : IBridge where P : struct
@@ -590,6 +592,9 @@ namespace RishUI
             
             OnUnmountedStem.Send();
         }
+
+        T IBridge.GetFirstAncestorOfType<T>() => Node?.GetFirstAncestorOfType<T>();
+        public T GetFirstAncestorOfType<T>() where T:class => ((IBridge)this).GetFirstAncestorOfType<T>();
     }
 
     public class Bridge : Bridge<NoProps>

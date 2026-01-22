@@ -242,14 +242,18 @@ namespace RishUI
 
         public static implicit operator StyleLengthsShorthand(float value) => new (value);
         public static implicit operator StyleLengthsShorthand(StyleLength value) => new (value);
+        public static implicit operator StyleLengthsShorthand(Length value) => new (value);
         public static implicit operator StyleLengthsShorthand((float, float) values) => new (values.Item1, values.Item2);
         public static implicit operator StyleLengthsShorthand((StyleLength, StyleLength) values) => new (values.Item1, values.Item2);
+        public static implicit operator StyleLengthsShorthand((Length, Length) values) => new (values.Item1, values.Item2);
         public static implicit operator StyleLengthsShorthand(Vector2 values) => new (values.x, values.y);
         public static implicit operator StyleLengthsShorthand((float, float, float) values) => new (values.Item1, values.Item2, values.Item3);
         public static implicit operator StyleLengthsShorthand((StyleLength, StyleLength, StyleLength) values) => new (values.Item1, values.Item2, values.Item3);
+        public static implicit operator StyleLengthsShorthand((Length, Length, Length) values) => new (values.Item1, values.Item2, values.Item3);
         public static implicit operator StyleLengthsShorthand(Vector3 values) => new (values.x, values.y, values.z);
         public static implicit operator StyleLengthsShorthand((float, float, float, float) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleLengthsShorthand((StyleLength, StyleLength, StyleLength, StyleLength) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
+        public static implicit operator StyleLengthsShorthand((Length, Length, Length, Length) values) => new (values.Item1, values.Item2, values.Item3, values.Item4);
         public static implicit operator StyleLengthsShorthand(Vector4 values) => new (values.x, values.y, values.z, values.w);
 
         public override string ToString() => $"({top}, {right}, {bottom}, {left})";
