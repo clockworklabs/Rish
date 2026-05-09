@@ -45,6 +45,15 @@ namespace RishUI
         [RequiresManagedContext]
         public Children this[Range range] => Managed?.Get(range) ?? default;
 
+        public Children(Element element) : this()
+        {
+            Add(element);
+        }
+        public Children(Children children) : this()
+        {
+            Add(children);
+        }
+
         [RequiresManagedContext]
         public void Add(Element element)
         {
@@ -216,6 +225,19 @@ namespace RishUI
         public static implicit operator Children(FixedString512Bytes text) => Rish.Create<Label, LabelProps>(key: 0, props: new LabelProps { text = text }, attributes: default, children: Null);
         [RequiresManagedContext]
         public static implicit operator Children(FixedString4096Bytes text) => Rish.Create<Label, LabelProps>(key: 0, props: new LabelProps { text = text }, attributes: default, children: Null);
+        
+        [RequiresManagedContext]
+        public static Children operator +(Children left, Element right) => new()
+        {
+            left,
+            right
+        };
+        [RequiresManagedContext]
+        public static Children operator +(Children left, Children right) => new()
+        {
+            left,
+            right
+        };
 
         bool IEquatable<Children>.Equals(Children other) => Equals(this, other);
 
