@@ -63,12 +63,21 @@ namespace RishUI
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(className))
+            if (string.IsNullOrWhiteSpace(className)) return;
+
+            if (className.Contains(' '))
             {
-                return;
+                var values = className.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var value in values)
+                {
+                    if (string.IsNullOrWhiteSpace(value)) continue;
+                    ClassNames.Add(value);
+                }
             }
-            
-            ClassNames.Add(className);
+            else
+            {
+                ClassNames.Add(className);
+            }
         }
 
         [RequiresManagedContext]
@@ -80,12 +89,22 @@ namespace RishUI
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(className))
+            if (string.IsNullOrWhiteSpace(className)) return;
+
+            if (className.Contains(' '))
             {
-                return;
+                var values = className.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var i = 0;
+                foreach (var value in values)
+                {
+                    if (string.IsNullOrWhiteSpace(value)) continue;
+                    ClassNames.Insert(index + i++, value);
+                }
             }
-            
-            ClassNames.Insert(index, className);
+            else
+            {
+                ClassNames.Insert(index, className);
+            }
         }
 
         IEnumerator<string> IEnumerable<string>.GetEnumerator() => ClassNames.GetEnumerator();
