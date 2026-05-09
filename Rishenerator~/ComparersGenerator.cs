@@ -148,7 +148,7 @@ namespace Rishenerator
         private class Field
         {
             public string Name { get; }
-            public bool Nullable { get; }
+            public FieldNullability Nullability { get; }
             public FieldComparison Comparison { get; }
             public TypeComparison TypeComparison { get; }
             public bool Default => Comparison == FieldComparison.Default &&
@@ -170,8 +170,17 @@ namespace Rishenerator
 
                 if (fieldTypeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
                 {
-                    Nullable = true;
-                    fieldTypeSymbol = ((INamedTypeSymbol)fieldTypeSymbol).TypeArguments[0];
+                    if (fieldTypeSymbol is INamedTypeSymbol namedFieldTypeSymbol &&
+                        namedFieldTypeSymbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T &&
+                        namedFieldTypeSymbol.TypeArguments.Length == 1)
+                    {
+                        Nullability = FieldNullability.NullableValueType;
+                        fieldTypeSymbol = namedFieldTypeSymbol.TypeArguments[0];
+                    }
+                    else
+                    {
+                        Nullability = FieldNullability.NullableReferenceType;
+                    }
                 }
                 
                 if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
@@ -288,6 +297,8 @@ namespace Rishenerator
                 return FieldComparison.Default;
             }
         }
+
+        private enum FieldNullability { None, NullableValueType, NullableReferenceType }
         
         public enum FieldComparison { Default, Ignore, EqualityOperator, EqualsFunction, EpsilonComparison }
         private enum TypeComparison { MemoryComparison, ReferenceComparison, AutoComparer, CustomComparer, Ignore }
@@ -464,7 +475,7 @@ namespace Rishenerator
                 if (field.Comparison == FieldComparison.Ignore) return null;
                 
                 var fieldName = $"{parent}.{field.Name}";
-                var nullableFieldName = field.Nullable ? $"{fieldName}.Value" : fieldName;
+                var nullableFieldName = field.Nullability == FieldNullability.NullableValueType ? $"{fieldName}.Value" : fieldName;
                 
                 string sourceCode;
                 if (field.Children == null)
@@ -490,8 +501,14 @@ namespace Rishenerator
 
                     sourceCode = stringBuilder.ToString();
                 }
-                
-                return field.Nullable ? $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {sourceCode.Replace("ref ", string.Empty)})" : sourceCode;
+
+                return field.Nullability switch
+                {
+                    FieldNullability.NullableValueType => $"a{fieldName}.HasValue == b{fieldName}.HasValue && (!a{fieldName}.HasValue || {sourceCode.Replace("ref ", string.Empty)})",
+                    FieldNullability.NullableReferenceType when field.Comparison == FieldComparison.EqualsFunction =>
+                        $"a{fieldName} is null ? b{fieldName} is null : b{fieldName} is not null && {sourceCode}",
+                    _ => sourceCode
+                };
             }
 
             private static string GetFieldComparisonSourceCode(string fieldName, FieldComparison fieldComparison, TypeComparison typeComparison)
