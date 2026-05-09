@@ -1,6 +1,6 @@
 {
   "name": "io.clockworklabs.rish",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "displayName": "Rish",
   "description": "R[eact]ish UI system for Unity.",
   "unity": "2022.3",
