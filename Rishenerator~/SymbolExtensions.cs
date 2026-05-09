@@ -109,6 +109,11 @@ namespace Rishenerator
             {
                 return string.Empty;
             }
+
+            if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
+            {
+                return $"{arrayTypeSymbol.ElementType.GetFullName(includeGenerics)}[{new string(',', arrayTypeSymbol.Rank - 1)}]";
+            }
             
             var name = typeSymbol.Name;
             if (typeSymbol is ITypeParameterSymbol)
