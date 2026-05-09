@@ -91,7 +91,7 @@ namespace RishUI
         public StyleInt unitySliceRight;
         public StyleFloat unitySliceScale;
         public StyleInt unitySliceTop;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
         public StyleEnum<SliceType> unitySliceType;
 #endif
         public StyleEnum<TextAnchor> unityTextAlign;
@@ -289,7 +289,7 @@ namespace RishUI
             unitySliceRight = other.unitySliceRight;
             unitySliceScale = other.unitySliceScale;
             unitySliceTop = other.unitySliceTop;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             unitySliceType = other.unitySliceType;
 #endif
             unityTextAlign = other.unityTextAlign;
@@ -404,7 +404,7 @@ namespace RishUI
                 unitySliceRight = otherStyle.unitySliceRight,
                 unitySliceScale = otherStyle.unitySliceScale,
                 unitySliceTop = otherStyle.unitySliceTop,
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
                 unitySliceType = otherStyle.unitySliceType,
 #endif
                 unityTextAlign = otherStyle.unityTextAlign,
@@ -511,7 +511,7 @@ namespace RishUI
             unitySliceRight = left.unitySliceRight.IsNotNull() ? left.unitySliceRight : right.unitySliceRight,
             unitySliceScale = left.unitySliceScale.IsNotNull() ? left.unitySliceScale : right.unitySliceScale,
             unitySliceTop = left.unitySliceTop.IsNotNull() ? left.unitySliceTop : right.unitySliceTop,
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             unitySliceType = left.unitySliceType.IsNotNull() ? left.unitySliceType : right.unitySliceType,
 #endif
             unityTextAlign = left.unityTextAlign.IsNotNull() ? left.unityTextAlign : right.unityTextAlign,
@@ -770,7 +770,7 @@ namespace RishUI
             if(unitySliceTop.IsNotNull()) {
                 builder.AppendLine($"    unitySliceTop: {unitySliceTop}");
             }
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             if(unitySliceType.IsNotNull()) {
                 builder.AppendLine($"    unitySliceType: {unitySliceType}");
             }

@@ -587,7 +587,7 @@ namespace RishUI
             elementStyle.unitySliceRight = style.unitySliceRight;
             elementStyle.unitySliceScale = style.unitySliceScale;
             elementStyle.unitySliceTop = style.unitySliceTop;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             elementStyle.unitySliceType = style.unitySliceType;
 #endif
             elementStyle.unityTextAlign = style.unityTextAlign;

@@ -622,7 +622,7 @@ namespace RishUI
             {
                 elementStyle.unitySliceTop = style.unitySliceTop;
             }
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             if (!RishUtils.MemCmp(_style.unitySliceType, style.unitySliceType))
             {
                 elementStyle.unitySliceType = style.unitySliceType;

@@ -189,7 +189,7 @@ namespace RishUI
             _unitySliceScale = null;
             _prevUnitySliceTop = null;
             _unitySliceTop = null;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             _prevUnitySliceType = null;
             _unitySliceType = null;
 #endif
@@ -1414,7 +1414,7 @@ namespace RishUI
             }
             set => _unitySliceTop = value;
         }
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
         private SliceType? _prevUnitySliceType;
         private SliceType? _unitySliceType;
         public SliceType unitySliceType
@@ -2024,7 +2024,7 @@ namespace RishUI
                 dirty = true;
                 style.unitySliceTop = _unitySliceTop.Value;
             }
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_1_OR_NEWER
             if(_unitySliceType.HasValue && (style.unitySliceType.keyword is not RishStyleKeyword.Undefined || !RishUtils.MemCmp(style.unitySliceType.value, _unitySliceType.Value))) 
             {
                 dirty = true;
