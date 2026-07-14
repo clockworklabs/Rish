@@ -126,8 +126,18 @@ namespace Rishenerator
             "Managed Contexts can only be created within a using statement.",
             null // TODO: Help link to documentation
         );
+        private static readonly DiagnosticDescriptor PointerNullValueRule = new(
+            "PointerNullValueRule",
+            "Pointer type is missing a null value",
+            "{0} must define a public static {0} Null property",
+            "Usage",
+            DiagnosticSeverity.Error,
+            true,
+            "Pointer types must define a Null value property.",
+            null // TODO: Help link to documentation
+        );
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, ExpandTypeRule, ManagedContextRule, ManagedContextCreationRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(PartialRishElementRule, PartialVisualElementRule, PropsRishValueTypeRule, StateRishValueTypeRule, VisualElementPropsRishValueTypeRule, /*RishValueTypeRule,*/ AccessibilityRishValueTypeRule, AccessibilityAutoComparerRule, ExpandTypeRule, ManagedContextRule, ManagedContextCreationRule, PointerNullValueRule);
         
         public override void Initialize(AnalysisContext context)
         {
@@ -304,6 +314,27 @@ namespace Rishenerator
                     if (!isAccessible)
                     {
                         var diagnostic = Diagnostic.Create(AccessibilityAutoComparerRule, declarationSyntax.GetLocation(), structSymbol);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+
+                if (structSymbol.Interfaces.Any(i => i.GetFullName(false) == "RishUI.MemoryManagement.IPointer"))
+                {
+                    var structName = structSymbol.GetFullName(true);
+                    var missingNullProperty = true;
+                    var members = structSymbol.GetMembers().OfType<IPropertySymbol>();
+                    foreach (var member in members)
+                    {
+                        if (member.IsStatic && member.Name == "Null" && member.Type.GetFullName(true) == structName)
+                        {
+                            missingNullProperty = false;
+                            break;
+                        }
+                    }
+
+                    if (missingNullProperty)
+                    {
+                        var diagnostic = Diagnostic.Create(PointerNullValueRule, declarationSyntax.GetLocation(), structSymbol);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }

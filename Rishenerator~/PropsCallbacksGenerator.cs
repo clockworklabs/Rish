@@ -255,7 +255,9 @@ namespace Rishenerator
 
                         if (item.ReturnType != null)
                         {
-                            sourceCode.AppendLine(") ?? default;");
+                            var returnType = item.ReturnType;
+                            var defaultValue = returnType.Interfaces.Any(i => i.GetFullName(false) == "RishUI.MemoryManagement.IPointer") ? $"{returnType.GetFullName(true)}.Null" : "default";
+                            sourceCode.AppendLine($") ?? {defaultValue};");
                         }
                         else
                         {
