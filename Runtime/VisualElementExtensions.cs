@@ -21,6 +21,9 @@ namespace RishUI
         public static readonly UnityEngine.UIElements.StyleEnum<TextOverflowPosition> NullTextOverflowPosition = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleEnum<Visibility> NullVisibility = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleEnum<WhiteSpace> NullWhiteSpace = new(StyleKeyword.Null);
+#if UNITY_6000_3_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleRatio NullRatio = new(StyleKeyword.Null);
+#endif
         public static readonly UnityEngine.UIElements.StyleColor NullColor = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleBackground NullBackground = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleBackgroundPosition NullBackgroundPosition = new(StyleKeyword.Null);
@@ -37,9 +40,24 @@ namespace RishUI
         public static readonly UnityEngine.UIElements.StyleTextShadow NullTextShadow = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleTransformOrigin NullTransformOrigin = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleTranslate NullTranslate = new(StyleKeyword.Null);
+#if UNITY_6000_2_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleList<FilterFunction> NullFilterFunction = new(StyleKeyword.Null);
+#endif
         public static readonly UnityEngine.UIElements.StyleList<TimeValue> NullTimeValue = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleList<StylePropertyName> NullStylePropertyName = new(StyleKeyword.Null);
         public static readonly UnityEngine.UIElements.StyleList<EasingFunction> NullEasingFunction = new(StyleKeyword.Null);
+#if UNITY_6000_3_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleMaterialDefinition NullMaterialDefinition = new(StyleKeyword.Null);
+#endif
+#if UNITY_6000_1_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleEnum<SliceType> NullSliceType = new(StyleKeyword.Null);
+#endif
+#if UNITY_6000_2_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleTextAutoSize NullTextAutoSize = new(StyleKeyword.Null);
+#endif
+#if UNITY_6000_0_OR_NEWER
+        public static readonly UnityEngine.UIElements.StyleEnum<TextGeneratorType> NullTextGeneratorType = new(StyleKeyword.Null);
+#endif
         
         public static void ResetInlineStyles(this VisualElement element)
         {
@@ -55,6 +73,9 @@ namespace RishUI
             style.alignContent = NullAlign;
             style.alignItems = NullAlign;
             style.alignSelf = NullAlign;
+#if UNITY_6000_3_OR_NEWER
+            style.aspectRatio = NullRatio;
+#endif
             style.backgroundColor = NullColor;
             style.backgroundImage = NullBackground;
             style.backgroundPositionX = NullBackgroundPosition;
@@ -77,6 +98,9 @@ namespace RishUI
             style.color = NullColor;
             style.cursor = NullCursor;
             style.display = NullDisplayStyle;
+#if UNITY_6000_2_OR_NEWER
+            style.filter = NullFilterFunction;
+#endif
             style.flexBasis = NullLength;
             style.flexDirection = NullFlexDirection;
             style.flexGrow = NullFloat;
@@ -118,13 +142,26 @@ namespace RishUI
             style.unityFont = NullFont;
             style.unityFontDefinition = NullFontDefinition;
             style.unityFontStyleAndWeight = NullFontStyle;
+#if UNITY_6000_3_OR_NEWER
+            style.unityMaterial = NullMaterialDefinition;
+#endif
             style.unityOverflowClipBox = NullOverflowClipBox;
             style.unityParagraphSpacing = NullLength;
             style.unitySliceBottom = NullInt;
             style.unitySliceLeft = NullInt;
             style.unitySliceRight = NullInt;
+            style.unitySliceScale = NullFloat;
             style.unitySliceTop = NullInt;
+#if UNITY_6000_1_OR_NEWER
+            style.unitySliceType = NullSliceType;
+#endif
             style.unityTextAlign = NullTextAnchor;
+#if UNITY_6000_2_OR_NEWER
+            style.unityTextAutoSize = NullTextAutoSize;
+#endif
+#if UNITY_6000_0_OR_NEWER
+            style.unityTextGenerator = NullTextGeneratorType;
+#endif
             style.unityTextOutlineColor = NullColor;
             style.unityTextOutlineWidth = NullFloat;
             style.unityTextOverflowPosition = NullTextOverflowPosition;
